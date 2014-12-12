@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+<head>
+	<title>Learning JQuery</title>
+
+	<meta charset="utf-8" />
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<script type="text/javascript" src="jquery-1.11.1.min.js"></script>
+
+	<style type="text/css">
+		.square {
+			background-color: red;
+			height: 300px;
+			width: 300px;
+			margin: 10px;
+			float: left;
+		}
+		.circle {
+			background-color: green;
+			height: 200px;
+			width: 200px;
+			border-radius: 100px;
+			margin: 10px;
+			float: left;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>JavaScript JQuery and AJAX</h1>
+	<div class="circle" id="circle1"></div>
+	<div class="square" id="square1"></div>
+	<div class="square" id="square2"></div>
+	<a href="http://google.com">Google</a>
+	<iframe width="560" height="315" src="//www.youtube.com/embed/OJGUbwVMBeA" frameborder="0" allowfullscreen></iframe>
+	<p>This is some text right here, click the circle</p>
+	<button id="fadeOut">Fade out the text</button>
+	<button id="fadeIn">Fade in the text</button>
+
+	<div class="circle" id="circle2"></div>
+
+	<button id="loadData">Load some AJAX Data</button>
+
+	<script type="text/javascript">
+		if (typeof jQuery != "undefined") {
+			console.log("JQuery is running just fine");
+		}
+		else {
+			console.log("Aaargh JQuery is not working");
+		}
+		// bit of regex
+		var regex = /great/i;
+		var string = "Regex is Great!";
+		var result = string.match(regex);
+		console.log(result);
+
+		$("#loadData").click(function() {
+			// Do some AJAX stuff in JQuery
+			console.log("button pressed");
+			$.get("test.html", function(data) {
+				console.log("get has gotton\"" + data + "\"");
+			});
+			// better function as more control, including a "fail" function
+			$.ajax({
+				url:"test.html"
+			}).done(function(data) {
+				// callback function called when "done"
+				console.log("ajax has gotton \"" + data + "\"");
+				$("h1").append(" " + data);
+			});
+		});
+		$("#fadeOut").click(function() {
+			$("p").fadeOut("slow", function() {
+				console.log("fade completed");
+			});
+		});
+		$("#fadeIn").click(function() {
+			$("p").fadeIn("fast");
+		});
+		$("#circle2").click(function() {
+			//animate a growth in the circle
+			$(this).animate({
+				width:"300px",
+				height:"300px",
+				borderRadius:"150px",
+				marginLeft:"100px",
+				marginTop:"100px"
+			}, 1000);
+		});
+		$("#circle1").click(function() {
+			// click and a query
+			console.log("Clicked the circle. FYI <p> contains \"" + $("p").html() + "\"");
+			$("p").html("You clicked the circle, nice...");
+			$(this).fadeOut();
+		});
+		$("#circle1").hover(function() {
+			// change content
+			console.log("hovering");
+			//$("iframe").attr("src", "http://www.cnn.com");
+		});
+		$("div").click(function() {
+			// apply to lots of things, all Div
+			console.log("Clicked a div \"" + this.id + "\" that is " + $(this).css("width") + " wide");
+			
+		});
+		$("a").click(function() {
+			console.log("Clicked a link \"" + this.id + "\"");
+		});
+		$(".square").click(function() {
+			// apply to a class, change the styles
+			console.log("Clicked a square \"" + this.id + "\" that is " + $(".square").css("height") + " high");
+			if ($(this).css("width") == "400px") {
+				$(this).css("width", "300px");
+			}
+			else {
+				$(this).css("width", "400px");
+			}
+		});
+
+	</script>
+
+	
+
+</body>
+</html>
