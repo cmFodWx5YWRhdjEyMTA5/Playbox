@@ -1,4 +1,4 @@
-package uk.co.boeing.xugglerplaybox;
+package uk.co.darkerwaters.xugglerplaybox;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

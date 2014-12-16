@@ -1,4 +1,4 @@
-package uk.co.boeing.leap;
+package uk.co.darkerwaters.leap;
 
 import com.leapmotion.leap.*;
 

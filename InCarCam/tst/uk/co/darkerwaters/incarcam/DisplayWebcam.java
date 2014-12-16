@@ -1,4 +1,4 @@
-package uk.co.boeing.xugglerplaybox;
+package uk.co.darkerwaters.xugglerplaybox;
 
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;

@@ -1,4 +1,4 @@
-package uk.co.boeing.xugglerplaybox;
+package uk.co.darkerwaters.xugglerplaybox;
 
 import com.xuggle.xuggler.IContainer; 
 import com.xuggle.xuggler.IStream; 
