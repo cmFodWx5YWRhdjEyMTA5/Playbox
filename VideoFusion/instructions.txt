@@ -1,0 +1,18 @@
+Installing OpenCV
+http://docs.opencv.org/doc/tutorials/introduction/linux_install/linux_install.html#linux-installation
+and mac
+https://jjyap.wordpress.com/2014/02/21/installing-opencv-2-4-8-on-mac-osx-with-python-support/
+
+Cross-compilation to ARM
+http://docs.opencv.org/doc/tutorials/introduction/crosscompilation/arm_crosscompile_with_cmake.html
+
+OpenCV in Eclipse
+http://docs.opencv.org/doc/tutorials/introduction/linux_eclipse/linux_eclipse.html
+
+OpenCV - bit pointery
+http://linuxconfig.org/introduction-to-computer-vision-with-opencv-on-linux
+
+OpenCV Examples:
+Writing a video
+http://docs.opencv.org/doc/tutorials/highgui/video-write/video-write.html
+http://opencv-srf.blogspot.co.uk/2011/09/saving-images-videos_16.html
