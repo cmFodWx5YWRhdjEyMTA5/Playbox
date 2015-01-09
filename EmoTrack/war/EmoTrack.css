@@ -1,0 +1,76 @@
+/* banner, to show logo and login options */
+.banner-panel {
+	width: 100%;
+	height: 60px;
+	background-color: #fcc;
+	position: relative;
+	top: 0px;
+	left: 0px;
+}
+
+/* class to float things on the right */
+.float-right {
+	float: right;
+}
+
+.fade {
+	opacity: 1;
+	transition: opacity .25s ease-in-out;
+	-moz-transition: opacity .25s ease-in-out;
+	-webkit-transition: opacity .25s ease-in-out;
+}
+
+.fade:hover {
+	opacity: 0.5;
+}
+
+/* login panel, within the banner usually */
+.login-panel {
+	border: 5px solid red;
+	background-color: #fcc;
+	text-align: right;
+	float: right;
+}
+
+/* logo panel, within the banner usually */
+.logo-panel {
+	float: left;
+	top: 0px;
+	height:100%;
+	left: 0px;
+}
+
+/* left panel, to show options etc */
+.left-panel {
+	width: 30%;
+	height: 40%;
+	border: 5px solid red;
+	border-radius: 10px;
+	background-color: #fcc;
+	position: fixed;
+	top: 10%;
+	/* put out to the left a little less than the width to show enough that it is there */
+	left: -28%;
+	/* put in some animations to make nice on modern browsers */
+	-webkit-transition:all .50s ease-in-out;
+	-moz-transition:all 0.5s ease-in-out;
+	-o-transition:all 0.5s ease-in-out;
+	transition:all 0.5s ease-in-out;
+}
+
+/* left panel, when hovering pull out a little as a hint to the user */
+.left-panel:hover {
+	left: -25%;
+}
+
+/* left panel, add "show" class to re-position to show the panel */
+.left-panel.show {
+	/* when showing, show the width of the border to the left to hide the left line */
+	left: -10px;
+}
+
+.app-placeholder {
+	background: none repeat scroll 0 0 #FFAAAA;
+	min-height: 600px;
+	width: 100%;
+}
