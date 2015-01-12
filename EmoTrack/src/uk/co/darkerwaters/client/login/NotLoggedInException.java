@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.client;
+package uk.co.darkerwaters.client.login;
 
 import java.io.Serializable;
 

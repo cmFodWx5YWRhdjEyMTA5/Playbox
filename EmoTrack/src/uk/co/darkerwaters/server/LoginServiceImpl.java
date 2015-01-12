@@ -1,7 +1,7 @@
 package uk.co.darkerwaters.server;
 
-import uk.co.darkerwaters.client.LoginInfo;
-import uk.co.darkerwaters.client.LoginService;
+import uk.co.darkerwaters.client.login.LoginInfo;
+import uk.co.darkerwaters.client.login.LoginService;
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;

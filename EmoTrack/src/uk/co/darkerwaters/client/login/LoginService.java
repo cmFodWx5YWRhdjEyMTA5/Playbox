@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.client;
+package uk.co.darkerwaters.client.login;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;

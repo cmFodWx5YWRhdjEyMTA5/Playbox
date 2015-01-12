@@ -9,12 +9,32 @@
   <servlet>
 	<servlet-name>loginService</servlet-name>
 	<servlet-class>uk.co.darkerwaters.server.LoginServiceImpl</servlet-class>
-	</servlet>
+  </servlet>
 	
-	<servlet-mapping>
-		<servlet-name>loginService</servlet-name>
-		<url-pattern>/emotrack/login</url-pattern>
-	</servlet-mapping>
+  <servlet>
+	<servlet-name>trackService</servlet-name>
+	<servlet-class>uk.co.darkerwaters.server.TrackPointServiceImpl</servlet-class>
+  </servlet>
+
+  <servlet>
+	<servlet-name>variablesService</servlet-name>
+	<servlet-class>uk.co.darkerwaters.server.VariablesServiceImpl</servlet-class>
+  </servlet>
+	
+  <servlet-mapping>
+	<servlet-name>loginService</servlet-name>
+	<url-pattern>/emotrack/login</url-pattern>
+  </servlet-mapping>
+	
+  <servlet-mapping>
+	<servlet-name>trackService</servlet-name>
+	<url-pattern>/emotrack/track</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+	<servlet-name>variablesService</servlet-name>
+	<url-pattern>/emotrack/variables</url-pattern>
+  </servlet-mapping>
   
   <!-- Default page to serve -->
   <welcome-file-list>

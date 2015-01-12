@@ -1,5 +1,13 @@
 package uk.co.darkerwaters.client;
 
+import java.util.logging.Logger;
+
+import uk.co.darkerwaters.client.login.LoginInfo;
+import uk.co.darkerwaters.client.login.LoginService;
+import uk.co.darkerwaters.client.login.LoginServiceAsync;
+import uk.co.darkerwaters.client.login.NotLoggedInException;
+import uk.co.darkerwaters.client.variables.VariablesPanel;
+
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Timer;
@@ -22,7 +30,9 @@ public class EmoTrack implements EntryPoint {
 	private Anchor loginLink = new Anchor();
 
 	private Timer loginCheckTimer;
+	private VariablesPanel variablesPanel;
 	
+	public static final Logger LOG = Logger.getLogger(EmoTrack.class.getName());
 	
 	/**
 	 * This is the entry point method.
@@ -30,6 +40,9 @@ public class EmoTrack implements EntryPoint {
 	public void onModuleLoad() {
 		// add the main application components to show the user
 		AppearingPanel appearingPanel = new AppearingPanel();
+		this.variablesPanel = new VariablesPanel(appearingPanel);
+		appearingPanel.add(this.variablesPanel);
+		appearingPanel.setCellWidth(this.variablesPanel, "100%");
 		RootPanel.get().add(appearingPanel);
 		
 		// setup the login panel

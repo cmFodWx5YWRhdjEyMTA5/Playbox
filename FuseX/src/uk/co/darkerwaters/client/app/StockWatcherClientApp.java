@@ -59,12 +59,9 @@ public class StockWatcherClientApp extends ClientApp {
 		stocksFlexTable.setCellPadding(6);
 		stocksFlexTable.getRowFormatter().addStyleName(0, "watchListHeader");
 		stocksFlexTable.addStyleName("watchList");
-		stocksFlexTable.getCellFormatter().addStyleName(0, 1,
-				"watchListNumericColumn");
-		stocksFlexTable.getCellFormatter().addStyleName(0, 2,
-				"watchListNumericColumn");
-		stocksFlexTable.getCellFormatter().addStyleName(0, 3,
-				"watchListRemoveColumn");
+		stocksFlexTable.getCellFormatter().addStyleName(0, 1, "watchListNumericColumn");
+		stocksFlexTable.getCellFormatter().addStyleName(0, 2, "watchListNumericColumn");
+		stocksFlexTable.getCellFormatter().addStyleName(0, 3, "watchListRemoveColumn");
 
 		loadStocks();
 
@@ -81,7 +78,6 @@ public class StockWatcherClientApp extends ClientApp {
 		// Associate the Main panel with the HTML host page.
 		RootPanel.get("app-placeholder").add(mainPanel);
 		
-
 		// Move cursor focus to the input box.
 		newSymbolTextBox.setFocus(true);
 
@@ -173,12 +169,9 @@ public class StockWatcherClientApp extends ClientApp {
 		stocks.add(symbol);
 		stocksFlexTable.setText(row, 0, symbol);
 		stocksFlexTable.setWidget(row, 2, new Label());
-		stocksFlexTable.getCellFormatter().addStyleName(row, 1,
-				"watchListNumericColumn");
-		stocksFlexTable.getCellFormatter().addStyleName(row, 2,
-				"watchListNumericColumn");
-		stocksFlexTable.getCellFormatter().addStyleName(row, 3,
-				"watchListRemoveColumn");
+		stocksFlexTable.getCellFormatter().addStyleName(row, 1, "watchListNumericColumn");
+		stocksFlexTable.getCellFormatter().addStyleName(row, 2, "watchListNumericColumn");
+		stocksFlexTable.getCellFormatter().addStyleName(row, 3, "watchListRemoveColumn");
 
 		// Add a button to remove this stock from the table.
 		Button removeStockButton = new Button("x");

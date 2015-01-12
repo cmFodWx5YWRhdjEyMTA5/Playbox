@@ -5,9 +5,9 @@ import uk.co.darkerwaters.client.ImageButton.ImageButtonClickHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
-public class AppearingPanel extends SimplePanel {
+public class AppearingPanel extends VerticalPanel {
 	private enum Icons {
 		slide_in("images/icons/slide-in.png"),
 		slide_out("images/icons/slide-out.png");
@@ -46,6 +46,7 @@ public class AppearingPanel extends SimplePanel {
 		this.showButton.setHeight("48px");
 		this.showButton.addStyleName("float-right");
 		this.showButton.addStyleName("fade");
+		this.showButton.setCurrentImage(Icons.slide_out.ordinal());
 		// listen for a click
 		this.showButton.addHandler(new ImageButtonClickHandler() {
 			@Override
@@ -55,16 +56,17 @@ public class AppearingPanel extends SimplePanel {
 			}
 		});
 		this.add(this.showButton);
+		this.setCellHeight(this.showButton, "50px");
 	}
 
 	protected void toggleAppearance() {
 		if (this.isShown) {
     		this.removeStyleName("show");
-    		showButton.setCurrentImage(Icons.slide_in.ordinal());
+    		showButton.setCurrentImage(Icons.slide_out.ordinal());
     	}
     	else {
     		this.addStyleName("show");
-    		showButton.setCurrentImage(Icons.slide_out.ordinal());
+    		showButton.setCurrentImage(Icons.slide_in.ordinal());
     	}
     	this.isShown = !this.isShown;
 	}

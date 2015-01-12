@@ -69,6 +69,59 @@
 	left: -10px;
 }
 
+/* this is the class for panel that contains the variable table */
+.variable-table-panel {
+	width: 90%;
+	/* move in the hidden part of the left-panel */
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+/* this is the class for the title / name of the tracking label */
+.variable-title {
+	text-align: left;
+}
+
+/* this is the class for the description of the tracking label */
+.variable-description {
+	text-align: right;
+}
+
+/* this is the class for the variable table */
+.variable-table {
+	width: 100%;
+}
+
+/* variables list header row */
+.variable-header {
+	background-color: #2062B8;
+	color: white;
+	font-style: italic;
+	width: 100%;
+}
+
+/* variables list row */
+.variable-row {
+	width: 100%;
+	margin-top: 5px;
+}
+
+/* variables list slider control */
+.variable-slider {
+	width: 100%;
+	height: 48px;
+}
+
+/* variables list, the Remove button */
+.gwt-Button-remove {
+	width: 30px;
+}
+
+/* the panel in the variables table to add one to the list */
+.addPanel {
+	margin-top: 10px;
+}
+
 .app-placeholder {
 	background: none repeat scroll 0 0 #FFAAAA;
 	min-height: 600px;
