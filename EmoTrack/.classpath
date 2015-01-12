@@ -10,5 +10,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="thirdparty/jars/gwt-slider-bar-1.0.jar"/>
+	<classpathentry kind="lib" path="thirdparty/jars/gwt-visualization.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

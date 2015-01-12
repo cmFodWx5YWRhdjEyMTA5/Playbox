@@ -18,7 +18,6 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
  */
@@ -34,13 +33,18 @@ public class EmoTrack implements EntryPoint {
 	
 	public static final Logger LOG = Logger.getLogger(EmoTrack.class.getName());
 	
+	private PieChartPanel pieChartPanel;
+	
 	/**
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
 		// add the main application components to show the user
+		// create the pie chart of data to add as values
+		this.pieChartPanel = new PieChartPanel(RootPanel.get("app-placeholder"));
+		// and create the panel to set these values
 		AppearingPanel appearingPanel = new AppearingPanel();
-		this.variablesPanel = new VariablesPanel(appearingPanel);
+		this.variablesPanel = new VariablesPanel(appearingPanel, this.pieChartPanel);
 		appearingPanel.add(this.variablesPanel);
 		appearingPanel.setCellWidth(this.variablesPanel, "100%");
 		RootPanel.get().add(appearingPanel);

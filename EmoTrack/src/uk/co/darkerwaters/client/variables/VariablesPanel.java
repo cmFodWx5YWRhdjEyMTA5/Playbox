@@ -1,9 +1,11 @@
 package uk.co.darkerwaters.client.variables;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Level;
 
 import uk.co.darkerwaters.client.EmoTrack;
+import uk.co.darkerwaters.client.PieChartPanel;
 import uk.co.darkerwaters.client.variables.slider.VariableValueSlider;
 
 import com.google.gwt.core.client.GWT;
@@ -17,7 +19,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
@@ -34,10 +35,14 @@ public class VariablesPanel extends VerticalPanel {
 	private TextBox newVariableTextBox = new TextBox();
 	private Button addVariableButton = new Button("Add");
 	private Label lastUpdatedLabel = new Label();
-	private ArrayList<String> variables = new ArrayList<String>();
+	private final ArrayList<String> variables = new ArrayList<String>();
+	private final HashMap<String, Integer> variableValues = new HashMap<String, Integer>();
+
+	private final PieChartPanel pieChartPanel;
 	
-	public VariablesPanel(Panel parent) {
+	public VariablesPanel(Panel parent, PieChartPanel pieChartPanel) {
 		this.addStyleName("variable-table-panel");
+		this.pieChartPanel = pieChartPanel;
 		// create the variables table nicely
 		variablesFlexTable.setText(0, 0, "Current values to track...");
 		// Add styles to elements in the stock list table.
@@ -154,6 +159,8 @@ public class VariablesPanel extends VerticalPanel {
 			variablesFlexTable.setText(rowIndex, 0, variableName);
 			variablesFlexTable.setWidget(rowIndex, 0, row);
 			variablesFlexTable.getCellFormatter().addStyleName(rowIndex, 0, "variable-row");
+			// and update the values
+			updateValues();
 		}
 	}
 	
@@ -185,7 +192,7 @@ public class VariablesPanel extends VerticalPanel {
 			deleteButton.setText("x");
 			variableNameLabel.setText(variableName);
 			variableValueLabel.addStyleName("variable-title");
-			setNewValue(slider.getValue());
+			setNewValue(variableName, slider.getValue());
 			variableValueLabel.addStyleName("variable-description");
 			// setup the slider
 			slider.addStyleName("variable-slider");
@@ -193,7 +200,7 @@ public class VariablesPanel extends VerticalPanel {
 				@Override
 				public void onBarValueChanged(BarValueChangedEvent event) {
 					// the bar value has changed, change the label
-					setNewValue(event.getValue());
+					setNewValue(variableName, event.getValue());
 				}
 			});
 			// setup the delete button
@@ -212,8 +219,13 @@ public class VariablesPanel extends VerticalPanel {
 			this.add(slider);
 		}
 
-		protected void setNewValue(int value) {
+		protected void setNewValue(String variableName, int value) {
+			// update this on the label
 			variableValueLabel.setText("Current value is a number: " + Integer.toString(slider.getValue()));
+			// and update our map
+			variableValues.put(variableName, value);
+			// and update our values elsewhere
+			updateValues();
 		}
 	}
 
@@ -229,10 +241,32 @@ public class VariablesPanel extends VerticalPanel {
 		});
 	}
 
+	public void updateValues() {
+		// update all the data from the table, get all the data out of the map / list
+		String[] titles = new String[variables.size()];
+		int[] values = new int[titles.length];
+		for (int i = 0; i < titles.length; ++i) {
+			titles[i] = variables.get(i);
+			Integer value = variableValues.get(titles[i]);
+			if (null != value) {
+				// use the latest data from the map
+				values[i] = value;
+			}
+			else {
+				// not in the map, no data
+				values[i] = 0;
+			}
+		}
+		this.pieChartPanel.updateData(titles, values);
+		
+	}
+
 	private void undisplayVariable(String variableName) {
 		int removedIndex = variables.indexOf(variableName);
 		variables.remove(removedIndex);
 		variablesFlexTable.removeRow(removedIndex + 1);
+		// and update the values
+		updateValues();
 	}
 
 	private void handleError(Throwable error) {

@@ -117,6 +117,10 @@
 	width: 30px;
 }
 
+.values-chart {
+	float: right;
+}
+
 /* the panel in the variables table to add one to the list */
 .addPanel {
 	margin-top: 10px;
