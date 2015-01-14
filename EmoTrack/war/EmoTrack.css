@@ -8,20 +8,62 @@
 	left: 0px;
 }
 
-/* class to float things on the right */
-.float-right {
+/* the application title */
+#appTitle {
+	float: left;
+	font-size: 48px;
+}
+/* the image of time to show the user they can specify time */
+#timeSelectImage {
+	width: 128px;
 	float: right;
 }
-
-.fade {
-	opacity: 1;
-	transition: opacity .25s ease-in-out;
-	-moz-transition: opacity .25s ease-in-out;
-	-webkit-transition: opacity .25s ease-in-out;
+/* the entry box to enter an event */
+#eventEntry {
+	width: 100%;
 }
-
-.fade:hover {
-	opacity: 0.5;
+/* text inputs in general, to help spec a watermark*/
+.textInput {
+    border: 1px solid #C9C7BA;
+    font-family:Tahoma, Verdana, Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    padding-left: 2px;
+    padding-top: 2px;
+    height: 30px;
+}
+ /* watermarking for text inputs */
+.textInput-watermark {
+   /* background-image: url('images/overlay.gif');
+   background-repeat: no-repeat;
+   padding-left: 20px;
+   vertical-align: middle; */
+   font-style: italic;
+   color: DarkGray;
+}
+/* the placeholder in which GWT places it's controls */
+#appPlaceholder {
+	background: none repeat scroll 0 0 #FFAAAA;
+}
+#appDataEntry {
+	float:left;
+	width: 100%;
+}
+#appDataDisplay {
+	width: 100%;
+}
+/* the panel that contains the controls to track data */
+.track-data-panel {
+	position: relative;
+	float:left;
+	align: left;
+	width: 400px;
+}
+/* chart data panel */
+.values-chart {
+	position: relative;
+	float:left;
+	width: 600px;
+	height: 200px;
 }
 
 /* login panel, within the banner usually */
@@ -29,52 +71,20 @@
 	border: 5px solid red;
 	background-color: #fcc;
 	text-align: right;
+	top: 0px;
 	float: right;
 }
 
 /* logo panel, within the banner usually */
 .logo-panel {
 	float: left;
-	top: 0px;
 	height:100%;
 	left: 0px;
 }
 
-/* left panel, to show options etc */
-.left-panel {
-	width: 30%;
-	height: 40%;
-	border: 5px solid red;
-	border-radius: 10px;
-	background-color: #fcc;
-	position: fixed;
-	top: 10%;
-	/* put out to the left a little less than the width to show enough that it is there */
-	left: -28%;
-	/* put in some animations to make nice on modern browsers */
-	-webkit-transition:all .50s ease-in-out;
-	-moz-transition:all 0.5s ease-in-out;
-	-o-transition:all 0.5s ease-in-out;
-	transition:all 0.5s ease-in-out;
-}
-
-/* left panel, when hovering pull out a little as a hint to the user */
-.left-panel:hover {
-	left: -25%;
-}
-
-/* left panel, add "show" class to re-position to show the panel */
-.left-panel.show {
-	/* when showing, show the width of the border to the left to hide the left line */
-	left: -10px;
-}
-
 /* this is the class for panel that contains the variable table */
-.variable-table-panel {
+#variableTablePanel {
 	width: 90%;
-	/* move in the hidden part of the left-panel */
-	margin-left: 10px;
-	margin-right: 10px;
 }
 
 /* this is the class for the title / name of the tracking label */
@@ -93,7 +103,7 @@
 }
 
 /* variables list header row */
-.variable-header {
+.table-header {
 	background-color: #2062B8;
 	color: white;
 	font-style: italic;
@@ -112,22 +122,49 @@
 	height: 48px;
 }
 
+/* the panel in the variables table to add one to the list */
+#variableAddPanel {
+	margin-top: 10px;
+	width: 100%;
+}
+
+#variableLogButton {
+	float: right;
+}
+
+#variableEntry {
+	width: 180px;
+}
+
+#variableAddButton {
+	float: left;
+	align: left;
+	vertical-align: center;
+}
+
+.gwt-Button {
+	vertical-align: center;
+}
+
 /* variables list, the Remove button */
 .gwt-Button-remove {
 	width: 30px;
 }
 
-.values-chart {
-	float: right;
+.gwt-DisclosurePanel-open {
 }
-
-/* the panel in the variables table to add one to the list */
-.addPanel {
-	margin-top: 10px;
+.gwt-DisclosurePanel-closed {
 }
-
-.app-placeholder {
-	background: none repeat scroll 0 0 #FFAAAA;
-	min-height: 600px;
-	width: 100%;
+.gwt-DisclosurePanel .header,
+.gwt-DisclosurePanel .header a,
+.gwt-DisclosurePanel .header td {
+  text-decoration: none;  /* Remove underline from header */
+  color: black;
+  cursor: pointer;
+  cursor: hand;
+}
+.gwt-DisclosurePanel .content {
+  border-left: 3px solid #e7e7e7;
+  padding: 4px 0px 4px 8px;
+  margin-left: 6px;
 }

@@ -1,5 +1,8 @@
 package uk.co.darkerwaters.client;
 
+import uk.co.darkerwaters.client.app.ClientApp;
+import uk.co.darkerwaters.shared.FieldVerifier;
+
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -15,9 +18,6 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-
-import uk.co.darkerwaters.client.app.ClientApp;
-import uk.co.darkerwaters.shared.FieldVerifier;
 
 public class HelloWorldClientApp extends ClientApp {
 	
