@@ -17,4 +17,7 @@ public interface EmoTrackMessages extends Messages {
 
 	@DefaultMessage("''{0}'' is not a valid variable name to track, you are already tracking this...")
 	String usedVariableName(String variableName);
+
+	@DefaultMessage("Selected data at {0,date,medium}")
+	String selectedDate(Date date);
 }

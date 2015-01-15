@@ -42,13 +42,28 @@ public class VariablesServiceImpl extends RemoteServiceServlet implements Variab
 			long deleteCount = 0;
 			Query q = pm.newQuery(Variable.class, "user == u");
 			q.declareParameters("com.google.appengine.api.users.User u");
-			List<Variable> variablesList = (List<Variable>) q.execute(getUser());
-			for (Variable variable : variablesList) {
-				// delete everything like this name (ignoring case)
-				if (0 == variableName.compareToIgnoreCase(variable.getVariableName())) {
-					++deleteCount;
-					pm.deletePersistent(variable);
+			Object executeResult = q.execute(getUser());
+			if (null != executeResult && executeResult instanceof List<?>) {
+				// delete the results from the execute result
+				List<?> executeList = (List<?>) executeResult;
+				for (Object item : executeList) {
+					if (null != item && item instanceof Variable) {
+						// result is as expected
+						Variable variable = (Variable)item;
+						// delete everything like this name (ignoring case)
+						if (0 == variableName.compareToIgnoreCase(variable.getVariableName())) {
+							++deleteCount;
+							pm.deletePersistent(variable);
+						}
+					}
+					else {
+						// not expected
+						LOG.log(Level.WARNING, "removeVariable not returning expected object type:" + item);
+					}
 				}
+			}
+			else {
+				LOG.log(Level.WARNING, "removeVariable not returning expected execution object type:" + executeResult);
 			}
 			if (deleteCount != 1) {
 				LOG.log(Level.WARNING, "removeVariable deleted " + deleteCount + " Stocks");
@@ -66,9 +81,25 @@ public class VariablesServiceImpl extends RemoteServiceServlet implements Variab
 			Query q = pm.newQuery(Variable.class, "user == u");
 			q.declareParameters("com.google.appengine.api.users.User u");
 			q.setOrdering("createDate");
-			List<Variable> variablesList = (List<Variable>) q.execute(getUser());
-			for (Variable variable : variablesList) {
-				variables.add(variable.getVariableName());
+			Object executeResult = q.execute(getUser());
+			if (null != executeResult && executeResult instanceof List<?>) {
+				// convert the execute result list into a returnable result
+				List<?> executeList = (List<?>) executeResult;
+				for (Object item : executeList) {
+					if (null != item && item instanceof Variable) {
+						// result is as expected
+						Variable variable = (Variable)item;
+						// and add to the list of strings
+						variables.add(variable.getVariableName());
+					}
+					else {
+						// not expected
+						LOG.log(Level.WARNING, "getVariables not returning expected object type:" + item);
+					}
+				}
+			}
+			else {
+				LOG.log(Level.WARNING, "getVariables not returning expected execution object type:" + executeResult);
 			}
 		} finally {
 			pm.close();

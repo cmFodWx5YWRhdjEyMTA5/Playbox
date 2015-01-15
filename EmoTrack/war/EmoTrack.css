@@ -2,12 +2,11 @@
 .banner-panel {
 	width: 100%;
 	height: 60px;
-	background-color: #fcc;
+	/*background-color: #fcc;*/
 	position: relative;
 	top: 0px;
 	left: 0px;
 }
-
 /* the application title */
 #appTitle {
 	float: left;
@@ -40,10 +39,6 @@
    font-style: italic;
    color: DarkGray;
 }
-/* the placeholder in which GWT places it's controls */
-#appPlaceholder {
-	background: none repeat scroll 0 0 #FFAAAA;
-}
 #appDataEntry {
 	float:left;
 	width: 100%;
@@ -52,24 +47,40 @@
 	width: 100%;
 }
 /* the panel that contains the controls to track data */
-.track-data-panel {
+#trackDataPanel {
 	position: relative;
 	float:left;
 	align: left;
 	width: 400px;
 }
 /* chart data panel */
-.values-chart {
+#variablesChart {
 	position: relative;
 	float:left;
 	width: 600px;
 	height: 200px;
 }
+/* chart data panel */
+#dataChartPanel {
+	position: relative;
+	float:left;
+	width: 100%;
+	height: 100%;
+	border: 1px solid rgb(187, 187, 187);
+	border-radius: 5px;
+}
+/* chart data itself */
+#dataChart {
+	position: relative;
+	float:left;
+	width: 100%;
+	min-height: 400px;
+}
 
 /* login panel, within the banner usually */
 .login-panel {
-	border: 5px solid red;
-	background-color: #fcc;
+	/*border: 5px solid red;
+	background-color: #fcc;*/
 	text-align: right;
 	top: 0px;
 	float: right;
@@ -142,8 +153,18 @@
 	vertical-align: center;
 }
 
+#dataChartDataPanel {
+	float: left;
+}
+
+#deleteSelectedData {
+	float: left;
+	align: left;
+	vertical-align: middle;
+}
+
 .gwt-Button {
-	vertical-align: center;
+	vertical-align: middle;
 }
 
 /* variables list, the Remove button */

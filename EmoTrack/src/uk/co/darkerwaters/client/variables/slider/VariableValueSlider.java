@@ -11,6 +11,7 @@ public class VariableValueSlider extends SliderBarHorizontal {
 	
 	ImagesVariableValueSlider images = GWT.create(ImagesVariableValueSlider.class);
 
+	@SuppressWarnings("deprecation")
 	public VariableValueSlider(int maxValue, String width) {
 		setLessWidget(new Image(images.less()) );
 		setScaleWidget(new Image(images.scaleh().getUrl()), 20);

@@ -1,12 +1,10 @@
 package uk.co.darkerwaters.client.variables;
 
 import java.util.Date;
-import java.util.logging.Level;
 
-import uk.co.darkerwaters.client.EmoTrack;
 import uk.co.darkerwaters.client.EmoTrackConstants;
 import uk.co.darkerwaters.client.WatermarkedTextBox;
-import uk.co.darkerwaters.client.tracks.TrackPoint;
+import uk.co.darkerwaters.client.tracks.TrackPointData;
 import uk.co.darkerwaters.client.tracks.TrackPointService;
 import uk.co.darkerwaters.client.tracks.TrackPointServiceAsync;
 
@@ -36,11 +34,17 @@ public class VariablesDataEntryPanel extends DecoratorPanel {
 	private String[] variableTitles = null;
 	private int[] variableValues = null;
 	
-	private final VariablesListPanel.VariablesPanelListener listener;
+	public interface VariablesDataEntryListener {
+		void updateVariableValues(String[] titles, int[] values);
+		void updateTrackEntry(TrackPointData newPoint);
+	}
+	
+	private final VariablesDataEntryListener listener;
 		
-	public VariablesDataEntryPanel(VariablesListPanel.VariablesPanelListener listener) {
+	public VariablesDataEntryPanel(VariablesDataEntryListener listener) {
 		// remember the listener to inform of data changes
 		this.listener = listener;
+	    this.getElement().setId(EmoTrackConstants.K_CSS_ID_TRACKDATAENTRY);
 		// create the panel to contain the entry values
 	    FlexTable layout = new FlexTable();
 	    layout.setCellSpacing(EmoTrackConstants.K_TABLECELLSPACING);
@@ -89,7 +93,6 @@ public class VariablesDataEntryPanel extends DecoratorPanel {
 
 	    // Wrap the contents in this DecoratorPanel
 	    this.setWidget(layout);
-	    this.addStyleName(EmoTrackConstants.K_CSS_CLASS_TRACKDATAENTRY);
 	}
 	
 	private VariablesListPanel createVariablesPanel(final ListBox logDateList, final DatePicker logDatePicker) {
@@ -122,7 +125,7 @@ public class VariablesDataEntryPanel extends DecoratorPanel {
 			selectedDate = LogDates.values()[selectedIndex].getDate();
 		}
 		//send this data to the server
-		final TrackPoint point = new TrackPoint(selectedDate);
+		final TrackPointData point = new TrackPointData(selectedDate);
 		synchronized (this) {
 			// add all the values to the variable
 			if (null != this.variableTitles && null != this.variableValues) {
@@ -139,9 +142,8 @@ public class VariablesDataEntryPanel extends DecoratorPanel {
 			}
 			@Override
 			public void onSuccess(Void result) {
-				// TODO inform the graph / view of this new point
-				EmoTrack.LOG.log(Level.INFO, LogDates.dateHrfmt.format(point.getTrackDate()) + " added: " + point.getValuesString());
-				Window.alert(LogDates.dateHrfmt.format(point.getTrackDate()) + " added: " + point.getValuesString());
+				// inform the graph / view of this new point
+				VariablesDataEntryPanel.this.listener.updateTrackEntry(point);
 			}
 		});		
 	}

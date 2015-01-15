@@ -11,6 +11,7 @@
   <!--  add our thirdparty/jars we want to include -->
   <inherits name="com.kiouri.sliderbar.SliderBarMVP" />
   <inherits name="com.google.gwt.visualization.Visualization" />
+  <inherits name="com.googlecode.gwt.crypto.Crypto"/>
 
   <!-- Inherit the default GWT style sheet.  You can change       -->
   <!-- the theme of your GWT application by uncommenting          -->

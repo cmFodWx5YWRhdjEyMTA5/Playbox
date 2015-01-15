@@ -19,8 +19,13 @@ public interface EmoTrackConstants extends Constants {
 	public static final String K_CSS_ID_LOGBUTTON = "variableLogButton";
 	public static final String K_CSS_ID_ADDBUTTON = "variableAddButton";
 	public static final String K_CSS_ID_VARIABLETEXTBOX = "variableEntry";
+	public static final String K_CSS_ID_VARIABLESCHART = "variablesChart";
+	public static final String K_CSS_ID_DATACHART = "dataChart";
+	public static final String K_CSS_ID_DATACHARTPANEL = "dataChartPanel";
+	public static final String K_CSS_ID_DATACHARTDATAPANEL = "dataChartDataPanel";
+	public static final String K_CSS_ID_TRACKDATAENTRY = "trackDataPanel";
+	public static final String K_CSS_ID_DELETEDATABUTTON = "deleteSelectedData";
 	/** some more constants for all the css classes we are using in the code */ 
-	public static final String K_CSS_CLASS_TRACKDATAENTRY = "track-data-panel";
 	public static final String K_CSS_CLASS_TABLEHEADER = "table-header";
 	public static final String K_CSS_CLASS_VARIABLETABLE = "variable-table";
 	public static final String K_CSS_CLASS_VARIABLEROW = "variable-row";
@@ -82,4 +87,10 @@ public interface EmoTrackConstants extends Constants {
 
 	@DefaultStringValue("Current values to track...")
 	String currentVariablesToTrack();
+
+	@DefaultStringValue("Historic Values")
+	String dataChartTitle();
+
+	@DefaultStringValue("Delete data at this date")
+	String deleteSelectionButton();
 }

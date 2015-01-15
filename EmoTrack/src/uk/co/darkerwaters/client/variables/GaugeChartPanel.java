@@ -2,8 +2,6 @@ package uk.co.darkerwaters.client.variables;
 
 import java.util.ArrayList;
 
-import uk.co.darkerwaters.client.EmoTrackConstants;
-
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
@@ -20,7 +18,7 @@ public class GaugeChartPanel {
 	private String[] variableTitles;
 	private int[] variableValues;
 	
-	public GaugeChartPanel(final RootPanel parentPanel) {
+	public GaugeChartPanel(final RootPanel parentPanel, final String chartId) {
 		// Create a callback to be called when the visualization API
 		// has been loaded.
 		Runnable onLoadCallback = new Runnable() {
@@ -29,7 +27,7 @@ public class GaugeChartPanel {
 				data = createTable();
 				options = createOptions();
 				chart = new Gauge(data, options);
-				chart.addStyleName(EmoTrackConstants.K_CSS_CLASS_VARIABLESCHART);
+				chart.getElement().setId(chartId);
 				// add this chart to the parent panel
 				parentPanel.add(chart);
 				// update our data with the latest sent (before we were created)
