@@ -3,6 +3,7 @@ package uk.co.darkerwaters.client.variables;
 import java.util.Date;
 
 import uk.co.darkerwaters.client.EmoTrackConstants;
+import uk.co.darkerwaters.client.EmoTrackMessages;
 import uk.co.darkerwaters.client.WatermarkedTextBox;
 import uk.co.darkerwaters.client.tracks.TrackPointData;
 import uk.co.darkerwaters.client.tracks.TrackPointService;
@@ -11,6 +12,8 @@ import uk.co.darkerwaters.client.tracks.TrackPointServiceAsync;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.OpenEvent;
 import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.user.client.Window;
@@ -71,7 +74,7 @@ public class VariablesDataEntryPanel extends DecoratorPanel {
 	    eventTextBox.getElement().setId(EmoTrackConstants.K_CSS_ID_EVENTTEXTBOX);
 	    layout.setWidget(2, 0, eventTextBox);
 	    cellFormatter.setColSpan(2, 0, 2);
-	    layout.setWidget(2, 1, createLogEventButton());
+	    layout.setWidget(2, 1, createLogEventButton(eventTextBox, logDateList, logDatePicker));
 
 	    // create the variables panel
 	    final VariablesListPanel variablesPanel = createVariablesPanel(logDateList, logDatePicker);
@@ -108,22 +111,13 @@ public class VariablesDataEntryPanel extends DecoratorPanel {
 			}
 			@Override
 			public void logVariables() {
-				VariablesDataEntryPanel.this.logCurrentVariables(logDateList, logDatePicker);
+				Date selectedDate = getSelectedDate(logDateList, logDatePicker);
+				VariablesDataEntryPanel.this.logCurrentVariables(selectedDate);
 			}
 		});
 	}
 
-	protected void logCurrentVariables(ListBox logDateList, DatePicker logDatePicker) {
-		int selectedIndex = logDateList.getSelectedIndex();
-		Date selectedDate = new Date();
-		if (selectedIndex == LogDates.other.ordinal()) {
-			// user has selected "other" so get the date from the date picker
-			selectedDate = logDatePicker.getValue();
-		}
-		else if (selectedIndex != -1) {
-			// get the date this data should be logged for
-			selectedDate = LogDates.values()[selectedIndex].getDate();
-		}
+	protected void logCurrentVariables(Date selectedDate) {
 		//send this data to the server
 		final TrackPointData point = new TrackPointData(selectedDate);
 		synchronized (this) {
@@ -148,6 +142,37 @@ public class VariablesDataEntryPanel extends DecoratorPanel {
 		});		
 	}
 
+	private Date getSelectedDate(ListBox logDateList, DatePicker logDatePicker) {
+		int selectedIndex = logDateList.getSelectedIndex();
+		Date selectedDate = new Date();
+		if (selectedIndex == LogDates.other.ordinal()) {
+			// user has selected "other" so get the date from the date picker
+			selectedDate = logDatePicker.getValue();
+		}
+		else if (selectedIndex != -1) {
+			// get the date this data should be logged for
+			selectedDate = LogDates.values()[selectedIndex].getDate();
+		}
+		return selectedDate;
+	}
+	
+	protected void logEvent(Date selectedDate, String event) {
+		// create a point to contain this data
+		final TrackPointData point = new TrackPointData(selectedDate, event);
+		// send this data to the service now
+		trackPointService.addTrackPoint(point, new AsyncCallback<Void>() {
+			@Override
+			public void onFailure(Throwable error) {
+				handleError(error);
+			}
+			@Override
+			public void onSuccess(Void result) {
+				// inform the graph / view of this new point
+				VariablesDataEntryPanel.this.listener.updateTrackEntry(point);
+			}
+		});	
+	}
+
 	protected void setVariableData(String[] titles, int[] values) {
 		synchronized (this) {
 			this.variableTitles = titles;
@@ -157,9 +182,26 @@ public class VariablesDataEntryPanel extends DecoratorPanel {
 		this.listener.updateVariableValues(titles, values);
 	}
 
-	private Button createLogEventButton() {
+	private Button createLogEventButton(final TextBox eventTextBox, final ListBox logDateList, final DatePicker logDatePicker) {
 		// create the log event button
 		Button logEventButton = new Button(constants.logEvent());
+		logEventButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				// log this event
+				String eventString = eventTextBox.getText();
+				// The string must be between 1 and 10 chars that are numbers, letters, or dots.
+				if (!eventString.matches("^[0-9a-zA-Z\\.]{1,10}$")) {
+					Window.alert(EmoTrackMessages.Instance.invalidVariableName(eventString));
+					eventTextBox.selectAll();
+					return;
+				}
+				// reset the text box
+				eventTextBox.setText("");
+				// and log the event
+				logEvent(getSelectedDate(logDateList, logDatePicker), eventString);
+			}
+		});
 		return logEventButton;
 	}
 

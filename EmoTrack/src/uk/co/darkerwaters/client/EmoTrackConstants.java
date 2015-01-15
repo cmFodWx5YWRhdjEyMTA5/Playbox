@@ -93,4 +93,10 @@ public interface EmoTrackConstants extends Constants {
 
 	@DefaultStringValue("Delete data at this date")
 	String deleteSelectionButton();
+
+	@DefaultStringValue("Events")
+	String events();
+	
+	@DefaultStringValue("Date")
+	String date();
 }

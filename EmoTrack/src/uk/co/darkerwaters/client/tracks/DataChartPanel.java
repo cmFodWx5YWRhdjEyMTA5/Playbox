@@ -21,6 +21,7 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
+import com.google.gwt.visualization.client.Properties;
 import com.google.gwt.visualization.client.Selection;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.events.SelectHandler;
@@ -99,7 +100,8 @@ public class DataChartPanel extends VerticalPanel {
 			this.data.removeColumn(0);
 		}
 		// create the standard initial column (date)
-		this.data.addColumn(ColumnType.DATE, "Date");
+		this.data.addColumn(ColumnType.DATE, EmoTrackConstants.Instance.date());
+		this.data.addColumn(ColumnType.NUMBER, EmoTrackConstants.Instance.events());
 		// now add all the data
 		for (int i = 0; i < trackData.length; ++i) {
 			addTrackData(trackData[i]);
@@ -149,6 +151,12 @@ public class DataChartPanel extends VerticalPanel {
 				// set the column data in this new row
 				this.data.setValue(rowIndex, columnIndex, values[i]);
 			}
+			// is there an event?
+			String eventString = trackData.getEvent();
+			if (null != eventString && false == eventString.isEmpty()) {
+				// add this to the event series
+				this.data.setCell(rowIndex, 1, 10, eventString, null);
+			}
 		}
 		// now draw this new chart data
 		this.chart.draw(this.data, this.options);
@@ -191,13 +199,27 @@ public class DataChartPanel extends VerticalPanel {
 		optionsCreated.setEnableTooltip(true);
 		optionsCreated.setSmoothLine(true);
 		optionsCreated.setBackgroundColor("none");
+		optionsCreated.setColors("#C9C7BA",
+				"#3366CC","","#DC3912","#FF9900","#109618","#990099","#3B3EAC","#0099C6",
+				"#DD4477","#66AA00","#B82E2E","#316395","#994499","#22AA99","#AAAA11","#6633CC","#E67300",
+				"#8B0707","#329262","#5574A6","#3B3EAC");		
+		/*
+		Options series_options = Options.create();
+		Options series1_options = Options.create();
+		series1_options.setOption("color","black");
+		series_options.setOption("0",series1_options);
+		optionsCreated.setOption("series",series_options);
+		*/
+		//optionsCreated.setOption("series", "{0:{color: 'black', visibleInLegend: false}, 3:{color: 'red', visibleInLegend: false}}");
+		
 		return optionsCreated;
 	}
 
 	private DataTable createTable() {
 		// create an empty table of data, with the initial date column
 		DataTable dataCreated = DataTable.create();
-		dataCreated.addColumn(ColumnType.DATE, "Date");
+		dataCreated.addColumn(ColumnType.DATE, EmoTrackConstants.Instance.date());
+		dataCreated.addColumn(ColumnType.NUMBER, EmoTrackConstants.Instance.events());
 		return dataCreated;
 	}
 

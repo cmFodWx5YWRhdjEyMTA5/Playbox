@@ -25,12 +25,15 @@ public class TrackPoint implements Serializable {
 	private String valuesString;
 	@Persistent
 	private Date trackDate;
+	@Persistent
+	private String eventString;
 	
 	public TrackPoint(User user, TrackPointData data) {
 		this.user = user;
 		// create our data from that passed in
 		this.valuesString = data.getValuesString();
 		this.trackDate = data.getTrackDate();
+		this.eventString = data.getEvent();
 	}
 
 	public Long getId() {
@@ -38,7 +41,7 @@ public class TrackPoint implements Serializable {
 	}
 	
 	public TrackPointData getData() {
-		return new TrackPointData(this.trackDate, this.valuesString);
+		return new TrackPointData(this.trackDate, this.valuesString, this.eventString);
 	}
 
 	public Date getTrackDate() {
@@ -47,5 +50,9 @@ public class TrackPoint implements Serializable {
 
 	public void setValuesString(String values) {
 		this.valuesString = values;
+	}
+	
+	public void setEventString(String event) {
+		this.eventString = event;
 	}
 }

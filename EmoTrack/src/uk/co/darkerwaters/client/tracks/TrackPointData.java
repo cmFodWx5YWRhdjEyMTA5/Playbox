@@ -9,6 +9,8 @@ public class TrackPointData implements Serializable {
 	private String valuesString;
 	private long trackDate;
 	
+	private String event;
+	
 	static final String K_VALUES_SEP = ",";
 	static final String K_VALUE_SEP = ":";
 	
@@ -17,12 +19,17 @@ public class TrackPointData implements Serializable {
 	}
 
 	public TrackPointData(Date trackDate) {
-		this(trackDate, "");
+		this(trackDate, "", "");
+	}
+	
+	public TrackPointData(Date trackDate, String event) {
+		this(trackDate, "", event);
 	}
 
-	TrackPointData(Date trackDate, String valuesString) {
+	TrackPointData(Date trackDate, String valuesString, String eventString) {
 		this.trackDate = trackDate == null ? new Date().getTime() : trackDate.getTime();
 		this.valuesString = valuesString;
+		this.event = eventString;
 	}
 
 	String getValuesString() {
@@ -39,6 +46,10 @@ public class TrackPointData implements Serializable {
 	}
 	
 	public String[] getValuesNames() {
+		if (null == this.valuesString || this.valuesString.isEmpty()) {
+			// there is no data
+			return new String[0];
+		}
 		String[] values = this.valuesString.split(K_VALUES_SEP);
 		String[] valuesNames = new String[values.length];
 		for (int i = 0; i < values.length; ++i) {
@@ -48,12 +59,20 @@ public class TrackPointData implements Serializable {
 	}
 	
 	public Integer[] getValuesValues() {
+		if (null == this.valuesString || this.valuesString.isEmpty()) {
+			// there is no data
+			return new Integer[0];
+		}
 		String[] values = this.valuesString.split(K_VALUES_SEP);
 		Integer[] valuesValues = new Integer[values.length];
 		for (int i = 0; i < values.length; ++i) {
 			valuesValues[i] = Integer.parseInt(values[i].split(K_VALUE_SEP)[1]);
 		}
 		return valuesValues;
+	}
+	
+	public String getEvent() {
+		return this.event;
 	}
 	
 	public void addValue(String name, Integer value) {
