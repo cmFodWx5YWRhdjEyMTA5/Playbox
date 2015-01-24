@@ -12,16 +12,18 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.datepicker.client.CalendarUtil;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
-import com.google.gwt.visualization.client.Properties;
 import com.google.gwt.visualization.client.Selection;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.events.SelectHandler;
@@ -40,6 +42,11 @@ public class DataChartPanel extends VerticalPanel {
 	private final TrackPointServiceAsync trackService = GWT.create(TrackPointService.class);
 	
 	private Date currentSelectedDate = null;
+	private Label selectedLabel;
+	
+	public static DateTimeFormat mthDate = DateTimeFormat.getFormat("yyyy-MM");
+	public static DateTimeFormat mthDisplayDate = DateTimeFormat.getFormat("MMM yyyy");
+	public static DateTimeFormat dayDate = DateTimeFormat.getFormat("yyyy-MM-dd");
 	
 	public DataChartPanel(final String chartId) {
 		// create all our controls in this panel
@@ -53,6 +60,8 @@ public class DataChartPanel extends VerticalPanel {
 				options = createOptions();
 				chart = new LineChart(data, options);
 				chart.getElement().setId(chartId);
+				// create the selection controls
+				createSelectionControls();
 				// add the completed chart to the specified parent
 				DataChartPanel.this.add(chart);
 				// create the editing controls
@@ -67,6 +76,41 @@ public class DataChartPanel extends VerticalPanel {
 	}
 
 	private void loadTrackData() {
+		final String fromDate;
+		final String toDate;
+		if (null == currentSelectedDate) {
+			// get the track points for the current date - so 30 days from now
+			Date from = new Date();
+			// this is the start of today though, take 30 days off
+			CalendarUtil.addDaysToDate(from, -30);
+			fromDate = dayDate.format(from);
+			// to null (forever)
+			toDate = "";
+		}
+		else {
+			// get the specified month of data
+			String selected = mthDate.format(this.currentSelectedDate) + "-01";
+			Date to = new Date(dayDate.parse(selected).getTime());
+			fromDate = dayDate.format(to);
+			CalendarUtil.addMonthsToDate(to, 1);
+			toDate = dayDate.format(to);
+			
+		}
+		// and get the track points for this period
+		trackService.getTrackPoints(fromDate, toDate, new AsyncCallback<TrackPointData[]>() {
+			@Override
+			public void onFailure(Throwable error) {
+				handleError(error);
+			}
+			@Override
+			public void onSuccess(TrackPointData[] result) {
+				// show this data on this chart
+				showTrackData(result);
+				DataChartPanel.this.selectedLabel.setText(fromDate + " --- " + toDate);
+				updateTrackSelectionControls(null, null);
+			}
+		});
+		/*
 		trackService.getTrackPoints(new AsyncCallback<TrackPointData[]>() {
 			@Override
 			public void onFailure(Throwable error) {
@@ -77,7 +121,24 @@ public class DataChartPanel extends VerticalPanel {
 				// show this data on this chart
 				showTrackData(result);
 			}
-		});
+		});*/
+	}
+
+	protected void updateTrackSelectionControls(Button lessButton, Button moreButton) {
+		if (null != lessButton) {
+			lessButton.setEnabled(true);
+		}
+		// are we in this month?
+		if (null != moreButton) {
+			moreButton.setEnabled(null != this.currentSelectedDate);
+		}
+		// set the label
+		if (null == this.currentSelectedDate) {
+			this.selectedLabel.setText(EmoTrackConstants.Instance.latestValues());
+		}
+		else {
+			this.selectedLabel.setText(mthDisplayDate.format(this.currentSelectedDate));
+		}
 	}
 
 	protected void deleteSelectedData(final TrackPointData point) {
@@ -102,6 +163,8 @@ public class DataChartPanel extends VerticalPanel {
 		// create the standard initial column (date)
 		this.data.addColumn(ColumnType.DATE, EmoTrackConstants.Instance.date());
 		this.data.addColumn(ColumnType.NUMBER, EmoTrackConstants.Instance.events());
+		this.columnsAdded.clear();
+		this.dataRows.clear();
 		// now add all the data
 		for (int i = 0; i < trackData.length; ++i) {
 			addTrackData(trackData[i]);
@@ -109,6 +172,7 @@ public class DataChartPanel extends VerticalPanel {
 		// now we have constructed the ordered list of data
 		// re-construct the chart's data to show it
 		reconstructChartData();
+		this.chart.setSize("800px", "400px");
 	}
 	
 	protected void unshowTrackData(Date removalDate) {
@@ -221,6 +285,65 @@ public class DataChartPanel extends VerticalPanel {
 		dataCreated.addColumn(ColumnType.DATE, EmoTrackConstants.Instance.date());
 		dataCreated.addColumn(ColumnType.NUMBER, EmoTrackConstants.Instance.events());
 		return dataCreated;
+	}
+	
+	protected void createSelectionControls() {
+		HorizontalPanel selectionPanel = new HorizontalPanel();
+		selectionPanel.getElement().setId(EmoTrackConstants.K_CSS_ID_DATACHARTSELECTIONPANEL);
+		final Button lessButton = new Button("<");
+		this.selectedLabel = new Label(EmoTrackConstants.Instance.latestValues());
+		this.selectedLabel.getElement().setId(EmoTrackConstants.K_CSS_ID_DATACHARTDATELABEL);
+		final Button moreButton = new Button(">");
+		
+		selectionPanel.add(lessButton);
+		selectionPanel.add(this.selectedLabel);
+		selectionPanel.add(moreButton);
+		
+		lessButton.addStyleName(EmoTrackConstants.K_CSS_CLASS_SELECTDATEBUTTON);
+		lessButton.setEnabled(true);
+		moreButton.addStyleName(EmoTrackConstants.K_CSS_CLASS_SELECTDATEBUTTON);
+		moreButton.setEnabled(false);
+		
+		// center align all the controls on the panel
+		selectionPanel.setCellVerticalAlignment(lessButton, HasVerticalAlignment.ALIGN_MIDDLE);
+		selectionPanel.setCellVerticalAlignment(selectedLabel, HasVerticalAlignment.ALIGN_MIDDLE);
+		selectionPanel.setCellVerticalAlignment(moreButton, HasVerticalAlignment.ALIGN_MIDDLE);
+		
+		lessButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				// move the selected date less some
+				adjustTimePeriod(-1, lessButton, moreButton);
+			}
+		});
+		moreButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				// move the selected date less some
+				adjustTimePeriod(1, lessButton, moreButton);
+			}
+		});
+		// add the selection panel to this panel to show it
+		this.add(selectionPanel);
+	}
+
+	protected void adjustTimePeriod(int monthOffset, Button lessButton, Button moreButton) {
+		// adjust the selected time
+		if (this.currentSelectedDate == null) {
+			this.currentSelectedDate = new Date();
+		}
+		// add / remove the month from this date
+		CalendarUtil.addMonthsToDate(this.currentSelectedDate, monthOffset);
+		// get now as a month?
+		String nowMonth = mthDate.format(new Date());
+		if (monthOffset > 0 && nowMonth.equals(mthDate.format(this.currentSelectedDate))) {
+			// this is this month and we are moving forward, show current values
+			this.currentSelectedDate = null;
+		}
+		// and update the controls
+		updateTrackSelectionControls(lessButton, moreButton);
+		// and get this data
+		loadTrackData();
 	}
 
 	protected void createDataControls() {

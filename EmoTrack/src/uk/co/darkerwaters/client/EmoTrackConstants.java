@@ -23,10 +23,13 @@ public interface EmoTrackConstants extends Constants {
 	public static final String K_CSS_ID_DATACHART = "dataChart";
 	public static final String K_CSS_ID_DATACHARTPANEL = "dataChartPanel";
 	public static final String K_CSS_ID_DATACHARTDATAPANEL = "dataChartDataPanel";
+	public static final String K_CSS_ID_DATACHARTSELECTIONPANEL = "dataChartSelectionPanel";
+	public static final String K_CSS_ID_DATACHARTDATELABEL = "dataChartDateLabel";
 	public static final String K_CSS_ID_TRACKDATAENTRY = "trackDataPanel";
 	public static final String K_CSS_ID_DELETEDATABUTTON = "deleteSelectedData";
 	/** some more constants for all the css classes we are using in the code */ 
 	public static final String K_CSS_CLASS_TABLEHEADER = "table-header";
+	public static final String K_CSS_CLASS_SELECTDATEBUTTON = "select-date-button";
 	public static final String K_CSS_CLASS_VARIABLETABLE = "variable-table";
 	public static final String K_CSS_CLASS_VARIABLEROW = "variable-row";
 	public static final String K_CSS_CLASS_VARIABLESCHART = "values-chart";
@@ -88,7 +91,7 @@ public interface EmoTrackConstants extends Constants {
 	@DefaultStringValue("Current values to track...")
 	String currentVariablesToTrack();
 
-	@DefaultStringValue("Historic Values")
+	@DefaultStringValue("Tracked Values")
 	String dataChartTitle();
 
 	@DefaultStringValue("Delete data at this date")
@@ -99,4 +102,19 @@ public interface EmoTrackConstants extends Constants {
 	
 	@DefaultStringValue("Date")
 	String date();
+	
+	@DefaultStringValue("Latest values")
+	String latestValues();
+
+	@DefaultStringValue("Logged in as:")
+	String loginDescription();
+
+	@DefaultStringValue("Please sign in to your Google Account to access the application.")
+	String notLoggedIn();
+	
+	@DefaultStringValue("Sign In")
+	String loginSignIn();
+	
+	@DefaultStringValue("Sign Out")
+	String loginSignOut();
 }

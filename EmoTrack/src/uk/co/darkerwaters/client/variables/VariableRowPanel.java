@@ -1,6 +1,7 @@
 package uk.co.darkerwaters.client.variables;
 
 import uk.co.darkerwaters.client.EmoTrackConstants;
+import uk.co.darkerwaters.client.EmoTrackMessages;
 import uk.co.darkerwaters.client.variables.slider.VariableValueSlider;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -88,7 +89,46 @@ public class VariableRowPanel extends VerticalPanel {
 
 	protected void updateValue(String variableName, int value) {
 		// update this on the label
-		variableValueLabel.setText("Current value is a number: " + value);
+		String valueLabel;
+		switch (value) {
+		case 0:
+			valueLabel = EmoTrackMessages.Instance.describeVal0(variableName);
+			break;
+		case 1:
+			valueLabel = EmoTrackMessages.Instance.describeVal01(variableName);
+			break;
+		case 2:
+			valueLabel = EmoTrackMessages.Instance.describeVal02(variableName);
+			break;
+		case 3:
+			valueLabel = EmoTrackMessages.Instance.describeVal03(variableName);
+			break;
+		case 4:
+			valueLabel = EmoTrackMessages.Instance.describeVal04(variableName);
+			break;
+		case 5:
+			valueLabel = EmoTrackMessages.Instance.describeVal05(variableName);
+			break;
+		case 6:
+			valueLabel = EmoTrackMessages.Instance.describeVal06(variableName);
+			break;
+		case 7:
+			valueLabel = EmoTrackMessages.Instance.describeVal07(variableName);
+			break;
+		case 8:
+			valueLabel = EmoTrackMessages.Instance.describeVal08(variableName);
+			break;
+		case 9:
+			valueLabel = EmoTrackMessages.Instance.describeVal09(variableName);
+			break;
+		case 10:
+			valueLabel = EmoTrackMessages.Instance.describeVal10(variableName);
+			break;
+		default :
+			 valueLabel = EmoTrackMessages.Instance.describeValErr(value);
+			 break;
+		}
+		variableValueLabel.setText(valueLabel);
 		// inform the listener of this
 		this.listener.updateVariableRow(variableName, value);
 	}

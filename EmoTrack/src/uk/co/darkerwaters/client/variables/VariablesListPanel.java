@@ -125,9 +125,9 @@ public class VariablesListPanel extends VerticalPanel {
 		}
 		newVariableTextBox.setFocus(true);
 
-		// The variable name must be between 1 and 10 chars that are numbers, letters,
+		// The variable name must be between 1 and 20 chars that are numbers, letters,
 		// or dots.
-		if (!variableName.matches("^[0-9a-zA-Z\\.]{1,10}$")) {
+		if (!variableName.matches("^[0-9a-zA-Z\\.]{1,20}$")) {
 	      Window.alert(EmoTrackMessages.Instance.invalidVariableName(variableName));
 	      newVariableTextBox.selectAll();
 	      return;

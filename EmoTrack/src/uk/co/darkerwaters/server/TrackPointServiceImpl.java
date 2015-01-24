@@ -1,5 +1,6 @@
 package uk.co.darkerwaters.server;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -25,6 +26,8 @@ public class TrackPointServiceImpl extends RemoteServiceServlet implements Track
 	private static final long serialVersionUID = 1607169848971697289L;
 	private static final Logger LOG = Logger.getLogger(TrackPointServiceImpl.class.getName());
 	private static final PersistenceManagerFactory PMF = JDOHelper.getPersistenceManagerFactory("transactions-optional");
+	
+	public static SimpleDateFormat dayDate = new SimpleDateFormat("yyyy-MM-dd");
 
 	public void addTrackPoint(TrackPointData point) throws NotLoggedInException {
 		checkLoggedIn();
@@ -114,15 +117,29 @@ public class TrackPointServiceImpl extends RemoteServiceServlet implements Track
 		return toReturn;
 	}
 
-	public TrackPointData[] getTrackPoints(Date fromDate, Date toDate) throws NotLoggedInException {
+	public TrackPointData[] getTrackPoints(String fromDayDate, String toDayDate) throws NotLoggedInException {
 		checkLoggedIn();
 		PersistenceManager pm = getPersistenceManager();
 		TrackPointData[] toReturn = new TrackPointData[0];
 		try {
-			Query q = pm.newQuery(TrackPoint.class, "user == u && date >= fromDate && date <= toDate");
-			q.declareParameters("com.google.appengine.api.users.User u, java.util.Date fromDate, java.util.Date toDate");
-			q.setOrdering("trackDate");
-			Object executeResult = q.execute(getUser(), fromDate, toDate);
+			Query q;
+			Object executeResult;
+			Date toDate = (toDayDate == null || toDayDate.isEmpty()) ? null : dayDate.parse(toDayDate);
+			Date fromDate = fromDayDate == null ? null : dayDate.parse(fromDayDate);
+			if (toDate == null) {
+				// just do the from date
+				q = pm.newQuery(TrackPoint.class, "user == u && trackDate >= fromDate");
+				q.declareParameters("com.google.appengine.api.users.User u, java.util.Date fromDate");
+				q.setOrdering("trackDate");
+				executeResult = q.execute(getUser(), fromDate);
+			}
+			else {
+				// do from and to
+				q = pm.newQuery(TrackPoint.class, "user == u && trackDate >= fromDate && trackDate <= toDate");
+				q.declareParameters("com.google.appengine.api.users.User u, java.util.Date fromDate, java.util.Date toDate");
+				q.setOrdering("trackDate");
+				executeResult = q.execute(getUser(), fromDate, toDate);
+			}
 			if (null != executeResult && executeResult instanceof List<?>) {
 				// convert this data to the data to return (client accessible)
 				List<?> executeList = (List<?>) executeResult;

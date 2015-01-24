@@ -1,7 +1,5 @@
 package uk.co.darkerwaters.client.tracks;
 
-import java.util.Date;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface TrackPointServiceAsync {
@@ -11,5 +9,5 @@ public interface TrackPointServiceAsync {
 
 	public void getTrackPoints(AsyncCallback<TrackPointData[]> async);
 	
-	public void getTrackPoints(Date fromDate, Date toDate, AsyncCallback<TrackPointData[]> async);
+	public void getTrackPoints(String fromDayDate, String toDayDate, AsyncCallback<TrackPointData[]> async);
 }

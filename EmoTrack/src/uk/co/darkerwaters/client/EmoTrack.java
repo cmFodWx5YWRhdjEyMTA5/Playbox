@@ -47,7 +47,11 @@ public class EmoTrack implements EntryPoint {
 	public void onModuleLoad() {
 		// add the main application components to show the user, set the titles
 		Window.setTitle(constants.emotionTracker());
-		RootPanel.get(EmoTrackConstants.K_CSS_ID_APPTITLE).add(new Label(constants.emotionTracker()));
+		RootPanel titlePanel = RootPanel.get(EmoTrackConstants.K_CSS_ID_APPTITLE);
+		if (titlePanel != null) {
+			// add the title
+			titlePanel.add(new Label(constants.emotionTracker()));
+		}
 		// add the track data entry panel to the app placeholder
 	    RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERENTRY).add(createTrackDateEntryPanel());
 		// create the chart of data to add as values
@@ -60,6 +64,7 @@ public class EmoTrack implements EntryPoint {
 		
 		// setup the login panel
 		loginPanel.addStyleName("login-panel");
+		loginPanel.add(new Label(EmoTrackConstants.Instance.loginDescription()));
 		loginPanel.add(loginLabel);
 		loginPanel.add(loginLink);
 		RootPanel.get("header").add(loginPanel);
@@ -133,14 +138,14 @@ public class EmoTrack implements EntryPoint {
 			loginLabel.setText(this.loginInfo.getNickname());
 			// add the option to log-out
 			loginLink.setHref(loginInfo.getLogoutUrl());
-			loginLink.setText("Sign Out");
+			loginLink.setText(EmoTrackConstants.Instance.loginSignOut());
 		}
 		else {
 			// set the name to show
-			loginLabel.setText("Please sign in to your Google Account to access the application.");
+			loginLabel.setText(EmoTrackConstants.Instance.notLoggedIn());
 			// add the option to log-in
 			loginLink.setHref(loginInfo.getLoginUrl());
-			loginLink.setText("Sign In");
+			loginLink.setText(EmoTrackConstants.Instance.loginSignIn());
 		}
 	}
 

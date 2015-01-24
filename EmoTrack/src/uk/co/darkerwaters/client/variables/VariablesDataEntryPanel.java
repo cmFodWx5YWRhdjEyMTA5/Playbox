@@ -82,7 +82,6 @@ public class VariablesDataEntryPanel extends DecoratorPanel {
 	    DisclosurePanel trackValueOptions = new DisclosurePanel(constants.trackValues());
 	    trackValueOptions.setWidth(EmoTrackConstants.K_100PERCENT);
 	    trackValueOptions.setAnimationEnabled(true);
-	    trackValueOptions.ensureDebugId("cwVariablesPanel");
 	    trackValueOptions.setContent(variablesPanel);
 	    trackValueOptions.addOpenHandler(new OpenHandler<DisclosurePanel>() {
 			@Override
@@ -190,8 +189,8 @@ public class VariablesDataEntryPanel extends DecoratorPanel {
 			public void onClick(ClickEvent event) {
 				// log this event
 				String eventString = eventTextBox.getText();
-				// The string must be between 1 and 10 chars that are numbers, letters, or dots.
-				if (!eventString.matches("^[0-9a-zA-Z\\.]{1,10}$")) {
+				// The string must be between 1 and 20 chars that are numbers, letters, or dots.
+				if (!eventString.matches("^[0-9a-zA-Z\\.]{1,20}$")) {
 					Window.alert(EmoTrackMessages.Instance.invalidVariableName(eventString));
 					eventTextBox.selectAll();
 					return;

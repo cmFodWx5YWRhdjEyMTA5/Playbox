@@ -1,7 +1,5 @@
 package uk.co.darkerwaters.client.tracks;
 
-import java.util.Date;
-
 import uk.co.darkerwaters.client.login.NotLoggedInException;
 
 import com.google.gwt.user.client.rpc.RemoteService;
@@ -15,5 +13,5 @@ public interface TrackPointService extends RemoteService {
 
 	public TrackPointData[] getTrackPoints() throws NotLoggedInException;
 	
-	public TrackPointData[] getTrackPoints(Date fromDate, Date toDate) throws NotLoggedInException;
+	public TrackPointData[] getTrackPoints(String fromDayDate, String toDayDate) throws NotLoggedInException;
 }
