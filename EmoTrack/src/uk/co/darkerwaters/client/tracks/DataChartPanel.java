@@ -172,7 +172,7 @@ public class DataChartPanel extends VerticalPanel {
 		// now we have constructed the ordered list of data
 		// re-construct the chart's data to show it
 		reconstructChartData();
-		this.chart.setSize("800px", "400px");
+		this.chart.setSize("1200px", "400px");
 	}
 	
 	protected void unshowTrackData(Date removalDate) {

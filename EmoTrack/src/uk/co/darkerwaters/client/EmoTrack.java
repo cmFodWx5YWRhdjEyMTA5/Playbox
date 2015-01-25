@@ -15,6 +15,9 @@ import uk.co.darkerwaters.client.variables.VariablesDataEntryPanel;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -43,6 +46,7 @@ public class EmoTrack implements EntryPoint {
 	private DataChartPanel dataChartPanel;
 	
 	private final EmoTrackConstants constants = EmoTrackConstants.Instance;
+	private ValueEntryPanel entryPanel;
 	
 	/**
 	 * This is the entry point method.
@@ -56,8 +60,19 @@ public class EmoTrack implements EntryPoint {
 			titlePanel.add(new Label(constants.emotionTracker()));
 		}
 		
-		ValueEntryPanel entryPanel = new ValueEntryPanel(createValueListener());
-		RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERVALUEENTRY).add(entryPanel);
+		this.entryPanel = new ValueEntryPanel(createValueListener());
+		
+		final RootPanel thing = RootPanel.get("moreTextButton");
+		RootPanel.get("moreText").setVisible(false);
+		thing.sinkEvents(Event.ONCLICK);
+		thing.addHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				thing.setVisible(false);
+				RootPanel.get("moreText").setVisible(true);
+				RootPanel.get("moreText").removeStyleName("hidden-text");
+			}
+		}, ClickEvent.getType());
 		
 		/*
 		// add the track data entry panel to the app placeholder

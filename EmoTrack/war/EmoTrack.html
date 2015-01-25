@@ -16,7 +16,7 @@
 <!--                                           -->
 <!-- Any title is fine                         -->
 <!--                                           -->
-<title>Application Title</title>
+<title>Emotion Tracker</title>
 
 <!--                                           -->
 <!-- This script loads your compiled module.   -->
@@ -34,7 +34,7 @@
 <!--                                           -->
 <body>
 
-	<!-- OPTIONAL: include this if you want history support -->
+	<!-- OPTIONAL: include this if you want history support 
 	<iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1'
 		style="position: absolute; width: 0; height: 0; border: 0"></iframe>
 
@@ -46,23 +46,28 @@
 			application to display correctly.</div>
 	</noscript>
 
-	<!--  show a left panel in which to place the options to the user -->
-	<!-- 
-	<div class="left-panel" id="options-div">
+	<div id="header">
+		<img id="logoPanel" src="images/logo.png" height="70px"/>
+		<h1>Emotion Tracker</h1>
 	</div>
-	 -->
-	<header class="banner-panel" id="header">
-		<img class="logo-panel" src="images/logo.png"/>
-		<!-- <span id="appTitle"></span> -->
-	</header>
-	<!-- place a div in which GWT can insert all the controls we want -->
-	<div id="appPlaceholder">
-		<div id="appValueEntry">
-		</div>
-		<div id="appDataEntry">
-		</div>
-		<div id="appDataDisplay">
-		</div>
+
+	
+	<div id="timeValueEntry"></div>
+	
+	<div id="section">
+		<h1>CBT Emotion Tracking</h1>
+		<p>Tracking your emotions lies at the heart of CBT (Cognitive Behavioural Therapy)
+			<a href="javascript:void()" id="moreTextButton">more</a> <span id="moreText" class="hidden-text">. As part of treatment
+			for all kinds of problems, including but not limited to; depression, anxiety,
+			chronic fatigue, it is a good idea to regularly track how you are feeling so when
+			you look back on your week / month / year, you can properly see how you felt. Hopefully
+			seeing that it was not as bad as you thought, and you are better over time.</span>
+		</p>
+		<p id="appValueEntry"></p>
 	</div>
+	
+	<div id="dataBreak"></div>
+	<div id="appDataDisplay"></div>
+	<div id="footer">Copyright © darkerwaters.co.uk</div>
 </body>
 </html>

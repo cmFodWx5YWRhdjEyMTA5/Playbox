@@ -31,6 +31,7 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -73,12 +74,13 @@ public class ValueEntryPanel extends FlowPanel {
 	    Image timeSelectImage = new Image(EmoTrackConstants.K_IMG_TIMESELECT);
 	    timeSelectImage.getElement().setId(EmoTrackConstants.K_CSS_ID_TIMESELECTIMAGE);
 	    final DatePicker logDatePicker = createLogDatePicker(dateSelectLabel, timeSelectLabel);
+	    logDatePicker.setWidth("200px");
 	    
 	    final ListBox logDateList = createLogDateList(logDatePicker, dateSelectLabel, timeSelectLabel);
 	    FlowPanel timePanel = new FlowPanel();
 	    timePanel.add(timeSelectImage);
 	    FlowPanel timeSelectPanel = new FlowPanel();
-	    timeSelectPanel.addStyleName("entryValue");
+	    timeSelectPanel.getElement().setId("timeDateSelectPanel");
 	    timeSelectPanel.add(new Label(EmoTrackConstants.Instance.trackValues()));
 	    timeSelectPanel.add(logDateList);
 	    timeSelectPanel.add(logDatePicker);
@@ -96,7 +98,7 @@ public class ValueEntryPanel extends FlowPanel {
 	    logPanel.add(eventTextBox);
 		
 	    leftPanel.add(logPanel);
-	    this.add(leftPanel);
+	    RootPanel.get("timeValueEntry").add(leftPanel);
 	    
 	    VerticalPanel variablePanel = new VerticalPanel();
 	    variablePanel.getElement().setId("variableSelectPanel");
@@ -135,7 +137,7 @@ public class ValueEntryPanel extends FlowPanel {
 		logValPanel.add(new MirrorLabel(timeSelectLabel, "entryValue"));
 		variablePanel.add(logValPanel);
 	    
-		this.add(variablePanel);
+		RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERVALUEENTRY).add(variablePanel);
 
 		// Listen for mouse events on the Add button.
 		addVariableButton.addClickHandler(new ClickHandler() {

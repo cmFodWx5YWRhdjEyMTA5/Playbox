@@ -1,31 +1,76 @@
-/* banner, to show logo and login options */
-.banner-panel {
-	width: 100%;
-	height: 60px;
-	/*background-color: #fcc;*/
-	position: relative;
-	top: 0px;
-	left: 0px;
+#header {
+    background-color:#5C4A3E;
+    color:white;
+    text-align:center;
+    padding:5px;
 }
-/* the application title */
-#appTitle {
-	float: left;
-	font-size: 48px;
+#timeValueEntry {
+    line-height:30px;
+    min-width: 350px;
+    min-height: 490px;
+    background-color:#E2D3BE;
+    float:left;
+    padding:5px; 
+}
+body {
+	background-color:#CBB488;
+}
+
+#dataBreak { 
+	width:100%; 
+	height:20px;
+    color:white;
+    float:left;
+    text-align:center;
+	background-color:#5C4A3E;
+}
+#entryLeftPanel {
+	width: 100%;
+}
+#timeDateSelectPanel {
+	width: 100%;
+}
+.gwt-DatePicker {
+	wdith: 200px;
+}
+#section {
+    float:left;
+    width: 850px;
+    padding:10px; 
+	margin: 0px auto;
+}
+#footer {
+    background-color:#5C4A3E;
+    color:white;
+    clear:both;
+    text-align:center;
+    padding:5px; 
+}
+.body {
+    background-color:#CBB488;
+}
+/* login panel, within the banner usually */
+.login-panel {
+	text-align: right;
+	margin-top: -70px;
+	border: 1px solid #C9C7BA;
+    font-family:Tahoma, Verdana, Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    float: right;
+}
+/* logo panel, within the banner usually */
+#logoPanel {
+	position: absolute;
+	left: 20px;
 }
 /* the image of time to show the user they can specify time */
 #timeSelectImage {
 	width: 128px;
 	float: left;
-}
-#variableSelectPanel {
-	padding: 10px;
-	float: left;
-	border: 1px solid #C9C7BA;
-}
-#entryLeftPanel {
-	float: left;
-	border: 1px solid #C9C7BA;
-	padding: 10px;
 }
 /* the entry box to enter an event */
 #eventEntry {
@@ -70,10 +115,6 @@
 	float:left;
 	width: 100%;
 }
-#appValueEntry {
-	float:left;
-	width: 100%;
-}
 .entryValue {
 	float: left;
 	padding: 5px;
@@ -81,22 +122,12 @@
 .valueSelect {
 	padding: 10px;
 }
+.hidden-text {
+	visibility: hidden;
+}
 #appDataDisplay {
-	width: 100%;
-}
-/* the panel that contains the controls to track data */
-#trackDataPanel {
-	position: relative;
-	float:left;
-	align: left;
-	width: 400px;
-}
-/* chart data panel */
-#variablesChart {
-	position: relative;
-	float:left;
-	width: 600px;
-	height: 200px;
+	width: 80%;
+	margin: 0px auto;
 }
 /* chart data panel */
 #dataChartPanel {
@@ -109,80 +140,8 @@
 #dataChart {
 	position: relative;
 	float:left;
-	width: 800px;
+	width: 1200px;
 	height: 400px;
-}
-
-/* login panel, within the banner usually */
-.login-panel {
-	text-align: right;
-	top: 0px;
-	border: 1px solid #C9C7BA;
-    font-family:Tahoma, Verdana, Arial, Helvetica, sans-serif;
-    font-size: 11px;
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    float: right;
-}
-
-/* logo panel, within the banner usually */
-.logo-panel {
-	float: left;
-	height:100%;
-	left: 0px;
-}
-
-/* this is the class for panel that contains the variable table */
-#variableTablePanel {
-	width: 90%;
-}
-
-/* this is the class for the title / name of the tracking label */
-.variable-title {
-	text-align: left;
-}
-
-/* this is the class for the description of the tracking label */
-.variable-description {
-	text-align: right;
-}
-
-/* this is the class for the variable table */
-.variable-table {
-	width: 100%;
-}
-
-/* variables list header row */
-.table-header {
-	background-color: #2062B8;
-	color: white;
-	font-style: italic;
-	width: 100%;
-}
-
-/* variables list row */
-.variable-row {
-	width: 100%;
-	margin-top: 5px;
-}
-
-/* variables list slider control */
-.variable-slider {
-	width: 150px;
-	height: 48px;
-	float: left;
-}
-
-/* the panel in the variables table to add one to the list */
-#variableAddPanel {
-	margin-top: 10px;
-	width: 100%;
-}
-
-#variableLogButton {
-	float: right;
 }
 
 #variableEntry {
@@ -196,56 +155,17 @@
 	vertical-align: center;
 }
 
-#dataChartDataPanel {
-	float: left;
-}
-
-#dataChartSelectionPanel {
-	float: left;
-	padding: 10px;
-}
-
 #dataChartDateLabel {
     padding-left: 20px;
     padding-right: 20px;
 }
 
-#deleteSelectedData {
-	float: left;
-	align: left;
-	vertical-align: middle;
-}
-
-.select-date-button {
-	float: left;
-	align: left;
-	margin-left: 10px;
-	vertical-align: middle;
+.gwt-ListBox {
+	height: 30px;
 }
 
 .gwt-Button {
 	vertical-align: middle;
-}
-
-/* variables list, the Remove button */
-.gwt-Button-remove {
-	width: 30px;
-}
-
-.gwt-DisclosurePanel-open {
-}
-.gwt-DisclosurePanel-closed {
-}
-.gwt-DisclosurePanel .header,
-.gwt-DisclosurePanel .header a,
-.gwt-DisclosurePanel .header td {
-  text-decoration: none;  /* Remove underline from header */
-  color: black;
-  cursor: pointer;
-  cursor: hand;
-}
-.gwt-DisclosurePanel .content {
-  border-left: 3px solid #e7e7e7;
-  padding: 4px 0px 4px 8px;
-  margin-left: 6px;
+	height: 30px;
+	color: #B8603A;
 }
