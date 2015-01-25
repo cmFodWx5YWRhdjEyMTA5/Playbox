@@ -24,7 +24,7 @@ public enum LogDates {
 	LogDates(String title) {
 		this.title = title;
 	}
-	Date getDate() {
+	public Date getDate() {
 		Date toReturn = new Date();
 		String timeFormat = datefmt.format(toReturn);
 		switch(this) {

@@ -2,7 +2,6 @@ package uk.co.darkerwaters.client.variables;
 
 import java.util.ArrayList;
 
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.VisualizationUtils;
@@ -18,7 +17,11 @@ public class GaugeChartPanel {
 	private String[] variableTitles;
 	private int[] variableValues;
 	
-	public GaugeChartPanel(final RootPanel parentPanel, final String chartId) {
+	public interface CreationListener {
+		public void chartCreated(GaugeChartPanel panel, Gauge chart);
+	}
+	
+	public GaugeChartPanel(final CreationListener listener) {
 		// Create a callback to be called when the visualization API
 		// has been loaded.
 		Runnable onLoadCallback = new Runnable() {
@@ -27,9 +30,8 @@ public class GaugeChartPanel {
 				data = createTable();
 				options = createOptions();
 				chart = new Gauge(data, options);
-				chart.getElement().setId(chartId);
-				// add this chart to the parent panel
-				parentPanel.add(chart);
+				// inform the listener
+				listener.chartCreated(GaugeChartPanel.this, chart);
 				// update our data with the latest sent (before we were created)
 				updateData(variableTitles, variableValues);
 			}

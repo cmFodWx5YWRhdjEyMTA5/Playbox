@@ -14,3 +14,5 @@ hs_err_pid*
 # bin folders for compiled code
 bin
 gen
+
+EmoTrack/.gwt/.gwt-log

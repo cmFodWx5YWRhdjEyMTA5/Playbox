@@ -11,8 +11,10 @@ public interface EmoTrackConstants extends Constants {
 	public static final String K_CSS_ID_APPTITLE = "appTitle";
 	public static final String K_CSS_ID_APPPLACEHOLDER = "appPlaceholder";
 	public static final String K_CSS_ID_APPPLACEHOLDERENTRY = "appDataEntry";
+	public static final String K_CSS_ID_APPPLACEHOLDERVALUEENTRY = "appValueEntry";
 	public static final String K_CSS_ID_APPPLACEHOLDERDISPLAY = "appDataDisplay";
 	public static final String K_CSS_ID_TIMESELECTIMAGE = "timeSelectImage";
+	public static final String K_CSS_ID_VALUEENTRY = "valueEntry";
 	public static final String K_CSS_ID_EVENTTEXTBOX = "eventEntry";
 	public static final String K_CSS_ID_VARIABLETABLEPANEL = "variableTablePanel";
 	public static final String K_CSS_ID_ADDPANEL = "variableAddPanel";
@@ -27,6 +29,8 @@ public interface EmoTrackConstants extends Constants {
 	public static final String K_CSS_ID_DATACHARTDATELABEL = "dataChartDateLabel";
 	public static final String K_CSS_ID_TRACKDATAENTRY = "trackDataPanel";
 	public static final String K_CSS_ID_DELETEDATABUTTON = "deleteSelectedData";
+	public static final String K_CSS_ID_DATESELECTED = "selectedDate";
+	public static final String K_CSS_ID_TIMESELECTED = "selectedTime";
 	/** some more constants for all the css classes we are using in the code */ 
 	public static final String K_CSS_CLASS_TABLEHEADER = "table-header";
 	public static final String K_CSS_CLASS_SELECTDATEBUTTON = "select-date-button";
@@ -46,7 +50,7 @@ public interface EmoTrackConstants extends Constants {
 	@DefaultStringValue ("Track Emotions / Events")
 	String trackEmotionsEvents();
 	
-	@DefaultStringValue ("Track Values")
+	@DefaultStringValue ("Time and date")
 	String trackValues();
 
 	@DefaultStringValue("now") 
@@ -76,10 +80,10 @@ public interface EmoTrackConstants extends Constants {
 	@DefaultStringValue("Enter specific event...") 
 	String eventEntry();
 
-	@DefaultStringValue("Enter new value to track...") 
+	@DefaultStringValue("Enter new emotion to track...") 
 	String variableEntry();
 
-	@DefaultStringValue("Log Values") 
+	@DefaultStringValue("Log Emotions") 
 	String logValues();
 
 	@DefaultStringValue("Log Event") 
@@ -88,10 +92,10 @@ public interface EmoTrackConstants extends Constants {
 	@DefaultStringValue("Add") 
 	String addVariable();
 
-	@DefaultStringValue("Current values to track...")
+	@DefaultStringValue("Current emotions to track...")
 	String currentVariablesToTrack();
 
-	@DefaultStringValue("Tracked Values")
+	@DefaultStringValue("Emotion Log")
 	String dataChartTitle();
 
 	@DefaultStringValue("Delete data at this date")
@@ -103,7 +107,7 @@ public interface EmoTrackConstants extends Constants {
 	@DefaultStringValue("Date")
 	String date();
 	
-	@DefaultStringValue("Latest values")
+	@DefaultStringValue("Latest emotions")
 	String latestValues();
 
 	@DefaultStringValue("Logged in as:")
@@ -117,4 +121,7 @@ public interface EmoTrackConstants extends Constants {
 	
 	@DefaultStringValue("Sign Out")
 	String loginSignOut();
+	
+	@DefaultStringValue("To start; <Add> new emotions to track...")
+	String addNewValuesToTrack();
 }

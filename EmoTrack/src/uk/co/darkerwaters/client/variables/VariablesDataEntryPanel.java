@@ -237,6 +237,6 @@ public class VariablesDataEntryPanel extends DecoratorPanel {
 	}
 
 	private void handleError(Throwable error) {
-		Window.alert(error.getMessage());
+		//Window.alert(error.getMessage());
 	}
 }

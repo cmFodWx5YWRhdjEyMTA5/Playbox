@@ -2,6 +2,8 @@ package uk.co.darkerwaters.client;
 
 import java.util.logging.Logger;
 
+import uk.co.darkerwaters.client.entry.ValueEntryPanel;
+import uk.co.darkerwaters.client.entry.ValueEntryPanel.ValueEntryListener;
 import uk.co.darkerwaters.client.login.LoginInfo;
 import uk.co.darkerwaters.client.login.LoginService;
 import uk.co.darkerwaters.client.login.LoginServiceAsync;
@@ -20,6 +22,7 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.visualization.client.visualizations.Gauge;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -52,13 +55,24 @@ public class EmoTrack implements EntryPoint {
 			// add the title
 			titlePanel.add(new Label(constants.emotionTracker()));
 		}
+		
+		ValueEntryPanel entryPanel = new ValueEntryPanel(createValueListener());
+		RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERVALUEENTRY).add(entryPanel);
+		
+		/*
 		// add the track data entry panel to the app placeholder
 	    RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERENTRY).add(createTrackDateEntryPanel());
 		// create the chart of data to add as values
 		this.variablesChartPanel = new GaugeChartPanel(
-				RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERENTRY),
-				EmoTrackConstants.K_CSS_ID_VARIABLESCHART);
-		
+				new GaugeChartPanel.CreationListener() {
+					@Override
+					public void chartCreated(GaugeChartPanel panel, Gauge chart) {
+						// add this chart to the parent panel
+						RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERENTRY).add(chart);
+						chart.getElement().setId(EmoTrackConstants.K_CSS_ID_VARIABLESCHART);
+					}
+				});
+		*/
 		this.dataChartPanel = new DataChartPanel(EmoTrackConstants.K_CSS_ID_DATACHART);
 		RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERDISPLAY).add(this.dataChartPanel);
 		
@@ -99,6 +113,22 @@ public class EmoTrack implements EntryPoint {
 		};
 		// perform the initial login check now
 		this.loginCheckTimer.schedule(500);
+	}
+
+	private ValueEntryListener createValueListener() {
+		return new ValueEntryPanel.ValueEntryListener() {
+			@Override
+			public void updateVariableValues(String[] titles, int[] values) {
+				// update our chart with this data
+				updateChartData(titles, values);
+			}
+			
+			@Override
+			public void updateTrackEntry(TrackPointData newPoint) {
+				// add this data to the chart
+				updateChartData(newPoint);
+			}
+		};
 	}
 
 	private VariablesDataEntryPanel createTrackDateEntryPanel() {
@@ -150,7 +180,7 @@ public class EmoTrack implements EntryPoint {
 	}
 
 	public void handleLoginError(Throwable error) {
-		Window.alert(error.getMessage());
+		//Window.alert(error.getMessage());
 		if (error instanceof NotLoggedInException) {
 			Window.Location.replace(loginInfo.getLogoutUrl());
 		}

@@ -9,17 +9,23 @@ public interface EmoTrackMessages extends Messages {
 	
 	public static final EmoTrackMessages Instance = GWT.create(EmoTrackMessages.class);
 	
-	@DefaultMessage("''{0}'' is not a valid variable name, no punctuation please.")
+	@DefaultMessage("''{0}'' is not a valid emotion title, no punctuation please.")
 	String invalidVariableName(String symbol);
 
 	@DefaultMessage("Last update: {0,date,medium} {0,time,medium}")
 	String lastUpdate(Date timestamp);
 
-	@DefaultMessage("''{0}'' is not a valid variable name to track, you are already tracking this...")
+	@DefaultMessage("''{0}'' is not a valid emotion to track, you are already tracking this...")
 	String usedVariableName(String variableName);
 
 	@DefaultMessage("Selected data at {0,date,medium}")
 	String selectedDate(Date date);
+	
+	@DefaultMessage("{0,date,medium}")
+	String date(Date date);
+	
+	@DefaultMessage("{0,time,short}")
+	String time(Date date);
 	
 	@DefaultMessage("No {0} at all")
 	String describeVal0(String valueTitle);
@@ -48,7 +54,7 @@ public interface EmoTrackMessages extends Messages {
 	@DefaultMessage("A huge amount of {0}")
 	String describeVal08(String valueTitle);
 	
-	@DefaultMessage("An overwhelming amount of {0}")
+	@DefaultMessage("Overwhelming {0}")
 	String describeVal09(String valueTitle);
 	
 	@DefaultMessage("The most {0} possible")

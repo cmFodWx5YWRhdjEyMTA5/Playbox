@@ -403,7 +403,7 @@ public class DataChartPanel extends VerticalPanel {
 	}
 
 	private void handleError(Throwable error) {
-		Window.alert(error.getMessage());
+		//Window.alert(error.getMessage());
 	}
 
 }

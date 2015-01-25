@@ -15,11 +15,34 @@
 /* the image of time to show the user they can specify time */
 #timeSelectImage {
 	width: 128px;
-	float: right;
+	float: left;
+}
+#variableSelectPanel {
+	padding: 10px;
+	float: left;
+	border: 1px solid #C9C7BA;
+}
+#entryLeftPanel {
+	float: left;
+	border: 1px solid #C9C7BA;
+	padding: 10px;
 }
 /* the entry box to enter an event */
 #eventEntry {
-	width: 100%;
+	width: 180px;
+	float: bottom;
+}
+#logEventPanel {
+	padding-top: 50px;
+}
+#logEventButton {
+	float: left;
+}
+#selectedDate {
+	font-size: large;
+}
+#selectedTime {
+	font-size: large;
 }
 /* text inputs in general, to help spec a watermark*/
 .textInput {
@@ -29,6 +52,10 @@
     padding-left: 2px;
     padding-top: 2px;
     height: 30px;
+}
+.info {
+	font-size: xx-large;
+	color: DarkGray;
 }
  /* watermarking for text inputs */
 .textInput-watermark {
@@ -42,6 +69,17 @@
 #appDataEntry {
 	float:left;
 	width: 100%;
+}
+#appValueEntry {
+	float:left;
+	width: 100%;
+}
+.entryValue {
+	float: left;
+	padding: 5px;
+}
+.valueSelect {
+	padding: 10px;
 }
 #appDataDisplay {
 	width: 100%;
@@ -86,6 +124,7 @@
     padding-right: 20px;
     padding-top: 2px;
     padding-bottom: 2px;
+    float: right;
 }
 
 /* logo panel, within the banner usually */
@@ -131,8 +170,9 @@
 
 /* variables list slider control */
 .variable-slider {
-	width: 100%;
+	width: 150px;
 	height: 48px;
+	float: left;
 }
 
 /* the panel in the variables table to add one to the list */
@@ -146,6 +186,7 @@
 }
 
 #variableEntry {
+	float: left;
 	width: 180px;
 }
 
