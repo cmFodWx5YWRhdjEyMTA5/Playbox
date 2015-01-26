@@ -43,7 +43,7 @@ public class ValueSelectPanel extends FlowPanel {
 		chartPanel.updateData(new String[] {title}, new int[] {ValueSelectPanel.this.currentValue});
 		this.add(chart);
 		// and add the slider
-		this.variableValueSlider = new VariableValueSlider(10, "150px");
+		this.variableValueSlider = new VariableValueSlider(10, "170px");
 		this.variableValueSlider.addBarValueChangedHandler(new BarValueChangedHandler() {
 			@Override
 			public void onBarValueChanged(BarValueChangedEvent event) {
