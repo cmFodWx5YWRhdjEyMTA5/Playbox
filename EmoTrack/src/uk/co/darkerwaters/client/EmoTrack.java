@@ -25,7 +25,6 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.visualization.client.visualizations.Gauge;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -46,6 +45,7 @@ public class EmoTrack implements EntryPoint {
 	private DataChartPanel dataChartPanel;
 	
 	private final EmoTrackConstants constants = EmoTrackConstants.Instance;
+	
 	private ValueEntryPanel entryPanel;
 	
 	/**
