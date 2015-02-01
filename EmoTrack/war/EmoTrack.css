@@ -1,8 +1,24 @@
+.gwt-Label {
+	font-size: 1.5em;
+}
+
+.gwt-Anchor {
+	font-size: 1.5em;
+}
+
+#footer {
+	font-size: 1.2em;
+	a:link{
+    	color:#FFFFFF;
+	}
+}
+
 #header {
     background-color:#5C4A3E;
     color:white;
     text-align:center;
-    padding:5px;
+    font-size: 1.5em;
+    padding:1px;
 }
 #timeValueEntry {
     line-height:30px;
@@ -52,7 +68,7 @@ body {
 /* login panel, within the banner usually */
 .login-panel {
 	text-align: right;
-	margin-top: -70px;
+	margin-top: -105px;
 	border: 1px solid #C9C7BA;
     font-family:Tahoma, Verdana, Arial, Helvetica, sans-serif;
     font-size: 11px;
@@ -93,7 +109,7 @@ body {
 .textInput {
     border: 1px solid #C9C7BA;
     font-family:Tahoma, Verdana, Arial, Helvetica, sans-serif;
-    font-size: 11px;
+    font-size: 1.1em;
     padding-left: 2px;
     padding-top: 2px;
     height: 30px;
@@ -165,10 +181,30 @@ body {
 
 .gwt-ListBox {
 	height: 30px;
+	font-size: 1.2em;
 }
 
 .gwt-Button {
 	vertical-align: middle;
-	height: 30px;
+	height: 35px;
+	font-size: 1.2em;
 	color: #B8603A;
+}
+/* text inputs in general, to help spec a watermark*/
+#loadingDisplay {
+	position: fixed;
+	left: 20%;
+	top: 30%;
+	min-width: 300px;
+	min-height: 150px;
+    border: 1px solid #B8603A;
+    border-radius: 10px;
+    background-color:#B8603A;
+    color:white;
+    text-align:center;
+    padding:5px;
+    font-size: 1.5em;
+    padding-left: 2px;
+    padding-top: 2px;
+    height: 30px;
 }

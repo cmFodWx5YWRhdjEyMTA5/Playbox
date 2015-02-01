@@ -1,7 +1,9 @@
 package uk.co.darkerwaters.client;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import uk.co.darkerwaters.client.entry.EmoTrackListener;
 import uk.co.darkerwaters.client.entry.ValueEntryPanel;
 import uk.co.darkerwaters.client.entry.ValueEntryPanel.ValueEntryListener;
 import uk.co.darkerwaters.client.login.LoginInfo;
@@ -34,6 +36,7 @@ public class EmoTrack implements EntryPoint {
 	private LoginInfo loginInfo = null;
 	private VerticalPanel loginPanel = new VerticalPanel();
 	private Label loginLabel = new Label();
+	private Label loginDescrption = new Label(EmoTrackConstants.Instance.loginDescription());
 	private Anchor loginLink = new Anchor();
 
 	private Timer loginCheckTimer;
@@ -47,6 +50,7 @@ public class EmoTrack implements EntryPoint {
 	private final EmoTrackConstants constants = EmoTrackConstants.Instance;
 	
 	private ValueEntryPanel entryPanel;
+	private int panelsLoaded = 0;
 	
 	/**
 	 * This is the entry point method.
@@ -88,12 +92,12 @@ public class EmoTrack implements EntryPoint {
 					}
 				});
 		*/
-		this.dataChartPanel = new DataChartPanel(EmoTrackConstants.K_CSS_ID_DATACHART);
+		this.dataChartPanel = new DataChartPanel(EmoTrackConstants.K_CSS_ID_DATACHART, createChartListener());
 		RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERDISPLAY).add(this.dataChartPanel);
 		
 		// setup the login panel
 		loginPanel.addStyleName("login-panel");
-		loginPanel.add(new Label(EmoTrackConstants.Instance.loginDescription()));
+		loginPanel.add(loginDescrption);
 		loginPanel.add(loginLabel);
 		loginPanel.add(loginLink);
 		RootPanel.get("header").add(loginPanel);
@@ -112,7 +116,7 @@ public class EmoTrack implements EntryPoint {
 							// update our details
 							updateLoginDetails();
 							// and handle the error
-							handleLoginError(error);
+							handleError(error);
 						}
 						public void onSuccess(LoginInfo result) {
 							if (false == result.equals(loginInfo)) {
@@ -137,11 +141,31 @@ public class EmoTrack implements EntryPoint {
 				// update our chart with this data
 				updateChartData(titles, values);
 			}
-			
 			@Override
 			public void updateTrackEntry(TrackPointData newPoint) {
 				// add this data to the chart
 				updateChartData(newPoint);
+			}
+			@Override
+			public void handleError(Throwable error) {
+				EmoTrack.this.handleError(error);
+			}
+			@Override
+			public void loadingComplete() {
+				loadingCompleted();
+			}
+		};
+	}
+
+	private EmoTrackListener createChartListener() {
+		return new EmoTrackListener() {
+			@Override
+			public void handleError(Throwable error) {
+				EmoTrack.this.handleError(error);
+			}
+			@Override
+			public void loadingComplete() {
+				loadingCompleted();
 			}
 		};
 	}
@@ -163,6 +187,14 @@ public class EmoTrack implements EntryPoint {
 		
 		return panel;
 	}
+	private void loadingCompleted() {
+		synchronized (this) {
+			++this.panelsLoaded;
+		}
+		if (this.panelsLoaded >= 2) {
+			RootPanel.get("loadingDisplay").setVisible(false);
+		}
+	}
 
 	protected void updateChartData(TrackPointData newPoint) {
 		if (null != this.dataChartPanel) {
@@ -180,6 +212,7 @@ public class EmoTrack implements EntryPoint {
 		// Assemble login panel.
 		if (null != this.loginInfo && this.loginInfo.isLoggedIn()) {
 			// set the name to show
+			loginDescrption.setVisible(true);
 			loginLabel.setText(this.loginInfo.getNickname());
 			// add the option to log-out
 			loginLink.setHref(loginInfo.getLogoutUrl());
@@ -187,6 +220,7 @@ public class EmoTrack implements EntryPoint {
 		}
 		else {
 			// set the name to show
+			loginDescrption.setVisible(false);
 			loginLabel.setText(EmoTrackConstants.Instance.notLoggedIn());
 			// add the option to log-in
 			loginLink.setHref(loginInfo.getLoginUrl());
@@ -194,10 +228,18 @@ public class EmoTrack implements EntryPoint {
 		}
 	}
 
-	public void handleLoginError(Throwable error) {
-		//Window.alert(error.getMessage());
+	public void handleError(Throwable error) {
+		LOG.log(Level.SEVERE, error.getMessage());
 		if (error instanceof NotLoggedInException) {
-			Window.Location.replace(loginInfo.getLogoutUrl());
+			if (null != loginInfo) {
+				// send them to the logout URL
+				try {
+					Window.Location.replace(loginInfo.getLogoutUrl());
+				}
+				catch (Exception e) {
+					LOG.log(Level.SEVERE, e.getMessage());
+				}
+			}
 		}
 	}
 }

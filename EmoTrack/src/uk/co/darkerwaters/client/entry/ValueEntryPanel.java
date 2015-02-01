@@ -49,7 +49,7 @@ public class ValueEntryPanel extends FlowPanel {
 	
 	private final FlowPanel valueSelectPanel;
 	
-	public interface ValueEntryListener {
+	public interface ValueEntryListener extends EmoTrackListener {
 		void updateVariableValues(String[] titles, int[] values);
 		void updateTrackEntry(TrackPointData newPoint);
 	}
@@ -190,7 +190,7 @@ public class ValueEntryPanel extends FlowPanel {
 		trackPointService.addTrackPoint(point, new AsyncCallback<Void>() {
 			@Override
 			public void onFailure(Throwable error) {
-				handleError(error);
+				listener.handleError(error);
 			}
 			@Override
 			public void onSuccess(Void result) {
@@ -311,7 +311,7 @@ public class ValueEntryPanel extends FlowPanel {
 	private void addVariable(final String variableName) {
 		variablesService.addVariable(variableName, new AsyncCallback<Void>() {
 			public void onFailure(Throwable error) {
-				handleError(error);
+				listener.handleError(error);
 			}
 
 			public void onSuccess(Void ignore) {
@@ -323,18 +323,15 @@ public class ValueEntryPanel extends FlowPanel {
 	private void loadVariables() {
 		variablesService.getVariables(new AsyncCallback<String[]>() {
 			public void onFailure(Throwable error) {
-				handleError(error);
+				listener.handleError(error);
+				listener.loadingComplete();
 			}
 
 			public void onSuccess(String[] variables) {
 				displayVariables(variables);
+				listener.loadingComplete();
 			}
 		});
-	}
-	
-	protected void handleError(Throwable error) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	protected void displayVariables(String[] variables) {
@@ -375,7 +372,7 @@ public class ValueEntryPanel extends FlowPanel {
 	void removeVariable(final String variableName) {
 		variablesService.removeVariable(variableName, new AsyncCallback<Void>() {
 			public void onFailure(Throwable error) {
-				handleError(error);
+				listener.handleError(error);
 			}
 
 			public void onSuccess(Void ignore) {
@@ -394,7 +391,7 @@ public class ValueEntryPanel extends FlowPanel {
 		trackPointService.addTrackPoint(point, new AsyncCallback<Void>() {
 			@Override
 			public void onFailure(Throwable error) {
-				handleError(error);
+				listener.handleError(error);
 			}
 			@Override
 			public void onSuccess(Void result) {

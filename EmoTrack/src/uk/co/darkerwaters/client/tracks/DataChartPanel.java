@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import uk.co.darkerwaters.client.EmoTrackConstants;
 import uk.co.darkerwaters.client.EmoTrackMessages;
+import uk.co.darkerwaters.client.entry.EmoTrackListener;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
@@ -42,13 +43,15 @@ public class DataChartPanel extends VerticalPanel {
 	
 	private Date currentSelectedDate = null;
 	private Label selectedLabel;
+	private final EmoTrackListener listener;
 	
 	public static DateTimeFormat mthDate = DateTimeFormat.getFormat("yyyy-MM");
 	public static DateTimeFormat mthDisplayDate = DateTimeFormat.getFormat("MMM yyyy");
 	public static DateTimeFormat dayDate = DateTimeFormat.getFormat("yyyy-MM-dd");
 	
-	public DataChartPanel(final String chartId) {
+	public DataChartPanel(final String chartId, EmoTrackListener listener) {
 		// create all our controls in this panel
+		this.listener = listener;
 		this.getElement().setId(EmoTrackConstants.K_CSS_ID_DATACHARTPANEL);
 		// Create a callback to be called when the visualization API
 		// has been loaded.
@@ -100,6 +103,8 @@ public class DataChartPanel extends VerticalPanel {
 			@Override
 			public void onFailure(Throwable error) {
 				handleError(error);
+				listener.handleError(error);
+				listener.loadingComplete();
 			}
 			@Override
 			public void onSuccess(TrackPointData[] result) {
@@ -107,6 +112,7 @@ public class DataChartPanel extends VerticalPanel {
 				showTrackData(result);
 				DataChartPanel.this.selectedLabel.setText(fromDate + " --- " + toDate);
 				updateTrackSelectionControls(null, null);
+				listener.loadingComplete();
 			}
 		});
 		/*

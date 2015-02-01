@@ -113,7 +113,7 @@ public interface EmoTrackConstants extends Constants {
 	@DefaultStringValue("Logged in as:")
 	String loginDescription();
 
-	@DefaultStringValue("Please sign in to your Google Account to access the application.")
+	@DefaultStringValue("Please sign in to your Google Account...")
 	String notLoggedIn();
 	
 	@DefaultStringValue("Sign In")
