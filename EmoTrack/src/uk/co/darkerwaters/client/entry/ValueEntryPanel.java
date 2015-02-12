@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import uk.co.darkerwaters.client.EmoTrack;
 import uk.co.darkerwaters.client.EmoTrackConstants;
 import uk.co.darkerwaters.client.EmoTrackMessages;
 import uk.co.darkerwaters.client.WatermarkedTextBox;
@@ -52,6 +53,7 @@ public class ValueEntryPanel extends FlowPanel {
 	public interface ValueEntryListener extends EmoTrackListener {
 		void updateVariableValues(String[] titles, int[] values);
 		void updateTrackEntry(TrackPointData newPoint);
+		boolean checkLoginStatus();
 	}
 	
 	private final ValueEntryListener listener;
@@ -168,9 +170,9 @@ public class ValueEntryPanel extends FlowPanel {
 			public void onClick(ClickEvent event) {
 				// log this event
 				String eventString = eventTextBox.getText();
-				// The string must be between 1 and 20 chars that are numbers, letters, or dots.
-				if (!eventString.matches("^[0-9a-zA-Z\\.]{1,20}$")) {
-					Window.alert(EmoTrackMessages.Instance.invalidVariableName(eventString));
+				// The string must be between 1 and 50 chars that are numbers, letters, or dots.
+				if (!eventString.matches("^[0-9a-zA-Z\\. ]{1,50}$")) {
+					EmoTrack.alertWidget(EmoTrackConstants.Instance.alertTitle(), EmoTrackMessages.Instance.invalidEventTitle(eventString));
 					eventTextBox.selectAll();
 					return;
 				}
@@ -184,6 +186,9 @@ public class ValueEntryPanel extends FlowPanel {
 	}
 	
 	protected void logEvent(Date selectedDate, String event) {
+		if (false == checkLoginStatus()) {
+			return;
+		}
 		// create a point to contain this data
 		final TrackPointData point = new TrackPointData(selectedDate, event);
 		// send this data to the service now
@@ -276,9 +281,9 @@ public class ValueEntryPanel extends FlowPanel {
 		// The variable name must be between 1 and 20 chars that are numbers, letters,
 		// or dots.
 		if (!variableName.matches("^[0-9a-zA-Z\\.]{1,20}$")) {
-	      Window.alert(EmoTrackMessages.Instance.invalidVariableName(variableName));
-	      newVariableTextBox.selectAll();
-	      return;
+			EmoTrack.alertWidget(EmoTrackConstants.Instance.alertTitle(), EmoTrackMessages.Instance.invalidVariableName(variableName));
+			newVariableTextBox.selectAll();
+			return;
 	    }
 
 		newVariableTextBox.setText("");
@@ -286,7 +291,7 @@ public class ValueEntryPanel extends FlowPanel {
 		// Don't add the variable if it's already in the table.
 		if (isVariableExist(variableName)) {
 			// don't allow this addition
-			Window.alert(EmoTrackMessages.Instance.usedVariableName(variableName));
+			EmoTrack.alertWidget(EmoTrackConstants.Instance.alertTitle(), EmoTrackMessages.Instance.usedVariableName(variableName));
 			newVariableTextBox.selectAll();
 		}
 		else {
@@ -299,7 +304,7 @@ public class ValueEntryPanel extends FlowPanel {
 		boolean isFound = false;
 		for (ValueSelectPanel panel : this.valueSelectPanels) {
 			// check for the name, ignoring case
-			if (null != panel && 0 == panel.getTitle().compareToIgnoreCase(variableName)) {
+			if (null != panel && 0 == panel.getVariableTitle().compareToIgnoreCase(variableName)) {
 				// this is there
 				isFound = true;
 				break;
@@ -309,6 +314,9 @@ public class ValueEntryPanel extends FlowPanel {
 	}
 
 	private void addVariable(final String variableName) {
+		if (false == checkLoginStatus()) {
+			return;
+		}
 		variablesService.addVariable(variableName, new AsyncCallback<Void>() {
 			public void onFailure(Throwable error) {
 				listener.handleError(error);
@@ -370,6 +378,9 @@ public class ValueEntryPanel extends FlowPanel {
 	}
 
 	void removeVariable(final String variableName) {
+		if (false == checkLoginStatus()) {
+			return;
+		}
 		variablesService.removeVariable(variableName, new AsyncCallback<Void>() {
 			public void onFailure(Throwable error) {
 				listener.handleError(error);
@@ -387,6 +398,9 @@ public class ValueEntryPanel extends FlowPanel {
 		for (ValueSelectPanel panel : this.valueSelectPanels) {
 			point.addValue(panel.getVariableTitle(), panel.getVariableValue());
 		}
+		if (false == checkLoginStatus()) {
+			return;
+		}
 		// send this data to the service now
 		trackPointService.addTrackPoint(point, new AsyncCallback<Void>() {
 			@Override
@@ -397,8 +411,13 @@ public class ValueEntryPanel extends FlowPanel {
 			public void onSuccess(Void result) {
 				// inform the graph / view of this new point
 				ValueEntryPanel.this.listener.updateTrackEntry(point);
+				EmoTrack.alertWidget(EmoTrackConstants.Instance.alertTitle(), EmoTrackConstants.Instance.valuesLogged());
 			}
 		});		
+	}
+
+	private boolean checkLoginStatus() {
+		return listener.checkLoginStatus();
 	}
 	
 }

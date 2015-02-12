@@ -1,7 +1,9 @@
 package uk.co.darkerwaters.client.variables;
 
 import java.util.Date;
+import java.util.logging.Level;
 
+import uk.co.darkerwaters.client.EmoTrack;
 import uk.co.darkerwaters.client.EmoTrackConstants;
 import uk.co.darkerwaters.client.EmoTrackMessages;
 import uk.co.darkerwaters.client.WatermarkedTextBox;
@@ -191,7 +193,7 @@ public class VariablesDataEntryPanel extends DecoratorPanel {
 				String eventString = eventTextBox.getText();
 				// The string must be between 1 and 20 chars that are numbers, letters, or dots.
 				if (!eventString.matches("^[0-9a-zA-Z\\.]{1,20}$")) {
-					Window.alert(EmoTrackMessages.Instance.invalidVariableName(eventString));
+					EmoTrack.alertWidget(EmoTrackConstants.Instance.alertTitle(), EmoTrackMessages.Instance.invalidVariableName(eventString));
 					eventTextBox.selectAll();
 					return;
 				}
@@ -237,6 +239,7 @@ public class VariablesDataEntryPanel extends DecoratorPanel {
 	}
 
 	private void handleError(Throwable error) {
-		//Window.alert(error.getMessage());
+		EmoTrack.LOG.log(Level.SEVERE, error.getMessage());
+		//EmoTrack.alertWidget(EmoTrackConstants.Instance.alertTitle(), error.getMessage());
 	}
 }

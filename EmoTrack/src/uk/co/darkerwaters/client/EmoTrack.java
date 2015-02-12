@@ -9,7 +9,6 @@ import uk.co.darkerwaters.client.entry.ValueEntryPanel.ValueEntryListener;
 import uk.co.darkerwaters.client.login.LoginInfo;
 import uk.co.darkerwaters.client.login.LoginService;
 import uk.co.darkerwaters.client.login.LoginServiceAsync;
-import uk.co.darkerwaters.client.login.NotLoggedInException;
 import uk.co.darkerwaters.client.tracks.DataChartPanel;
 import uk.co.darkerwaters.client.tracks.TrackPointData;
 import uk.co.darkerwaters.client.variables.GaugeChartPanel;
@@ -52,6 +51,9 @@ public class EmoTrack implements EntryPoint {
 	private ValueEntryPanel entryPanel;
 	private int panelsLoaded = 0;
 	
+	private static RootPanel errorBox = null;
+	private static Label errorBoxLabel = null;
+	
 	/**
 	 * This is the entry point method.
 	 */
@@ -63,6 +65,9 @@ public class EmoTrack implements EntryPoint {
 			// add the title
 			titlePanel.add(new Label(constants.emotionTracker()));
 		}
+		
+		errorBox = RootPanel.get("errorDisplay");
+		errorBox.setVisible(false);
 		
 		this.entryPanel = new ValueEntryPanel(createValueListener());
 		
@@ -119,8 +124,26 @@ public class EmoTrack implements EntryPoint {
 							handleError(error);
 						}
 						public void onSuccess(LoginInfo result) {
-							if (false == result.equals(loginInfo)) {
-								// a change in login details
+							boolean isChanged = false;
+							if (loginInfo == null && result != null) {
+								// a change
+								isChanged = true;
+							}
+							else if (loginInfo != null && result == null) {
+								// a change
+								isChanged = true;
+							}
+							else if (null != loginInfo && null != result) {
+								// both are not null, is the user different?
+								if (false == result.equals(loginInfo)) {
+									// a change in login details
+									isChanged = true;
+								}
+								else if (result.isLoggedIn() != loginInfo.isLoggedIn()) {
+									isChanged = true;
+								}
+							}
+							if (isChanged) {
 								loginInfo = result;
 								updateLoginDetails();
 							}
@@ -153,6 +176,21 @@ public class EmoTrack implements EntryPoint {
 			@Override
 			public void loadingComplete() {
 				loadingCompleted();
+			}
+			@Override
+			public boolean checkLoginStatus() {
+				if (null != loginInfo && loginInfo.isLoggedIn()) {
+					// are logged in
+					return true;
+				}
+				else if (null != loginInfo && null != loginInfo.getLoginUrl()) {
+					Window.open(loginInfo.getLoginUrl(), "EmoTrack Login", "");
+					return false;
+				}
+				else {
+					EmoTrack.alertWidget(EmoTrackConstants.Instance.alertTitle(), EmoTrackMessages.Instance.notLoggedIn());
+					return false;
+				}
 			}
 		};
 	}
@@ -223,23 +261,41 @@ public class EmoTrack implements EntryPoint {
 			loginDescrption.setVisible(false);
 			loginLabel.setText(EmoTrackConstants.Instance.notLoggedIn());
 			// add the option to log-in
-			loginLink.setHref(loginInfo.getLoginUrl());
+			loginLink.setHref(loginInfo.getLoginUrl() == null ? "" : loginInfo.getLoginUrl());
 			loginLink.setText(EmoTrackConstants.Instance.loginSignIn());
 		}
 	}
 
 	public void handleError(Throwable error) {
 		LOG.log(Level.SEVERE, error.getMessage());
-		if (error instanceof NotLoggedInException) {
-			if (null != loginInfo) {
-				// send them to the logout URL
+		/*if (error instanceof NotLoggedInException) {
+			if (null != loginInfo && null != loginInfo.getLoginUrl()) {
+				// send them to the login URL
 				try {
-					Window.Location.replace(loginInfo.getLogoutUrl());
+					Window.Location.replace(loginInfo.getLoginUrl());
 				}
 				catch (Exception e) {
 					LOG.log(Level.SEVERE, e.getMessage());
 				}
 			}
-		}
+		}*/
 	}
+	
+	public static void alertWidget(final String header, final String content) {
+		
+		if (null == errorBoxLabel) {
+			errorBoxLabel = new Label();
+			errorBox.add(errorBoxLabel);
+		}
+		errorBoxLabel.setText(content);
+        errorBox.setVisible(true);
+        Timer showTimer = new Timer() {
+			
+			@Override
+			public void run() {
+				errorBox.setVisible(false);
+			}
+		};
+		showTimer.schedule(5000);
+    } 
 }

@@ -25,7 +25,7 @@ public class ValueSelectPanel extends FlowPanel {
 		this.addStyleName("valueSelect");
 		this.title = title;
 		this.variableValueLabel = new Label(title);
-		add(variableValueLabel);
+		this.addStyleName("chartLabel");
 		this.setWidth("200px");
 		this.chartPanel = new GaugeChartPanel(new GaugeChartPanel.CreationListener() {
 			@Override
@@ -67,6 +67,7 @@ public class ValueSelectPanel extends FlowPanel {
 		controlPanel.add(deleteButton);
 		controlPanel.add(this.variableValueSlider);
 		this.add(controlPanel);
+		this.add(variableValueLabel);
 	}
 
 	protected void updateValue(String variableName, int value) {

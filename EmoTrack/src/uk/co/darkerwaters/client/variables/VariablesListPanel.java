@@ -128,9 +128,9 @@ public class VariablesListPanel extends VerticalPanel {
 		// The variable name must be between 1 and 20 chars that are numbers, letters,
 		// or dots.
 		if (!variableName.matches("^[0-9a-zA-Z\\.]{1,20}$")) {
-	      Window.alert(EmoTrackMessages.Instance.invalidVariableName(variableName));
-	      newVariableTextBox.selectAll();
-	      return;
+			EmoTrack.alertWidget(EmoTrackConstants.Instance.alertTitle(), EmoTrackMessages.Instance.invalidVariableName(variableName));
+			newVariableTextBox.selectAll();
+			return;
 	    }
 
 		newVariableTextBox.setText("");
@@ -138,7 +138,7 @@ public class VariablesListPanel extends VerticalPanel {
 		// Don't add the variable if it's already in the table.
 		if (isVariableExist(variableName)) {
 			// don't allow this addition
-			Window.alert(EmoTrackMessages.Instance.usedVariableName(variableName));
+			EmoTrack.alertWidget(EmoTrackConstants.Instance.alertTitle(), EmoTrackMessages.Instance.usedVariableName(variableName));
 			newVariableTextBox.selectAll();
 		}
 		else {

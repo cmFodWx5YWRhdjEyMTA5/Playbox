@@ -144,6 +144,9 @@ body {
 .hidden-text {
 	visibility: hidden;
 }
+.chartLabel {
+	text-align: center;
+}
 #appDataDisplay {
 	width: 80%;
 	margin: 0px auto;
@@ -204,6 +207,25 @@ body {
     text-align:center;
     padding:5px;
     font-size: 1.5em;
+    padding-left: 2px;
+    padding-top: 2px;
+    height: 30px;
+}
+
+/* text inputs in general, to help spec a watermark*/
+#errorDisplay {
+	position: fixed;
+	left: 20%;
+	top: 30%;
+	min-width: 200px;
+	min-height: 150px;
+    border: 1px solid #B8603A;
+    border-radius: 10px;
+    background-color:#B8603A;
+    color:white;
+    text-align:center;
+    padding:5px;
+    font-size: 1em;
     padding-left: 2px;
     padding-top: 2px;
     height: 30px;

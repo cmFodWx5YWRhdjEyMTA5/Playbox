@@ -124,4 +124,10 @@ public interface EmoTrackConstants extends Constants {
 	
 	@DefaultStringValue("To start; <Add> new emotions to track...")
 	String addNewValuesToTrack();
+
+	@DefaultStringValue("Thankyou, entered values were logged. See below on the emtion log to check your progress...")
+	String valuesLogged();
+
+	@DefaultStringValue("EmoTrack")
+	String alertTitle();
 }

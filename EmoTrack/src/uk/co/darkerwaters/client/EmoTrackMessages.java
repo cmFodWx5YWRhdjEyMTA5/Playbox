@@ -9,13 +9,16 @@ public interface EmoTrackMessages extends Messages {
 	
 	public static final EmoTrackMessages Instance = GWT.create(EmoTrackMessages.class);
 	
-	@DefaultMessage("''{0}'' is not a valid emotion title, no punctuation please.")
+	@DefaultMessage("Sorry ''{0}'' is not a valid emotion title, please enter a simple, single word (no punctuation).")
 	String invalidVariableName(String symbol);
+	
+	@DefaultMessage("Sorry ''{0}'' is not a valid event title, no punctuation please.")
+	String invalidEventTitle(String symbol);
 
 	@DefaultMessage("Last update: {0,date,medium} {0,time,medium}")
 	String lastUpdate(Date timestamp);
 
-	@DefaultMessage("''{0}'' is not a valid emotion to track, you are already tracking this...")
+	@DefaultMessage("Sorry ''{0}'' is not a valid emotion to track, you are already tracking this...")
 	String usedVariableName(String variableName);
 
 	@DefaultMessage("Selected data at {0,date,medium}")
@@ -60,6 +63,9 @@ public interface EmoTrackMessages extends Messages {
 	@DefaultMessage("The most {0} possible")
 	String describeVal10(String valueTitle);
 	
-	@DefaultMessage("Current value is a number:  {0}")
+	@DefaultMessage("Current value is a number: {0}")
 	String describeValErr(int value);
+
+	@DefaultMessage("Please log in to your google account to use this service")
+	String notLoggedIn();
 }

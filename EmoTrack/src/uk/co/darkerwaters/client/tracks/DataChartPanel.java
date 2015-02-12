@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 
+import uk.co.darkerwaters.client.EmoTrack;
 import uk.co.darkerwaters.client.EmoTrackConstants;
 import uk.co.darkerwaters.client.EmoTrackMessages;
 import uk.co.darkerwaters.client.entry.EmoTrackListener;
@@ -408,7 +409,9 @@ public class DataChartPanel extends VerticalPanel {
 	}
 
 	private void handleError(Throwable error) {
-		//Window.alert(error.getMessage());
+		if (null != this.listener) {
+			this.listener.handleError(error);
+		}
 	}
 
 }
