@@ -8,6 +8,7 @@ import java.util.HashMap;
 import uk.co.darkerwaters.client.EmoTrack;
 import uk.co.darkerwaters.client.EmoTrackConstants;
 import uk.co.darkerwaters.client.EmoTrackMessages;
+import uk.co.darkerwaters.client.FlatUI;
 import uk.co.darkerwaters.client.entry.EmoTrackListener;
 
 import com.google.gwt.core.client.GWT;
@@ -21,6 +22,7 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextArea;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
@@ -297,9 +299,11 @@ public class DataChartPanel extends VerticalPanel {
 		HorizontalPanel selectionPanel = new HorizontalPanel();
 		selectionPanel.getElement().setId(EmoTrackConstants.K_CSS_ID_DATACHARTSELECTIONPANEL);
 		final Button lessButton = new Button("<");
+		FlatUI.makeButton(lessButton, null);
 		this.selectedLabel = new Label(EmoTrackConstants.Instance.latestValues());
 		this.selectedLabel.getElement().setId(EmoTrackConstants.K_CSS_ID_DATACHARTDATELABEL);
 		final Button moreButton = new Button(">");
+		FlatUI.makeButton(moreButton, null);
 		
 		selectionPanel.add(lessButton);
 		selectionPanel.add(this.selectedLabel);
@@ -355,10 +359,11 @@ public class DataChartPanel extends VerticalPanel {
 	protected void createDataControls() {
 		HorizontalPanel dataPanel = new HorizontalPanel();
 		dataPanel.getElement().setId(EmoTrackConstants.K_CSS_ID_DATACHARTDATAPANEL);
-		final TextArea selectedTextBox = new TextArea();
+		final TextBox selectedTextBox = new TextBox();
+		FlatUI.makeEntryText(selectedTextBox, EmoTrackConstants.K_CSS_ID_DATACHARTDATATEXT, EmoTrackConstants.Instance.selectValue());
 		dataPanel.add(selectedTextBox);
 		final Button deleteButton = new Button(EmoTrackConstants.Instance.deleteSelectionButton());
-		deleteButton.getElement().setId(EmoTrackConstants.K_CSS_ID_DELETEDATABUTTON);
+		FlatUI.makeButton(deleteButton, EmoTrackConstants.K_CSS_ID_DELETEDATABUTTON);
 		deleteButton.setEnabled(false);
 		dataPanel.add(deleteButton);
 		dataPanel.setCellVerticalAlignment(deleteButton, HasVerticalAlignment.ALIGN_MIDDLE);
@@ -379,7 +384,7 @@ public class DataChartPanel extends VerticalPanel {
 		
 	}
 
-	protected SelectHandler createChartSelectionHandler(final TextArea selectedTextBox, final Button deleteButton) {
+	protected SelectHandler createChartSelectionHandler(final TextBox selectedTextBox, final Button deleteButton) {
 		return new SelectHandler() {
 			@Override
 			public void onSelect(SelectEvent event) {

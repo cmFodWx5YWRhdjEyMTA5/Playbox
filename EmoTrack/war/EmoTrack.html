@@ -7,11 +7,26 @@
 <html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!--                                                               -->
 <!-- Consider inlining CSS to reduce the number of requested files -->
 <!--                                                               -->
-<link type="text/css" rel="stylesheet" href="EmoTrack.css">
+<link type="text/css" href="EmoTrack.css" rel="stylesheet">
+
+<!-- Loading Bootstrap -->
+<link type="text/css" href="./css/vendor/bootstrap.min.css" rel="stylesheet">
+
+<!-- Loading Flat UI -->
+<link type="text/css" href="./css/flat-ui.css" rel="stylesheet">
+
+<link rel="shortcut icon" href="favicon.ico">
+
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements. All other JS at the end of file. -->
+<!--[if lt IE 9]>
+  <script src="../../dist/js/vendor/html5shiv.js"></script>
+  <script src="../../dist/js/vendor/respond.min.js"></script>
+<![endif]-->
 
 <!--                                           -->
 <!-- Any title is fine                         -->
@@ -33,11 +48,10 @@
 <!-- to create a completely dynamic UI.        -->
 <!--                                           -->
 <body>
-
-	<!-- OPTIONAL: include this if you want history support 
+	<!-- OPTIONAL: include this if you want history support -->
 	<iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1'
-		style="position: absolute; width: 0; height: 0; border: 0"></iframe>
-
+		style="position: absolute; width: 0; height: 0; border: 0">
+	</iframe>
 	<!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
 	<noscript>
 		<div
@@ -45,12 +59,36 @@
 			Your web browser must have JavaScript enabled in order for this
 			application to display correctly.</div>
 	</noscript>
+	
+	<!-- Static navbar -->
+    <div id="header" class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+          </button>
+          <a class="navbar-brand" href="#">Emotion Tracker</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li id="loginListItemPlaceholder" class="nav">
+            </li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
 
-	<div id="header">
-		<img id="logoPanel" src="images/logo.png" height="100px"/>
-		<h1>Emotion Tracker</h1>
-	</div>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="./js/vendor/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="./js/flat-ui.min.js"></script>
 
+    <script src="./js/application.js"></script>
 	
 	<div id="timeValueEntry"></div>
 	
@@ -66,7 +104,8 @@
 		<p id="appValueEntry"></p>
 	</div>
 	
-	<div id="dataBreak"></div>
+	<div class="dataBreak"></div>
+	
 	<div id="appDataDisplay"></div>
 	
 	<div id="errorDisplay">

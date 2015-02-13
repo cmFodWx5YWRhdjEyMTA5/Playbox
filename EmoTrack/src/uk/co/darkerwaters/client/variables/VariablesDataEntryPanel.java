@@ -6,7 +6,7 @@ import java.util.logging.Level;
 import uk.co.darkerwaters.client.EmoTrack;
 import uk.co.darkerwaters.client.EmoTrackConstants;
 import uk.co.darkerwaters.client.EmoTrackMessages;
-import uk.co.darkerwaters.client.WatermarkedTextBox;
+import uk.co.darkerwaters.client.FlatUI;
 import uk.co.darkerwaters.client.tracks.TrackPointData;
 import uk.co.darkerwaters.client.tracks.TrackPointService;
 import uk.co.darkerwaters.client.tracks.TrackPointServiceAsync;
@@ -72,8 +72,8 @@ public class VariablesDataEntryPanel extends DecoratorPanel {
 	    layout.setWidget(1, 2, logDatePicker);
 	    
 	    // add the track event controls to the next row
-	    TextBox eventTextBox = new WatermarkedTextBox("", constants.eventEntry());
-	    eventTextBox.getElement().setId(EmoTrackConstants.K_CSS_ID_EVENTTEXTBOX);
+	    TextBox eventTextBox = new TextBox();
+	    FlatUI.makeEntryText(eventTextBox, EmoTrackConstants.K_CSS_ID_EVENTTEXTBOX, constants.eventEntry());
 	    layout.setWidget(2, 0, eventTextBox);
 	    cellFormatter.setColSpan(2, 0, 2);
 	    layout.setWidget(2, 1, createLogEventButton(eventTextBox, logDateList, logDatePicker));
@@ -186,6 +186,7 @@ public class VariablesDataEntryPanel extends DecoratorPanel {
 	private Button createLogEventButton(final TextBox eventTextBox, final ListBox logDateList, final DatePicker logDatePicker) {
 		// create the log event button
 		Button logEventButton = new Button(constants.logEvent());
+		FlatUI.makeButton(logEventButton, null);
 		logEventButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -209,6 +210,7 @@ public class VariablesDataEntryPanel extends DecoratorPanel {
 	private ListBox createLogDateList(final DatePicker logDatePicker) {
 		// add all the options to the drop-down
 		final ListBox logDateList = new ListBox();
+		FlatUI.makeCombo(logDateList, null);
 		for (LogDates date : LogDates.values()) {
 			logDateList.addItem(date.title);
 		}

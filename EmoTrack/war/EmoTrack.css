@@ -1,25 +1,16 @@
-.gwt-Label {
-	font-size: 1.5em;
-}
-
-.gwt-Anchor {
-	font-size: 1.5em;
-}
-
-#footer {
-	font-size: 1.2em;
-	a:link{
-    	color:#FFFFFF;
-	}
-}
-
 #header {
-    background-color:#5C4A3E;
+    background-color:#E2D3BE;
     color:white;
     text-align:center;
-    font-size: 1.5em;
+    font-size: 0.8em;
     padding:1px;
 }
+
+.flat-slider {
+	width: 100%;
+	clear: both;
+}
+
 #timeValueEntry {
     line-height:30px;
     min-width: 350px;
@@ -28,11 +19,12 @@
     float:left;
     padding:5px; 
 }
+
 body {
-	background-color:#CBB488;
+	padding-top: 70px;
 }
 
-#dataBreak { 
+.dataBreak { 
 	width:100%; 
 	height:20px;
     color:white;
@@ -46,9 +38,84 @@ body {
 #timeDateSelectPanel {
 	width: 100%;
 }
+
 .gwt-DatePicker {
-	wdith: 200px;
+  border: 1px solid #888;
+  cursor: default;
 }
+.gwt-DatePicker td,
+.datePickerMonthSelector td:focus {
+  outline: none
+}
+.datePickerDays {
+  width: 100%;
+  background: white;
+}
+.datePickerDay,
+.datePickerWeekdayLabel,
+.datePickerWeekendLabel {
+  font-size: 75%;
+  text-align: center;
+  padding: 4px;
+  outline: none;
+}
+.datePickerWeekdayLabel,
+.datePickerWeekendLabel {
+  background: #c1c1c1;
+  padding: 0px 4px 2px;
+  cursor: default;
+}
+.datePickerDay {
+  padding: 4px;
+  cursor: hand;
+  cursor: pointer;
+}
+.datePickerDayIsToday {
+  border: 1px solid black;
+  padding: 3px;
+}
+.datePickerDayIsWeekend {
+  background: #EEEEEE;
+}
+.datePickerDayIsFiller {
+  color: #888888;
+}
+.datePickerDayIsValue {
+  background: #abf;
+}
+.datePickerDayIsDisabled {
+  color: #AAAAAA;
+  font-style: italic;
+}
+.datePickerDayIsHighlighted {
+  background: #dde;
+}
+.datePickerDayIsValueAndHighlighted {
+  background: #ccf;
+}
+.datePickerMonthSelector {
+  background: #c1c1c1;
+  width: 100%;
+}
+td.datePickerMonth,
+td.datePickerYear {
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  font-size: 70%;
+  font-weight: bold;
+}
+.datePickerPreviousButton,
+.datePickerNextButton,
+.datePickerPreviousYearButton,
+.datePickerNextYearButton {
+  font-size: 120%;
+  line-height: 1em;
+  cursor: hand;
+  cursor: pointer;
+  padding: 0px 4px;
+}
+
 #section {
     float:left;
     width: 850px;
@@ -67,16 +134,8 @@ body {
 }
 /* login panel, within the banner usually */
 .login-panel {
-	text-align: right;
-	margin-top: -105px;
+	font-size: 0.8em;
 	border: 1px solid #C9C7BA;
-    font-family:Tahoma, Verdana, Arial, Helvetica, sans-serif;
-    font-size: 11px;
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    float: right;
 }
 /* logo panel, within the banner usually */
 #logoPanel {
@@ -105,15 +164,6 @@ body {
 #selectedTime {
 	font-size: large;
 }
-/* text inputs in general, to help spec a watermark*/
-.textInput {
-    border: 1px solid #C9C7BA;
-    font-family:Tahoma, Verdana, Arial, Helvetica, sans-serif;
-    font-size: 1.1em;
-    padding-left: 2px;
-    padding-top: 2px;
-    height: 30px;
-}
 .info {
 	font-size: xx-large;
 	color: DarkGray;
@@ -131,12 +181,11 @@ body {
 	float:left;
 	width: 100%;
 }
-.variable-slider {
-	float: right;
-}
 .entryValue {
 	float: left;
-	padding: 5px;
+}
+.valueLabel {
+	min-height: 65px;
 }
 .valueSelect {
 	padding: 10px;
@@ -151,10 +200,14 @@ body {
 	width: 80%;
 	margin: 0px auto;
 }
+#dataChartDataText {
+	width: 500px;
+}
 /* chart data panel */
 #dataChartPanel {
 	position: relative;
 	float:left;
+	width: 80%;
 	/* border: 1px solid rgb(187, 187, 187);
 	border-radius: 5px; */
 }
@@ -168,7 +221,7 @@ body {
 
 #variableEntry {
 	float: left;
-	width: 180px;
+	width: 250px;
 }
 
 #variableAddButton {
@@ -181,7 +234,7 @@ body {
     padding-left: 20px;
     padding-right: 20px;
 }
-
+/*
 .gwt-ListBox {
 	height: 30px;
 	font-size: 1.2em;
@@ -192,7 +245,7 @@ body {
 	height: 35px;
 	font-size: 1.2em;
 	color: #B8603A;
-}
+}*/
 /* text inputs in general, to help spec a watermark*/
 #loadingDisplay {
 	position: fixed;
@@ -210,6 +263,7 @@ body {
     padding-left: 2px;
     padding-top: 2px;
     height: 30px;
+    z-index: 11;
 }
 
 /* text inputs in general, to help spec a watermark*/
@@ -229,4 +283,5 @@ body {
     padding-left: 2px;
     padding-top: 2px;
     height: 30px;
+    z-index: 10;
 }

@@ -7,7 +7,7 @@ import java.util.List;
 import uk.co.darkerwaters.client.EmoTrack;
 import uk.co.darkerwaters.client.EmoTrackConstants;
 import uk.co.darkerwaters.client.EmoTrackMessages;
-import uk.co.darkerwaters.client.WatermarkedTextBox;
+import uk.co.darkerwaters.client.FlatUI;
 import uk.co.darkerwaters.client.tracks.TrackPointData;
 import uk.co.darkerwaters.client.tracks.TrackPointService;
 import uk.co.darkerwaters.client.tracks.TrackPointServiceAsync;
@@ -16,6 +16,8 @@ import uk.co.darkerwaters.client.variables.VariablesService;
 import uk.co.darkerwaters.client.variables.VariablesServiceAsync;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.HeadingElement;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -25,7 +27,6 @@ import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -46,7 +47,7 @@ public class ValueEntryPanel extends FlowPanel {
 	
 	private final List<ValueSelectPanel> valueSelectPanels;
 
-	private WatermarkedTextBox newVariableTextBox;
+	private TextBox newVariableTextBox;
 	
 	private final FlowPanel valueSelectPanel;
 	
@@ -83,19 +84,23 @@ public class ValueEntryPanel extends FlowPanel {
 	    timePanel.add(timeSelectImage);
 	    FlowPanel timeSelectPanel = new FlowPanel();
 	    timeSelectPanel.getElement().setId("timeDateSelectPanel");
-	    timeSelectPanel.add(new Label(EmoTrackConstants.Instance.trackValues()));
+	    HeadingElement headingElement = Document.get().createHElement(4);
+	    headingElement.setInnerText(EmoTrackConstants.Instance.trackValues());
+	    timeSelectPanel.getElement().appendChild(headingElement);
 	    timeSelectPanel.add(logDateList);
 	    timeSelectPanel.add(logDatePicker);
-	    timeSelectPanel.add(dateSelectLabel);
-	    timeSelectPanel.add(timeSelectLabel);
+	    FlowPanel labelPanel = new FlowPanel();
+	    labelPanel.add(dateSelectLabel);
+	    labelPanel.add(timeSelectLabel);
+	    timeSelectPanel.add(labelPanel);
 	    timePanel.add(timeSelectPanel);
 	    leftPanel.add(timePanel);
 
 		// create the log event controls
 		FlowPanel logPanel = new FlowPanel();
 		logPanel.getElement().setId("logEventPanel");
-	    TextBox eventTextBox = new WatermarkedTextBox("", EmoTrackConstants.Instance.eventEntry());
-	    eventTextBox.getElement().setId(EmoTrackConstants.K_CSS_ID_EVENTTEXTBOX);
+	    TextBox eventTextBox = new TextBox();
+	    FlatUI.makeEntryText(eventTextBox, EmoTrackConstants.K_CSS_ID_EVENTTEXTBOX, EmoTrackConstants.Instance.eventEntry());
 	    logPanel.add(createLogEventButton(eventTextBox, logDateList, logDatePicker));
 	    logPanel.add(eventTextBox);
 		
@@ -105,11 +110,11 @@ public class ValueEntryPanel extends FlowPanel {
 	    VerticalPanel variablePanel = new VerticalPanel();
 	    variablePanel.getElement().setId("variableSelectPanel");
 	    FlowPanel newDataPanel = new FlowPanel();
-	    this.newVariableTextBox = new WatermarkedTextBox("", EmoTrackConstants.Instance.variableEntry());
-		this.newVariableTextBox.getElement().setId(EmoTrackConstants.K_CSS_ID_VARIABLETEXTBOX);
+	    this.newVariableTextBox = new TextBox();
+	    FlatUI.makeEntryText(newVariableTextBox, EmoTrackConstants.K_CSS_ID_VARIABLETEXTBOX, EmoTrackConstants.Instance.variableEntry());
 		// create the add button to add things to the flex table
 		Button addVariableButton = new Button(EmoTrackConstants.Instance.addVariable());
-		addVariableButton.getElement().setId(EmoTrackConstants.K_CSS_ID_ADDBUTTON);
+		FlatUI.makeButton(addVariableButton, EmoTrackConstants.K_CSS_ID_ADDBUTTON);
 		newDataPanel.add(newVariableTextBox);
 		newDataPanel.add(addVariableButton);
 		variablePanel.add(newDataPanel);
@@ -125,6 +130,7 @@ public class ValueEntryPanel extends FlowPanel {
 		// create the log values button
 		FlowPanel logValPanel = new FlowPanel();
 		Button logValuesButton = new Button(EmoTrackConstants.Instance.logValues());
+		FlatUI.makeButton(logValuesButton, null);
 		logValuesButton.addStyleName("entryValue");
 		// setup the button
 		logValuesButton.addClickHandler(new ClickHandler() {
@@ -164,7 +170,7 @@ public class ValueEntryPanel extends FlowPanel {
 	private Button createLogEventButton(final TextBox eventTextBox, final ListBox logDateList, final DatePicker logDatePicker) {
 		// create the log event button
 		Button logEventButton = new Button(EmoTrackConstants.Instance.logEvent());
-		logEventButton.getElement().setId("logEventButton");
+		FlatUI.makeButton(logEventButton, "logEventButton");
 		logEventButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -222,6 +228,7 @@ public class ValueEntryPanel extends FlowPanel {
 	private ListBox createLogDateList(final DatePicker logDatePicker, final Label dateSelectLabel, final Label timeSelectLabel) {
 		// add all the options to the drop-down
 		final ListBox logDateList = new ListBox();
+		FlatUI.makeCombo(logDateList, null);
 		for (LogDates date : LogDates.values()) {
 			logDateList.addItem(date.title);
 		}

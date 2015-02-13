@@ -1,22 +1,21 @@
 package uk.co.darkerwaters.client.entry;
 
 import uk.co.darkerwaters.client.EmoTrackMessages;
+import uk.co.darkerwaters.client.FlatUI;
 import uk.co.darkerwaters.client.variables.GaugeChartPanel;
-import uk.co.darkerwaters.client.variables.slider.VariableValueSlider;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.visualization.client.visualizations.Gauge;
-import com.kiouri.sliderbar.client.event.BarValueChangedEvent;
-import com.kiouri.sliderbar.client.event.BarValueChangedHandler;
 
 public class ValueSelectPanel extends FlowPanel {
 	private final GaugeChartPanel chartPanel;
 	private final String title;
-	private VariableValueSlider variableValueSlider = null;
+	private SimplePanel variableValueSlider = null;
 	private final Label variableValueLabel;
 	private int currentValue = 0;;
 	
@@ -25,6 +24,7 @@ public class ValueSelectPanel extends FlowPanel {
 		this.addStyleName("valueSelect");
 		this.title = title;
 		this.variableValueLabel = new Label(title);
+		this.variableValueLabel.addStyleName("valueLabel");
 		this.addStyleName("chartLabel");
 		this.setWidth("200px");
 		this.chartPanel = new GaugeChartPanel(new GaugeChartPanel.CreationListener() {
@@ -43,19 +43,18 @@ public class ValueSelectPanel extends FlowPanel {
 		chartPanel.updateData(new String[] {title}, new int[] {ValueSelectPanel.this.currentValue});
 		this.add(chart);
 		// and add the slider
-		this.variableValueSlider = new VariableValueSlider(10, "170px");
-		this.variableValueSlider.addBarValueChangedHandler(new BarValueChangedHandler() {
+		this.variableValueSlider = FlatUI.makeSlider(null, new FlatUI.SliderListener() {
 			@Override
-			public void onBarValueChanged(BarValueChangedEvent event) {
+			public void valueChanged(int value) {
 				// update the chart
-				ValueSelectPanel.this.currentValue = event.getValue();
+				ValueSelectPanel.this.currentValue = value;
 				chartPanel.updateData(new String[] {title}, new int[] {ValueSelectPanel.this.currentValue});
 				updateValue(title, ValueSelectPanel.this.currentValue);
 				//chart.setWidth("200px");
 			}
 		});
-		this.variableValueSlider.addStyleName("variable-slider");
 		Button deleteButton = new Button("X");
+		FlatUI.makeButton(deleteButton, null);
 		deleteButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -65,9 +64,10 @@ public class ValueSelectPanel extends FlowPanel {
 		deleteButton.addStyleName("entryValue");
 		FlowPanel controlPanel = new FlowPanel();
 		controlPanel.add(deleteButton);
-		controlPanel.add(this.variableValueSlider);
+		controlPanel.add(this.variableValueLabel);
 		this.add(controlPanel);
-		this.add(variableValueLabel);
+		this.add(variableValueSlider);
+		FlatUI.configureSlider(this.variableValueSlider);
 	}
 
 	protected void updateValue(String variableName, int value) {

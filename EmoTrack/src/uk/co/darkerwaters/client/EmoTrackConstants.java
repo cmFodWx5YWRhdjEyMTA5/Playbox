@@ -31,6 +31,7 @@ public interface EmoTrackConstants extends Constants {
 	public static final String K_CSS_ID_DELETEDATABUTTON = "deleteSelectedData";
 	public static final String K_CSS_ID_DATESELECTED = "selectedDate";
 	public static final String K_CSS_ID_TIMESELECTED = "selectedTime";
+	public static final String K_CSS_ID_DATACHARTDATATEXT = "dataChartDataText";
 	/** some more constants for all the css classes we are using in the code */ 
 	public static final String K_CSS_CLASS_TABLEHEADER = "table-header";
 	public static final String K_CSS_CLASS_SELECTDATEBUTTON = "select-date-button";
@@ -43,6 +44,7 @@ public interface EmoTrackConstants extends Constants {
 	
 	/** and the instance to use across the application */
 	public static final EmoTrackConstants Instance = GWT.create(EmoTrackConstants.class);
+	
 		
 	@DefaultStringValue ("Emotion Tracker")
 	String emotionTracker();
@@ -130,4 +132,7 @@ public interface EmoTrackConstants extends Constants {
 
 	@DefaultStringValue("EmoTrack")
 	String alertTitle();
+
+	@DefaultStringValue("Click a point on the graph to select / delete...")
+	String selectValue();
 }

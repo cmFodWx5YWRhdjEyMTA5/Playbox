@@ -2,6 +2,7 @@ package uk.co.darkerwaters.client.variables;
 
 import uk.co.darkerwaters.client.EmoTrackConstants;
 import uk.co.darkerwaters.client.EmoTrackMessages;
+import uk.co.darkerwaters.client.FlatUI;
 import uk.co.darkerwaters.client.variables.slider.VariableValueSlider;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -35,6 +36,7 @@ public class VariableRowPanel extends VerticalPanel {
 		addStyleName("variable-row");
 		textPanel.addStyleName("variable-row");
 		// set the data on the labels
+		FlatUI.makeButton(deleteButton, null);
 		deleteButton.setText("x");
 		variableNameLabel.setText(variableName);
 		variableValueLabel.addStyleName("variable-title");

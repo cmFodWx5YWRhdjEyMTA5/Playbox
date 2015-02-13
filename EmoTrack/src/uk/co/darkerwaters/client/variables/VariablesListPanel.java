@@ -7,7 +7,7 @@ import java.util.logging.Level;
 import uk.co.darkerwaters.client.EmoTrack;
 import uk.co.darkerwaters.client.EmoTrackConstants;
 import uk.co.darkerwaters.client.EmoTrackMessages;
-import uk.co.darkerwaters.client.WatermarkedTextBox;
+import uk.co.darkerwaters.client.FlatUI;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -15,18 +15,18 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class VariablesListPanel extends VerticalPanel {
 	private final FlexTable variablesFlexTable;
-	private final WatermarkedTextBox newVariableTextBox;
+	private final TextBox newVariableTextBox;
 	
 	private final VariablesServiceAsync variablesService = GWT.create(VariablesService.class);
 	
@@ -48,11 +48,11 @@ public class VariablesListPanel extends VerticalPanel {
 		getElement().setId(EmoTrackConstants.K_CSS_ID_VARIABLETABLEPANEL);
 		EmoTrackConstants constants = EmoTrackConstants.Instance;
 		this.variablesFlexTable = new FlexTable();
-		this.newVariableTextBox = new WatermarkedTextBox("", constants.variableEntry());
-		this.newVariableTextBox.getElement().setId(EmoTrackConstants.K_CSS_ID_VARIABLETEXTBOX);
+		this.newVariableTextBox = new TextBox();
+		FlatUI.makeEntryText(newVariableTextBox, EmoTrackConstants.K_CSS_ID_VARIABLETEXTBOX, constants.variableEntry());
 		// create the add button to add things to the flex table
 		Button addVariableButton = new Button(constants.addVariable());
-		addVariableButton.getElement().setId(EmoTrackConstants.K_CSS_ID_ADDBUTTON);
+		FlatUI.makeButton(addVariableButton, EmoTrackConstants.K_CSS_ID_ADDBUTTON);
 		// create the variables table nicely
 		variablesFlexTable.setText(0, 0, constants.currentVariablesToTrack());
 		// Add styles to elements in the stock list table.
@@ -101,6 +101,7 @@ public class VariablesListPanel extends VerticalPanel {
 	private Button createLogValuesButton(EmoTrackConstants constants) {
 		// create the log event button
 		Button logValuesButton = new Button(constants.logValues());
+		FlatUI.makeButton(logValuesButton, null);
 		// setup the button
 		logValuesButton.addClickHandler(new ClickHandler() {
 			@Override

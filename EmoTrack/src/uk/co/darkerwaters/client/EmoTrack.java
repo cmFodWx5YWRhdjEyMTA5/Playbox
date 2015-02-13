@@ -105,7 +105,7 @@ public class EmoTrack implements EntryPoint {
 		loginPanel.add(loginDescrption);
 		loginPanel.add(loginLabel);
 		loginPanel.add(loginLink);
-		RootPanel.get("header").add(loginPanel);
+		RootPanel.get("loginListItemPlaceholder").add(loginPanel);
 		
 		// Check login status using login service.
 		final LoginServiceAsync loginService = GWT.create(LoginService.class);
