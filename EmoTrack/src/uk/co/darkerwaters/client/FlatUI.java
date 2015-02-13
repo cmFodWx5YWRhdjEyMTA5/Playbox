@@ -5,6 +5,7 @@ import java.util.HashMap;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 
 public class FlatUI {
@@ -16,11 +17,26 @@ public class FlatUI {
 	private static HashMap<String, SliderListener> sliderListeners = new HashMap<String, FlatUI.SliderListener>();
 
 	public static void makeEntryText(TextBox control, String id, String placeholderText) {
+		makeEntryText(control, id, placeholderText, "text");
+	}
+	
+	public static void makeEntryText(TextBox control, String id, String placeholderText, String type) {
 		if (null != id) {
 			control.getElement().setId(id);
 		}
 		control.addStyleName("form-control");
-		control.getElement().setAttribute("type", "text");
+		control.getElement().setAttribute("type", type);
+		if (null != placeholderText) {
+			control.getElement().setAttribute("placeholder", placeholderText);
+		}
+	}
+	
+	public static void makeEntryTextArea(TextArea control, String id, String placeholderText) {
+		if (null != id) {
+			control.getElement().setId(id);
+		}
+		control.addStyleName("form-control");
+		control.getElement().setAttribute("rows", "5");
 		if (null != placeholderText) {
 			control.getElement().setAttribute("placeholder", placeholderText);
 		}

@@ -20,6 +20,11 @@
 	<servlet-name>variablesService</servlet-name>
 	<servlet-class>uk.co.darkerwaters.server.VariablesServiceImpl</servlet-class>
   </servlet>
+  
+  <servlet>
+	<servlet-name>emailService</servlet-name>
+	<servlet-class>uk.co.darkerwaters.server.EmailServiceImpl</servlet-class>
+  </servlet>
 	
   <servlet-mapping>
 	<servlet-name>loginService</servlet-name>
@@ -34,6 +39,11 @@
   <servlet-mapping>
 	<servlet-name>variablesService</servlet-name>
 	<url-pattern>/emotrack/variables</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+	<servlet-name>emailService</servlet-name>
+	<url-pattern>/emotrack/email</url-pattern>
   </servlet-mapping>
   
   <!-- Default page to serve -->

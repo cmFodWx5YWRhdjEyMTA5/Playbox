@@ -234,18 +234,12 @@ td.datePickerYear {
     padding-left: 20px;
     padding-right: 20px;
 }
-/*
-.gwt-ListBox {
-	height: 30px;
-	font-size: 1.2em;
+
+#contact-page {
+	padding-left: 10%;
+	width: 70%;
 }
 
-.gwt-Button {
-	vertical-align: middle;
-	height: 35px;
-	font-size: 1.2em;
-	color: #B8603A;
-}*/
 /* text inputs in general, to help spec a watermark*/
 #loadingDisplay {
 	position: fixed;

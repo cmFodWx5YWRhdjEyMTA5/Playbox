@@ -7,6 +7,11 @@ import java.util.logging.Logger;
 import uk.co.darkerwaters.client.entry.EmoTrackListener;
 import uk.co.darkerwaters.client.entry.ValueEntryPanel;
 import uk.co.darkerwaters.client.entry.ValueEntryPanel.ValueEntryListener;
+import uk.co.darkerwaters.client.html.AboutPageContainer;
+import uk.co.darkerwaters.client.html.AnalysisPageContainer;
+import uk.co.darkerwaters.client.html.ContactPageContainer;
+import uk.co.darkerwaters.client.html.InformationPageContainer;
+import uk.co.darkerwaters.client.html.PageContainer;
 import uk.co.darkerwaters.client.login.LoginInfo;
 import uk.co.darkerwaters.client.login.LoginService;
 import uk.co.darkerwaters.client.login.LoginServiceAsync;
@@ -27,7 +32,6 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -67,7 +71,7 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 		contact
 	}
 	
-	private final HashMap<Pages, Boolean> pagesCreated = new HashMap<EmoTrack.Pages, Boolean>();
+	private final HashMap<Pages, PageContainer> pagesCreated = new HashMap<EmoTrack.Pages, PageContainer>();
 	
 	/**
 	 * This is the entry point method.
@@ -157,7 +161,7 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 			}
 		};
 		// have created the home page always
-		this.pagesCreated.put(Pages.home, new Boolean(true));
+		this.pagesCreated.put(Pages.home, null);
         //when there is no token, the "home" token is set else changePage() is called.
         //this is useful if a user has bookmarked a site other than the homepage.
         if(History.getToken().isEmpty()){
@@ -178,10 +182,9 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 			token = Pages.home.toString();
 		}
 		Pages activePage = Pages.valueOf(token);
-		if (null != activePage) {
+		if (null != activePage && false == activePage.equals(Pages.home)) {
 			// is this page created?
-			Boolean isCreated = this.pagesCreated.get(activePage);
-			if (null == isCreated || isCreated.booleanValue() == false) {
+			if (null == this.pagesCreated.get(activePage)) {
 				// create this page
 				createPageContents(activePage);
 			}
@@ -216,28 +219,28 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 
 	private void createPageContents(Pages page) {
 		RootPanel pagePanel = RootPanel.get(page.toString());
-		HTML htmlPanel = new HTML();
+		PageContainer pageContainer = null;
 		switch (page) {
 		case home : 
 			//NO
-			htmlPanel = null;
 			break;
 		case analysis :
-			htmlPanel.setHTML(EmoTrackResources.INSTANCE.analysisPage().getText());
+			pageContainer = new AnalysisPageContainer();
 			break;
 		case information :
-			htmlPanel.setHTML(EmoTrackResources.INSTANCE.informationPage().getText());
+			pageContainer = new InformationPageContainer();
 			break;
 		case about :
-			htmlPanel.setHTML(EmoTrackResources.INSTANCE.aboutPage().getText());
+			pageContainer = new AboutPageContainer();
 			break;
 		case contact :
-			htmlPanel.setHTML(EmoTrackResources.INSTANCE.contactPage().getText());
+			pageContainer = new ContactPageContainer();
 			break;
 		}
-		if (null != htmlPanel) {
-			pagePanel.add(htmlPanel);
-			this.pagesCreated.put(page, new Boolean(true));
+		if (null != pageContainer) {
+			pagePanel.add(pageContainer.getPage());
+			this.pagesCreated.put(page, pageContainer);
+			pageContainer.initialisePage();
 		}
 	}
 
