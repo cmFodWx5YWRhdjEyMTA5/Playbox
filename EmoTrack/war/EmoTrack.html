@@ -71,9 +71,11 @@
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#contact">Contact</a></li>
+            <li><a id="home-link" href="#">Track</a></li>
+            <li><a id="analysis-link" href="#analysis">Analysis</a></li>
+            <li><a id="information-link" href="#information">Information</a></li>
+            <li><a id="about-link" href="#about">About</a></li>
+            <li><a id="contact-link" href="#contact">Contact</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
             <li id="loginListItemPlaceholder" class="nav">
@@ -90,23 +92,30 @@
 
     <script src="./js/application.js"></script>
 	
-	<div id="timeValueEntry"></div>
-	
-	<div id="section">
-		<h1>CBT Emotion Tracking</h1>
-		<p>Tracking your emotions lies at the heart of CBT (Cognitive Behavioural Therapy)
-			<a href="javascript:void()" id="moreTextButton">more</a> <span id="moreText" class="hidden-text">. As part of treatment
-			for all kinds of problems, including but not limited to; depression, anxiety,
-			chronic fatigue, it is a good idea to regularly track how you are feeling so when
-			you look back on your week / month / year, you can properly see how you felt. Hopefully
-			seeing that it was not as bad as you thought, and you are better over time.</span>
-		</p>
-		<p id="appValueEntry"></p>
+	<div id="home">
+		<div id="timeValueEntry"></div>
+		
+		<div id="section">
+			<h1>CBT Emotion Tracking</h1>
+			<p>Tracking your emotions lies at the heart of CBT (Cognitive Behavioural Therapy)
+				<a href="javascript:void()" id="moreTextButton">more</a> <span id="moreText" class="hidden-text">. As part of treatment
+				for all kinds of problems, including but not limited to; depression, anxiety,
+				chronic fatigue, it is a good idea to regularly track how you are feeling so when
+				you look back on your week / month / year, you can properly see how you felt. Hopefully
+				seeing that it was not as bad as you thought, and you are better over time.</span>
+			</p>
+			<p id="appValueEntry"></p>
+		</div>
+		
+		<div class="dataBreak"></div>
+		
+		<div id="appDataDisplay"></div>
 	</div>
-	
-	<div class="dataBreak"></div>
-	
-	<div id="appDataDisplay"></div>
+	<!--  placeholders for the other dynamically loaded pages -->
+	<div id="information"></div>
+	<div id="analysis"></div>
+	<div id="about"></div>
+	<div id="contact"></div>
 	
 	<div id="errorDisplay">
 		Emotion Tracker:

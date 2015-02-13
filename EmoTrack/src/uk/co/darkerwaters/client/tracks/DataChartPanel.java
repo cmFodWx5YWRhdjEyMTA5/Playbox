@@ -118,18 +118,6 @@ public class DataChartPanel extends VerticalPanel {
 				listener.loadingComplete();
 			}
 		});
-		/*
-		trackService.getTrackPoints(new AsyncCallback<TrackPointData[]>() {
-			@Override
-			public void onFailure(Throwable error) {
-				handleError(error);
-			}
-			@Override
-			public void onSuccess(TrackPointData[] result) {
-				// show this data on this chart
-				showTrackData(result);
-			}
-		});*/
 	}
 
 	protected void updateTrackSelectionControls(Button lessButton, Button moreButton) {
@@ -180,7 +168,16 @@ public class DataChartPanel extends VerticalPanel {
 		// now we have constructed the ordered list of data
 		// re-construct the chart's data to show it
 		reconstructChartData();
-		this.chart.setSize("1200px", "400px");
+		resizeChartPanel(false);
+	}
+
+	public void resizeChartPanel(boolean isReconstruct) {
+		if (null != this.chart) {
+			if (isReconstruct) {
+				reconstructChartData();
+			}
+			this.chart.setSize("1200px", "400px");
+		}
 	}
 	
 	protected void unshowTrackData(Date removalDate) {

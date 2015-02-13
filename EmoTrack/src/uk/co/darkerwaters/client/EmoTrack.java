@@ -1,5 +1,6 @@
 package uk.co.darkerwaters.client;
 
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,17 +13,21 @@ import uk.co.darkerwaters.client.login.LoginServiceAsync;
 import uk.co.darkerwaters.client.tracks.DataChartPanel;
 import uk.co.darkerwaters.client.tracks.TrackPointData;
 import uk.co.darkerwaters.client.variables.GaugeChartPanel;
-import uk.co.darkerwaters.client.variables.VariablesDataEntryPanel;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -30,7 +35,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
  */
-public class EmoTrack implements EntryPoint {
+public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 	
 	private LoginInfo loginInfo = null;
 	private VerticalPanel loginPanel = new VerticalPanel();
@@ -54,6 +59,16 @@ public class EmoTrack implements EntryPoint {
 	private static RootPanel errorBox = null;
 	private static Label errorBoxLabel = null;
 	
+	private enum Pages {
+		home,
+		analysis,
+		information,
+		about,
+		contact
+	}
+	
+	private final HashMap<Pages, Boolean> pagesCreated = new HashMap<EmoTrack.Pages, Boolean>();
+	
 	/**
 	 * This is the entry point method.
 	 */
@@ -70,6 +85,11 @@ public class EmoTrack implements EntryPoint {
 		errorBox.setVisible(false);
 		
 		this.entryPanel = new ValueEntryPanel(createValueListener());
+		// handle history here
+		History.addValueChangeHandler(this);
+		// setup the home page controls
+		this.dataChartPanel = new DataChartPanel(EmoTrackConstants.K_CSS_ID_DATACHART, createChartListener());
+		RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERDISPLAY).add(this.dataChartPanel);
 		
 		final RootPanel thing = RootPanel.get("moreTextButton");
 		RootPanel.get("moreText").setVisible(false);
@@ -82,23 +102,6 @@ public class EmoTrack implements EntryPoint {
 				RootPanel.get("moreText").removeStyleName("hidden-text");
 			}
 		}, ClickEvent.getType());
-		
-		/*
-		// add the track data entry panel to the app placeholder
-	    RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERENTRY).add(createTrackDateEntryPanel());
-		// create the chart of data to add as values
-		this.variablesChartPanel = new GaugeChartPanel(
-				new GaugeChartPanel.CreationListener() {
-					@Override
-					public void chartCreated(GaugeChartPanel panel, Gauge chart) {
-						// add this chart to the parent panel
-						RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERENTRY).add(chart);
-						chart.getElement().setId(EmoTrackConstants.K_CSS_ID_VARIABLESCHART);
-					}
-				});
-		*/
-		this.dataChartPanel = new DataChartPanel(EmoTrackConstants.K_CSS_ID_DATACHART, createChartListener());
-		RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERDISPLAY).add(this.dataChartPanel);
 		
 		// setup the login panel
 		loginPanel.addStyleName("login-panel");
@@ -153,8 +156,89 @@ public class EmoTrack implements EntryPoint {
 					});
 			}
 		};
+		// have created the home page always
+		this.pagesCreated.put(Pages.home, new Boolean(true));
+        //when there is no token, the "home" token is set else changePage() is called.
+        //this is useful if a user has bookmarked a site other than the homepage.
+        if(History.getToken().isEmpty()){
+            History.newItem("home");
+        } else {
+            changePage(History.getToken());
+        }
 		// perform the initial login check now
 		this.loginCheckTimer.schedule(500);
+	}
+	
+	public void onValueChange(ValueChangeEvent<String> event) {
+	    changePage(History.getToken());
+	}
+	
+	public void changePage(String token) {
+		if (token == null || token.isEmpty()) {
+			token = Pages.home.toString();
+		}
+		Pages activePage = Pages.valueOf(token);
+		if (null != activePage) {
+			// is this page created?
+			Boolean isCreated = this.pagesCreated.get(activePage);
+			if (null == isCreated || isCreated.booleanValue() == false) {
+				// create this page
+				createPageContents(activePage);
+			}
+		}
+		// sort out what to show, and what not to show
+		for (Pages page : Pages.values()) {
+			Element linkParent = null;
+			RootPanel headerLink = RootPanel.get(page.toString() + "-link");
+			if (null != headerLink) {
+				// need to change the style of the parent tho
+				linkParent = headerLink.getElement().getParentElement();
+			}
+			RootPanel pagePanel = RootPanel.get(page.toString());
+			if (page == activePage) {
+				// this is the active page
+				linkParent.addClassName("active");
+				pagePanel.setVisible(true);
+			}
+			else {
+				// this is not the active page
+				linkParent.removeClassName("active");
+				pagePanel.setVisible(false);
+			}
+		}
+		if (activePage.equals(Pages.home)) {
+			// special code for home
+			if (null != this.dataChartPanel) {
+				this.dataChartPanel.resizeChartPanel(true);
+			}
+		}
+	}
+
+	private void createPageContents(Pages page) {
+		RootPanel pagePanel = RootPanel.get(page.toString());
+		HTML htmlPanel = new HTML();
+		switch (page) {
+		case home : 
+			//NO
+			htmlPanel = null;
+			break;
+		case analysis :
+			htmlPanel.setHTML(EmoTrackResources.INSTANCE.analysisPage().getText());
+			break;
+		case information :
+			htmlPanel.setHTML(EmoTrackResources.INSTANCE.informationPage().getText());
+			break;
+		case about :
+			htmlPanel.setHTML(EmoTrackResources.INSTANCE.aboutPage().getText());
+			break;
+		case contact :
+			htmlPanel.setHTML(EmoTrackResources.INSTANCE.contactPage().getText());
+			break;
+		}
+		if (null != htmlPanel) {
+			pagePanel.add(htmlPanel);
+			this.pagesCreated.put(page, new Boolean(true));
+		}
 	}
 
 	private ValueEntryListener createValueListener() {
@@ -206,24 +290,6 @@ public class EmoTrack implements EntryPoint {
 				loadingCompleted();
 			}
 		};
-	}
-
-	private VariablesDataEntryPanel createTrackDateEntryPanel() {
-		VariablesDataEntryPanel panel = new VariablesDataEntryPanel(new VariablesDataEntryPanel.VariablesDataEntryListener() {
-			@Override
-			public void updateVariableValues(String[] titles, int[] values) {
-				// update our chart with this data
-				updateChartData(titles, values);
-			}
-			
-			@Override
-			public void updateTrackEntry(TrackPointData newPoint) {
-				// add this data to the chart
-				updateChartData(newPoint);
-			}
-		});
-		
-		return panel;
 	}
 	private void loadingCompleted() {
 		synchronized (this) {
