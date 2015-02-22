@@ -184,6 +184,9 @@ td.datePickerYear {
 .entryValue {
 	float: left;
 }
+.date-label {
+	margin-left: 5px;
+}
 .valueLabel {
 	min-height: 65px;
 }

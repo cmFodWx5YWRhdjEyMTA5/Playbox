@@ -1,10 +1,17 @@
 package uk.co.darkerwaters.emotrack;
 
+import java.net.CookieManager;
 import java.util.Locale;
 
+import com.gdevelop.gwt.syncrpc.LoginUtils;
+import com.gdevelop.gwt.syncrpc.android.CookieManagerAvailableListener;
+
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -13,127 +20,99 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 
 public class MainActivity extends Activity {
 
-	/**
-	 * The {@link android.support.v4.view.PagerAdapter} that will provide
-	 * fragments for each of the sections. We use a {@link FragmentPagerAdapter}
-	 * derivative, which will keep every loaded fragment in memory. If this
-	 * becomes too memory intensive, it may be best to switch to a
-	 * {@link android.support.v13.app.FragmentStatePagerAdapter}.
-	 */
-	SectionsPagerAdapter mSectionsPagerAdapter;
+	public static int MY_REQUEST_ID = 2222;
+	public static final String BASE_URL = "http://1-dot-coral-velocity-820.appspot.com/";
+	// Use this for Hosted Emulator Loopback Interface
+	//public static final String BASE_URL = "http://10.0.2.2:8888";
+	CookieManager cm;
 
-	/**
-	 * The {@link ViewPager} that will host the section contents.
-	 */
-	ViewPager mViewPager;
+	CookieManagerAvailableListener listener;
+
+	boolean waitForCM = false;
+	private Account account;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		Button activate = (Button) this.findViewById(R.id.activate);
+		activate.setEnabled(false);
+		activate.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				RpcTrackPointAction ab = new RpcTrackPointAction(MainActivity.this.cm);
+				ab.execute(MainActivity.this);
+			}
+		});
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == MY_REQUEST_ID) {
+			if (resultCode == RESULT_OK) {
+				Account account = (Account) data.getExtras().get(LoginUtils.ACCOUNT_KEY);
+				try {
+					LoginUtils.loginAppEngine(this, this.listener, account);
+					this.waitForCM = true;
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+	}
 
-		// Create the adapter that will return a fragment for each of the three
-		// primary sections of the activity.
-		mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		AccountManager accountManager = AccountManager.get(getApplicationContext());
+        Account[] accounts = accountManager.getAccountsByType("com.google");
+        if (null != accounts && accounts.length == 1) {
+        	this.account = accounts[0];
+        }
+        else if (null != accounts && accounts.length > 0) {
+        	// TODO handle multiple accounts
+        	this.account = accounts[0];
+        }
+        else {
+        	// TODO handle no account
+        	this.account = null;
+        }
+        
+		this.listener = new CookieManagerAvailableListener() {
+			@Override
+			public void onAuthFailure() {
+				throw new RuntimeException("Authentication Failed");
+			}
 
-		// Set up the ViewPager with the sections adapter.
-		mViewPager = (ViewPager) findViewById(R.id.pager);
-		mViewPager.setAdapter(mSectionsPagerAdapter);
-
+			@Override
+			public void onCMAvailable(CookieManager cm) {
+				MainActivity.this.cm = cm;
+				Button activate = (Button) MainActivity.this.findViewById(R.id.activate);
+				activate.setEnabled(true);
+			}
+		};
+		if (this.cm == null && !this.waitForCM) {
+			try {
+				LoginUtils.useAccountSelector(false);
+				// Test mode
+				LoginUtils.setLoginUrl(BASE_URL, true);
+				LoginUtils.loginAppEngine(this, this.listener, this.account, MY_REQUEST_ID);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
+		getMenuInflater().inflate(R.menu.activity_main, menu);
 		return true;
 	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-
-	/**
-	 * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-	 * one of the sections/tabs/pages.
-	 */
-	public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-		public SectionsPagerAdapter(FragmentManager fm) {
-			super(fm);
-		}
-
-		@Override
-		public Fragment getItem(int position) {
-			// getItem is called to instantiate the fragment for the given page.
-			// Return a PlaceholderFragment (defined as a static inner class
-			// below).
-			return PlaceholderFragment.newInstance(position + 1);
-		}
-
-		@Override
-		public int getCount() {
-			// Show 3 total pages.
-			return 3;
-		}
-
-		@Override
-		public CharSequence getPageTitle(int position) {
-			Locale l = Locale.getDefault();
-			switch (position) {
-			case 0:
-				return getString(R.string.title_section1).toUpperCase(l);
-			case 1:
-				return getString(R.string.title_section2).toUpperCase(l);
-			case 2:
-				return getString(R.string.title_section3).toUpperCase(l);
-			}
-			return null;
-		}
-	}
-
-	/**
-	 * A placeholder fragment containing a simple view.
-	 */
-	public static class PlaceholderFragment extends Fragment {
-		/**
-		 * The fragment argument representing the section number for this
-		 * fragment.
-		 */
-		private static final String ARG_SECTION_NUMBER = "section_number";
-
-		/**
-		 * Returns a new instance of this fragment for the given section number.
-		 */
-		public static PlaceholderFragment newInstance(int sectionNumber) {
-			PlaceholderFragment fragment = new PlaceholderFragment();
-			Bundle args = new Bundle();
-			args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-			fragment.setArguments(args);
-			return fragment;
-		}
-
-		public PlaceholderFragment() {
-		}
-
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_track,
-					container, false);
-			return rootView;
-		}
-	}
-
 }

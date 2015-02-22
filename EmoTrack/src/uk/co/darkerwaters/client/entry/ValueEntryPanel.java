@@ -140,9 +140,12 @@ public class ValueEntryPanel extends FlowPanel {
 				logCurrentVariables(getSelectedDate(logDateList, logDatePicker));		
 			}
 		});
+		Label atLabel = new Label(EmoTrackConstants.Instance.at());
+		atLabel.addStyleName("entryValue date-label");
 		logValPanel.add(logValuesButton);
-		logValPanel.add(new MirrorLabel(dateSelectLabel, "entryValue"));
-		logValPanel.add(new MirrorLabel(timeSelectLabel, "entryValue"));
+		logValPanel.add(atLabel);
+		logValPanel.add(new MirrorLabel(dateSelectLabel, "entryValue date-label"));
+		logValPanel.add(new MirrorLabel(timeSelectLabel, "entryValue date-label"));
 		variablePanel.add(logValPanel);
 	    
 		RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERVALUEENTRY).add(variablePanel);

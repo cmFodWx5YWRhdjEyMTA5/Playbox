@@ -1,54 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
               http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-         version="2.5"
-         xmlns="http://java.sun.com/xml/ns/javaee">
+	version="2.5" xmlns="http://java.sun.com/xml/ns/javaee">
 
-  <!-- Servlets -->
-  <servlet>
-	<servlet-name>loginService</servlet-name>
-	<servlet-class>uk.co.darkerwaters.server.LoginServiceImpl</servlet-class>
-  </servlet>
-	
-  <servlet>
-	<servlet-name>trackService</servlet-name>
-	<servlet-class>uk.co.darkerwaters.server.TrackPointServiceImpl</servlet-class>
-  </servlet>
+	<!-- Servlets -->
+	<servlet>
+		<servlet-name>loginService</servlet-name>
+		<servlet-class>uk.co.darkerwaters.server.LoginServiceImpl</servlet-class>
+	</servlet>
 
-  <servlet>
-	<servlet-name>variablesService</servlet-name>
-	<servlet-class>uk.co.darkerwaters.server.VariablesServiceImpl</servlet-class>
-  </servlet>
-  
-  <servlet>
-	<servlet-name>emailService</servlet-name>
-	<servlet-class>uk.co.darkerwaters.server.EmailServiceImpl</servlet-class>
-  </servlet>
-	
-  <servlet-mapping>
-	<servlet-name>loginService</servlet-name>
-	<url-pattern>/emotrack/login</url-pattern>
-  </servlet-mapping>
-	
-  <servlet-mapping>
-	<servlet-name>trackService</servlet-name>
-	<url-pattern>/emotrack/track</url-pattern>
-  </servlet-mapping>
-  
-  <servlet-mapping>
-	<servlet-name>variablesService</servlet-name>
-	<url-pattern>/emotrack/variables</url-pattern>
-  </servlet-mapping>
-  
-  <servlet-mapping>
-	<servlet-name>emailService</servlet-name>
-	<url-pattern>/emotrack/email</url-pattern>
-  </servlet-mapping>
-  
-  <!-- Default page to serve -->
-  <welcome-file-list>
-    <welcome-file>EmoTrack.html</welcome-file>
-  </welcome-file-list>
+	<servlet>
+		<servlet-name>trackService</servlet-name>
+		<servlet-class>uk.co.darkerwaters.server.TrackPointServiceImpl</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>variablesService</servlet-name>
+		<servlet-class>uk.co.darkerwaters.server.VariablesServiceImpl</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>emailService</servlet-name>
+		<servlet-class>uk.co.darkerwaters.server.EmailServiceImpl</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>loginService</servlet-name>
+		<url-pattern>/emotrack/login</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>trackService</servlet-name>
+		<url-pattern>/emotrack/track</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>variablesService</servlet-name>
+		<url-pattern>/emotrack/variables</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>emailService</servlet-name>
+		<url-pattern>/emotrack/email</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>SystemServiceServlet</servlet-name>
+		<servlet-class>com.google.api.server.spi.SystemServiceServlet</servlet-class>
+		<init-param>
+			<param-name>services</param-name>
+			<param-value />
+		</init-param>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>SystemServiceServlet</servlet-name>
+		<url-pattern>/_ah/spi/*</url-pattern>
+	</servlet-mapping>
+
+	<!-- Default page to serve -->
+	<welcome-file-list>
+		<welcome-file>EmoTrack.html</welcome-file>
+	</welcome-file-list>
 
 </web-app>

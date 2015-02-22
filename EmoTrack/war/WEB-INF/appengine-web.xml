@@ -16,7 +16,7 @@
     <include path="**.nocache.*" expiration="0s" />
 
     <include path="**.cache.*" expiration="365d" />
-    <exclude path="**.gwt.rpc" />
+    <include path="**.gwt.rpc" />
   </static-files>
 
   <!-- Configure java.util.logging -->

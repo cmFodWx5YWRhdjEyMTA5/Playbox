@@ -85,8 +85,11 @@ public interface EmoTrackConstants extends Constants {
 	@DefaultStringValue("Enter new emotion to track...") 
 	String variableEntry();
 
-	@DefaultStringValue("Log Emotions") 
+	@DefaultStringValue("Log Current Emotions") 
 	String logValues();
+	
+	@DefaultStringValue("at") 
+	String at();
 
 	@DefaultStringValue("Log Event") 
 	String logEvent();
