@@ -12,14 +12,14 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.visualization.client.visualizations.Gauge;
 
-public class ValueSelectPanel extends FlowPanel {
+public class EmotionChartSelectPanel extends FlowPanel {
 	private final GaugeChartPanel chartPanel;
 	private final String title;
 	private SimplePanel variableValueSlider = null;
 	private final Label variableValueLabel;
 	private int currentValue = 0;;
 	
-	public ValueSelectPanel(final ValueEntryPanel parent, String title) {
+	public EmotionChartSelectPanel(final EmotionsTab parent, String title) {
 		this.addStyleName("entryValue");
 		this.addStyleName("valueSelect");
 		this.title = title;
@@ -36,20 +36,20 @@ public class ValueSelectPanel extends FlowPanel {
 		});
 	}
 
-	protected void addChartControls(final ValueEntryPanel parent, final Gauge chart) {
+	protected void addChartControls(final EmotionsTab parent, final Gauge chart) {
 		// add the chart
 		chart.setWidth("200px");
 		chart.setHeight("200px");
-		chartPanel.updateData(new String[] {title}, new int[] {ValueSelectPanel.this.currentValue});
+		chartPanel.updateData(new String[] {title}, new int[] {EmotionChartSelectPanel.this.currentValue});
 		this.add(chart);
 		// and add the slider
 		this.variableValueSlider = FlatUI.makeSlider(null, new FlatUI.SliderListener() {
 			@Override
 			public void valueChanged(int value) {
 				// update the chart
-				ValueSelectPanel.this.currentValue = value;
-				chartPanel.updateData(new String[] {title}, new int[] {ValueSelectPanel.this.currentValue});
-				updateValue(title, ValueSelectPanel.this.currentValue);
+				EmotionChartSelectPanel.this.currentValue = value;
+				chartPanel.updateData(new String[] {title}, new int[] {EmotionChartSelectPanel.this.currentValue});
+				updateValue(title, EmotionChartSelectPanel.this.currentValue);
 				//chart.setWidth("200px");
 			}
 		});
@@ -58,7 +58,7 @@ public class ValueSelectPanel extends FlowPanel {
 		deleteButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				parent.removeVariable(ValueSelectPanel.this.title);
+				parent.removeVariable(EmotionChartSelectPanel.this.title);
 			}
 		});
 		deleteButton.addStyleName("entryValue");
@@ -114,6 +114,10 @@ public class ValueSelectPanel extends FlowPanel {
 		this.variableValueLabel.setText(valueLabel);
 	}
 
+	public String getDescription() {
+		return this.variableValueLabel.getText();
+	}
+
 	protected void handleError(Throwable error) {
 		// TODO Auto-generated method stub
 		
@@ -126,5 +130,4 @@ public class ValueSelectPanel extends FlowPanel {
 	public Integer getVariableValue() {
 		return this.currentValue;
 	}
-
 }

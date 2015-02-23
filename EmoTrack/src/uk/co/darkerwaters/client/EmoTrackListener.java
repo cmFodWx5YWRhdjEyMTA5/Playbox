@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.client.entry;
+package uk.co.darkerwaters.client;
 
 public interface EmoTrackListener {
 	void handleError(Throwable error);

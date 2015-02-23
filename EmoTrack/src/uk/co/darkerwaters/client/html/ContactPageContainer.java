@@ -2,6 +2,12 @@ package uk.co.darkerwaters.client.html;
 
 import java.util.logging.Level;
 
+import uk.co.darkerwaters.client.EmoTrack;
+import uk.co.darkerwaters.client.EmoTrackResources;
+import uk.co.darkerwaters.client.FlatUI;
+import uk.co.darkerwaters.client.email.EmailService;
+import uk.co.darkerwaters.client.email.EmailServiceAsync;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -11,12 +17,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
-
-import uk.co.darkerwaters.client.EmoTrack;
-import uk.co.darkerwaters.client.EmoTrackResources;
-import uk.co.darkerwaters.client.FlatUI;
-import uk.co.darkerwaters.client.email.EmailService;
-import uk.co.darkerwaters.client.email.EmailServiceAsync;
 
 public class ContactPageContainer extends PageContainer {
 

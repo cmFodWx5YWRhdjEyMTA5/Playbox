@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.client.entry;
+package uk.co.darkerwaters.shared;
 
 import java.util.ArrayList;
 import java.util.List;

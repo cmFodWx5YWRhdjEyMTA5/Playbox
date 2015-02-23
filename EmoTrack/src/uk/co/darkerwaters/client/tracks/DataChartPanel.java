@@ -5,11 +5,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 
-import uk.co.darkerwaters.client.EmoTrack;
 import uk.co.darkerwaters.client.EmoTrackConstants;
+import uk.co.darkerwaters.client.EmoTrackListener;
 import uk.co.darkerwaters.client.EmoTrackMessages;
 import uk.co.darkerwaters.client.FlatUI;
-import uk.co.darkerwaters.client.entry.EmoTrackListener;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
@@ -21,7 +20,6 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.datepicker.client.CalendarUtil;

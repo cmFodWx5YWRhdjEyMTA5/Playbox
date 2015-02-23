@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import uk.co.darkerwaters.client.entry.EmoTrackListener;
 import uk.co.darkerwaters.client.entry.ValueEntryPanel;
 import uk.co.darkerwaters.client.entry.ValueEntryPanel.ValueEntryListener;
 import uk.co.darkerwaters.client.html.AboutPageContainer;
@@ -22,11 +21,8 @@ import uk.co.darkerwaters.client.variables.GaugeChartPanel;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
@@ -87,25 +83,13 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 		
 		errorBox = RootPanel.get("errorDisplay");
 		errorBox.setVisible(false);
-		
+		// create the entry panel
 		this.entryPanel = new ValueEntryPanel(createValueListener());
 		// handle history here
 		History.addValueChangeHandler(this);
 		// setup the home page controls
 		this.dataChartPanel = new DataChartPanel(EmoTrackConstants.K_CSS_ID_DATACHART, createChartListener());
 		RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERDISPLAY).add(this.dataChartPanel);
-		
-		final RootPanel thing = RootPanel.get("moreTextButton");
-		RootPanel.get("moreText").setVisible(false);
-		thing.sinkEvents(Event.ONCLICK);
-		thing.addHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				thing.setVisible(false);
-				RootPanel.get("moreText").setVisible(true);
-				RootPanel.get("moreText").removeStyleName("hidden-text");
-			}
-		}, ClickEvent.getType());
 		
 		// setup the login panel
 		loginPanel.addStyleName("login-panel");
@@ -173,6 +157,10 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 		this.loginCheckTimer.schedule(500);
 	}
 	
+	public ValueEntryPanel getEntryPanel() {
+		return this.entryPanel;
+	}
+	
 	public void onValueChange(ValueChangeEvent<String> event) {
 	    changePage(History.getToken());
 	}
@@ -181,38 +169,46 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 		if (token == null || token.isEmpty()) {
 			token = Pages.home.toString();
 		}
-		Pages activePage = Pages.valueOf(token);
-		if (null != activePage && false == activePage.equals(Pages.home)) {
-			// is this page created?
-			if (null == this.pagesCreated.get(activePage)) {
-				// create this page
-				createPageContents(activePage);
-			}
+		Pages activePage = null;
+		try {
+			activePage = Pages.valueOf(token);
 		}
-		// sort out what to show, and what not to show
-		for (Pages page : Pages.values()) {
-			Element linkParent = null;
-			RootPanel headerLink = RootPanel.get(page.toString() + "-link");
-			if (null != headerLink) {
-				// need to change the style of the parent tho
-				linkParent = headerLink.getElement().getParentElement();
-			}
-			RootPanel pagePanel = RootPanel.get(page.toString());
-			if (page == activePage) {
-				// this is the active page
-				linkParent.addClassName("active");
-				pagePanel.setVisible(true);
-			}
-			else {
-				// this is not the active page
-				linkParent.removeClassName("active");
-				pagePanel.setVisible(false);
-			}
+		catch (IllegalArgumentException e) {
+			// fine ignore this # we dont recognise
 		}
-		if (activePage.equals(Pages.home)) {
-			// special code for home
-			if (null != this.dataChartPanel) {
-				this.dataChartPanel.resizeChartPanel(true);
+		if (null != activePage) {
+			if (false == activePage.equals(Pages.home)) {
+				// is this page created?
+				if (null == this.pagesCreated.get(activePage)) {
+					// create this page
+					createPageContents(activePage);
+				}
+			}
+			// sort out what to show, and what not to show
+			for (Pages page : Pages.values()) {
+				Element linkParent = null;
+				RootPanel headerLink = RootPanel.get(page.toString() + "-link");
+				if (null != headerLink) {
+					// need to change the style of the parent tho
+					linkParent = headerLink.getElement().getParentElement();
+				}
+				RootPanel pagePanel = RootPanel.get(page.toString());
+				if (page == activePage) {
+					// this is the active page
+					linkParent.addClassName("active");
+					pagePanel.setVisible(true);
+				}
+				else {
+					// this is not the active page
+					linkParent.removeClassName("active");
+					pagePanel.setVisible(false);
+				}
+			}
+			if (activePage.equals(Pages.home)) {
+				// special code for home
+				if (null != this.dataChartPanel) {
+					this.dataChartPanel.resizeChartPanel(true);
+				}
 			}
 		}
 	}

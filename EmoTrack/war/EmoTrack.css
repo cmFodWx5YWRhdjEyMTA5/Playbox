@@ -115,9 +115,16 @@ td.datePickerYear {
   cursor: pointer;
   padding: 0px 4px;
 }
-
+#entryDescription {
+	margin-bottom: 2px;
+}
+.pagination {
+	margin: 0px;
+}
 #section {
+	border: 1px solid #AAAAAA;
     float:left;
+    top: -90px;
     width: 850px;
     padding:10px; 
 	margin: 0px auto;
@@ -149,11 +156,16 @@ td.datePickerYear {
 }
 /* the entry box to enter an event */
 #eventEntry {
-	width: 180px;
+	width: 75%;
 	float: bottom;
 }
 #logEventPanel {
-	padding-top: 50px;
+	width: 100%;
+	float: left;
+	min-height: 400px;
+}
+#appValueEntry {
+	min-height: 400px;
 }
 #logEventButton {
 	float: left;
@@ -176,6 +188,10 @@ td.datePickerYear {
    vertical-align: middle; */
    font-style: italic;
    color: DarkGray;
+}
+.results-panel {
+	clear: both;
+	width: 100%;
 }
 #appDataEntry {
 	float:left;

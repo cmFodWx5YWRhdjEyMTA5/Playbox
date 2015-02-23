@@ -79,7 +79,7 @@ public interface EmoTrackConstants extends Constants {
 	@DefaultStringValue("other") 
 	String timeOther();
 
-	@DefaultStringValue("Enter specific event...") 
+	@DefaultStringValue("Enter specific event details to record for the selected date...") 
 	String eventEntry();
 
 	@DefaultStringValue("Enter new emotion to track...") 
@@ -130,12 +130,21 @@ public interface EmoTrackConstants extends Constants {
 	@DefaultStringValue("To start; <Add> new emotions to track...")
 	String addNewValuesToTrack();
 
-	@DefaultStringValue("Thankyou, entered values were logged. See below on the emtion log to check your progress...")
-	String valuesLogged();
-
 	@DefaultStringValue("EmoTrack")
 	String alertTitle();
 
 	@DefaultStringValue("Click a point on the graph to select / delete...")
 	String selectValue();
+
+	@DefaultStringValue("Emotions")
+	String emotions();
+	
+	@DefaultStringValue("Activity")
+	String activity();
+	
+	@DefaultStringValue("Sleep")
+	String sleep();
+
+	@DefaultStringValue("Successfully recorded: ")
+	String recorded();
 }
