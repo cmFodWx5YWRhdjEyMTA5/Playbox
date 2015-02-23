@@ -14,6 +14,19 @@ public class TrackPointData implements Serializable {
 	static final String K_VALUES_SEP = ",";
 	static final String K_VALUE_SEP = ":";
 	
+	public static String[] SLEEPKEY = new String[] {"#AWAKE_SLEEP", "#LIGHT_SLEEP", "#DEEP_SLEEP"};
+
+	public static boolean IsSleepKey(String value) {
+		boolean isKey = false;
+		for (String key : SLEEPKEY) {
+			if (key.equals(value)) {
+				isKey = true;
+				break;
+			}
+		}
+		return isKey;
+	}
+	
 	public TrackPointData() {
 		this(new Date());
 	}

@@ -2,6 +2,7 @@ package uk.co.darkerwaters.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.Constants;
+import com.google.gwt.safehtml.shared.SafeHtml;
 
 public interface EmoTrackConstants extends Constants {
 	/** some generic constants for 100% width, cell spacing and such*/
@@ -23,6 +24,7 @@ public interface EmoTrackConstants extends Constants {
 	public static final String K_CSS_ID_VARIABLETEXTBOX = "variableEntry";
 	public static final String K_CSS_ID_VARIABLESCHART = "variablesChart";
 	public static final String K_CSS_ID_DATACHART = "dataChart";
+	public static final String K_CSS_ID_SLEEPCHART = "sleepChart";
 	public static final String K_CSS_ID_DATACHARTPANEL = "dataChartPanel";
 	public static final String K_CSS_ID_DATACHARTDATAPANEL = "dataChartDataPanel";
 	public static final String K_CSS_ID_DATACHARTSELECTIONPANEL = "dataChartSelectionPanel";
@@ -87,6 +89,9 @@ public interface EmoTrackConstants extends Constants {
 
 	@DefaultStringValue("Log Current Emotions") 
 	String logValues();
+
+	@DefaultStringValue("Log Current Sleep Times") 
+	String logSleep();
 	
 	@DefaultStringValue("at") 
 	String at();
@@ -102,6 +107,9 @@ public interface EmoTrackConstants extends Constants {
 
 	@DefaultStringValue("Emotion Log")
 	String dataChartTitle();
+	
+	@DefaultStringValue("Sleep Log")
+	String sleepChartTitle();
 
 	@DefaultStringValue("Delete data at this date")
 	String deleteSelectionButton();
@@ -112,7 +120,7 @@ public interface EmoTrackConstants extends Constants {
 	@DefaultStringValue("Date")
 	String date();
 	
-	@DefaultStringValue("Latest emotions")
+	@DefaultStringValue("Latest values")
 	String latestValues();
 
 	@DefaultStringValue("Logged in as:")
@@ -147,4 +155,25 @@ public interface EmoTrackConstants extends Constants {
 
 	@DefaultStringValue("Successfully recorded: ")
 	String recorded();
+
+	@DefaultStringValue("Time awake in bed: ")
+	String timeInBed();
+
+	@DefaultStringValue("Time sleeping lightly: ")
+	String sleeping();
+
+	@DefaultStringValue("Time sleeping deeply: ")
+	String deepSleep();
+
+	@DefaultStringValue("hours")
+	String hours();
+	
+	@DefaultStringValue("minutes")
+	String minutes();
+
+	@DefaultStringValue("active")
+	String awake();
+
+	@DefaultStringValue(" of ")
+	String of();
 }

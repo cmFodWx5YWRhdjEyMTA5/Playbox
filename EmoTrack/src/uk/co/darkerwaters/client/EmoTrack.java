@@ -16,7 +16,7 @@ import uk.co.darkerwaters.client.login.LoginService;
 import uk.co.darkerwaters.client.login.LoginServiceAsync;
 import uk.co.darkerwaters.client.tracks.DataChartPanel;
 import uk.co.darkerwaters.client.tracks.TrackPointData;
-import uk.co.darkerwaters.client.variables.GaugeChartPanel;
+import uk.co.darkerwaters.shared.GaugeChartPanel;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -50,6 +50,8 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 	private GaugeChartPanel variablesChartPanel;
 	
 	private DataChartPanel dataChartPanel;
+	
+	private DataChartPanel sleepChartPanel;
 	
 	private final EmoTrackConstants constants = EmoTrackConstants.Instance;
 	
@@ -88,8 +90,11 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 		// handle history here
 		History.addValueChangeHandler(this);
 		// setup the home page controls
-		this.dataChartPanel = new DataChartPanel(EmoTrackConstants.K_CSS_ID_DATACHART, createChartListener());
+		this.dataChartPanel = new DataChartPanel(EmoTrackConstants.K_CSS_ID_DATACHART, createChartListener(), false);
 		RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERDISPLAY).add(this.dataChartPanel);
+		
+		this.sleepChartPanel = new DataChartPanel(EmoTrackConstants.K_CSS_ID_SLEEPCHART, createChartListener(), true);
+		RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERDISPLAY).add(this.sleepChartPanel);
 		
 		// setup the login panel
 		loginPanel.addStyleName("login-panel");
@@ -209,6 +214,9 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 				if (null != this.dataChartPanel) {
 					this.dataChartPanel.resizeChartPanel(true);
 				}
+				if (null != this.sleepChartPanel) {
+					this.sleepChartPanel.resizeChartPanel(true);
+				}
 			}
 		}
 	}
@@ -302,6 +310,9 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 	protected void updateChartData(TrackPointData newPoint) {
 		if (null != this.dataChartPanel) {
 			this.dataChartPanel.showTrackData(newPoint);
+		}
+		if (null != this.sleepChartPanel) {
+			this.sleepChartPanel.showTrackData(newPoint);
 		}
 	}
 

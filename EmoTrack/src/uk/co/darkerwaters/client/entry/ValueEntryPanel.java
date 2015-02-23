@@ -49,7 +49,7 @@ public class ValueEntryPanel extends FlowPanel {
 	    tabList.add(createNavigationHeading(-1));
 	    tabList.add(createTabHeading(EmoTrackConstants.Instance.emotions(), new EmotionsTab(listener, trackPointService, dateSelectPanel)));
 	    //tabList.add(createTabHeading(EmoTrackConstants.Instance.activity(), new ValueEntryEmotionsTab(listener, trackPointService, dateSelectPanel)));
-	    //tabList.add(createTabHeading(EmoTrackConstants.Instance.sleep(), new ValueEntryEmotionsTab(listener, trackPointService, dateSelectPanel)));
+	    tabList.add(createTabHeading(EmoTrackConstants.Instance.sleep(), new SleepTab(listener, trackPointService, dateSelectPanel)));
 	    tabList.add(createTabHeading(EmoTrackConstants.Instance.events(), new EventsTab(listener, trackPointService, dateSelectPanel)));
 	    tabList.add(createNavigationHeading(1));
 	    

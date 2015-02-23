@@ -50,9 +50,12 @@ public class DataChartPanel extends VerticalPanel {
 	public static DateTimeFormat mthDisplayDate = DateTimeFormat.getFormat("MMM yyyy");
 	public static DateTimeFormat dayDate = DateTimeFormat.getFormat("yyyy-MM-dd");
 	
-	public DataChartPanel(final String chartId, EmoTrackListener listener) {
+	public final boolean isShowSleep;
+	
+	public DataChartPanel(final String chartId, EmoTrackListener listener, boolean isShowSleep) {
 		// create all our controls in this panel
 		this.listener = listener;
+		this.isShowSleep = isShowSleep;
 		this.getElement().setId(EmoTrackConstants.K_CSS_ID_DATACHARTPANEL);
 		// Create a callback to be called when the visualization API
 		// has been loaded.
@@ -203,26 +206,37 @@ public class DataChartPanel extends VerticalPanel {
 			String[] columns = trackData.getValuesNames();
 			Integer[] values = trackData.getValuesValues();
 			// add a new row for this data
-			int rowIndex = this.data.addRow();
-			this.data.setValue(rowIndex, 0, trackData.getTrackDate());
+			int rowIndex = -1;
 			// now add the relevant column data
 			for (int i = 0; i < columns.length && i < values.length; ++i) {
-				// for each column, ensure we have the column added
-				Integer columnIndex = columnsAdded.get(columns[i]);
-				if (null == columnIndex) {
-					// we have not come across this data name yet, add a column for it
-					columnIndex = this.data.addColumn(ColumnType.NUMBER, columns[i]);
-					// and remember it's index in our member map
-					columnsAdded.put(columns[i], columnIndex);
+				if (this.isShowSleep == TrackPointData.IsSleepKey(columns[i])) {
+					// for each column, ensure we have the column added
+					Integer columnIndex = columnsAdded.get(columns[i]);
+					if (null == columnIndex) {
+						// we have not come across this data name yet, add a column for it
+						columnIndex = this.data.addColumn(ColumnType.NUMBER, columns[i]);
+						// and remember it's index in our member map
+						columnsAdded.put(columns[i], columnIndex);
+					}
+					if (rowIndex == -1) {
+						rowIndex = this.data.addRow();
+					}
+					// set the column data in this new row
+					this.data.setValue(rowIndex, columnIndex, values[i]);
+					
 				}
-				// set the column data in this new row
-				this.data.setValue(rowIndex, columnIndex, values[i]);
 			}
 			// is there an event?
 			String eventString = trackData.getEvent();
 			if (null != eventString && false == eventString.isEmpty()) {
 				// add this to the event series
+				if (rowIndex == -1) {
+					rowIndex = this.data.addRow();
+				}
 				this.data.setCell(rowIndex, 1, 10, eventString, null);
+			}
+			if (rowIndex != -1) {
+				this.data.setValue(rowIndex, 0, trackData.getTrackDate());
 			}
 		}
 		// now draw this new chart data
@@ -259,7 +273,7 @@ public class DataChartPanel extends VerticalPanel {
 
 	private Options createOptions() {
 		Options optionsCreated = Options.create();
-		optionsCreated.setTitle(EmoTrackConstants.Instance.dataChartTitle());
+		optionsCreated.setTitle(this.isShowSleep ? EmoTrackConstants.Instance.sleepChartTitle() : EmoTrackConstants.Instance.dataChartTitle());
 		//optionsCreated.setLineSize(3);
 		optionsCreated.setMin(0);
 		optionsCreated.setMax(10);

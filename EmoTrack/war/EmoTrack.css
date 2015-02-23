@@ -164,6 +164,37 @@ td.datePickerYear {
 	float: left;
 	min-height: 400px;
 }
+#logSleepPanel {
+	width: 100%;
+	float: left;
+	min-height: 400px;
+}
+.sleep-left {
+	float: left;
+	width: 50%;
+}
+.sleep-right {
+	float: left;
+	width: 50%;
+}
+.sleep-bottom {
+	clear: both;
+	width: 100%;
+}
+.sleep-chart {
+	width: 100%;
+}
+.sleep-entry-panel {
+	width: 100%;
+	clear: both;
+}
+.sleep-entry-label {
+	width: 50%;
+	text-align: right;
+}
+.sleep-entry {
+	width: 50px;
+}
 #appValueEntry {
 	min-height: 400px;
 }
@@ -237,7 +268,12 @@ td.datePickerYear {
 	width: 1200px;
 	height: 400px;
 }
-
+#sleepChart {
+	position: relative;
+	float:left;
+	width: 1200px;
+	height: 400px;
+}
 #variableEntry {
 	float: left;
 	width: 250px;

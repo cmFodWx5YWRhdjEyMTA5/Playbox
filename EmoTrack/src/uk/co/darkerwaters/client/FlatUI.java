@@ -3,6 +3,7 @@ package uk.co.darkerwaters.client;
 import java.util.HashMap;
 
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextArea;
@@ -48,6 +49,14 @@ public class FlatUI {
 		}
 		control.addStyleName("btn btn-primary");
 		//control.addStyleName("btn-default");
+	}
+
+	public static InlineLabel createLabel(String content, String id) {
+		InlineLabel control = new InlineLabel(content);
+		if (null != id) {
+			control.getElement().setId(id);
+		}
+		return control;
 	}
 
 	public static void makeCombo(ListBox control, String id) {

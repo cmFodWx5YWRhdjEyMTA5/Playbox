@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.client.variables;
+package uk.co.darkerwaters.shared;
 
 import java.util.ArrayList;
 
@@ -14,8 +14,8 @@ public class GaugeChartPanel {
 	private DataTable data = null;
 	private Options options = null;
 	
-	private String[] variableTitles;
-	private int[] variableValues;
+	private String[] titles;
+	private int[] values;
 	
 	public interface CreationListener {
 		public void chartCreated(GaugeChartPanel panel, Gauge chart);
@@ -33,7 +33,7 @@ public class GaugeChartPanel {
 				// inform the listener
 				listener.chartCreated(GaugeChartPanel.this, chart);
 				// update our data with the latest sent (before we were created)
-				updateData(variableTitles, variableValues);
+				updateData(titles, values);
 			}
 		};
 		// Load the visualization api, passing the onLoadCallback to be called
@@ -44,11 +44,11 @@ public class GaugeChartPanel {
 	public void updateData(String[] variableTitles, int[] variableValues) {
 		synchronized (this) {
 			// remember the data we last received
-			this.variableTitles = variableTitles;
-			this.variableValues = variableValues;
+			this.titles = variableTitles;
+			this.values = variableValues;
 			// check this panel has been loaded properly
-			if (null != this.variableTitles 
-					&& null != this.variableValues 
+			if (null != this.titles 
+					&& null != this.values 
 					&& null != chart 
 					&& null != data 
 					&& null != options) {

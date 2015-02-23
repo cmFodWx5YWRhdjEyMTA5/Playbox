@@ -64,6 +64,7 @@ public abstract class ValueEntryTab {
 
 	protected FlowPanel createLogValuesButtonPanel(Button button, DateSelectTab dateSelectPanel) {
 		FlowPanel logValPanel = new FlowPanel();
+		logValPanel.addStyleName("sleep-bottom");
 
 		atLabel.addStyleName("entryValue date-label");
 		this.dateLabel = new MirrorLabel(dateSelectPanel.getDateSelectLabel(), "entryValue date-label");
