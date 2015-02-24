@@ -308,11 +308,11 @@ public class DataChartPanel extends VerticalPanel {
 		HorizontalPanel selectionPanel = new HorizontalPanel();
 		selectionPanel.getElement().setId(EmoTrackConstants.K_CSS_ID_DATACHARTSELECTIONPANEL);
 		final Button lessButton = new Button("<");
-		FlatUI.makeButton(lessButton, null);
+		FlatUI.makeButton(lessButton, null, EmoTrackConstants.Instance.tipPreviousMonth());
 		this.selectedLabel = new Label(EmoTrackConstants.Instance.latestValues());
 		this.selectedLabel.getElement().setId(EmoTrackConstants.K_CSS_ID_DATACHARTDATELABEL);
 		final Button moreButton = new Button(">");
-		FlatUI.makeButton(moreButton, null);
+		FlatUI.makeButton(moreButton, null, EmoTrackConstants.Instance.tipNextMonth());
 		
 		selectionPanel.add(lessButton);
 		selectionPanel.add(this.selectedLabel);
@@ -372,7 +372,7 @@ public class DataChartPanel extends VerticalPanel {
 		FlatUI.makeEntryText(selectedTextBox, EmoTrackConstants.K_CSS_ID_DATACHARTDATATEXT, EmoTrackConstants.Instance.selectValue());
 		dataPanel.add(selectedTextBox);
 		final Button deleteButton = new Button(EmoTrackConstants.Instance.deleteSelectionButton());
-		FlatUI.makeButton(deleteButton, EmoTrackConstants.K_CSS_ID_DELETEDATABUTTON);
+		FlatUI.makeButton(deleteButton, EmoTrackConstants.K_CSS_ID_DELETEDATABUTTON, EmoTrackConstants.Instance.tipDeleteGraphSelection());
 		deleteButton.setEnabled(false);
 		dataPanel.add(deleteButton);
 		dataPanel.setCellVerticalAlignment(deleteButton, HasVerticalAlignment.ALIGN_MIDDLE);

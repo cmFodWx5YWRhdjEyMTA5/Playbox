@@ -195,10 +195,31 @@ td.datePickerYear {
 .sleep-entry {
 	width: 50px;
 }
+#activityList {
+	width: 20%;
+	float: left;
+	margin: 5px;
+}
+#activityText {
+	width: 25%;
+	float: left;
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-bottom: 10px;
+}
+#activityLabel {
+	float: left;
+}
 #appValueEntry {
 	min-height: 400px;
 }
 #logEventButton {
+	float: left;
+}
+#logSleepButton {
+	float: left;
+}
+#logActivityButton {
 	float: left;
 }
 #selectedDate {

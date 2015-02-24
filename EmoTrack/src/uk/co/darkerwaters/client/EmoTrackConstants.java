@@ -2,7 +2,6 @@ package uk.co.darkerwaters.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.Constants;
-import com.google.gwt.safehtml.shared.SafeHtml;
 
 public interface EmoTrackConstants extends Constants {
 	/** some generic constants for 100% width, cell spacing and such*/
@@ -92,6 +91,9 @@ public interface EmoTrackConstants extends Constants {
 
 	@DefaultStringValue("Log Current Sleep Times") 
 	String logSleep();
+
+	@DefaultStringValue("Log Current Activity Level") 
+	String logActivity();
 	
 	@DefaultStringValue("at") 
 	String at();
@@ -153,16 +155,16 @@ public interface EmoTrackConstants extends Constants {
 	@DefaultStringValue("Sleep")
 	String sleep();
 
-	@DefaultStringValue("Successfully recorded: ")
+	@DefaultStringValue("Successfully recorded ")
 	String recorded();
 
-	@DefaultStringValue("Time awake in bed: ")
+	@DefaultStringValue("Time awake in bed")
 	String timeInBed();
 
-	@DefaultStringValue("Time sleeping lightly: ")
+	@DefaultStringValue("Time sleeping lightly")
 	String sleeping();
 
-	@DefaultStringValue("Time sleeping deeply: ")
+	@DefaultStringValue("Time sleeping deeply")
 	String deepSleep();
 
 	@DefaultStringValue("hours")
@@ -176,4 +178,55 @@ public interface EmoTrackConstants extends Constants {
 
 	@DefaultStringValue(" of ")
 	String of();
+
+	@DefaultStringValue("As often as you can, log values for each negative emotion tracking.")
+	String emotionTrackExplan();
+	
+	@DefaultStringValue("Each morning, log the amount of sleep you got the previous night.")
+	String sleepTrackExplan();
+	
+	@DefaultStringValue("Each evening, log the amount of activity you acheived that day.")
+	String activityTrackExplan();
+	
+	@DefaultStringValue("Log significant events as they happen.")
+	String eventTrackExplan();
+
+	@DefaultStringValue("Add a new negative emotion to track")
+	String tipAddEmotion();
+
+	@DefaultStringValue("Log the entered emotion values for the currently selected date")
+	String tipLogEmotions();
+
+	@DefaultStringValue("Log the entered event description for the currently selected date")
+	String tipLogEvent();
+
+	@DefaultStringValue("Log the entered sleep values for the currently selected date")
+	String tipLogSleep();
+	
+	@DefaultStringValue("Log the entered activity level for the currently selected date")
+	String tipLogActivity();
+
+	@DefaultStringValue("Send the entered data to the site administrator")
+	String tipSendEmail();
+
+	@DefaultStringValue("Show data for the previous month")
+	String tipPreviousMonth();
+
+	@DefaultStringValue("Show data for the next month")
+	String tipNextMonth();
+
+	@DefaultStringValue("Delete the tracked data for the selected date, click an item on the graph to select.")
+	String tipDeleteGraphSelection();
+
+	@DefaultStringValue("Points")
+	String activityPoints();
+	
+	@DefaultStringValue("Steps")
+	String activitySteps();
+
+	@DefaultStringValue("Select the type of activity to track")
+	String tipActivityText();
+	
+	@DefaultStringValue("Enter the level of activity to track for the selected type")
+	String tipActivityList();
 }

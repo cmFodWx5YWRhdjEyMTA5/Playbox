@@ -31,6 +31,8 @@ public class DateSelectTab extends ValueEntryTab {
 	private DatePicker logDatePicker;
 	private Label dateSelectLabel;
 	private Label timeSelectLabel;
+	
+	private boolean isInitialised = false;
 
 	public DateSelectTab(ValueEntryListener listener, TrackPointServiceAsync service) {
 		super(listener, service);
@@ -67,6 +69,16 @@ public class DateSelectTab extends ValueEntryTab {
 	public Panel getContent() {
 		return this.mainPanel;
 	}
+	
+	@Override
+	public void setActiveItem(boolean isActive) {
+		super.setActiveItem(isActive);
+		if (false == this.isInitialised && isActive) {
+			// activated for the first time
+			FlatUI.configureSelect(this.logDateList);
+			this.isInitialised = true;
+		}
+	}
 
 	public Date getSelectedDate() {
 		int selectedIndex = logDateList.getSelectedIndex();
@@ -84,8 +96,7 @@ public class DateSelectTab extends ValueEntryTab {
 
 	private ListBox createLogDateList(final DatePicker logDatePicker, final Label dateSelectLabel, final Label timeSelectLabel) {
 		// add all the options to the drop-down
-		final ListBox logDateList = new ListBox();
-		FlatUI.makeCombo(logDateList, null);
+		final ListBox logDateList = FlatUI.createSelect(null, null);
 		for (LogDates date : LogDates.values()) {
 			logDateList.addItem(date.title);
 		}

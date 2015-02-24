@@ -1,6 +1,5 @@
 package uk.co.darkerwaters.shared;
 
-import java.util.ArrayList;
 import java.util.logging.Level;
 
 import uk.co.darkerwaters.client.EmoTrack;

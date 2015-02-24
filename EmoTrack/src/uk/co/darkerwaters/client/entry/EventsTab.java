@@ -27,6 +27,9 @@ public class EventsTab extends ValueEntryTab {
 	   
 		// create the log event controls
 		mainPanel.getElement().setId("logEventPanel");
+	    
+	    mainPanel.add(FlatUI.createHeader(6, EmoTrackConstants.Instance.eventTrackExplan()));
+	    
 	    TextBox eventTextBox = new TextBox();
 	    FlatUI.makeEntryText(eventTextBox, EmoTrackConstants.K_CSS_ID_EVENTTEXTBOX, EmoTrackConstants.Instance.eventEntry());
 	    mainPanel.add(eventTextBox);
@@ -47,7 +50,7 @@ public class EventsTab extends ValueEntryTab {
 	private Button createLogEventButton(final TextBox eventTextBox, final DateSelectTab dateSelectPanel) {
 		// create the log event button
 		Button logEventButton = new Button(EmoTrackConstants.Instance.logEvent());
-		FlatUI.makeButton(logEventButton, "logEventButton");
+		FlatUI.makeButton(logEventButton, "logEventButton", EmoTrackConstants.Instance.tipLogEvent());
 		logEventButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {

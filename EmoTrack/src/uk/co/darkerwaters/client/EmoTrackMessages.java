@@ -68,4 +68,13 @@ public interface EmoTrackMessages extends Messages {
 
 	@DefaultMessage("Please log in to your google account to use this service")
 	String notLoggedIn();
+
+	@DefaultMessage("Delete \"{0}\" as a tracked variable")
+	String tipDeleteButton(String variableTitle);
+
+	@DefaultMessage("Set the value of \"{0}\" to track")
+	String tipEmotionSlider(String title);
+
+	@DefaultMessage("Zero is not a valid amount to track, please enter a number")
+	String invalidAmount();
 }

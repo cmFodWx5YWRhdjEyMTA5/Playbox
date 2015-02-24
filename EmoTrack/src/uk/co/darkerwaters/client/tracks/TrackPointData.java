@@ -14,7 +14,11 @@ public class TrackPointData implements Serializable {
 	static final String K_VALUES_SEP = ",";
 	static final String K_VALUE_SEP = ":";
 	
-	public static String[] SLEEPKEY = new String[] {"#AWAKE_SLEEP", "#LIGHT_SLEEP", "#DEEP_SLEEP"};
+	//NB - include a space as this is not allowed as a value to track
+	public static String[] SLEEPKEY = new String[] {"Awake in bed", "Light sleep", "Deep sleep"};
+	
+	//NB - include a space as this is not allowed as a value to track
+	public static String ACTIVITYKEY = "Activity ";
 
 	public static boolean IsSleepKey(String value) {
 		boolean isKey = false;
@@ -25,6 +29,10 @@ public class TrackPointData implements Serializable {
 			}
 		}
 		return isKey;
+	}
+	
+	public static boolean IsActivityKey(String value) {
+		return value.startsWith(ACTIVITYKEY);
 	}
 	
 	public TrackPointData() {

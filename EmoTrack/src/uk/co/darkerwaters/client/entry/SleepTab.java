@@ -4,6 +4,7 @@ import java.util.Date;
 
 import uk.co.darkerwaters.client.EmoTrack;
 import uk.co.darkerwaters.client.EmoTrackConstants;
+import uk.co.darkerwaters.client.EmoTrackMessages;
 import uk.co.darkerwaters.client.FlatUI;
 import uk.co.darkerwaters.client.entry.ValueEntryPanel.ValueEntryListener;
 import uk.co.darkerwaters.client.tracks.TrackPointData;
@@ -40,6 +41,8 @@ public class SleepTab extends ValueEntryTab {
 	
 	public SleepTab(ValueEntryListener listener, TrackPointServiceAsync trackPointService, final DateSelectTab dateSelectPanel) {
 		super(listener, trackPointService);
+	    
+	    mainPanel.add(FlatUI.createHeader(6, EmoTrackConstants.Instance.sleepTrackExplan()));
 		
 		FlowPanel leftPanel = new FlowPanel();
 		leftPanel.addStyleName("sleep-left");
@@ -115,14 +118,14 @@ public class SleepTab extends ValueEntryTab {
 		inputBoxes[0].addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent event) {
-				restrictEventToNumber(event, true, inputBoxes[0]);
+				restrictEventToNumber(event, inputBoxes[0], "hours");
 				updateEntryValues();
 			}
 		});
 		inputBoxes[1].addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent event) {
-				restrictEventToNumber(event, false, inputBoxes[1]);
+				restrictEventToNumber(event, inputBoxes[1], "mins");
 				updateEntryValues();
 			}
 		});
@@ -174,8 +177,8 @@ public class SleepTab extends ValueEntryTab {
 
 	private int getTotal(int[] results) {
 		int total = 0;
-		for (int value : results) {
-			total += value;
+		for (int i = 0; i < 3; ++i) {
+			total += results[i];
 		}
 		return total;
 	}
@@ -185,16 +188,16 @@ public class SleepTab extends ValueEntryTab {
 		return this.mainPanel;
 	}
 
-	private void restrictEventToNumber(ChangeEvent event, boolean isHours, TextBox input) {
+	public static void restrictEventToNumber(ChangeEvent event, TextBox input, String type) {
 		String text = input.getText();
 		String digits = text.replaceAll("[^0-9]", "");
-		if (isHours) {
+		if (type.equals("hours")) {
 			// limit the hours
 			if (false == digits.isEmpty() && Integer.parseInt(digits) > 24) {
 				digits = "24";
 			}
 		}
-		else {
+		else if (type.equals("mins")) {
 			// limit the minutes
 			if (false == digits.isEmpty() && Integer.parseInt(digits) > 60) {
 				digits = "60";
@@ -214,7 +217,7 @@ public class SleepTab extends ValueEntryTab {
 	private Button createLogEventButton(final DateSelectTab dateSelectPanel) {
 		// create the log event button
 		Button logEventButton = new Button(EmoTrackConstants.Instance.logSleep());
-		FlatUI.makeButton(logEventButton, "logEventButton");
+		FlatUI.makeButton(logEventButton, "logSleepButton", EmoTrackConstants.Instance.tipLogSleep());
 		logEventButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -226,6 +229,10 @@ public class SleepTab extends ValueEntryTab {
 	}
 	
 	protected void logEvent(Date selectedDate, int[] values) {
+		if (getTotal(values) <= 0) {
+			EmoTrack.alertWidget(EmoTrackConstants.Instance.alertTitle(), EmoTrackMessages.Instance.invalidAmount());
+			return;
+		}
 		final TrackPointData point = new TrackPointData(selectedDate);
 		StringBuilder description = new StringBuilder(EmoTrackConstants.Instance.recorded());
 		for (int i = 0; i < values.length - 1; ++i) {

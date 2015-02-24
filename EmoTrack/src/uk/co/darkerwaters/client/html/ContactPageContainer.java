@@ -3,6 +3,7 @@ package uk.co.darkerwaters.client.html;
 import java.util.logging.Level;
 
 import uk.co.darkerwaters.client.EmoTrack;
+import uk.co.darkerwaters.client.EmoTrackConstants;
 import uk.co.darkerwaters.client.EmoTrackResources;
 import uk.co.darkerwaters.client.FlatUI;
 import uk.co.darkerwaters.client.email.EmailService;
@@ -48,7 +49,7 @@ public class ContactPageContainer extends PageContainer {
 		getPage().add(contentEntry, "contactInputContent");
 		
 		submitButton = new Button("Submit");
-		FlatUI.makeButton(submitButton, "sendButton");
+		FlatUI.makeButton(submitButton, "sendButton", EmoTrackConstants.Instance.tipSendEmail());
 		getPage().add(submitButton, "contactInputButton");
 	}
 	

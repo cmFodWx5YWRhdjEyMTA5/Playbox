@@ -38,11 +38,16 @@ public abstract class ValueEntryTab {
 	}
 	
 	public void setActiveItem(boolean isActive) {
-		if (isActive) {
-			this.listHeader.addStyleName("active");
+		if (null == this.listHeader) {
+			// nothing
 		}
 		else {
-			this.listHeader.removeStyleName("active");
+			if (isActive) {
+				this.listHeader.addStyleName("active");
+			}
+			else {
+				this.listHeader.removeStyleName("active");
+			}
 		}
 	}
 

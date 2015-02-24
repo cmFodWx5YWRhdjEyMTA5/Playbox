@@ -46,12 +46,15 @@ public class EmotionsTab extends ValueEntryTab {
 	public EmotionsTab(ValueEntryListener listener, TrackPointServiceAsync trackPointService, final DateSelectTab dateSelectPanel) {
 		super(listener, trackPointService);
 	    mainPanel.getElement().setId("variableSelectPanel");
+	    
+	    mainPanel.add(FlatUI.createHeader(6, EmoTrackConstants.Instance.emotionTrackExplan()));
+	    
 	    FlowPanel newDataPanel = new FlowPanel();
 	    this.newVariableTextBox = new TextBox();
 	    FlatUI.makeEntryText(newVariableTextBox, EmoTrackConstants.K_CSS_ID_VARIABLETEXTBOX, EmoTrackConstants.Instance.variableEntry());
 		// create the add button to add things to the flex table
 		Button addVariableButton = new Button(EmoTrackConstants.Instance.addVariable());
-		FlatUI.makeButton(addVariableButton, EmoTrackConstants.K_CSS_ID_ADDBUTTON);
+		FlatUI.makeButton(addVariableButton, EmoTrackConstants.K_CSS_ID_ADDBUTTON, EmoTrackConstants.Instance.tipAddEmotion());
 		newDataPanel.add(newVariableTextBox);
 		newDataPanel.add(addVariableButton);
 		mainPanel.add(newDataPanel);
@@ -66,7 +69,7 @@ public class EmotionsTab extends ValueEntryTab {
 		mainPanel.add(valueSelectPanel);
 		// create the log values button
 		Button logValuesButton = new Button(EmoTrackConstants.Instance.logValues());
-		FlatUI.makeButton(logValuesButton, null);
+		FlatUI.makeButton(logValuesButton, null, EmoTrackConstants.Instance.tipLogEmotions());
 		logValuesButton.addStyleName("entryValue");
 		// setup the button
 		logValuesButton.addClickHandler(new ClickHandler() {

@@ -54,7 +54,7 @@ public class EmotionChartSelectPanel extends FlowPanel {
 			}
 		});
 		Button deleteButton = new Button("X");
-		FlatUI.makeButton(deleteButton, null);
+		FlatUI.makeButton(deleteButton, null, EmoTrackMessages.Instance.tipDeleteButton(title));
 		deleteButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -68,6 +68,7 @@ public class EmotionChartSelectPanel extends FlowPanel {
 		this.add(controlPanel);
 		this.add(variableValueSlider);
 		FlatUI.configureSlider(this.variableValueSlider);
+		FlatUI.makeTooltip(this.variableValueSlider, EmoTrackMessages.Instance.tipEmotionSlider(title));
 	}
 
 	protected void updateValue(String variableName, int value) {

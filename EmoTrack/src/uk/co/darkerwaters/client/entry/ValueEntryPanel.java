@@ -43,12 +43,13 @@ public class ValueEntryPanel extends FlowPanel {
 	    // create the date select panel we will always show 
 		this.dateSelectPanel = new DateSelectTab(this.listener, this.trackPointService);
 	    RootPanel.get("timeValueEntry").add(this.dateSelectPanel.getContent());
+	    this.dateSelectPanel.setActiveItem(true);
 	    
 	    // now create the list for the tabs for entry
 	    UnorderedListWidget tabList = new UnorderedListWidget();
 	    tabList.add(createNavigationHeading(-1));
 	    tabList.add(createTabHeading(EmoTrackConstants.Instance.emotions(), new EmotionsTab(listener, trackPointService, dateSelectPanel)));
-	    //tabList.add(createTabHeading(EmoTrackConstants.Instance.activity(), new ValueEntryEmotionsTab(listener, trackPointService, dateSelectPanel)));
+	    tabList.add(createTabHeading(EmoTrackConstants.Instance.activity(), new ActivityTab(listener, trackPointService, dateSelectPanel)));
 	    tabList.add(createTabHeading(EmoTrackConstants.Instance.sleep(), new SleepTab(listener, trackPointService, dateSelectPanel)));
 	    tabList.add(createTabHeading(EmoTrackConstants.Instance.events(), new EventsTab(listener, trackPointService, dateSelectPanel)));
 	    tabList.add(createNavigationHeading(1));
@@ -126,8 +127,8 @@ public class ValueEntryPanel extends FlowPanel {
 			RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERVALUEENTRY).remove(this.currentTab.getContent());
 		}
 		this.currentTab = tab;
-		this.currentTab.setActiveItem(true);
 		RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERVALUEENTRY).add(tab.getContent());
+		this.currentTab.setActiveItem(true);
 	}
 	
 }
