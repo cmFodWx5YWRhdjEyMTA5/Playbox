@@ -143,7 +143,7 @@ public interface EmoTrackConstants extends Constants {
 	@DefaultStringValue("EmoTrack")
 	String alertTitle();
 
-	@DefaultStringValue("Click a point on the graph to select / delete...")
+	@DefaultStringValue("Click a point on a graph to select / delete...")
 	String selectValue();
 
 	@DefaultStringValue("Emotions")
@@ -185,7 +185,7 @@ public interface EmoTrackConstants extends Constants {
 	@DefaultStringValue("Each morning, log the amount of sleep you got the previous night.")
 	String sleepTrackExplan();
 	
-	@DefaultStringValue("Each evening, log the amount of activity you acheived that day.")
+	@DefaultStringValue("Each evening, log the amount of activity you achieved that day.")
 	String activityTrackExplan();
 	
 	@DefaultStringValue("Log significant events as they happen.")

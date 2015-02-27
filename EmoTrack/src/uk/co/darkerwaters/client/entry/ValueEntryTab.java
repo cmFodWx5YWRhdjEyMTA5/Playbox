@@ -21,7 +21,7 @@ public abstract class ValueEntryTab {
 	
 	private Label atLabel = new Label(EmoTrackConstants.Instance.at());
 	private MirrorLabel dateLabel;
-	private MirrorLabel timeLabel;
+	private MirrorLabel timeLabel = null;
 	
 	private FlowPanel resultsPanel = new FlowPanel();
 	private InlineLabel resultsLabel = new InlineLabel();
@@ -67,17 +67,21 @@ public abstract class ValueEntryTab {
 		return this.resultsPanel;
 	}
 
-	protected FlowPanel createLogValuesButtonPanel(Button button, DateSelectTab dateSelectPanel) {
+	protected FlowPanel createLogValuesButtonPanel(Button button, DateSelectTab dateSelectPanel, boolean isIncludeTime) {
 		FlowPanel logValPanel = new FlowPanel();
 		logValPanel.addStyleName("sleep-bottom");
 
 		atLabel.addStyleName("entryValue date-label");
 		this.dateLabel = new MirrorLabel(dateSelectPanel.getDateSelectLabel(), "entryValue date-label");
-		this.timeLabel = new MirrorLabel(dateSelectPanel.getTimeSelectLabel(), "entryValue date-label");
+		if (isIncludeTime) {
+			this.timeLabel = new MirrorLabel(dateSelectPanel.getTimeSelectLabel(), "entryValue date-label");
+		}
 		logValPanel.add(button);
 		logValPanel.add(atLabel);
 		logValPanel.add(dateLabel);
-		logValPanel.add(timeLabel);
+		if (null != timeLabel) {
+			logValPanel.add(timeLabel);
+		}
 		return logValPanel;
 	}
 	
@@ -86,8 +90,10 @@ public abstract class ValueEntryTab {
 		stringBuilder.append(atLabel.getText());
 		stringBuilder.append(" ");
 		stringBuilder.append(dateLabel.getText());
-		stringBuilder.append(" ");
-		stringBuilder.append(timeLabel.getText());
+		if (null != timeLabel) {
+			stringBuilder.append(" ");
+			stringBuilder.append(timeLabel.getText());
+		}
 		stringBuilder.append(" ");
 		return stringBuilder.toString();
 	}

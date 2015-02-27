@@ -72,7 +72,7 @@ public class SleepTab extends ValueEntryTab {
 	    
 	    // create the log values button
 	    Button button = createLogEventButton(dateSelectPanel);
-	    FlowPanel logValPanel = createLogValuesButtonPanel(button, dateSelectPanel);
+	    FlowPanel logValPanel = createLogValuesButtonPanel(button, dateSelectPanel, false);
 		mainPanel.add(logValPanel);
 		
 		mainPanel.add(createResultsPanel());
@@ -233,7 +233,7 @@ public class SleepTab extends ValueEntryTab {
 			EmoTrack.alertWidget(EmoTrackConstants.Instance.alertTitle(), EmoTrackMessages.Instance.invalidAmount());
 			return;
 		}
-		final TrackPointData point = new TrackPointData(selectedDate);
+		final TrackPointData point = new TrackPointData(DateSelectTab.limitDateToDay(selectedDate));
 		StringBuilder description = new StringBuilder(EmoTrackConstants.Instance.recorded());
 		for (int i = 0; i < values.length - 1; ++i) {
 			point.addValue(TrackPointData.SLEEPKEY[i], values[i]);

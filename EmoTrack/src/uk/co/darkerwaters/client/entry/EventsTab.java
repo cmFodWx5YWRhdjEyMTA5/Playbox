@@ -36,7 +36,7 @@ public class EventsTab extends ValueEntryTab {
 	    
 	    // create the log values button
 	    Button button = createLogEventButton(eventTextBox, dateSelectPanel);
-	    FlowPanel logValPanel = createLogValuesButtonPanel(button, dateSelectPanel);
+	    FlowPanel logValPanel = createLogValuesButtonPanel(button, dateSelectPanel, false);
 		mainPanel.add(logValPanel);
 		
 		mainPanel.add(createResultsPanel());
@@ -81,7 +81,7 @@ public class EventsTab extends ValueEntryTab {
 		description.append(getDateString());
 		final String successString = description.toString();
 		// create a point to contain this data
-		final TrackPointData point = new TrackPointData(selectedDate, event);
+		final TrackPointData point = new TrackPointData(DateSelectTab.limitDateToDay(selectedDate), event);
 		// send this data to the service now
 		trackPointService.addTrackPoint(point, new AsyncCallback<Void>() {
 			@Override

@@ -14,7 +14,7 @@ import uk.co.darkerwaters.client.html.PageContainer;
 import uk.co.darkerwaters.client.login.LoginInfo;
 import uk.co.darkerwaters.client.login.LoginService;
 import uk.co.darkerwaters.client.login.LoginServiceAsync;
-import uk.co.darkerwaters.client.tracks.DataChartPanel;
+import uk.co.darkerwaters.client.tracks.DataGraphsPanel;
 import uk.co.darkerwaters.client.tracks.TrackPointData;
 import uk.co.darkerwaters.shared.GaugeChartPanel;
 
@@ -49,9 +49,7 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 	
 	private GaugeChartPanel variablesChartPanel;
 	
-	private DataChartPanel dataChartPanel;
-	
-	private DataChartPanel sleepChartPanel;
+	private DataGraphsPanel dataGraphsPanel;
 	
 	private final EmoTrackConstants constants = EmoTrackConstants.Instance;
 	
@@ -89,12 +87,10 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 		this.entryPanel = new ValueEntryPanel(createValueListener());
 		// handle history here
 		History.addValueChangeHandler(this);
-		// setup the home page controls
-		this.dataChartPanel = new DataChartPanel(EmoTrackConstants.K_CSS_ID_DATACHART, createChartListener(), false);
-		RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERDISPLAY).add(this.dataChartPanel);
 		
-		this.sleepChartPanel = new DataChartPanel(EmoTrackConstants.K_CSS_ID_SLEEPCHART, createChartListener(), true);
-		RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERDISPLAY).add(this.sleepChartPanel);
+		// add the data graphs
+		this.dataGraphsPanel = new DataGraphsPanel(createChartListener());
+		RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERDISPLAY).add(this.dataGraphsPanel);
 		
 		// setup the login panel
 		loginPanel.addStyleName("login-panel");
@@ -209,15 +205,6 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 					pagePanel.setVisible(false);
 				}
 			}
-			if (activePage.equals(Pages.home)) {
-				// special code for home
-				if (null != this.dataChartPanel) {
-					this.dataChartPanel.resizeChartPanel(true);
-				}
-				if (null != this.sleepChartPanel) {
-					this.sleepChartPanel.resizeChartPanel(true);
-				}
-			}
 		}
 	}
 
@@ -308,11 +295,8 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 	}
 
 	protected void updateChartData(TrackPointData newPoint) {
-		if (null != this.dataChartPanel) {
-			this.dataChartPanel.showTrackData(newPoint);
-		}
-		if (null != this.sleepChartPanel) {
-			this.sleepChartPanel.showTrackData(newPoint);
+		if (null != this.dataGraphsPanel) {
+			this.dataGraphsPanel.showTrackData(newPoint);
 		}
 	}
 
@@ -339,6 +323,9 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 			// add the option to log-in
 			loginLink.setHref(loginInfo.getLoginUrl() == null ? "" : loginInfo.getLoginUrl());
 			loginLink.setText(EmoTrackConstants.Instance.loginSignIn());
+		}
+		if (null != entryPanel) {
+			entryPanel.updateTime();
 		}
 	}
 

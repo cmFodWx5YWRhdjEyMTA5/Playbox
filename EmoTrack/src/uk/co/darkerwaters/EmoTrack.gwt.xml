@@ -13,6 +13,7 @@
   <inherits name="com.google.gwt.visualization.Visualization" />
   <inherits name="com.googlecode.gwt.crypto.Crypto"/>
   <inherits name="com.google.gwt.resources.Resources" />
+  <inherits name='org.vaadin.gwtgraphics.GWTGraphics'/>
 
   <!-- Inherit the default GWT style sheet.  You can change       -->
   <!-- the theme of your GWT application by uncommenting          -->

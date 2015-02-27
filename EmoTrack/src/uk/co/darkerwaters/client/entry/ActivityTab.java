@@ -63,7 +63,7 @@ public class ActivityTab extends ValueEntryTab {
 	    
 	    // create the log values button
 	    Button button = createLogEventButton(dateSelectPanel);
-	    FlowPanel logValPanel = createLogValuesButtonPanel(button, dateSelectPanel);
+	    FlowPanel logValPanel = createLogValuesButtonPanel(button, dateSelectPanel, false);
 		mainPanel.add(logValPanel);
 		
 		mainPanel.add(createResultsPanel());
@@ -117,7 +117,7 @@ public class ActivityTab extends ValueEntryTab {
 			return;
 		}
 		String activity = this.activityList.getItemText(this.activityList.getSelectedIndex());
-		final TrackPointData point = new TrackPointData(selectedDate);
+		final TrackPointData point = new TrackPointData(DateSelectTab.limitDateToDay(selectedDate));
 		point.addValue(TrackPointData.ACTIVITYKEY + activity, value);
 		StringBuilder description = new StringBuilder(EmoTrackConstants.Instance.recorded());
 		description.append(value);

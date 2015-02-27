@@ -159,6 +159,9 @@ td.datePickerYear {
 	width: 75%;
 	float: bottom;
 }
+.select-date-button {
+	float: left;
+}
 #logEventPanel {
 	width: 100%;
 	float: left;
@@ -268,17 +271,22 @@ td.datePickerYear {
 	text-align: center;
 }
 #appDataDisplay {
-	width: 80%;
+	width: 100%;
 	margin: 0px auto;
 }
 #dataChartDataText {
-	width: 500px;
+	width: 400px;
+	float: right;
+}
+#deleteSelectedData {
+	float: right;
+	margin-right: 30px;
 }
 /* chart data panel */
 #dataChartPanel {
 	position: relative;
 	float:left;
-	width: 80%;
+	width: 100%;
 	/* border: 1px solid rgb(187, 187, 187);
 	border-radius: 5px; */
 }
@@ -307,6 +315,7 @@ td.datePickerYear {
 }
 
 #dataChartDateLabel {
+	float: left;
     padding-left: 20px;
     padding-right: 20px;
 }
@@ -314,6 +323,16 @@ td.datePickerYear {
 #contact-page {
 	padding-left: 10%;
 	width: 70%;
+}
+.data-graph {
+	clear: both;
+	width: 100%;
+	height: 400px;
+}
+.data-event-graph {
+	clear: both;
+	width: 100%;
+	height: 75px;
 }
 
 /* text inputs in general, to help spec a watermark*/

@@ -79,7 +79,7 @@ public class EmotionsTab extends ValueEntryTab {
 				logCurrentVariables(dateSelectPanel.getSelectedDate());		
 			}
 		});
-		FlowPanel logValPanel = createLogValuesButtonPanel(logValuesButton, dateSelectPanel);
+		FlowPanel logValPanel = createLogValuesButtonPanel(logValuesButton, dateSelectPanel, true);
 		mainPanel.add(logValPanel);
 		
 		// setup the results label

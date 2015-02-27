@@ -16,6 +16,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -33,6 +34,8 @@ public class DateSelectTab extends ValueEntryTab {
 	private Label timeSelectLabel;
 	
 	private boolean isInitialised = false;
+	
+	private static DateTimeFormat dayDate = DateTimeFormat.getFormat("yyyy-MM-dd");
 
 	public DateSelectTab(ValueEntryListener listener, TrackPointServiceAsync service) {
 		super(listener, service);
@@ -80,6 +83,15 @@ public class DateSelectTab extends ValueEntryTab {
 		}
 	}
 
+	public void updateTime() {
+		if (null != logDateList) {
+			LogDates selected = LogDates.values()[logDateList.getSelectedIndex()];
+			if (selected != LogDates.other) {
+				setDateLabels(selected.getDate());
+			}
+		}
+	}
+
 	public Date getSelectedDate() {
 		int selectedIndex = logDateList.getSelectedIndex();
 		Date selectedDate = new Date();
@@ -108,23 +120,30 @@ public class DateSelectTab extends ValueEntryTab {
 				LogDates selected = LogDates.values()[logDateList.getSelectedIndex()];
 				if (selected == LogDates.other) {
 					// user has selected "other"
+					logDatePicker.setValue(new Date());
 					logDatePicker.setVisible(true);
 					dateSelectLabel.setVisible(false);
 					timeSelectLabel.setVisible(false);
+					setDateLabels(limitDateToDay(logDatePicker.getValue()));
 				}
 				else {
 					// user has selected another specific time
 					logDatePicker.setVisible(false);
 					timeSelectLabel.setVisible(true);
 					dateSelectLabel.setVisible(true);
-					setDateLabels(dateSelectLabel, timeSelectLabel, selected.getDate());
+					setDateLabels(selected.getDate());
 				}
 			}
 		});
 		return logDateList;
 	}
 	
-	private void setDateLabels(final Label dateSelectLabel, final Label timeSelectLabel, Date selected) {
+	public static Date limitDateToDay(Date value) {
+		String dayDateStr = dayDate.format(value);
+		return dayDate.parse(dayDateStr);
+	}
+
+	private void setDateLabels(Date selected) {
 		dateSelectLabel.setText(EmoTrackMessages.Instance.date(selected));
 		timeSelectLabel.setText(EmoTrackMessages.Instance.time(selected));
 		MirrorLabel.update();
@@ -138,7 +157,7 @@ public class DateSelectTab extends ValueEntryTab {
 	    logDatePicker.addValueChangeHandler(new ValueChangeHandler<Date>() {
 			@Override
 			public void onValueChange(ValueChangeEvent<Date> event) {
-				setDateLabels(dateSelectLabel, timeSelectLabel, event.getValue());
+				setDateLabels(event.getValue());
 			}
 		});
 		return logDatePicker;

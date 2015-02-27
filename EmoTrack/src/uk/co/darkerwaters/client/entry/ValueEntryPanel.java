@@ -57,6 +57,12 @@ public class ValueEntryPanel extends FlowPanel {
 	    RootPanel.get("tabList").add(tabList);
 	    showTab(this.availableTabs.get(0));
 	}
+
+	public void updateTime() {
+		if (null != dateSelectPanel) {
+			dateSelectPanel.updateTime();
+		}
+	}
 	
 	private Widget createNavigationHeading(final int direction) {
 		// create the nav header
@@ -130,5 +136,4 @@ public class ValueEntryPanel extends FlowPanel {
 		RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERVALUEENTRY).add(tab.getContent());
 		this.currentTab.setActiveItem(true);
 	}
-	
 }
