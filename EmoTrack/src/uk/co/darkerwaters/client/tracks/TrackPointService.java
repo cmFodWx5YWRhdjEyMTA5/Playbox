@@ -7,7 +7,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 @RemoteServiceRelativePath("track")
 public interface TrackPointService extends RemoteService {
-	public void addTrackPoint(TrackPointData point) throws NotLoggedInException;
+	public TrackPointData addTrackPoint(TrackPointData point) throws NotLoggedInException;
 
 	public void removeTrackPoint(TrackPointData point) throws NotLoggedInException;
 

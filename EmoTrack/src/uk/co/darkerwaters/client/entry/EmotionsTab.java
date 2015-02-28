@@ -235,7 +235,7 @@ public class EmotionsTab extends ValueEntryTab {
 
 	protected void logCurrentVariables(Date selectedDate) {
 		//send this data to the server
-		final TrackPointData point = new TrackPointData(selectedDate);
+		TrackPointData point = new TrackPointData(selectedDate);
 		StringBuilder description = new StringBuilder(EmoTrackConstants.Instance.recorded());
 		for (EmotionChartSelectPanel panel : this.valueSelectPanels) {
 			point.addValue(panel.getVariableTitle(), panel.getVariableValue());
@@ -253,15 +253,15 @@ public class EmotionsTab extends ValueEntryTab {
 			return;
 		}
 		// send this data to the service now
-		trackPointService.addTrackPoint(point, new AsyncCallback<Void>() {
+		trackPointService.addTrackPoint(point, new AsyncCallback<TrackPointData>() {
 			@Override
 			public void onFailure(Throwable error) {
 				listener.handleError(error);
 			}
 			@Override
-			public void onSuccess(Void result) {
+			public void onSuccess(TrackPointData result) {
 				// inform the graph / view of this new point
-				EmotionsTab.this.listener.updateTrackEntry(point);
+				EmotionsTab.this.listener.updateTrackEntry(result);
 				// create the string for this data we just added
 				alertResult(successString);
 			}

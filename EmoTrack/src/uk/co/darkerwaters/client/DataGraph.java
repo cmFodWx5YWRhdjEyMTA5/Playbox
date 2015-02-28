@@ -53,6 +53,10 @@ public class DataGraph<X, Y> {
 	
 	private boolean isDrawPath = true;
 	
+	private boolean isAreaChart = false;
+	
+	private final String[] colours;
+	
 	private class Series {
 		final String title;
 		final ArrayList<DataPair> data = new ArrayList<DataPair>();
@@ -105,7 +109,13 @@ public class DataGraph<X, Y> {
 
 	private String graphTitle;
 	
-	public DataGraph(String graphTitle, DataHandler<X, Y> handler, DataGraphListener<X, Y> listener) {
+	public DataGraph(String graphTitle, DataHandler<X, Y> handler, DataGraphListener<X, Y> listener, String[] colours) {
+		if (null == colours) {
+			this.colours = K_SERIES_COLOURS;
+		}
+		else {
+			this.colours = colours;
+		}
 		this.handler = handler;
 		this.graphTitle = graphTitle;
 		this.listener = listener;
@@ -175,20 +185,22 @@ public class DataGraph<X, Y> {
 			this.dataSeries.add(series);
 		}
 		// add the data to the series
-		series.data.add(new DataPair(x, y));
-		// find the X ranges
-		if (null == this.minX || this.handler.compareX(x, minX) < 0) {
-			this.minX = x;
-		}
-		if (null == this.maxX || this.handler.compareX(x, maxX) > 0) {
-			this.maxX = x;
-		}
-		// find the Y ranges
-		if (null == this.minY || this.handler.compareY(y, minY) < 0) {
-			this.minY = y;
-		}
-		if (null == this.maxY || this.handler.compareY(y, maxY) > 0) {
-			this.maxY = y;
+		if (null != x && null != y) {
+			series.data.add(new DataPair(x, y));
+			// find the X ranges
+			if (null == this.minX || this.handler.compareX(x, minX) < 0) {
+				this.minX = x;
+			}
+			if (null == this.maxX || this.handler.compareX(x, maxX) > 0) {
+				this.maxX = x;
+			}
+			// find the Y ranges
+			if (null == this.minY || this.handler.compareY(y, minY) < 0) {
+				this.minY = y;
+			}
+			if (null == this.maxY || this.handler.compareY(y, maxY) > 0) {
+				this.maxY = y;
+			}
 		}
 		return true;
 	}
@@ -208,6 +220,7 @@ public class DataGraph<X, Y> {
 			if (null != extant.path) {
 				extant.path.setStrokeWidth(K_UNSELECTED_WIDTH);
 				extant.path.setStrokeOpacity(K_UNSELECTED_OPACITY);
+				extant.path.setFillOpacity(this.isAreaChart ? K_UNSELECTED_OPACITY : 0);
 				extant.legend.setFillOpacity(K_UNSELECTED_OPACITY);
 				extant.legend.setStrokeOpacity(K_UNSELECTED_OPACITY);
 			}
@@ -223,6 +236,7 @@ public class DataGraph<X, Y> {
 			if (null != series.path && series.isSelected) {
 				series.path.setStrokeWidth(K_SELECTED_WIDTH);
 				series.path.setStrokeOpacity(K_SELECTED_OPACITY);
+				series.path.setFillOpacity(this.isAreaChart ? K_SELECTED_OPACITY : 0);
 				series.legend.setFillOpacity(K_SELECTED_OPACITY);
 				series.legend.setStrokeOpacity(K_SELECTED_OPACITY);
 			}
@@ -254,11 +268,11 @@ public class DataGraph<X, Y> {
 			Series series = this.dataSeries.get(i);
 			// draw in the legend
 			String seriesColour;
-			if (i >= K_SERIES_COLOURS.length) {
+			if (i >= this.colours.length) {
 				seriesColour = K_AXIS_LINECOLOR;
 			}
 			else {
-				seriesColour = K_SERIES_COLOURS[i];
+				seriesColour = this.colours[i];
 			}
 
 			// create the series selector
@@ -276,9 +290,10 @@ public class DataGraph<X, Y> {
 			// draw in the points
 			series.path = null;
 			series.points.clear();
+			int x = 0;
 			for (DataPair item : series.data) {
 				// determine where to put this
-				int x = left + (int)(this.handler.ratioX(minX, maxX, item.x) * axisWidth); 
+				x = left + (int)(this.handler.ratioX(minX, maxX, item.x) * axisWidth); 
 				int y = bottom + (int)(this.handler.ratioY(minY, maxY, item.y) * axisHeight);
 				this.handler.drawingPoint(this, series.title, item.x, item.y, x, y);
 				// create a point for this item 
@@ -290,17 +305,24 @@ public class DataGraph<X, Y> {
 				ClickHandler itemHandler = createClickHandler(series, item, circle);
 				circle.addClickHandler(itemHandler);
 				if (null == series.path) {
-					series.path = new Path(x, y);
-					series.path.setStrokeColor(seriesColour);
-					series.path.setStrokeWidth(K_UNSELECTED_WIDTH);
-					series.path.setStrokeOpacity(K_UNSELECTED_OPACITY);
-					series.path.setFillOpacity(0d);
+					if (this.isAreaChart) {
+						// put the first item in as zero to draw up from the x-axis
+						series.path = createSeriesPath(x, bottom, seriesColour);
+						series.path.lineTo(x, y);
+					}
+					else {
+						series.path = createSeriesPath(x, y, seriesColour);
+					}
 					// not adding to the path as clicking on the filled part (most of it) detects a hit
 					//series.path.addClickHandler(series.selector);
 				}
 				else {
 					series.path.lineTo(x, y);
 				}
+			}
+			if (this.isAreaChart && null != series.path) {
+				// put the last item in as zero to draw down to the x-axis
+				series.path.lineTo(x, bottom);
 			}
 			if (null != series.path && this.isDrawPath) {
 				this.canvas.add(series.path);
@@ -314,6 +336,16 @@ public class DataGraph<X, Y> {
 				this.canvas.add(point);
 			}
 		}
+	}
+
+	private Path createSeriesPath(int x, int y, String seriesColour) {
+		Path path = new Path(x, y);
+		path.setStrokeColor(seriesColour);
+		path.setStrokeWidth(K_UNSELECTED_WIDTH);
+		path.setStrokeOpacity(K_UNSELECTED_OPACITY);
+		path.setFillOpacity(this.isAreaChart ? K_SELECTED_OPACITY : 0);
+		path.setFillColor(seriesColour);
+		return path;
 	}
 
 	private ClickHandler createClickHandler(final Series series, final DataPair item, final Circle circle) {
@@ -382,6 +414,10 @@ public class DataGraph<X, Y> {
 	
 	public void setIsDrawPath(boolean isDrawPath) {
 		this.isDrawPath = isDrawPath;
+	}
+
+	public void setIsAreaChart(boolean isAreaChart) {
+		this.isAreaChart = isAreaChart;
 	}
 
 	public Panel getContent() {

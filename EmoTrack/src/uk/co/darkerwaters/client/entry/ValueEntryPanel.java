@@ -1,6 +1,7 @@
 package uk.co.darkerwaters.client.entry;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import uk.co.darkerwaters.client.EmoTrackConstants;
 import uk.co.darkerwaters.client.EmoTrackListener;
@@ -26,6 +27,7 @@ public class ValueEntryPanel extends FlowPanel {
 	public interface ValueEntryListener extends EmoTrackListener {
 		void updateVariableValues(String[] titles, int[] values);
 		void updateTrackEntry(TrackPointData newPoint);
+		void removeTrackEntry(Date trackDate);
 		boolean checkLoginStatus();
 	}
 	

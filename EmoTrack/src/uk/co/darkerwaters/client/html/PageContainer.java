@@ -1,5 +1,7 @@
 package uk.co.darkerwaters.client.html;
 
+import uk.co.darkerwaters.client.entry.ValueEntryPanel.ValueEntryListener;
+
 import com.google.gwt.user.client.ui.HTMLPanel;
 
 public abstract class PageContainer {
@@ -9,7 +11,7 @@ public abstract class PageContainer {
 		this.page = new HTMLPanel(htmlContent);
 	}
 	
-	public abstract void initialisePage();
+	public abstract void initialisePage(ValueEntryListener listener);
 	
 	public HTMLPanel getPage() {
 		return this.page;

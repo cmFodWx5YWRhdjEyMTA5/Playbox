@@ -117,7 +117,7 @@ public class ActivityTab extends ValueEntryTab {
 			return;
 		}
 		String activity = this.activityList.getItemText(this.activityList.getSelectedIndex());
-		final TrackPointData point = new TrackPointData(DateSelectTab.limitDateToDay(selectedDate));
+		TrackPointData point = new TrackPointData(DateSelectTab.limitDateToDay(selectedDate));
 		point.addValue(TrackPointData.ACTIVITYKEY + activity, value);
 		StringBuilder description = new StringBuilder(EmoTrackConstants.Instance.recorded());
 		description.append(value);
@@ -132,15 +132,15 @@ public class ActivityTab extends ValueEntryTab {
 			return;
 		}
 		// send this data to the service now
-		trackPointService.addTrackPoint(point, new AsyncCallback<Void>() {
+		trackPointService.addTrackPoint(point, new AsyncCallback<TrackPointData>() {
 			@Override
 			public void onFailure(Throwable error) {
 				listener.handleError(error);
 			}
 			@Override
-			public void onSuccess(Void result) {
+			public void onSuccess(TrackPointData result) {
 				// inform the graph / view of this new point
-				ActivityTab.this.listener.updateTrackEntry(point);
+				ActivityTab.this.listener.updateTrackEntry(result);
 				// create the string for this data we just added
 				alertResult(successString);
 			}

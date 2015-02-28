@@ -16,6 +16,7 @@ import uk.co.darkerwaters.client.EventGraphDataHandler;
 import uk.co.darkerwaters.client.EventGraphDataHandler.EventLabel;
 import uk.co.darkerwaters.client.FlatUI;
 import uk.co.darkerwaters.client.TrackPointGraphDataHandler;
+import uk.co.darkerwaters.client.entry.SleepTab;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -57,6 +58,8 @@ public class DataGraphsPanel extends VerticalPanel {
 	private TextBox selectedTextBox;
 	private Button deleteButton;
 	private EventGraphDataHandler eventDataHandler;
+	private Date dataEndDate = new Date();
+	private Date dataStartDate = new Date();
 	
 	public DataGraphsPanel(EmoTrackListener listener) {
 		// create all our controls in this panel
@@ -80,10 +83,11 @@ public class DataGraphsPanel extends VerticalPanel {
 			public void pointSelected(DataGraph<Date, String> source, Circle point, String seriesTitle, Date x, String y) {
 				handlePointSelection(source, point, null, x, y);
 				//eventDataHandler.eventSelected(eventGraph, x, y);
-			}});
-		this.emotionGraph = new DataGraph<Date, Integer>(EmoTrackConstants.Instance.emotions(), dataHandlers[0], graphListener);
-		this.activityGraph = new DataGraph<Date, Integer>(EmoTrackConstants.Instance.activity(), dataHandlers[1], graphListener);
-		this.sleepGraph = new DataGraph<Date, Integer>(EmoTrackConstants.Instance.sleep(), dataHandlers[2], graphListener);
+			}}, null);
+		this.emotionGraph = new DataGraph<Date, Integer>(EmoTrackConstants.Instance.emotions(), dataHandlers[0], graphListener, null);
+		this.activityGraph = new DataGraph<Date, Integer>(EmoTrackConstants.Instance.activity(), dataHandlers[1], graphListener, null);
+		this.sleepGraph = new DataGraph<Date, Integer>(EmoTrackConstants.Instance.sleep(), dataHandlers[2], graphListener, SleepTab.sleepColours);
+		this.sleepGraph.setIsAreaChart(true);
 		
 		FlowPanel topPanel = new FlowPanel();
 		topPanel.add(createSelectionControls());
@@ -163,8 +167,10 @@ public class DataGraphsPanel extends VerticalPanel {
 			CalendarUtil.addMonthsToDate(to, 1);
 			toDate = dayDate.format(to);
 		}
+		this.dataStartDate  = dayDate.parse(fromDate);
+		this.dataEndDate = toDate.isEmpty() ? new Date() : dayDate.parse(toDate);
 		for (TrackPointGraphDataHandler handler : this.dataHandlers) {
-			handler.setDateRange(dayDate.parse(fromDate), toDate.isEmpty() ? new Date() : dayDate.parse(toDate));
+			handler.setDateRange(this.dataStartDate, this.dataEndDate);
 		}
 		this.eventDataHandler.setDateRange(dayDate.parse(fromDate), toDate.isEmpty() ? new Date() : dayDate.parse(toDate));
 		// and get the track points for this period
@@ -209,7 +215,6 @@ public class DataGraphsPanel extends VerticalPanel {
 			public void onFailure(Throwable error) {
 				handleError(error);
 			}
-
 			@Override
 			public void onSuccess(Void result) {
 				unshowTrackData(point.getTrackDate());
@@ -230,7 +235,7 @@ public class DataGraphsPanel extends VerticalPanel {
 		reconstructChartData();
 	}
 	
-	protected void unshowTrackData(Date removalDate) {
+	public void unshowTrackData(Date removalDate) {
 		// remove all data for the specified date
 		for (int i = this.dataRows.size() - 1; i >= 0; --i) {
         	// check our date against those in the list
@@ -247,12 +252,15 @@ public class DataGraphsPanel extends VerticalPanel {
 		reconstructChartData();
 	}
 	
-	private void reconstructChartData() {
+	public void reconstructChartData() {
 		// show all the data from the ordered list, first remove all the current rows
 		this.eventGraph.clearData();
 		this.emotionGraph.clearData();
 		this.activityGraph.clearData();
 		this.sleepGraph.clearData();
+		// because the sleep chart is an area chart, we need to ensure the series are in, in the right order, add them now
+		this.sleepGraph.addData(TrackPointData.SLEEPKEY[0], null, null);
+		this.sleepGraph.addData(TrackPointData.SLEEPKEY[1], null, null);
 		// now re-populate all the rows of data
 		for (TrackPointData trackData : this.dataRows) {
 			Date trackDate = trackData.getTrackDate();
@@ -292,21 +300,38 @@ public class DataGraphsPanel extends VerticalPanel {
 
 	private void addTrackData(TrackPointData trackData) {
 		// insert the item in the correct position in the array
-		this.dataRows.add(trackData);
 		Date insertDate = trackData.getTrackDate();
-		if (null != insertDate) {
-	        for (int i = this.dataRows.size()-1; i > 0; i--) {
-	        	// check our date against those in the list
-	        	Date compareDate = this.dataRows.get(i-1).getTrackDate();
-	        	if (null != compareDate) {
-	        		if (insertDate.compareTo(compareDate) > 0) {
-	        			// this is before us, in the correct place, stop now
-	        			break;
-	        		}
-	        		// else move our inserted one down to the new position
-	        		Collections.swap(this.dataRows, i, i-1);
+		if (null != insertDate 
+				&& insertDate.compareTo(this.dataEndDate) <= 0
+				&& insertDate.compareTo(this.dataStartDate) >= 0) {
+			// this is ok data to put in the graph data to show, first
+			// find this date, if already there, we want to replace it
+			boolean isAdded = false;
+			for (int i = 0; i < this.dataRows.size(); ++i) {
+				Date compareDate = this.dataRows.get(i).getTrackDate();
+	        	if (null != compareDate && insertDate.equals(compareDate)) {
+	        		// this is the one to replace
+	        		this.dataRows.set(i, trackData);
+	        		isAdded = true;
+	        		break;
 	        	}
-	        }
+			}
+			if (false == isAdded) {
+				// insert at the correct location
+				this.dataRows.add(trackData);
+		        for (int i = this.dataRows.size()-1; i > 0; i--) {
+		        	// check our date against those in the list
+		        	Date compareDate = this.dataRows.get(i-1).getTrackDate();
+		        	if (null != compareDate) {
+		        		if (insertDate.compareTo(compareDate) > 0) {
+		        			// this is before us, in the correct place, stop now
+		        			break;
+		        		}
+		        		// else move our inserted one down to the new position
+		        		Collections.swap(this.dataRows, i, i-1);
+		        	}
+		        }
+			}
 		}
 	}
 	
@@ -383,8 +408,9 @@ public class DataGraphsPanel extends VerticalPanel {
 				selectedTextBox.setText("");
 			}
 		});
-		dataPanel.add(deleteButton);
-		dataPanel.add(selectedTextBox);
+		//TODO removed the delete controls as now on the analysis page
+		//dataPanel.add(deleteButton);
+		//dataPanel.add(selectedTextBox);
 		return dataPanel;
 	}
 	private void handleError(Throwable error) {

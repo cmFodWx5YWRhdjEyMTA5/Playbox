@@ -8,6 +8,7 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
 
 public enum LogDates {
+	today(EmoTrackConstants.Instance.timeToday()),
 	now(EmoTrackConstants.Instance.timeNow()),
 	one_hour(EmoTrackConstants.Instance.timeOneHour()),
 	two_hour(EmoTrackConstants.Instance.timeTwoHour()),
@@ -28,8 +29,12 @@ public enum LogDates {
 		Date toReturn = new Date();
 		String timeFormat = datefmt.format(toReturn);
 		switch(this) {
+		case today :
+			// just return today
+			toReturn = dateHrfmt.parse(timeFormat + " 12");
+			break;
 		case now :
-			// just return the detault (now)
+			// return now, just the default
 			break;
 		case one_hour :
 			// return an hour ago

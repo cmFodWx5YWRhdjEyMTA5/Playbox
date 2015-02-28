@@ -20,37 +20,57 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.visualization.client.visualizations.PieChart;
 
 public class SleepTab extends ValueEntryTab {
 	
+	public static String[] sleepColours = new String[] {"#66CCFF", "#003399", "#fdf7c5", "transparent"};
+	
 	private FlowPanel mainPanel = new FlowPanel();
-	private TextBox[] inBedText = new TextBox[] {new TextBox(), new TextBox()};
 	private TextBox[] asleepText = new TextBox[] {new TextBox(), new TextBox()};
 	private TextBox[] deepSleepText = new TextBox[] {new TextBox(), new TextBox()};
 	private DonutChartPanel donutChartPanel;
 	
 	private final String[] titles = new String[] {
-			EmoTrackConstants.Instance.timeInBed(),
 			EmoTrackConstants.Instance.sleeping(),
 			EmoTrackConstants.Instance.deepSleep(),
 			EmoTrackConstants.Instance.awake()
 	};
-	private FlowPanel rightPanel;
+	private FlowPanel chartPanel;
+	private SimplePanel asleepSlider;
+	private SimplePanel deepSleepSlider = null;
+	
+	private boolean isSlidersInitialised = false;
+	
+	private boolean isCreatingDeepSlider = false;
 	
 	public SleepTab(ValueEntryListener listener, TrackPointServiceAsync trackPointService, final DateSelectTab dateSelectPanel) {
 		super(listener, trackPointService);
 	    
 	    mainPanel.add(FlatUI.createHeader(6, EmoTrackConstants.Instance.sleepTrackExplan()));
 		
-		FlowPanel leftPanel = new FlowPanel();
-		leftPanel.addStyleName("sleep-left");
+		FlowPanel entryPanel = new FlowPanel();
+		
+		this.asleepSlider = FlatUI.makeSlider(null, new FlatUI.SliderListener() {
+			@Override
+			public void valueChanged(int value) {
+				SleepTab.this.asleepText[0].setText(Integer.toString(value));
+				int[] values = updateEntryValues();
+				makeDeepSleepSlider();
+				FlatUI.configureSlider(deepSleepSlider, values[0] / 60);
+			}
+		});
+		makeDeepSleepSlider();
 	   
 		// create the sleep entry controls
-		leftPanel.add(createEntryPanel(titles[0], this.inBedText));
-		leftPanel.add(createEntryPanel(titles[1], this.asleepText));
-		leftPanel.add(createEntryPanel(titles[2], this.deepSleepText));
+		entryPanel.add(createEntryPanel(EmoTrackConstants.Instance.timeAsleep(), this.asleepText, asleepSlider));
+		FlowPanel deepPanel = createEntryPanel(EmoTrackConstants.Instance.ofWhich(), this.deepSleepText, deepSleepSlider);
+		InlineLabel label = FlatUI.createLabel(EmoTrackConstants.Instance.wasDeepSleep(), null);
+		label.addStyleName("entryValue sleep-entry-label");
+		deepPanel.add(label);
+		entryPanel.add(deepPanel);
 		
 		// and a nice graph
 		this.donutChartPanel = new DonutChartPanel(new DonutChartPanel.CreationListener() {
@@ -59,16 +79,16 @@ public class SleepTab extends ValueEntryTab {
 				// set the data
 				addChartControls(SleepTab.this, chart);
 			}
-		});
-		mainPanel.add(leftPanel);
+		}, SleepTab.sleepColours );
+		mainPanel.add(entryPanel);
 		mainPanel.getElement().setId("logSleepPanel");
 	    //TextBox eventTextBox = new TextBox();
 	    //FlatUI.makeEntryText(eventTextBox, EmoTrackConstants.K_CSS_ID_EVENTTEXTBOX, EmoTrackConstants.Instance.eventEntry());
 	    //mainPanel.add(eventTextBox);
 		
-		this.rightPanel = new FlowPanel();
-		rightPanel.addStyleName("sleep-right");
-		mainPanel.add(rightPanel);
+		this.chartPanel = new FlowPanel();
+		chartPanel.addStyleName("sleep-chart-panel");
+		mainPanel.add(chartPanel);
 	    
 	    // create the log values button
 	    Button button = createLogEventButton(dateSelectPanel);
@@ -77,24 +97,53 @@ public class SleepTab extends ValueEntryTab {
 		
 		mainPanel.add(createResultsPanel());
 	}
+
+	private void makeDeepSleepSlider() {
+		Panel sliderParent = null;
+		isCreatingDeepSlider = true;
+		if (null != this.deepSleepSlider) {
+			sliderParent = (Panel)this.deepSleepSlider.getParent();
+			this.deepSleepSlider.removeFromParent();
+		}
+		this.deepSleepSlider = FlatUI.makeSlider(null, new FlatUI.SliderListener() {
+			@Override
+			public void valueChanged(int value) {
+				if (false == isCreatingDeepSlider) {
+					SleepTab.this.deepSleepText[0].setText(Integer.toString(value));
+				}
+				isCreatingDeepSlider = false;
+			}
+		});
+		if (null != sliderParent) {
+			sliderParent.add(deepSleepSlider);
+		}
+	}
 	
 	@Override
 	public void setActiveItem(boolean isActive) {
 		super.setActiveItem(isActive);
 		if (isActive) {
 			this.donutChartPanel.createChart();
+			if (false == this.isSlidersInitialised) {
+				FlatUI.configureSlider(asleepSlider, 24);
+				FlatUI.configureSlider(deepSleepSlider, 24);
+				this.isSlidersInitialised = true;
+			}
 		}
 		else {
 			this.donutChartPanel.destroyChart();
 		}
 	}
 
-	private FlowPanel createEntryPanel(String labelContent, final TextBox[] inputBoxes) {
+	private FlowPanel createEntryPanel(String labelContent, final TextBox[] inputBoxes, SimplePanel slider) {
 		FlowPanel panel = new FlowPanel();
 		panel.addStyleName("sleep-entry-panel");
 		InlineLabel label = FlatUI.createLabel(labelContent, null);
 		label.addStyleName("entryValue sleep-entry-label");
 		panel.add(label);
+		
+		FlowPanel controlPanel = new FlowPanel();
+		controlPanel.addStyleName("sleep-entry-panel");
 		
 		// hour input
 		FlatUI.makeEntryText(inputBoxes[0], null, null);
@@ -103,7 +152,11 @@ public class SleepTab extends ValueEntryTab {
 		hourGroup.addStyleName("sleep-entry entryValue");
 		hourGroup.add(inputBoxes[0]);
 		hourGroup.add(FlatUI.createLabel(EmoTrackConstants.Instance.hours(), null));
-		panel.add(hourGroup);
+		controlPanel.add(hourGroup);
+		
+		label = FlatUI.createLabel(":", null);
+		label.addStyleName("entryValue sleep-entry-label");
+		controlPanel.add(label);
 		
 		// minute input
 		FlatUI.makeEntryText(inputBoxes[1], null, null);
@@ -112,14 +165,20 @@ public class SleepTab extends ValueEntryTab {
 		minuteGroup.addStyleName("sleep-entry entryValue");
 		minuteGroup.add(inputBoxes[1]);
 		minuteGroup.add(FlatUI.createLabel(EmoTrackConstants.Instance.minutes(), null));
-		panel.add(minuteGroup);
+		controlPanel.add(minuteGroup);
+		
+		slider.addStyleName("sleep-slider");
+		controlPanel.add(slider);
+		panel.add(controlPanel);
 		
 		// handle the text entry
 		inputBoxes[0].addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent event) {
 				restrictEventToNumber(event, inputBoxes[0], "hours");
-				updateEntryValues();
+				int[] values = updateEntryValues();
+				makeDeepSleepSlider();
+				FlatUI.configureSlider(deepSleepSlider, values[0] / 60);
 			}
 		});
 		inputBoxes[1].addChangeHandler(new ChangeHandler() {
@@ -135,30 +194,31 @@ public class SleepTab extends ValueEntryTab {
 
 	protected int[] updateEntryValues() {
 		// get the values from the text boxes
-		int[] results = new int[4];
-		results[0] += limitValue(inBedText[0], 60, results);
-		results[0] += limitValue(inBedText[1], 1, results);
+		int[] results = new int[3];
 		
-		results[1] += limitValue(asleepText[0], 60, results);
-		results[1] += limitValue(asleepText[1], 1, results);
+		results[0] += limitValue(asleepText[0], 60, 23 * 60);
+		results[0] += limitValue(asleepText[1], 1, 59);
 		
-		results[2] += limitValue(deepSleepText[0], 60, results);
-		results[2] += limitValue(deepSleepText[1], 1, results);
+		results[1] += limitValue(deepSleepText[0], 60, results[0]);
+		results[1] += limitValue(deepSleepText[1], 1, Math.min(59, results[0] - results[1]));
 		
 		// and the active time
-		results[3] = 24 * 60 - getTotal(results);
+		results[2] = 24 * 60 - results[0];
 		
 		if (null != this.donutChartPanel) {
-			this.donutChartPanel.updateData(titles, results);
+			// chart data is different though, need to remove the deep sleep time from the asleep time
+			int[] pieResults = new int[3];
+			pieResults[0] = results[0] - results[1];
+			pieResults[1] = results[1];
+			pieResults[2] = results[2];
+			this.donutChartPanel.updateData(titles, pieResults);
 		}
 		// return the results
 		return results;
 		
 	}
 
-	private int limitValue(TextBox input, int factor, int[] results) {
-		// get the total
-		int total = getTotal(results);
+	private int limitValue(TextBox input, int factor, int maxValue) {
 		// get the new value in minutes
 		int value = 0;
 		try {
@@ -167,20 +227,11 @@ public class SleepTab extends ValueEntryTab {
 		catch (NumberFormatException e) {
 			EmoTrack.LOG.severe(e.getMessage());
 		}
-		if (total + value > 24 * 60) {
-			// value is too high
-			value = 24 * 60 - total;
-			input.setText(Integer.toString((int)(value / factor)));
+		if (value > maxValue) {
+			value = maxValue;
+			input.setText(Integer.toString(value / factor));
 		}
 		return value;
-	}
-
-	private int getTotal(int[] results) {
-		int total = 0;
-		for (int i = 0; i < 3; ++i) {
-			total += results[i];
-		}
-		return total;
 	}
 
 	@Override
@@ -211,7 +262,7 @@ public class SleepTab extends ValueEntryTab {
 		chart.setWidth("200px");
 		chart.setHeight("200px");
 		chart.addStyleName("sleep-chart");
-		this.rightPanel.add(chart);
+		this.chartPanel.add(chart);
 	}
 
 	private Button createLogEventButton(final DateSelectTab dateSelectPanel) {
@@ -229,11 +280,11 @@ public class SleepTab extends ValueEntryTab {
 	}
 	
 	protected void logEvent(Date selectedDate, int[] values) {
-		if (getTotal(values) <= 0) {
+		if (values[0] <= 0) {
 			EmoTrack.alertWidget(EmoTrackConstants.Instance.alertTitle(), EmoTrackMessages.Instance.invalidAmount());
 			return;
 		}
-		final TrackPointData point = new TrackPointData(DateSelectTab.limitDateToDay(selectedDate));
+		TrackPointData point = new TrackPointData(DateSelectTab.limitDateToDay(selectedDate));
 		StringBuilder description = new StringBuilder(EmoTrackConstants.Instance.recorded());
 		for (int i = 0; i < values.length - 1; ++i) {
 			point.addValue(TrackPointData.SLEEPKEY[i], values[i]);
@@ -255,15 +306,15 @@ public class SleepTab extends ValueEntryTab {
 			return;
 		}
 		// send this data to the service now
-		trackPointService.addTrackPoint(point, new AsyncCallback<Void>() {
+		trackPointService.addTrackPoint(point, new AsyncCallback<TrackPointData>() {
 			@Override
 			public void onFailure(Throwable error) {
 				listener.handleError(error);
 			}
 			@Override
-			public void onSuccess(Void result) {
+			public void onSuccess(TrackPointData result) {
 				// inform the graph / view of this new point
-				SleepTab.this.listener.updateTrackEntry(point);
+				SleepTab.this.listener.updateTrackEntry(result);
 				// create the string for this data we just added
 				alertResult(successString);
 			}

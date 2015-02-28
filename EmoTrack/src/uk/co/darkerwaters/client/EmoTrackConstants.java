@@ -56,6 +56,9 @@ public interface EmoTrackConstants extends Constants {
 	@DefaultStringValue ("Time and date")
 	String trackValues();
 
+	@DefaultStringValue("today") 
+	String timeToday();
+	
 	@DefaultStringValue("now") 
 	String timeNow();
 	
@@ -158,13 +161,19 @@ public interface EmoTrackConstants extends Constants {
 	@DefaultStringValue("Successfully recorded ")
 	String recorded();
 
-	@DefaultStringValue("Time awake in bed")
-	String timeInBed();
+	@DefaultStringValue("Time asleep")
+	String timeAsleep();
+	
+	@DefaultStringValue("of which")
+	String ofWhich();
+	
+	@DefaultStringValue("was deep sleep")
+	String wasDeepSleep();
 
-	@DefaultStringValue("Time sleeping lightly")
+	@DefaultStringValue("Asleep")
 	String sleeping();
 
-	@DefaultStringValue("Time sleeping deeply")
+	@DefaultStringValue("Deep Sleep")
 	String deepSleep();
 
 	@DefaultStringValue("hours")
@@ -173,7 +182,7 @@ public interface EmoTrackConstants extends Constants {
 	@DefaultStringValue("minutes")
 	String minutes();
 
-	@DefaultStringValue("active")
+	@DefaultStringValue("Awake")
 	String awake();
 
 	@DefaultStringValue(" of ")
@@ -229,4 +238,13 @@ public interface EmoTrackConstants extends Constants {
 	
 	@DefaultStringValue("Enter the level of activity to track for the selected type")
 	String tipActivityList();
+
+	@DefaultStringValue("The data is now selected to <copy> and <paste> into any spreadsheet application, eg Microsoft Excel.")
+	String nowCopyAndPaste();
+
+	@DefaultStringValue("Export / Delete data")
+	String exportData();
+
+	@DefaultStringValue("Delete the entire row of data from the server.")
+	String tipDeleteRowButton();
 }

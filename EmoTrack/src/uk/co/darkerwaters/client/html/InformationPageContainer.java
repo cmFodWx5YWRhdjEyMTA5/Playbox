@@ -1,6 +1,7 @@
 package uk.co.darkerwaters.client.html;
 
 import uk.co.darkerwaters.client.EmoTrackResources;
+import uk.co.darkerwaters.client.entry.ValueEntryPanel.ValueEntryListener;
 
 public class InformationPageContainer extends PageContainer {
 
@@ -8,8 +9,11 @@ public class InformationPageContainer extends PageContainer {
 		super(EmoTrackResources.INSTANCE.informationPage().getText());
 	}
 	
-	public void initialisePage() {
-		
+	@Override
+	public void initialisePage(ValueEntryListener listener) {
+		if (false == listener.checkLoginStatus()) {
+			return;
+		}
 		
 	}
 

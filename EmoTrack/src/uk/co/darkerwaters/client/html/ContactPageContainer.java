@@ -8,6 +8,7 @@ import uk.co.darkerwaters.client.EmoTrackResources;
 import uk.co.darkerwaters.client.FlatUI;
 import uk.co.darkerwaters.client.email.EmailService;
 import uk.co.darkerwaters.client.email.EmailServiceAsync;
+import uk.co.darkerwaters.client.entry.ValueEntryPanel.ValueEntryListener;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -53,7 +54,11 @@ public class ContactPageContainer extends PageContainer {
 		getPage().add(submitButton, "contactInputButton");
 	}
 	
-	public void initialisePage() {
+	@Override
+	public void initialisePage(ValueEntryListener listener) {
+		if (false == listener.checkLoginStatus()) {
+			return;
+		}
 		nameEntry.addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent event) {

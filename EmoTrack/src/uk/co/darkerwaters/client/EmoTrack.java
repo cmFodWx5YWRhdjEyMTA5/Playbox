@@ -1,5 +1,6 @@
 package uk.co.darkerwaters.client;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -205,6 +206,9 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 					pagePanel.setVisible(false);
 				}
 			}
+			if (null != this.dataGraphsPanel && activePage.equals(Pages.home)) {
+				this.dataGraphsPanel.reconstructChartData();
+			}
 		}
 	}
 
@@ -213,7 +217,7 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 		PageContainer pageContainer = null;
 		switch (page) {
 		case home : 
-			//NO
+			// no
 			break;
 		case analysis :
 			pageContainer = new AnalysisPageContainer();
@@ -231,7 +235,7 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 		if (null != pageContainer) {
 			pagePanel.add(pageContainer.getPage());
 			this.pagesCreated.put(page, pageContainer);
-			pageContainer.initialisePage();
+			pageContainer.initialisePage(createValueListener());
 		}
 	}
 
@@ -246,6 +250,11 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 			public void updateTrackEntry(TrackPointData newPoint) {
 				// add this data to the chart
 				updateChartData(newPoint);
+			}
+			@Override
+			public void removeTrackEntry(Date pointDate) {
+				// add this data to the chart
+				updateChartData(pointDate);
 			}
 			@Override
 			public void handleError(Throwable error) {
@@ -297,6 +306,12 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 	protected void updateChartData(TrackPointData newPoint) {
 		if (null != this.dataGraphsPanel) {
 			this.dataGraphsPanel.showTrackData(newPoint);
+		}
+	}
+
+	protected void updateChartData(Date removalDate) {
+		if (null != this.dataGraphsPanel) {
+			this.dataGraphsPanel.unshowTrackData(removalDate);
 		}
 	}
 

@@ -81,17 +81,17 @@ public class EventsTab extends ValueEntryTab {
 		description.append(getDateString());
 		final String successString = description.toString();
 		// create a point to contain this data
-		final TrackPointData point = new TrackPointData(DateSelectTab.limitDateToDay(selectedDate), event);
+		TrackPointData point = new TrackPointData(DateSelectTab.limitDateToDay(selectedDate), event);
 		// send this data to the service now
-		trackPointService.addTrackPoint(point, new AsyncCallback<Void>() {
+		trackPointService.addTrackPoint(point, new AsyncCallback<TrackPointData>() {
 			@Override
 			public void onFailure(Throwable error) {
 				listener.handleError(error);
 			}
 			@Override
-			public void onSuccess(Void result) {
+			public void onSuccess(TrackPointData result) {
 				// inform the graph / view of this new point
-				EventsTab.this.listener.updateTrackEntry(point);
+				EventsTab.this.listener.updateTrackEntry(result);
 				// create the string for this data we just added
 				alertResult(successString);
 			}

@@ -22,14 +22,16 @@ public class DonutChartPanel {
 	private String[] titles = null;
 	private int[] values = null;
 	private final Runnable onLoadCallback;
+	private String[] colours;
 	
 	public interface CreationListener {
 		public void chartCreated(DonutChartPanel panel, PieChart chart);
 	}
 	
-	public DonutChartPanel(final CreationListener listener) {
+	public DonutChartPanel(final CreationListener listener, String[] colours) {
 		// Create a callback to be called when the visualization API
 		// has been loaded.
+		this.colours = colours;
 		this.onLoadCallback = new Runnable() {
 			public void run() {
 				// Create a pie chart visualization.
@@ -82,7 +84,7 @@ public class DonutChartPanel {
 		optionsCreated.setWidth(400);
 		optionsCreated.setHeight(240);
 		optionsCreated.setOption("pieHole", 0.4);
-		optionsCreated.setColors("red","blue","green", "transparent");
+		optionsCreated.setColors(this.colours);
 		//optionsCreated.set3D(true);
 		//optionsCreated.setTitle("My Current Values");
 		return optionsCreated;

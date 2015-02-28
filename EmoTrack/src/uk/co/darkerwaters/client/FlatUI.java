@@ -5,6 +5,7 @@ import java.util.HashMap;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.InlineLabel;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextArea;
@@ -62,6 +63,19 @@ public class FlatUI {
 		control.getElement().setAttribute("title", tooltip);
 		control.getElement().setAttribute("data-original-title", tooltip);
 		control.getElement().setAttribute("data-placement", "top");
+	}
+	
+	public static Label createLabel(String content, String id, boolean isInline) {
+		if (isInline) {
+			return createLabel(content, id);
+		}
+		else {
+			Label control = new Label(content);
+			if (null != id) {
+				control.getElement().setId(id);
+			}
+			return control;
+		}
 	}
 
 	public static InlineLabel createLabel(String content, String id) {
@@ -139,13 +153,13 @@ public class FlatUI {
 		return simplePanel;
 	}
 	
-	public static void configureSlider(SimplePanel slider) {
+	public static void configureSlider(SimplePanel slider, int maxValue) {
 		if (false == isFunctionsExported) {
 			//exportSliderChange();
 			isFunctionsExported = true;
 		}
 		String id = slider.getElement().getId();
-		configureSlider("#" + id);
+		configureSlider("#" + id, maxValue);
 		// send an initial change message
 		sliderValueChange(0, id);
 	}
@@ -159,12 +173,12 @@ public class FlatUI {
 		}
 	}
 	
-	private static native void configureSlider(String sliderID) /*-{
+	private static native void configureSlider(String sliderID, int maxVal) /*-{
 	    var $slider = $wnd.$(sliderID);
 	    var $thatWnd = $wnd;
 	    if ($slider.length > 0) {
 	      $slider.slider({
-	        max: 10,
+	        max: maxVal,
 	        step: 1,
 	        value: 0,
 	        orientation: 'horizontal',

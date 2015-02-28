@@ -15,7 +15,7 @@ public class TrackPointData implements Serializable {
 	static final String K_VALUE_SEP = ":";
 	
 	//NB - include a space as this is not allowed as a value to track
-	public static String[] SLEEPKEY = new String[] {"Awake in bed", "Light sleep", "Deep sleep"};
+	public static String[] SLEEPKEY = new String[] {"Asleep ", "Deep Sleep"};
 	
 	//NB - include a space as this is not allowed as a value to track
 	public static String ACTIVITYKEY = "Activity ";
@@ -98,5 +98,19 @@ public class TrackPointData implements Serializable {
 	
 	public void addValue(String name, Integer value) {
 		this.valuesString += name + TrackPointData.K_VALUE_SEP + value.toString() + TrackPointData.K_VALUES_SEP;
+	}
+	
+	public void clearValues() {
+		this.valuesString = "";
+	}
+
+	public void setEvent(String newEvent) {
+		if (null != this.event && false == this.event.isEmpty()) {
+			// add to this event
+			this.event += "; " + newEvent;	
+		}
+		else {
+			this.event = newEvent;
+		}
 	}
 }

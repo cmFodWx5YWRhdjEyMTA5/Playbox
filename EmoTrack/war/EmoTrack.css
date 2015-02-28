@@ -182,18 +182,22 @@ td.datePickerYear {
 }
 .sleep-bottom {
 	clear: both;
+	float: left;
 	width: 100%;
 }
 .sleep-chart {
 	width: 100%;
 }
-.sleep-entry-panel {
-	width: 100%;
+.sleep-chart-panel {
+	width: 400px;
+	height: 250px;
 	clear: both;
 }
+.sleep-entry-panel {
+	float: left;
+}
 .sleep-entry-label {
-	width: 50%;
-	text-align: right;
+	padding: 5px;
 }
 .sleep-entry {
 	width: 50px;
@@ -334,7 +338,36 @@ td.datePickerYear {
 	width: 100%;
 	height: 75px;
 }
-
+.analysis-export-grid {
+	clear: both;
+}
+.analysis-data-cell {
+	border: 1px solid rgb(187, 187, 187);
+	width: 100&;
+	height: 100%;
+	text-align: center;
+}
+.analysis-data-col-header {
+	font-size: 1.4em;
+	padding-left: 50px;
+	padding-right: 50px;
+}
+.analysis-date-picker {
+	margin-left: 10px;
+	margin-right: 10px;
+}
+.analysis-row-delete {
+}
+.analysis-deleted {
+	text-decoration: line-through;
+}
+#anaysisCopyHelpLabel {
+	clear: both;
+}
+.invisible-text {
+	color: #000; /* Fallback for older browsers */
+    color: rgba(0, 0, 0, 0);
+}
 /* text inputs in general, to help spec a watermark*/
 #loadingDisplay {
 	position: fixed;

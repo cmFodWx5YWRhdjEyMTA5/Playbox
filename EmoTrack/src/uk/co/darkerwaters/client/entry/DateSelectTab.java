@@ -39,9 +39,9 @@ public class DateSelectTab extends ValueEntryTab {
 
 	public DateSelectTab(ValueEntryListener listener, TrackPointServiceAsync service) {
 		super(listener, service);
-		this.dateSelectLabel = new Label(EmoTrackMessages.Instance.date(LogDates.now.getDate()));
+		this.dateSelectLabel = new Label(EmoTrackMessages.Instance.date(LogDates.today.getDate()));
 	    dateSelectLabel.getElement().setId(EmoTrackConstants.K_CSS_ID_DATESELECTED);
-	    this.timeSelectLabel = new Label(EmoTrackMessages.Instance.time(LogDates.now.getDate()));
+	    this.timeSelectLabel = new Label(EmoTrackMessages.Instance.time(LogDates.today.getDate()));
 	    timeSelectLabel.getElement().setId(EmoTrackConstants.K_CSS_ID_TIMESELECTED);
 		
 		// add the entry controls

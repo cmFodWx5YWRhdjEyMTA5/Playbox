@@ -1,6 +1,10 @@
 package uk.co.darkerwaters.client.html;
 
 import uk.co.darkerwaters.client.EmoTrackResources;
+import uk.co.darkerwaters.client.entry.ValueEntryPanel.ValueEntryListener;
+
+import com.google.gwt.user.client.ui.DisclosurePanel;
+import com.google.gwt.user.client.ui.RootPanel;
 
 public class AnalysisPageContainer extends PageContainer {
 
@@ -8,9 +12,11 @@ public class AnalysisPageContainer extends PageContainer {
 		super(EmoTrackResources.INSTANCE.analysisPage().getText());
 	}
 	
-	public void initialisePage() {
+	@Override
+	public void initialisePage(ValueEntryListener listener) {
 		
-		
+		DisclosurePanel exportPanel = new ExportDataPanel(listener).getContent();
+		RootPanel.get("analysis").add(exportPanel);
 	}
 
 }

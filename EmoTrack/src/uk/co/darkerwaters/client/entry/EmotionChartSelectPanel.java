@@ -67,7 +67,7 @@ public class EmotionChartSelectPanel extends FlowPanel {
 		controlPanel.add(this.variableValueLabel);
 		this.add(controlPanel);
 		this.add(variableValueSlider);
-		FlatUI.configureSlider(this.variableValueSlider);
+		FlatUI.configureSlider(this.variableValueSlider, 10);
 		FlatUI.makeTooltip(this.variableValueSlider, EmoTrackMessages.Instance.tipEmotionSlider(title));
 	}
 
