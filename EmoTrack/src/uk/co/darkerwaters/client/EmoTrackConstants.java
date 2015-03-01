@@ -244,6 +244,12 @@ public interface EmoTrackConstants extends Constants {
 
 	@DefaultStringValue("Export / Delete data")
 	String exportData();
+	
+	@DefaultStringValue("Restore")
+	String restoreRow();
+	
+	@DefaultStringValue("Restore the deleted row of data back to the server.")
+	String tipRestoreRowButton();
 
 	@DefaultStringValue("Delete the entire row of data from the server.")
 	String tipDeleteRowButton();

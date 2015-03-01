@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import uk.co.darkerwaters.client.EmoTrack;
 import uk.co.darkerwaters.client.EmoTrackConstants;
 import uk.co.darkerwaters.client.EmoTrackMessages;
 import uk.co.darkerwaters.client.FlatUI;
@@ -62,9 +61,10 @@ public class ExportDataPanel {
 		dateSelectPanel.add(label);
 		fromDatePicker = new DatePicker();
 		Date from = new Date();
-		// this is the start of today though, take 30 days off
-		CalendarUtil.addDaysToDate(from, -30);
+		// this is the start of today though, take a month off
+		CalendarUtil.addMonthsToDate(from, -1);
 		fromDatePicker.setValue(from);
+		fromDatePicker.setCurrentMonth(from);
 		fromDatePicker.addStyleName("entryValue analysis-date-picker");
 		dateSelectPanel.add(fromDatePicker);
 		
@@ -73,7 +73,11 @@ public class ExportDataPanel {
 		label.addStyleName("entryValue");
 		dateSelectPanel.add(label);
 		toDatePicker = new DatePicker();
-		toDatePicker.setValue(new Date());
+		Date to = new Date();
+		// this is the start of today though, add a day
+		CalendarUtil.addDaysToDate(to, 1);
+		toDatePicker.setValue(to);
+		toDatePicker.setCurrentMonth(to);
 		toDatePicker.addStyleName("entryValue analysis-date-picker");
 		dateSelectPanel.add(toDatePicker);
 		
@@ -136,7 +140,7 @@ public class ExportDataPanel {
 		
 		if (from == null || to == null || to.before(from) || to.equals(from)) {
 			// this is no good
-			EmoTrack.alertWidget(EmoTrackConstants.Instance.alertTitle(), "Please enter a valid date range, 'to' has to be before 'from'.");
+			FlatUI.createErrorMessage("Please enter a valid date range, 'to' has to be before 'from'.", this.getDataButton);
 		}
 		else {
 			String fromDayDate = DataGraphsPanel.dayDate.format(from);
@@ -158,7 +162,7 @@ public class ExportDataPanel {
 
 	protected void populateGrid(TrackPointData[] result) {
 		if (result == null) {
-			EmoTrack.alertWidget(EmoTrackConstants.Instance.alertTitle(), "Unable to get any data for this date range, sorry.");
+			FlatUI.createErrorMessage("Unable to get any data for this date range, sorry.", this.getDataButton);
 			return;
 		}
 		// populate the grid of all our data, first get all the headings
@@ -224,7 +228,8 @@ public class ExportDataPanel {
 		this.trackService.removeTrackPoint(point, new AsyncCallback<Void>() {
 			@Override
 			public void onSuccess(Void result) {
-				deleteButton.setText("undo");
+				deleteButton.setText(EmoTrackConstants.Instance.restoreRow());
+				FlatUI.makeTooltip(deleteButton, EmoTrackConstants.Instance.tipRestoreRowButton());
 				for (int col = 1; col < dataGrid.getColumnCount(); ++col) {
 					dataGrid.getWidget(row, col).addStyleName("analysis-deleted");
 				}
@@ -232,7 +237,7 @@ public class ExportDataPanel {
 			}
 			@Override
 			public void onFailure(Throwable caught) {
-				EmoTrack.alertWidget(EmoTrackConstants.Instance.alertTitle(), "Failed to delete the data for this date, sorry.");
+				FlatUI.createErrorMessage("Failed to delete the data for this date, sorry.", deleteButton);
 			}
 		});
 	}
@@ -242,6 +247,7 @@ public class ExportDataPanel {
 			@Override
 			public void onSuccess(TrackPointData result) {
 				deleteButton.setText("X");
+				FlatUI.makeTooltip(deleteButton, EmoTrackConstants.Instance.tipDeleteRowButton());
 				for (int col = 1; col < dataGrid.getColumnCount(); ++col) {
 					dataGrid.getWidget(row, col).removeStyleName("analysis-deleted");
 				}
@@ -249,7 +255,7 @@ public class ExportDataPanel {
 			}
 			@Override
 			public void onFailure(Throwable caught) {
-				EmoTrack.alertWidget(EmoTrackConstants.Instance.alertTitle(), "Failed to restore the data for this date, sorry.");
+				FlatUI.createErrorMessage("Failed to restore the data for this date, sorry.", deleteButton);
 			}
 		});
 	}

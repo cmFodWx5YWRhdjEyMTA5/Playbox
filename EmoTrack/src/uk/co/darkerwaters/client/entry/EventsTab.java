@@ -2,7 +2,6 @@ package uk.co.darkerwaters.client.entry;
 
 import java.util.Date;
 
-import uk.co.darkerwaters.client.EmoTrack;
 import uk.co.darkerwaters.client.EmoTrackConstants;
 import uk.co.darkerwaters.client.EmoTrackMessages;
 import uk.co.darkerwaters.client.FlatUI;
@@ -58,7 +57,7 @@ public class EventsTab extends ValueEntryTab {
 				String eventString = eventTextBox.getText();
 				// The string must be between 1 and 50 chars that are numbers, letters, or dots.
 				if (!eventString.matches("^[0-9a-zA-Z\\. ]{1,50}$")) {
-					EmoTrack.alertWidget(EmoTrackConstants.Instance.alertTitle(), EmoTrackMessages.Instance.invalidEventTitle(eventString));
+					FlatUI.createErrorMessage(EmoTrackMessages.Instance.invalidEventTitle(eventString), eventTextBox);
 					eventTextBox.selectAll();
 					return;
 				}

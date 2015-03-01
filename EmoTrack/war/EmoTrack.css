@@ -239,6 +239,15 @@ td.datePickerYear {
 	font-size: xx-large;
 	color: DarkGray;
 }
+.popup-close {
+	width: 16px;
+	height: 16px;
+	font-size: 8;
+	margin-right: 3px;
+}
+.popup-wait {
+	margin-left: 3px;
+}
  /* watermarking for text inputs */
 .textInput-watermark {
    /* background-image: url('images/overlay.gif');

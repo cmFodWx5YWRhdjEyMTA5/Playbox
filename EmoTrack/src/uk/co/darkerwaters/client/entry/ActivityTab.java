@@ -113,7 +113,7 @@ public class ActivityTab extends ValueEntryTab {
 
 	protected void logEvent(Date selectedDate, int value) {
 		if (value <= 0) {
-			EmoTrack.alertWidget(EmoTrackConstants.Instance.alertTitle(), EmoTrackMessages.Instance.invalidAmount());
+			FlatUI.createErrorMessage(EmoTrackMessages.Instance.invalidAmount(), this.activityText);
 			return;
 		}
 		String activity = this.activityList.getItemText(this.activityList.getSelectedIndex());

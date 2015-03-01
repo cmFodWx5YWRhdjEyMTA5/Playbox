@@ -270,12 +270,12 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 					// are logged in
 					return true;
 				}
-				else if (null != loginInfo && null != loginInfo.getLoginUrl()) {
+				/*else if (null != loginInfo && null != loginInfo.getLoginUrl()) {
 					Window.open(loginInfo.getLoginUrl(), "EmoTrack Login", "");
 					return false;
-				}
+				}*/
 				else {
-					EmoTrack.alertWidget(EmoTrackConstants.Instance.alertTitle(), EmoTrackMessages.Instance.notLoggedIn());
+					FlatUI.createErrorMessage(EmoTrackMessages.Instance.notLoggedIn(), loginDescrption);
 					return false;
 				}
 			}
@@ -360,7 +360,6 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 	}
 	
 	public static void alertWidget(final String header, final String content) {
-		
 		if (null == errorBoxLabel) {
 			errorBoxLabel = new Label();
 			errorBox.add(errorBoxLabel);

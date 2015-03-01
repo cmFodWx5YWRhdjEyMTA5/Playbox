@@ -56,9 +56,6 @@ public class ContactPageContainer extends PageContainer {
 	
 	@Override
 	public void initialisePage(ValueEntryListener listener) {
-		if (false == listener.checkLoginStatus()) {
-			return;
-		}
 		nameEntry.addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(ChangeEvent event) {
@@ -82,11 +79,11 @@ public class ContactPageContainer extends PageContainer {
 	            emailService.sendEmail(emailEntry.getText(), subject, content, new AsyncCallback<String>() {
 					@Override
 					public void onSuccess(String result) {
-						EmoTrack.alertWidget("Email sent", "Thankyou for your comments, we will try to get back to you as soon as possable");
+						FlatUI.createErrorMessage("Thankyou for your comments, we will try to get back to you as soon as possable", submitButton);
 					}
 					@Override
 					public void onFailure(Throwable caught) {
-						EmoTrack.alertWidget("Email failed", "Sorry, for some reason this email could not be sent, try again later?...");
+						FlatUI.createErrorMessage("Sorry, for some reason this email could not be sent, try again later?...", submitButton);
 						EmoTrack.LOG.log(Level.SEVERE, "Email failure " + caught.getMessage());
 					}
 				});

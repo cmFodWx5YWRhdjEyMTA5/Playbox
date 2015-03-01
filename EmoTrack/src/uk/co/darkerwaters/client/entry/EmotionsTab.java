@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import uk.co.darkerwaters.client.EmoTrack;
 import uk.co.darkerwaters.client.EmoTrackConstants;
 import uk.co.darkerwaters.client.EmoTrackMessages;
 import uk.co.darkerwaters.client.FlatUI;
@@ -122,7 +121,7 @@ public class EmotionsTab extends ValueEntryTab {
 		// The variable name must be between 1 and 20 chars that are numbers, letters,
 		// or dots.
 		if (!variableName.matches("^[0-9a-zA-Z\\.]{1,20}$")) {
-			EmoTrack.alertWidget(EmoTrackConstants.Instance.alertTitle(), EmoTrackMessages.Instance.invalidVariableName(variableName));
+			FlatUI.createErrorMessage(EmoTrackMessages.Instance.invalidVariableName(variableName), this.newVariableTextBox);
 			newVariableTextBox.selectAll();
 			return;
 	    }
@@ -132,7 +131,7 @@ public class EmotionsTab extends ValueEntryTab {
 		// Don't add the variable if it's already in the table.
 		if (isVariableExist(variableName)) {
 			// don't allow this addition
-			EmoTrack.alertWidget(EmoTrackConstants.Instance.alertTitle(), EmoTrackMessages.Instance.usedVariableName(variableName));
+			FlatUI.createErrorMessage(EmoTrackMessages.Instance.usedVariableName(variableName), this.newVariableTextBox);
 			newVariableTextBox.selectAll();
 		}
 		else {

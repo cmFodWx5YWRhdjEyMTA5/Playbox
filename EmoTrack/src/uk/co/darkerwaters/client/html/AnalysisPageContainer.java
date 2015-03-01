@@ -14,7 +14,6 @@ public class AnalysisPageContainer extends PageContainer {
 	
 	@Override
 	public void initialisePage(ValueEntryListener listener) {
-		
 		DisclosurePanel exportPanel = new ExportDataPanel(listener).getContent();
 		RootPanel.get("analysis").add(exportPanel);
 	}

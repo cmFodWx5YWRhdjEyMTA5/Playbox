@@ -281,7 +281,7 @@ public class SleepTab extends ValueEntryTab {
 	
 	protected void logEvent(Date selectedDate, int[] values) {
 		if (values[0] <= 0) {
-			EmoTrack.alertWidget(EmoTrackConstants.Instance.alertTitle(), EmoTrackMessages.Instance.invalidAmount());
+			FlatUI.createErrorMessage(EmoTrackMessages.Instance.invalidAmount(), asleepText[0]);
 			return;
 		}
 		TrackPointData point = new TrackPointData(DateSelectTab.limitDateToDay(selectedDate));

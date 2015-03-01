@@ -168,7 +168,15 @@ public class DataGraphsPanel extends VerticalPanel {
 			toDate = dayDate.format(to);
 		}
 		this.dataStartDate  = dayDate.parse(fromDate);
-		this.dataEndDate = toDate.isEmpty() ? new Date() : dayDate.parse(toDate);
+		if (toDate.isEmpty()) {
+			// do until tonight
+			Date temp = new Date();
+			CalendarUtil.addDaysToDate(temp, 1);
+			this.dataEndDate = temp;
+		}
+		else {
+			this.dataEndDate = dayDate.parse(toDate);
+		}
 		for (TrackPointGraphDataHandler handler : this.dataHandlers) {
 			handler.setDateRange(this.dataStartDate, this.dataEndDate);
 		}
