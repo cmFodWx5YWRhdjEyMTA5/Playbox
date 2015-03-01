@@ -147,7 +147,7 @@ public class FlatUI {
 			Button closeButton = new Button();
 			FlatUI.makeButton(closeButton, null, "Close this message");
 			closeButton.addStyleName("popup-close");
-			closeButton.getElement().setInnerHTML("<img src=\"images/gtk-close.png\" style=\"position:relative; top:-12px;\"/>");
+			closeButton.getElement().setInnerHTML("<img src=\"images/gtk-close.png\" style=\"position:relative; top:-12px; left: -4px;\"/>");
 			closeButton.addClickHandler(new ClickHandler() {
 				@Override
 				public void onClick(ClickEvent event) {
