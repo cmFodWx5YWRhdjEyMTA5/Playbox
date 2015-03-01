@@ -55,6 +55,8 @@ public class ExportDataPanel {
 		FlowPanel dateSelectPanel = new FlowPanel();
 		this.listener = listener;
 		
+		mainPanel.addStyleName("sub-page-section");
+		
 		// set the from controls
 		InlineLabel label = FlatUI.createLabel("Export data from", null);
 		label.addStyleName("entryValue");

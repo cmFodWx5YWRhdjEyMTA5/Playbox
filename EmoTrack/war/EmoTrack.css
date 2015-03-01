@@ -248,6 +248,13 @@ td.datePickerYear {
 .popup-wait {
 	margin-left: 3px;
 }
+.sub-page-content {
+	padding: 50px;
+}
+.sub-page-section {
+	margin-left: 50px;
+	margin-bottom: 50px;
+}
  /* watermarking for text inputs */
 .textInput-watermark {
    /* background-image: url('images/overlay.gif');
@@ -358,8 +365,8 @@ td.datePickerYear {
 }
 .analysis-data-col-header {
 	font-size: 1.4em;
-	padding-left: 50px;
-	padding-right: 50px;
+	padding-left: 5px;
+	padding-right: 5px;
 }
 .analysis-date-picker {
 	margin-left: 10px;
