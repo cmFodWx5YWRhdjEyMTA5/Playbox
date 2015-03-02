@@ -5,11 +5,11 @@ import java.util.Date;
 
 import uk.co.darkerwaters.client.EmoTrackConstants;
 import uk.co.darkerwaters.client.EmoTrackListener;
+import uk.co.darkerwaters.client.controls.ListItemWidget;
+import uk.co.darkerwaters.client.controls.UnorderedListWidget;
 import uk.co.darkerwaters.client.tracks.TrackPointData;
 import uk.co.darkerwaters.client.tracks.TrackPointService;
 import uk.co.darkerwaters.client.tracks.TrackPointServiceAsync;
-import uk.co.darkerwaters.shared.ListItemWidget;
-import uk.co.darkerwaters.shared.UnorderedListWidget;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;

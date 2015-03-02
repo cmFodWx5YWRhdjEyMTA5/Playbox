@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.client;
+package uk.co.darkerwaters.client.graph;
 
 import java.util.ArrayList;
 
@@ -9,6 +9,8 @@ import org.vaadin.gwtgraphics.client.animation.Animate;
 import org.vaadin.gwtgraphics.client.shape.Circle;
 import org.vaadin.gwtgraphics.client.shape.Path;
 import org.vaadin.gwtgraphics.client.shape.Text;
+
+import uk.co.darkerwaters.client.EmoTrack;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -158,6 +160,10 @@ public class DataGraph<X, Y> {
 	
 	public void clearData() {
 		this.dataSeries.clear();
+		this.minX = null;
+		this.maxX = null;
+		this.minY = null;
+		this.maxY = null;
 		this.isInitialised = false;
 	}
 	
@@ -200,6 +206,9 @@ public class DataGraph<X, Y> {
 			}
 			if (null == this.maxY || this.handler.compareY(y, maxY) > 0) {
 				this.maxY = y;
+			}
+			if (this.isInitialised) {
+				this.isInitialised = false;
 			}
 		}
 		return true;

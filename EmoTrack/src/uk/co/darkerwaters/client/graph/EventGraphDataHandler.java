@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.client;
+package uk.co.darkerwaters.client.graph;
 
 import java.util.ArrayList;
 import java.util.Date;

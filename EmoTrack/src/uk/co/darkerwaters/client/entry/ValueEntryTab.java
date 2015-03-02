@@ -1,10 +1,10 @@
 package uk.co.darkerwaters.client.entry;
 
 import uk.co.darkerwaters.client.EmoTrackConstants;
+import uk.co.darkerwaters.client.controls.ListItemWidget;
+import uk.co.darkerwaters.client.controls.MirrorLabel;
 import uk.co.darkerwaters.client.entry.ValueEntryPanel.ValueEntryListener;
 import uk.co.darkerwaters.client.tracks.TrackPointServiceAsync;
-import uk.co.darkerwaters.shared.ListItemWidget;
-import uk.co.darkerwaters.shared.MirrorLabel;
 
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;

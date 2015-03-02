@@ -4,11 +4,11 @@ import java.util.Date;
 
 import uk.co.darkerwaters.client.EmoTrackConstants;
 import uk.co.darkerwaters.client.EmoTrackMessages;
-import uk.co.darkerwaters.client.FlatUI;
+import uk.co.darkerwaters.client.controls.FlatUI;
+import uk.co.darkerwaters.client.controls.MirrorLabel;
 import uk.co.darkerwaters.client.entry.ValueEntryPanel.ValueEntryListener;
 import uk.co.darkerwaters.client.tracks.TrackPointServiceAsync;
 import uk.co.darkerwaters.client.variables.LogDates;
-import uk.co.darkerwaters.shared.MirrorLabel;
 
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.HeadingElement;

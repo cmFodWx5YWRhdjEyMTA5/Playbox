@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.shared;
+package uk.co.darkerwaters.client.graph;
 
 import java.util.logging.Level;
 

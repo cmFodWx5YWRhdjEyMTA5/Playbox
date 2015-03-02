@@ -6,7 +6,7 @@ import java.util.List;
 
 import uk.co.darkerwaters.client.EmoTrackConstants;
 import uk.co.darkerwaters.client.EmoTrackMessages;
-import uk.co.darkerwaters.client.FlatUI;
+import uk.co.darkerwaters.client.controls.FlatUI;
 import uk.co.darkerwaters.client.entry.ValueEntryPanel.ValueEntryListener;
 import uk.co.darkerwaters.client.tracks.TrackPointData;
 import uk.co.darkerwaters.client.tracks.TrackPointServiceAsync;

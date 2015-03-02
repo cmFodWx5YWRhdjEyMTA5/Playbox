@@ -1,8 +1,8 @@
 package uk.co.darkerwaters.client.entry;
 
 import uk.co.darkerwaters.client.EmoTrackMessages;
-import uk.co.darkerwaters.client.FlatUI;
-import uk.co.darkerwaters.shared.GaugeChartPanel;
+import uk.co.darkerwaters.client.controls.FlatUI;
+import uk.co.darkerwaters.client.graph.GaugeChartPanel;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;

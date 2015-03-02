@@ -249,7 +249,10 @@ td.datePickerYear {
 	margin-left: 3px;
 }
 .sub-page-content {
-	padding: 50px;
+	padding-left: 50px;
+	padding-right: 50px;
+	padding-top: 20px;
+	padding-bottom: 10px;
 }
 .sub-page-section {
 	margin-left: 50px;

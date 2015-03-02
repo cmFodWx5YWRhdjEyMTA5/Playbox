@@ -1,7 +1,6 @@
 package uk.co.darkerwaters.client.legacy;
 
-import uk.co.darkerwaters.client.ImageButton;
-import uk.co.darkerwaters.client.ImageButton.ImageButtonClickHandler;
+import uk.co.darkerwaters.client.legacy.ImageButton.ImageButtonClickHandler;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;

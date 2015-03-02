@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.client.tracks;
+package uk.co.darkerwaters.client.graph;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,16 +7,16 @@ import java.util.HashMap;
 
 import org.vaadin.gwtgraphics.client.shape.Circle;
 
-import uk.co.darkerwaters.client.DataGraph;
-import uk.co.darkerwaters.client.DataGraph.DataGraphListener;
 import uk.co.darkerwaters.client.EmoTrackConstants;
 import uk.co.darkerwaters.client.EmoTrackListener;
 import uk.co.darkerwaters.client.EmoTrackMessages;
-import uk.co.darkerwaters.client.EventGraphDataHandler;
-import uk.co.darkerwaters.client.EventGraphDataHandler.EventLabel;
-import uk.co.darkerwaters.client.FlatUI;
-import uk.co.darkerwaters.client.TrackPointGraphDataHandler;
+import uk.co.darkerwaters.client.controls.FlatUI;
 import uk.co.darkerwaters.client.entry.SleepTab;
+import uk.co.darkerwaters.client.graph.DataGraph.DataGraphListener;
+import uk.co.darkerwaters.client.graph.EventGraphDataHandler.EventLabel;
+import uk.co.darkerwaters.client.tracks.TrackPointData;
+import uk.co.darkerwaters.client.tracks.TrackPointService;
+import uk.co.darkerwaters.client.tracks.TrackPointServiceAsync;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;

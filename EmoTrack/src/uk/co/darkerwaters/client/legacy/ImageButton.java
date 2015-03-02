@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.client;
+package uk.co.darkerwaters.client.legacy;
 
 import java.util.ArrayList;
 import java.util.List;

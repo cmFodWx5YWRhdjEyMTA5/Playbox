@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.client;
+package uk.co.darkerwaters.client.controls;
 
 import java.util.HashMap;
 
@@ -303,7 +303,7 @@ public class FlatUI {
 	    }
       	$slider.slider({
     		change: function(event, ui) {
-    			@uk.co.darkerwaters.client.FlatUI::sliderValueChange(ILjava/lang/String;)(ui.value, sliderID);
+    			@uk.co.darkerwaters.client.controls.FlatUI::sliderValueChange(ILjava/lang/String;)(ui.value, sliderID);
    			} 
       	});​
 	}-*/;
@@ -311,7 +311,7 @@ public class FlatUI {
 	private static native void exportSliderChange() /*-{
 	    var that = this;
 	    $wnd.sliderValueChange = $entry(function(value, id) {
-	      @uk.co.darkerwaters.client.FlatUI::sliderValueChange(ILjava/lang/String;)(value, id);
+	      @uk.co.darkerwaters.client.controls.FlatUI::sliderValueChange(ILjava/lang/String;)(value, id);
 	    });
 	}-*/;
 	

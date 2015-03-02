@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.shared;
+package uk.co.darkerwaters.client.controls;
 
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;

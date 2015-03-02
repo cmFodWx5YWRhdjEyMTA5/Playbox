@@ -5,8 +5,11 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import uk.co.darkerwaters.client.controls.FlatUI;
 import uk.co.darkerwaters.client.entry.ValueEntryPanel;
 import uk.co.darkerwaters.client.entry.ValueEntryPanel.ValueEntryListener;
+import uk.co.darkerwaters.client.graph.DataGraphsPanel;
+import uk.co.darkerwaters.client.graph.GaugeChartPanel;
 import uk.co.darkerwaters.client.html.AboutPageContainer;
 import uk.co.darkerwaters.client.html.AnalysisPageContainer;
 import uk.co.darkerwaters.client.html.ContactPageContainer;
@@ -15,9 +18,7 @@ import uk.co.darkerwaters.client.html.PageContainer;
 import uk.co.darkerwaters.client.login.LoginInfo;
 import uk.co.darkerwaters.client.login.LoginService;
 import uk.co.darkerwaters.client.login.LoginServiceAsync;
-import uk.co.darkerwaters.client.tracks.DataGraphsPanel;
 import uk.co.darkerwaters.client.tracks.TrackPointData;
-import uk.co.darkerwaters.shared.GaugeChartPanel;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
