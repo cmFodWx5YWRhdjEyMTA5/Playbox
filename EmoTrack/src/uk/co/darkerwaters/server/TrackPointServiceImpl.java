@@ -1,6 +1,8 @@
 package uk.co.darkerwaters.server;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -14,9 +16,9 @@ import javax.jdo.PersistenceManagerFactory;
 import javax.jdo.Query;
 
 import uk.co.darkerwaters.client.login.NotLoggedInException;
-import uk.co.darkerwaters.client.tracks.TrackPoint;
-import uk.co.darkerwaters.client.tracks.TrackPointData;
 import uk.co.darkerwaters.client.tracks.TrackPointService;
+import uk.co.darkerwaters.shared.StatsResultsData;
+import uk.co.darkerwaters.shared.TrackPointData;
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
@@ -28,8 +30,12 @@ public class TrackPointServiceImpl extends RemoteServiceServlet implements Track
 	private static final long serialVersionUID = 1607169848971697289L;
 	private static final Logger LOG = Logger.getLogger(TrackPointServiceImpl.class.getName());
 	private static final PersistenceManagerFactory PMF = JDOHelper.getPersistenceManagerFactory("transactions-optional");
+	private static final Integer K_THRESHOLD_NONE = new Integer(2);
 	
 	public static SimpleDateFormat dayDate = new SimpleDateFormat("yyyy-MM-dd");
+	
+	public static SimpleDateFormat monthDate = new SimpleDateFormat("yyyy-MM");
+	public static SimpleDateFormat weekDate = new SimpleDateFormat("yyyy-ww");
 
 	public TrackPointData addTrackPoint(TrackPointData point) throws NotLoggedInException {
 		checkLoggedIn();
@@ -239,6 +245,103 @@ public class TrackPointServiceImpl extends RemoteServiceServlet implements Track
 			pm.close();
 		}
 		return toReturn;
+	}
+
+	public StatsResultsData getStatsResults(String fromDayDate, String toDayDate) throws NotLoggedInException {
+		TrackPointData[] trackPoints = getTrackPoints(fromDayDate, toDayDate);
+		HashMap<String, Integer> numberOfNoneValues = new HashMap<String, Integer>();
+		HashMap<String, ArrayList<Integer>> monthlyValues = new HashMap<String, ArrayList<Integer>>();
+		HashMap<String, ArrayList<Integer>> weeklyValues = new HashMap<String, ArrayList<Integer>>();
+		for (TrackPointData point : trackPoints) {
+			if (null == point) {
+				// ignore
+				continue;
+			}
+			// ok, so we can process this
+			String[] valuesNames = point.getValuesNames();
+			Integer[] valuesValues = point.getValuesValues();
+			for (int i = 0; i < valuesNames.length && i < valuesValues.length; ++i) {
+				String title = valuesNames[i];
+				Integer value = valuesValues[i];
+				if (null == title || null == value) {
+					// ignore
+					continue;
+				}
+				if (TrackPointData.IsSleepKey(title)) {
+					// is a sleep value
+				}
+				else if (TrackPointData.IsActivityKey(title)) {
+					// is an activity value
+				}
+				else {
+					// is a value we are tracking
+					if (value < K_THRESHOLD_NONE) {
+						// increment the count of none values
+						Integer count = numberOfNoneValues.get(title);
+						if (null == count) {
+							count = new Integer(1);
+						}
+						else {
+							count = new Integer(count + 1);
+						}
+						numberOfNoneValues.put(title, count);
+					}
+				}
+				// format the monthly string for this data
+				String monthDataKey = monthDate.format(point.getTrackDate()) + " " + title;
+				ArrayList<Integer> monthKeyValues = monthlyValues.get(monthDataKey);
+				if (null == monthKeyValues) {
+					// create the list
+					monthKeyValues = new ArrayList<Integer>();
+					monthlyValues.put(monthDataKey, monthKeyValues);
+				}
+				// add the data to this monthly tally
+				monthKeyValues.add(value);
+				// format the weekly string for this data
+				String weekDataKey = weekDate.format(point.getTrackDate()) + " " + title;
+				ArrayList<Integer> weekKeyValues = weeklyValues.get(weekDataKey);
+				if (null == weekKeyValues) {
+					// create the list
+					weekKeyValues = new ArrayList<Integer>();
+					weeklyValues.put(weekDataKey, weekKeyValues);
+				}
+				// add the data to this weekly tally
+				weekKeyValues.add(value);
+			}
+		}
+		StatsResultsData results = new StatsResultsData();
+		// add the instances below the threshold
+		for (Entry<String, Integer> entry : numberOfNoneValues.entrySet()) {
+			results.addNumberOfNone(entry.getKey(), entry.getValue().intValue());
+		}
+		// add monthly averages, in order please
+		List<String> sortedList = new ArrayList<String>();
+		sortedList.addAll(monthlyValues.keySet());
+		Collections.sort(sortedList);
+		for (String key : sortedList) {
+			// for each monthly entry, add the average to the results
+			int total = 0;
+			ArrayList<Integer> values = monthlyValues.get(key);
+			for (Integer value : values) {
+				total += value.intValue();
+			}
+			results.addMonthlyAverage(key, total / (float)values.size());
+		}
+		// add weekly averages, in order please
+		sortedList.clear();
+		sortedList.addAll(weeklyValues.keySet());
+		Collections.sort(sortedList);
+		for (String key : sortedList) {
+			// for each weekly entry, add the average to the results
+			int total = 0;
+			ArrayList<Integer> values = weeklyValues.get(key);
+			for (Integer value : values) {
+				total += value.intValue();
+			}
+			results.addWeeklyAverage(key, total / (float)values.size());
+		}
+		
+		return results;
 	}
 
 	private void checkLoggedIn() throws NotLoggedInException {

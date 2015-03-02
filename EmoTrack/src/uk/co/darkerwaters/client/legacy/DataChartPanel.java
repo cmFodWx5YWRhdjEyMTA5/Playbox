@@ -9,9 +9,9 @@ import uk.co.darkerwaters.client.EmoTrackConstants;
 import uk.co.darkerwaters.client.EmoTrackListener;
 import uk.co.darkerwaters.client.EmoTrackMessages;
 import uk.co.darkerwaters.client.controls.FlatUI;
-import uk.co.darkerwaters.client.tracks.TrackPointData;
 import uk.co.darkerwaters.client.tracks.TrackPointService;
 import uk.co.darkerwaters.client.tracks.TrackPointServiceAsync;
+import uk.co.darkerwaters.shared.TrackPointData;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;

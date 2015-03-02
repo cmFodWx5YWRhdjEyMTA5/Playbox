@@ -14,9 +14,9 @@ import uk.co.darkerwaters.client.controls.FlatUI;
 import uk.co.darkerwaters.client.entry.SleepTab;
 import uk.co.darkerwaters.client.graph.DataGraph.DataGraphListener;
 import uk.co.darkerwaters.client.graph.EventGraphDataHandler.EventLabel;
-import uk.co.darkerwaters.client.tracks.TrackPointData;
 import uk.co.darkerwaters.client.tracks.TrackPointService;
 import uk.co.darkerwaters.client.tracks.TrackPointServiceAsync;
+import uk.co.darkerwaters.shared.TrackPointData;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -27,6 +27,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
@@ -100,12 +101,19 @@ public class DataGraphsPanel extends VerticalPanel {
 		this.eventGraph.setIsDrawLegend(false);
 		this.eventGraph.setIsDrawPath(false);
 		
-		this.add(this.eventGraph.getContent());
-		this.add(this.emotionGraph.getContent());
-		this.add(this.activityGraph.getContent());
-		this.add(this.sleepGraph.getContent());
+		// set styles on these graphs and add them
+		addGraph(this.eventGraph);
+		addGraph(this.emotionGraph);
+		addGraph(this.activityGraph);
+		addGraph(this.sleepGraph);
 		
 		loadTrackData();
+	}
+
+	private void addGraph(DataGraph<?, ?> graph) {
+		Panel graphPanel = graph.getContent();
+		graphPanel.addStyleName("data-graph");
+		this.add(graphPanel);
 	}
 
 	private DataGraph.DataGraphListener<Date, Integer> createGraphListener() {
@@ -133,7 +141,7 @@ public class DataGraphsPanel extends VerticalPanel {
 			if (null != value) {
 				String description = value + " " + (seriesTitle == null ? "" : (seriesTitle + " ")) + EmoTrackConstants.Instance.at() + " " + EmoTrackMessages.Instance.date(selectedDate);
 				
-				final EventLabel eventLabel = new EventGraphDataHandler.EventLabel(point.getX() + 5, point.getY() + 5, selectedDate, description, true);
+				final EventLabel eventLabel = new EventGraphDataHandler.EventLabel(point.getX() + 5, point.getY() + 5, description, true);
 				eventLabel.addToGraph(source);
 				
 				Timer timer = new Timer() {
@@ -287,15 +295,11 @@ public class DataGraphsPanel extends VerticalPanel {
 				this.eventGraph.addData("events", trackDate, eventString);
 			}
 		}
-		this.eventGraph.resizeWindow(0, 0);
-		this.emotionGraph.resizeWindow(0, 0);
-		this.activityGraph.resizeWindow(0, 0);
-		this.sleepGraph.resizeWindow(0, 0);
 		// now draw this new chart data
-		this.eventGraph.drawData();
-		this.emotionGraph.drawData();
-		this.activityGraph.drawData();
-		this.sleepGraph.drawData();
+		this.eventGraph.resizeWindow();
+		this.emotionGraph.resizeWindow();
+		this.activityGraph.resizeWindow();
+		this.sleepGraph.resizeWindow();
 	}
 
 	public void showTrackData(TrackPointData trackData) {

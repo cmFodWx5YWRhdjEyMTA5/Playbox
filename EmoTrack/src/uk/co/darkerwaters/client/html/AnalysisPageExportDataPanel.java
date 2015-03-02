@@ -2,18 +2,15 @@ package uk.co.darkerwaters.client.html;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 
 import uk.co.darkerwaters.client.EmoTrackConstants;
 import uk.co.darkerwaters.client.EmoTrackMessages;
 import uk.co.darkerwaters.client.controls.FlatUI;
 import uk.co.darkerwaters.client.entry.ValueEntryPanel.ValueEntryListener;
 import uk.co.darkerwaters.client.graph.DataGraphsPanel;
-import uk.co.darkerwaters.client.tracks.TrackPointData;
-import uk.co.darkerwaters.client.tracks.TrackPointService;
 import uk.co.darkerwaters.client.tracks.TrackPointServiceAsync;
+import uk.co.darkerwaters.shared.TrackPointData;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Element;
@@ -29,9 +26,7 @@ import com.google.gwt.user.datepicker.client.CalendarUtil;
 import com.google.gwt.user.datepicker.client.DatePicker;
 
 @SuppressWarnings("deprecation")
-public class ExportDataPanel {
-	
-	private final TrackPointServiceAsync trackService = GWT.create(TrackPointService.class);
+public class AnalysisPageExportDataPanel {
 	
 	private final DisclosurePanel mainPanel = new DisclosurePanel(EmoTrackConstants.Instance.exportData());
 	
@@ -48,12 +43,14 @@ public class ExportDataPanel {
 	private Label helpLabel;
 
 	private ValueEntryListener listener;
-	
-	private HashMap<Integer, TrackPointData> deletedData = new HashMap<Integer, TrackPointData>();
 
-	public ExportDataPanel(ValueEntryListener listener) {
-		FlowPanel dateSelectPanel = new FlowPanel();
+	private final TrackPointServiceAsync trackService;
+
+	public AnalysisPageExportDataPanel(TrackPointServiceAsync trackService, ValueEntryListener listener) {
 		this.listener = listener;
+		this.trackService = trackService;
+		
+		FlowPanel dateSelectPanel = new FlowPanel();
 		
 		mainPanel.addStyleName("sub-page-section");
 		
@@ -148,7 +145,6 @@ public class ExportDataPanel {
 			String fromDayDate = DataGraphsPanel.dayDate.format(from);
 			String toDayDate = DataGraphsPanel.dayDate.format(to);
 			this.gridPanel.clear();
-			this.deletedData.clear();
 			trackService.getTrackPoints(fromDayDate, toDayDate, new AsyncCallback<TrackPointData[]>() {
 				@Override
 				public void onSuccess(TrackPointData[] result) {
@@ -235,7 +231,7 @@ public class ExportDataPanel {
 				for (int col = 1; col < dataGrid.getColumnCount(); ++col) {
 					dataGrid.getWidget(row, col).addStyleName("analysis-deleted");
 				}
-				ExportDataPanel.this.listener.removeTrackEntry(point.getTrackDate());
+				AnalysisPageExportDataPanel.this.listener.removeTrackEntry(point.getTrackDate());
 			}
 			@Override
 			public void onFailure(Throwable caught) {
@@ -253,7 +249,7 @@ public class ExportDataPanel {
 				for (int col = 1; col < dataGrid.getColumnCount(); ++col) {
 					dataGrid.getWidget(row, col).removeStyleName("analysis-deleted");
 				}
-				ExportDataPanel.this.listener.updateTrackEntry(result);
+				AnalysisPageExportDataPanel.this.listener.updateTrackEntry(result);
 			}
 			@Override
 			public void onFailure(Throwable caught) {

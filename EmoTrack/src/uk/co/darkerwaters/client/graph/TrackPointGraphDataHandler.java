@@ -7,7 +7,7 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
 
 import uk.co.darkerwaters.client.EmoTrack;
-import uk.co.darkerwaters.client.tracks.TrackPointData;
+import uk.co.darkerwaters.shared.TrackPointData;
 
 public class TrackPointGraphDataHandler implements DataGraph.DataHandler<Date, Integer> {
 	
@@ -16,7 +16,20 @@ public class TrackPointGraphDataHandler implements DataGraph.DataHandler<Date, I
 	public static enum Type {
 		emotion,
 		sleep,
-		activity
+		activity;
+		public static Type getTypeForSeriesTitle(String seriesTitle) {
+			Type type;
+			if (TrackPointData.IsActivityKey(seriesTitle)) {
+				type = Type.activity; 
+			}
+			else if (TrackPointData.IsSleepKey(seriesTitle)) {
+				type = Type.sleep; 
+			}
+			else {
+				type = Type.emotion;
+			}
+			return type;
+		}
 	}
 	private final Type type;
 	
@@ -70,7 +83,7 @@ public class TrackPointGraphDataHandler implements DataGraph.DataHandler<Date, I
 		case activity :
 			graph.setMinY(0);
 			// get a new max that is a nice factor of the max number
-			Integer maxY = getExponentMax();
+			Integer maxY = getExponentMax(graph.getMaxY());
 			if (null != maxY) {
 				graph.setMaxY(maxY);
 			}
@@ -80,12 +93,11 @@ public class TrackPointGraphDataHandler implements DataGraph.DataHandler<Date, I
 		graph.setMaxX(this.dateEnd);
 	}
 	
-	private Integer getExponentMax() {
+	public static Integer getExponentMax(Integer max) {
 		// get the max of the graph as a string, add one to the most significant bit and
 		// pad with zeros to get a nice max
-		Integer maxY = graph.getMaxY();
-		if (null != maxY) {
-			String maxValue = maxY.toString();
+		if (null != max) {
+			String maxValue = max.toString();
 			try {
 				int significantBit = Integer.parseInt(maxValue.substring(0, 1));
 				String newValue = Integer.toString(significantBit + 1);
@@ -94,13 +106,13 @@ public class TrackPointGraphDataHandler implements DataGraph.DataHandler<Date, I
 					newValue += "0";
 				}
 				// and create the new value
-				maxY = Integer.parseInt(newValue);
+				max = Integer.parseInt(newValue);
 			}
 			catch (NumberFormatException e) {
 				EmoTrack.LOG.severe("Getting the exponent max failed: " + e.getMessage());
 			}
 		}
-		return maxY;
+		return max;
 	}
 
 	@Override
@@ -144,17 +156,9 @@ public class TrackPointGraphDataHandler implements DataGraph.DataHandler<Date, I
 	
 	@Override
 	public boolean isValid(String seriesTitle, Date x, Integer y) {
-		switch (this.type) {
-		case sleep :
-			return TrackPointData.IsSleepKey(seriesTitle);
-		case activity :
-			return TrackPointData.IsActivityKey(seriesTitle);
-		case emotion :
-			return false == TrackPointData.IsSleepKey(seriesTitle)
-				&& false == TrackPointData.IsActivityKey(seriesTitle);
-		}
-		return true;
+		return this.type.equals(Type.getTypeForSeriesTitle(seriesTitle));
 	}
+	
 	public static ArrayList<Date> getXDates(Date start, Date end) {
 		Date date = new Date(start.getTime());
 		ArrayList<Date> dates = new ArrayList<Date>();

@@ -257,6 +257,7 @@ td.datePickerYear {
 .sub-page-section {
 	margin-left: 50px;
 	margin-bottom: 50px;
+	clear: both;
 }
  /* watermarking for text inputs */
 .textInput-watermark {
@@ -292,6 +293,13 @@ td.datePickerYear {
 }
 .chartLabel {
 	text-align: center;
+}
+.analysis-tile {
+	float: left;
+}
+.analysis-graph {
+	width: 200px;
+	height: 200px;
 }
 #appDataDisplay {
 	width: 100%;

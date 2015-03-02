@@ -24,7 +24,7 @@ public class EventGraphDataHandler implements DataGraph.DataHandler<Date, String
 		final Text text;
 		final Rectangle rect;
 
-		public EventLabel(int canvasX, int canvasY, Date x, String y, boolean isBorder) {
+		public EventLabel(int canvasX, int canvasY, String y, boolean isBorder) {
 			this.text = new Text(canvasX, canvasY, y);
 			text.setStrokeColor("grey");
 			text.setFillColor("grey");
@@ -139,7 +139,7 @@ public class EventGraphDataHandler implements DataGraph.DataHandler<Date, String
 	@Override
 	public void drawingPoint(DataGraph<Date, String> graph, String title, Date x, String y, int canvasX, int canvasY) {
 		// add the title for this point
-		EventLabel label = new EventLabel(canvasX, canvasY, x, y, false);
+		EventLabel label = new EventLabel(canvasX, canvasY, y, false);
 
 		ArrayList<EventLabel> labelList = eventLabels.get(x);
 		if (null == labelList) {

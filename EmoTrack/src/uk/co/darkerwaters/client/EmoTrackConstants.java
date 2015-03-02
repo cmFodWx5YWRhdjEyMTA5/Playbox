@@ -253,4 +253,10 @@ public interface EmoTrackConstants extends Constants {
 
 	@DefaultStringValue("Delete the entire row of data from the server.")
 	String tipDeleteRowButton();
+
+	@DefaultStringValue("Weekly Averages")
+	String weeklyAverages();
+
+	@DefaultStringValue("Monthly Averages")
+	String monthlyAverages();
 }

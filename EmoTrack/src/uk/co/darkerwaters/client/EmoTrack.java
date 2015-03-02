@@ -18,7 +18,7 @@ import uk.co.darkerwaters.client.html.PageContainer;
 import uk.co.darkerwaters.client.login.LoginInfo;
 import uk.co.darkerwaters.client.login.LoginService;
 import uk.co.darkerwaters.client.login.LoginServiceAsync;
-import uk.co.darkerwaters.client.tracks.TrackPointData;
+import uk.co.darkerwaters.shared.TrackPointData;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;

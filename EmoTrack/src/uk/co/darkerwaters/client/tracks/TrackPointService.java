@@ -1,6 +1,8 @@
 package uk.co.darkerwaters.client.tracks;
 
 import uk.co.darkerwaters.client.login.NotLoggedInException;
+import uk.co.darkerwaters.shared.StatsResultsData;
+import uk.co.darkerwaters.shared.TrackPointData;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
@@ -14,4 +16,6 @@ public interface TrackPointService extends RemoteService {
 	public TrackPointData[] getTrackPoints() throws NotLoggedInException;
 	
 	public TrackPointData[] getTrackPoints(String fromDayDate, String toDayDate) throws NotLoggedInException;
+	
+	public StatsResultsData getStatsResults(String fromDayDate, String toDayDate) throws NotLoggedInException;
 }

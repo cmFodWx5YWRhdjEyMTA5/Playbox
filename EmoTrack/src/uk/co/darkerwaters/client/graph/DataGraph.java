@@ -57,6 +57,8 @@ public class DataGraph<X, Y> {
 	
 	private boolean isAreaChart = false;
 	
+	private boolean isBoxInValues = false;
+	
 	private final String[] colours;
 	
 	private class Series {
@@ -124,17 +126,16 @@ public class DataGraph<X, Y> {
 		this.canvas = new DrawingArea(mainPanel.getOffsetWidth(), mainPanel.getOffsetHeight());
 		// add to the panel to draw
 		mainPanel.add(canvas);
-		mainPanel.addStyleName("data-graph");
 		// be informed on changes in size and update our drawing
 		Window.addResizeHandler(new ResizeHandler() {
 			@Override
 			public void onResize(ResizeEvent event) {
-				resizeWindow(event.getHeight(), event.getWidth());
+				resizeWindow();
 			}
 		});
 	}
 	
-	public void resizeWindow(int height, int width) {
+	public void resizeWindow() {
 		// set the canvas size
 		this.canvas.setHeight(this.mainPanel.getOffsetHeight());
 		this.canvas.setWidth(this.mainPanel.getOffsetWidth());
@@ -263,8 +264,14 @@ public class DataGraph<X, Y> {
 		// get the data ranges
 		int width = this.canvas.getWidth();
 		int height = this.canvas.getHeight();
-		// get the box range
-		int left = (int)(width * 0.05f);
+		// get the box range, from the max length of yAxisTitles
+		int left = 0;
+		for (String title : this.handler.getYAxisTitles(minY, maxY)) {
+			left = Math.max(left, title.length());
+		}
+		// left is not the number of chars, multiply this by the font width
+		left = left * 12;
+		left = Math.max(left, (int)(width * 0.05f));
 		int right = (int)(width * 0.8f);
 		int top = (int)(20);
 		int bottom = (int)(height - 40);
@@ -300,6 +307,7 @@ public class DataGraph<X, Y> {
 			series.path = null;
 			series.points.clear();
 			int x = 0;
+			int prevY = 0;
 			for (DataPair item : series.data) {
 				// determine where to put this
 				x = left + (int)(this.handler.ratioX(minX, maxX, item.x) * axisWidth); 
@@ -326,8 +334,12 @@ public class DataGraph<X, Y> {
 					//series.path.addClickHandler(series.selector);
 				}
 				else {
+					if (this.isBoxInValues) {
+						series.path.lineTo(x, prevY);
+					}
 					series.path.lineTo(x, y);
 				}
+				prevY = y;
 			}
 			if (this.isAreaChart && null != series.path) {
 				// put the last item in as zero to draw down to the x-axis
@@ -393,8 +405,9 @@ public class DataGraph<X, Y> {
 				createText(xAxisTitles[i], x, bottom, 0.5f, 1f);
 			}
 		}
-		
-		createText(this.graphTitle, right, bottom, 0f, 0f);
+		if (null != this.graphTitle && false == this.graphTitle.isEmpty()) {
+			createText(this.graphTitle, right, bottom, 0f, 0f);
+		}
 	}
 
 	public Text createText(String content, int x, int y, float offsetX, float offsetY) {
@@ -429,6 +442,10 @@ public class DataGraph<X, Y> {
 		this.isAreaChart = isAreaChart;
 	}
 
+	public void setIsBoxInValues(boolean isBoxInValues) {
+		this.isBoxInValues = isBoxInValues;
+	}
+
 	public Panel getContent() {
 		return this.mainPanel;
 	}
@@ -457,6 +474,20 @@ public class DataGraph<X, Y> {
 		this.canvas.add(object);
 	}
 
+	public void bringSeriesToFront(String seriesTitle) {
+		// find the series
+		boolean isFound = false;
+		for (Series series : this.dataSeries) {
+			if (series.title.equals(seriesTitle)) {
+				bringToFront(series.path);
+				isFound = true;
+			}
+		}
+		if (isFound) {
+			bringSeriesDataPointsToFront();
+		}
+	}
+
 	public void bringToFront(VectorObject object) {
 		// bring it to the front
 		this.canvas.bringToFront(object);
@@ -473,5 +504,13 @@ public class DataGraph<X, Y> {
 
 	public void remove(VectorObject object) {
 		this.canvas.remove(object);
+	}
+
+	public String[] getSeriesTitles() {
+		String[] seriesTitles = new String[this.dataSeries.size()];
+		for (int i = 0; i < seriesTitles.length; ++i) {
+			seriesTitles[i] = this.dataSeries.get(i).title;
+		}
+		return seriesTitles;
 	}
 }

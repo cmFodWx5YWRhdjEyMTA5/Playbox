@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.client.tracks;
+package uk.co.darkerwaters.shared;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -47,13 +47,13 @@ public class TrackPointData implements Serializable {
 		this(trackDate, "", event);
 	}
 
-	TrackPointData(Date trackDate, String valuesString, String eventString) {
+	public TrackPointData(Date trackDate, String valuesString, String eventString) {
 		this.trackDate = trackDate == null ? new Date().getTime() : trackDate.getTime();
 		this.valuesString = valuesString;
 		this.event = eventString;
 	}
 
-	String getValuesString() {
+	public String getValuesString() {
 		return this.valuesString;
 	}
 
