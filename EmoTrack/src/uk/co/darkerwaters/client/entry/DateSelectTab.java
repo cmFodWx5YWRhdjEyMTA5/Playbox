@@ -16,7 +16,6 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -34,8 +33,6 @@ public class DateSelectTab extends ValueEntryTab {
 	private Label timeSelectLabel;
 	
 	private boolean isInitialised = false;
-	
-	private static DateTimeFormat dayDate = DateTimeFormat.getFormat("yyyy-MM-dd");
 
 	public DateSelectTab(ValueEntryListener listener, TrackPointServiceAsync service) {
 		super(listener, service);
@@ -124,7 +121,7 @@ public class DateSelectTab extends ValueEntryTab {
 					logDatePicker.setVisible(true);
 					dateSelectLabel.setVisible(false);
 					timeSelectLabel.setVisible(false);
-					setDateLabels(limitDateToDay(logDatePicker.getValue()));
+					setDateLabels(LogDates.limitDateToDay(logDatePicker.getValue()));
 				}
 				else {
 					// user has selected another specific time
@@ -136,11 +133,6 @@ public class DateSelectTab extends ValueEntryTab {
 			}
 		});
 		return logDateList;
-	}
-	
-	public static Date limitDateToDay(Date value) {
-		String dayDateStr = dayDate.format(value);
-		return dayDate.parse(dayDateStr);
 	}
 
 	private void setDateLabels(Date selected) {

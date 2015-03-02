@@ -7,6 +7,7 @@ import uk.co.darkerwaters.client.EmoTrackMessages;
 import uk.co.darkerwaters.client.controls.FlatUI;
 import uk.co.darkerwaters.client.entry.ValueEntryPanel.ValueEntryListener;
 import uk.co.darkerwaters.client.tracks.TrackPointServiceAsync;
+import uk.co.darkerwaters.client.variables.LogDates;
 import uk.co.darkerwaters.shared.TrackPointData;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -80,7 +81,7 @@ public class EventsTab extends ValueEntryTab {
 		description.append(getDateString());
 		final String successString = description.toString();
 		// create a point to contain this data
-		TrackPointData point = new TrackPointData(DateSelectTab.limitDateToDay(selectedDate), event);
+		TrackPointData point = new TrackPointData(LogDates.limitDateToDay(selectedDate), event);
 		// send this data to the service now
 		trackPointService.addTrackPoint(point, new AsyncCallback<TrackPointData>() {
 			@Override

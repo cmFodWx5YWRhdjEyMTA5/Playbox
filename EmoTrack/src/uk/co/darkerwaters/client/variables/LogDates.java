@@ -70,4 +70,9 @@ public enum LogDates {
 		}
 		return toReturn;
 	}
+	
+	public static Date limitDateToDay(Date value) {
+		String dayDateStr = LogDates.datefmt.format(value);
+		return LogDates.dateHrfmt.parse(dayDateStr + " 12");
+	}
 }

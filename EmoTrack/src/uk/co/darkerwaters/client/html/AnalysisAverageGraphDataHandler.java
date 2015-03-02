@@ -8,7 +8,7 @@ import uk.co.darkerwaters.client.graph.TrackPointGraphDataHandler.Type;
 public class AnalysisAverageGraphDataHandler implements DataHandler<Integer, Float> {
 	
 	private final Type type;
-	private DataGraph<Integer, Float> graph;
+	//private DataGraph<Integer, Float> graph;
 
 	public AnalysisAverageGraphDataHandler(String seriesTitle) {
 		// constructor
@@ -107,7 +107,7 @@ public class AnalysisAverageGraphDataHandler implements DataHandler<Integer, Flo
 	@Override
 	public void initialise(DataGraph<Integer, Float> graph) {
 		// remember the graph
-		this.graph  = graph;
+		//this.graph  = graph;
 		// set the ranges initially
 		switch(this.type) {
 		case emotion :

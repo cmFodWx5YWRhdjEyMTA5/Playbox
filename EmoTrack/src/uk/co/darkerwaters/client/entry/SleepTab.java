@@ -9,6 +9,7 @@ import uk.co.darkerwaters.client.controls.FlatUI;
 import uk.co.darkerwaters.client.entry.ValueEntryPanel.ValueEntryListener;
 import uk.co.darkerwaters.client.graph.DonutChartPanel;
 import uk.co.darkerwaters.client.tracks.TrackPointServiceAsync;
+import uk.co.darkerwaters.client.variables.LogDates;
 import uk.co.darkerwaters.shared.TrackPointData;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -284,7 +285,7 @@ public class SleepTab extends ValueEntryTab {
 			FlatUI.createErrorMessage(EmoTrackMessages.Instance.invalidAmount(), asleepText[0]);
 			return;
 		}
-		TrackPointData point = new TrackPointData(DateSelectTab.limitDateToDay(selectedDate));
+		TrackPointData point = new TrackPointData(LogDates.limitDateToDay(selectedDate));
 		StringBuilder description = new StringBuilder(EmoTrackConstants.Instance.recorded());
 		for (int i = 0; i < values.length - 1; ++i) {
 			point.addValue(TrackPointData.SLEEPKEY[i], values[i]);
