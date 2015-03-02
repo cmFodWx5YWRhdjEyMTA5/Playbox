@@ -295,11 +295,29 @@ td.datePickerYear {
 	text-align: center;
 }
 .analysis-tile {
+	margin: 25px;
 	float: left;
 }
 .analysis-graph {
 	width: 200px;
 	height: 200px;
+}
+.analysis-rosette {
+	border: 1px solid #1abc9c;
+	border-radius: 10px;
+    background-color:#1abc9c;
+	width: 200px;
+	height: 200px;
+	text-align: center;
+	vertical-align:middle;
+	font-size: 100px;
+}
+.analysis-rosette-text {
+	width: 100%;
+	text-align: center;
+	border: 1px solid #d6dbdf;
+	border-radius: 10px;
+    background-color:#d6dbdf;
 }
 #appDataDisplay {
 	width: 100%;

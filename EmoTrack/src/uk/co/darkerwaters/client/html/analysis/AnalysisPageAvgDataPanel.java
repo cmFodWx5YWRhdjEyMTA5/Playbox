@@ -1,31 +1,26 @@
-package uk.co.darkerwaters.client.html;
+package uk.co.darkerwaters.client.html.analysis;
 
 import java.util.ArrayList;
-import java.util.Date;
 
+import uk.co.darkerwaters.client.EmoTrackConstants;
 import uk.co.darkerwaters.client.controls.FlatUI;
-import uk.co.darkerwaters.client.entry.ValueEntryPanel.ValueEntryListener;
-import uk.co.darkerwaters.client.graph.DataGraphsPanel;
 import uk.co.darkerwaters.client.graph.TrackPointGraphDataHandler.Type;
+import uk.co.darkerwaters.client.html.analysis.AnalysisPageNoneDaysPanel.AnalysisPanelListener;
 import uk.co.darkerwaters.client.tracks.StatsResults;
-import uk.co.darkerwaters.client.tracks.TrackPointServiceAsync;
-import uk.co.darkerwaters.shared.StatsResultsData;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.user.datepicker.client.CalendarUtil;
 
 public abstract class AnalysisPageAvgDataPanel {
 	
 	private final FlowPanel mainPanel = new FlowPanel();
 	
-	private ValueEntryListener listener;
-	
-	private final TrackPointServiceAsync trackService;
+	private AnalysisPanelListener listener;
 
 	private FlowPanel contentPanel;
 
@@ -33,9 +28,8 @@ public abstract class AnalysisPageAvgDataPanel {
 	
 	private final ArrayList<AnalysisPageTileGraph> tiles = new ArrayList<AnalysisPageTileGraph>();
 
-	public AnalysisPageAvgDataPanel(String title, TrackPointServiceAsync trackService, ValueEntryListener listener) {
+	public AnalysisPageAvgDataPanel(String title, AnalysisPanelListener listener) {
 		this.listener = listener;
-		this.trackService = trackService;
 		
 		mainPanel.addStyleName("sub-page-section");
 		this.refreshButton = createRefreshButton();
@@ -46,7 +40,19 @@ public abstract class AnalysisPageAvgDataPanel {
 		mainPanel.add(contentPanel);
 		
 		// and refresh our data
-		refreshData();
+		this.listener.refreshData();
+	}
+	
+	protected Button createRefreshButton() {
+		Button refreshButton = new Button("refresh");
+		FlatUI.makeButton(refreshButton, null, EmoTrackConstants.Instance.refreshStatistics());
+		refreshButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				AnalysisPageAvgDataPanel.this.listener.refreshData();
+			}
+		});
+		return refreshButton;
 	}
 	
 	public Panel getContent() {
@@ -59,38 +65,10 @@ public abstract class AnalysisPageAvgDataPanel {
 		return label;
 	}
 
-	protected abstract Button createRefreshButton();
-
-	public void refreshData() {
+	public void populateGrid(StatsResults result) {
 		// clear out any existing data
 		this.contentPanel.clear();
 		this.tiles.clear();
-		Date to = new Date();
-		// get data until today, end of today please, ie tomorrow (o;
-		CalendarUtil.addDaysToDate(to, 1);
-		Date from = new Date(to.getTime());
-		// from a some weeks ago please
-		CalendarUtil.addDaysToDate(from, -6 * 7);
-		// check our login status to proceed
-		if (false == listener.checkLoginStatus()) {
-			return;
-		}
-		
-		String fromDayDate = DataGraphsPanel.dayDate.format(from);
-		String toDayDate = DataGraphsPanel.dayDate.format(to);
-		trackService.getStatsResults(fromDayDate, toDayDate, new AsyncCallback<StatsResultsData>() {
-			@Override
-			public void onSuccess(StatsResultsData result) {
-				populateGrid(new StatsResults(result));
-			}
-			@Override
-			public void onFailure(Throwable caught) {
-				populateGrid(null);
-			}
-		});
-	}
-
-	protected void populateGrid(StatsResults result) {
 		if (result == null) {
 			FlatUI.createErrorMessage("Unable to get any data for this date range, sorry.", this.refreshButton);
 			return;

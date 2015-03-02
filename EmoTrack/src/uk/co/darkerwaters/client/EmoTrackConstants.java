@@ -259,4 +259,10 @@ public interface EmoTrackConstants extends Constants {
 
 	@DefaultStringValue("Monthly Averages")
 	String monthlyAverages();
+
+	@DefaultStringValue("Refresh the current statistics data")
+	String refreshStatistics();
+
+	@DefaultStringValue("Recent Acheivements")
+	String noneDaysTitle();
 }

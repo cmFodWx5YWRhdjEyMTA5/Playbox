@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.client.html;
+package uk.co.darkerwaters.client.html.analysis;
 
 import uk.co.darkerwaters.client.controls.FlatUI;
 

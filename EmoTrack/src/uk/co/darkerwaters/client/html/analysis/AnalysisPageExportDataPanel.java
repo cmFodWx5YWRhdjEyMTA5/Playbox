@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.client.html;
+package uk.co.darkerwaters.client.html.analysis;
 
 import java.util.ArrayList;
 import java.util.Date;
