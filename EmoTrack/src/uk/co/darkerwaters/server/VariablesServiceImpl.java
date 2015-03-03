@@ -11,7 +11,7 @@ import javax.jdo.PersistenceManagerFactory;
 import javax.jdo.Query;
 
 import uk.co.darkerwaters.client.login.NotLoggedInException;
-import uk.co.darkerwaters.client.variables.Variable;
+import uk.co.darkerwaters.client.variables.Variables;
 import uk.co.darkerwaters.client.variables.VariablesService;
 
 import com.google.appengine.api.users.User;
@@ -25,126 +25,255 @@ public class VariablesServiceImpl extends RemoteServiceServlet implements Variab
 	private static final Logger LOG = Logger.getLogger(VariablesServiceImpl.class.getName());
 	private static final PersistenceManagerFactory PMF = JDOHelper.getPersistenceManagerFactory("transactions-optional");
 
-	public void addVariable(String variableName) throws NotLoggedInException {
-		checkLoggedIn();
+	public String[] addVariable(String variableName) throws NotLoggedInException {
+		// get the current variables item
 		PersistenceManager pm = getPersistenceManager();
+		Variables variables = getVariables(true, pm);
+		if (null == variables) {
+			variables = new Variables(getUser());
+		}
+		else {
+			variables = new Variables(variables);
+		}
+		// add the variable
+		variables.addVariableName(variableName);
 		try {
-			pm.makePersistent(new Variable(getUser(), variableName));
+			// and add the thing into the store
+			pm.makePersistent(variables);
 		} finally {
 			pm.close();
 		}
+		return variablesNames(variables);
 	}
 
-	public void removeVariable(String variableName) throws NotLoggedInException {
-		checkLoggedIn();
+	public String[] removeVariable(String variableName) throws NotLoggedInException {
+		// get the current variables item
 		PersistenceManager pm = getPersistenceManager();
+		Variables variables = getVariables(true, pm);
+		if (null == variables) {
+			variables = new Variables(getUser());
+		}
+		else {
+			variables = new Variables(variables);
+		}
+		// remove the variable
+		variables.removeVariableName(variableName);
 		try {
-			long deleteCount = 0;
-			Query q = pm.newQuery(Variable.class, "user == u");
-			q.declareParameters("com.google.appengine.api.users.User u");
-			Object executeResult = q.execute(getUser());
-			if (null != executeResult && executeResult instanceof List<?>) {
-				// delete the results from the execute result
-				List<?> executeList = (List<?>) executeResult;
-				for (Object item : executeList) {
-					if (null != item && item instanceof Variable) {
-						// result is as expected
-						Variable variable = (Variable)item;
-						// delete everything like this name (ignoring case)
-						if (0 == variableName.compareToIgnoreCase(variable.getVariableName())) {
-							++deleteCount;
-							pm.deletePersistent(variable);
-						}
-					}
-					else {
-						// not expected
-						LOG.log(Level.WARNING, "removeVariable not returning expected object type:" + item);
-					}
-				}
-			}
-			else {
-				LOG.log(Level.WARNING, "removeVariable not returning expected execution object type:" + executeResult);
-			}
-			if (deleteCount != 1) {
-				LOG.log(Level.WARNING, "removeVariable deleted " + deleteCount + " Stocks");
-			}
+			// now we can put the variables instance we want back in
+			pm.makePersistent(variables);
 		} finally {
 			pm.close();
+		}
+		return variablesNames(variables);
+	}
+	
+	public String[] addSharedUser(String userId) throws NotLoggedInException {
+		// get the current variables item
+		PersistenceManager pm = getPersistenceManager();
+		Variables variables = getVariables(true, pm);
+		if (null == variables) {
+			variables = new Variables(getUser());
+		}
+		else {
+			variables = new Variables(variables);
+		}
+		// add the variable
+		variables.addSharedUser(userId);
+		try {
+			// and add the thing into the store
+			pm.makePersistent(variables);
+		} finally {
+			pm.close();
+		}
+		return sharedUsers(variables);
+	}
+
+	public String[] removeSharedUser(String userId) throws NotLoggedInException {
+		// get the current variables item
+		PersistenceManager pm = getPersistenceManager();
+		Variables variables = getVariables(true, pm);
+		if (null == variables) {
+			variables = new Variables(getUser());
+		}
+		else {
+			variables = new Variables(variables);
+		}
+		// remove the variable
+		variables.removeSharedUser(userId);
+		try {
+			// now we can put the variables instance we want back in
+			pm.makePersistent(variables);
+		} finally {
+			pm.close();
+		}
+		return sharedUsers(variables);
+	}
+	
+	public String[] getSharedUsers() throws NotLoggedInException {
+		PersistenceManager pm = getPersistenceManager();
+		Variables variables = null;
+		try {
+			variables = getVariables(false, pm);
+		}
+		finally {
+			pm.close();
+		}
+		if (null == variables) {
+			return new String[0];
+		}
+		else {
+			return sharedUsers(variables);
 		}
 	}
 	
-	public String[] getAllUsers() throws NotLoggedInException {
-		checkLoggedIn();
+	private String[] sharedUsers(Variables variables) {
+		String[] names = new String[variables.getNumberSharedUsers()];
+		for (int i = 0; i < names.length; ++i) {
+			names[i] = variables.getSharedUser(i);
+		}
+		return names;
+	}
+	
+	private String[] variablesNames(Variables variables) {
+		String[] names = new String[variables.getNumberVariables()];
+		for (int i = 0; i < names.length; ++i) {
+			names[i] = variables.getVariableName(i);
+		}
+		return names;
+	}
+
+	public Integer getNumberUsers() throws NotLoggedInException {
 		PersistenceManager pm = getPersistenceManager();
-		ArrayList<User> users = new ArrayList<User>();
+		Integer noUsers = new Integer(0);
 		try {
-			Query q = pm.newQuery(Variable.class);
+			noUsers = new Integer(getAllUsers(pm).length);
+		}
+		finally {
+			pm.close();
+		}
+		return noUsers;
+	}
+	
+	public String resolveUserIdToName(String userId) throws NotLoggedInException {
+		checkLoggedIn();
+		String userName = "";
+		PersistenceManager pm = getPersistenceManager();
+		try {
+			Query q = pm.newQuery(Variables.class);
 			Object executeResult = q.execute(getUser());
 			if (null != executeResult && executeResult instanceof List<?>) {
 				// get all the users
 				List<?> executeList = (List<?>) executeResult;
 				for (Object item : executeList) {
-					if (null != item && item instanceof Variable) {
+					if (null != item && item instanceof Variables) {
 						// result is as expected
-						Variable variable = (Variable)item;
+						Variables variable = (Variables)item;
 						// get the user
 						User user = variable.getUser();
-						if (null != user && false == users.contains(user)) {
-							users.add(user);
+						if (null != user && user.getUserId().equals(userId)) {
+							// this is the one
+							userName = user.getNickname();
+							break;
 						}
 					}
 					else {
 						// not expected
-						LOG.log(Level.WARNING, "getAllUsers not returning expected object type:" + item);
+						LOG.log(Level.WARNING, "resolveUserIdToName not returning expected object type:" + item);
 					}
 				}
 			}
 			else {
-				LOG.log(Level.WARNING, "getAllUsers not returning expected execution object type:" + executeResult);
+				LOG.log(Level.WARNING, "resolveUserIdToName not returning expected execution object type:" + executeResult);
 			}
-		} finally {
+		}
+		finally {
 			pm.close();
 		}
-		String[] results = new String[users.size()];
-		int index = 0;
-		for (User user : users) {
-			results[index++] = user.getUserId();
-		}
-		return results;
+		return userName;
 	}
-
-	public String[] getVariables() throws NotLoggedInException {
+	
+	public User[] getAllUsers(PersistenceManager pm) throws NotLoggedInException {
 		checkLoggedIn();
-		PersistenceManager pm = getPersistenceManager();
-		List<String> variables = new ArrayList<String>();
-		try {
-			Query q = pm.newQuery(Variable.class, "user == u");
-			q.declareParameters("com.google.appengine.api.users.User u");
-			q.setOrdering("createDate");
-			Object executeResult = q.execute(getUser());
-			if (null != executeResult && executeResult instanceof List<?>) {
-				// convert the execute result list into a returnable result
-				List<?> executeList = (List<?>) executeResult;
-				for (Object item : executeList) {
-					if (null != item && item instanceof Variable) {
-						// result is as expected
-						Variable variable = (Variable)item;
-						// and add to the list of strings
-						variables.add(variable.getVariableName());
+		ArrayList<User> users = new ArrayList<User>();
+		
+		Query q = pm.newQuery(Variables.class);
+		Object executeResult = q.execute(getUser());
+		if (null != executeResult && executeResult instanceof List<?>) {
+			// get all the users
+			List<?> executeList = (List<?>) executeResult;
+			for (Object item : executeList) {
+				if (null != item && item instanceof Variables) {
+					// result is as expected
+					Variables variable = (Variables)item;
+					// get the user
+					User user = variable.getUser();
+					if (null != user && false == users.contains(user)) {
+						users.add(user);
+					}
+				}
+				else {
+					// not expected
+					LOG.log(Level.WARNING, "getAllUsers not returning expected object type:" + item);
+				}
+			}
+		}
+		else {
+			LOG.log(Level.WARNING, "getAllUsers not returning expected execution object type:" + executeResult);
+		}
+		return users.toArray(new User[users.size()]);
+	}
+	
+	public Variables getVariables(boolean deleteVariablesFound, PersistenceManager pm) throws NotLoggedInException {
+		checkLoggedIn();
+		Variables variablesFound = null;
+		
+		Query q = pm.newQuery(Variables.class, "user == u");
+		q.declareParameters("com.google.appengine.api.users.User u");
+		q.setOrdering("createDate");
+		Object executeResult = q.execute(getUser());
+		if (null != executeResult && executeResult instanceof List<?>) {
+			// convert the execute result list into a returnable result
+			List<?> executeList = (List<?>) executeResult;
+			for (Object item : executeList) {
+				if (null != item && item instanceof Variables) {
+					// result is as expected
+					if (null == variablesFound) {
+						// just set this
+						variablesFound = (Variables)item;
 					}
 					else {
-						// not expected
-						LOG.log(Level.WARNING, "getVariables not returning expected object type:" + item);
+						// merge
+						variablesFound.addVariableName(((Variables)item).getVariablesNames());
+					}
+					if (deleteVariablesFound) {
+						pm.deletePersistent(item);
 					}
 				}
+				else {
+					// not expected
+					LOG.log(Level.WARNING, "getVariables not returning expected object type:" + item);
+				}
 			}
-			else {
-				LOG.log(Level.WARNING, "getVariables not returning expected execution object type:" + executeResult);
+		}
+		else {
+			LOG.log(Level.WARNING, "getVariables not returning expected execution object type:" + executeResult);
+		}
+		return variablesFound;
+	}
+
+	public String[] getVariableNames() throws NotLoggedInException {
+		PersistenceManager pm = getPersistenceManager();
+		String[] names = new String[0];
+		try {
+			Variables variables = getVariables(false, pm);
+			if (null != variables) {
+				names = variablesNames(variables);
 			}
-		} finally {
+		}
+		finally {
 			pm.close();
 		}
-		return (String[]) variables.toArray(new String[0]);
+		return names;
 	}
 
 	private void checkLoggedIn() throws NotLoggedInException {

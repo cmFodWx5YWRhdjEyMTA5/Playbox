@@ -13,16 +13,23 @@ import uk.co.darkerwaters.client.entry.ValueEntryPanel.ValueEntryListener;
 import uk.co.darkerwaters.client.variables.VariablesService;
 import uk.co.darkerwaters.client.variables.VariablesServiceAsync;
 
-public class InformationPageContainer extends PageContainer {
+public class SharingPageContainer extends PageContainer {
 	
-	public InformationPageContainer() {
-		super(EmoTrackResources.INSTANCE.informationPage().getText());
+	private VariablesServiceAsync variablesService = GWT.create(VariablesService.class);
+	private SharingPageSetupPanel setup;
+	
+	public SharingPageContainer() {
+		super(EmoTrackResources.INSTANCE.sharingPage().getText());
 	}
 	
 	@Override
 	public void initialisePage(ValueEntryListener listener) {
+		
+		this.setup = new SharingPageSetupPanel(variablesService, listener);
+		RootPanel.get("sharing").add(this.setup.getContent());
+		
+
 		if (listener.checkLoginStatus()) {
-			VariablesServiceAsync variablesService = GWT.create(VariablesService.class);
 			variablesService.getNumberUsers(new AsyncCallback<Integer>() {
 				@Override
 				public void onSuccess(Integer result) {

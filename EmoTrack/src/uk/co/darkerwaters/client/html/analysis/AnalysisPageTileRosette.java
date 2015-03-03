@@ -1,9 +1,6 @@
 package uk.co.darkerwaters.client.html.analysis;
 
-import uk.co.darkerwaters.client.controls.FlatUI;
-
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.InlineLabel;
 
 public class AnalysisPageTileRosette extends AnalysisPageTile {
 

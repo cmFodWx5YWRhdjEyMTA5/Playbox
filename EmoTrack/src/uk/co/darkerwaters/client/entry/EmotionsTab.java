@@ -157,19 +157,19 @@ public class EmotionsTab extends ValueEntryTab {
 		if (false == checkLoginStatus()) {
 			return;
 		}
-		variablesService.addVariable(variableName, new AsyncCallback<Void>() {
+		variablesService.addVariable(variableName, new AsyncCallback<String[]>() {
 			public void onFailure(Throwable error) {
 				listener.handleError(error);
 			}
 
-			public void onSuccess(Void ignore) {
+			public void onSuccess(String[] newVariableNames) {
 				displayVariable(variableName);
 			}
 		});
 	}
 
 	private void loadVariables() {
-		variablesService.getVariables(new AsyncCallback<String[]>() {
+		variablesService.getVariableNames(new AsyncCallback<String[]>() {
 			public void onFailure(Throwable error) {
 				listener.handleError(error);
 				listener.loadingComplete();
@@ -221,12 +221,12 @@ public class EmotionsTab extends ValueEntryTab {
 		if (false == checkLoginStatus()) {
 			return;
 		}
-		variablesService.removeVariable(variableName, new AsyncCallback<Void>() {
+		variablesService.removeVariable(variableName, new AsyncCallback<String[]>() {
 			public void onFailure(Throwable error) {
 				listener.handleError(error);
 			}
 
-			public void onSuccess(Void ignore) {
+			public void onSuccess(String[] newVariablesNames) {
 				undisplayVariable(variableName);
 			}
 		});

@@ -268,4 +268,7 @@ public interface EmoTrackConstants extends Constants {
 
 	@DefaultStringValue("Recent Achievements")
 	String noneDaysTitle();
+
+	@DefaultStringValue("Setup data sharing")
+	String setupSharingData();
 }

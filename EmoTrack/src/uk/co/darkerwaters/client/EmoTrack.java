@@ -14,6 +14,7 @@ import uk.co.darkerwaters.client.html.AboutPageContainer;
 import uk.co.darkerwaters.client.html.AnalysisPageContainer;
 import uk.co.darkerwaters.client.html.ContactPageContainer;
 import uk.co.darkerwaters.client.html.InformationPageContainer;
+import uk.co.darkerwaters.client.html.SharingPageContainer;
 import uk.co.darkerwaters.client.html.PageContainer;
 import uk.co.darkerwaters.client.login.LoginInfo;
 import uk.co.darkerwaters.client.login.LoginService;
@@ -65,6 +66,7 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 		home,
 		analysis,
 		information,
+		sharing,
 		about,
 		contact
 	}
@@ -225,6 +227,9 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 			break;
 		case information :
 			pageContainer = new InformationPageContainer();
+			break;
+		case sharing :
+			pageContainer = new SharingPageContainer();
 			break;
 		case about :
 			pageContainer = new AboutPageContainer();

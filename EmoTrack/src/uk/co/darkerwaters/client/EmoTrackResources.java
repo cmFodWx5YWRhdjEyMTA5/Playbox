@@ -16,6 +16,9 @@ public interface EmoTrackResources extends ClientBundle {
     @Source("html/information.html")
     TextResource informationPage();
     
+    @Source("html/sharing.html")
+    TextResource sharingPage();
+    
     @Source("html/analysis.html")
     TextResource analysisPage();
 }
