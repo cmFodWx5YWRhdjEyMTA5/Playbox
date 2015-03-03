@@ -24,4 +24,9 @@ public class AnalysisPageAvgMonthDataPanel extends AnalysisPageAvgDataPanel {
 	protected String[] getAverageKeys(StatsResults result) {
 		return result.getMonthlyAverageKeys();
 	}
+
+	@Override
+	protected boolean getIsShowMonths() {
+		return true;
+	}
 }

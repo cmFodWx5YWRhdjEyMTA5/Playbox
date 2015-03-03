@@ -22,10 +22,10 @@ public class AnalysisPageTileGraph extends AnalysisPageTile {
 	private final HashMap<String, Integer> seriesIndices = new HashMap<String, Integer>();
 	private final Type type;
 
-	public AnalysisPageTileGraph(String title) {
+	public AnalysisPageTileGraph(String title, boolean isShowMonths) {
 		super(title);
 		this.type = Type.getTypeForSeriesTitle(title);
-		this.graph = new DataGraph<Integer, Float>(null, new AnalysisAverageGraphDataHandler(title), createListener(), this.type == Type.sleep ? SleepTab.sleepColours : null);
+		this.graph = new DataGraph<Integer, Float>(null, new AnalysisAverageGraphDataHandler(title, isShowMonths), createListener(), this.type == Type.sleep ? SleepTab.sleepColours : null);
 		this.graph.setIsAreaChart(true);
 		this.graph.setIsDrawLegend(false);
 		this.graph.setIsBoxInValues(true);

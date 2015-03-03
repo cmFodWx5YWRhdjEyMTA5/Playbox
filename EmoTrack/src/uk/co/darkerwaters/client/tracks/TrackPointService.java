@@ -17,5 +17,5 @@ public interface TrackPointService extends RemoteService {
 	
 	public TrackPointData[] getTrackPoints(String fromDayDate, String toDayDate) throws NotLoggedInException;
 	
-	public StatsResultsData getStatsResults(String fromDayDate, String toDayDate) throws NotLoggedInException;
+	public StatsResultsData getStatsResults() throws NotLoggedInException;
 }

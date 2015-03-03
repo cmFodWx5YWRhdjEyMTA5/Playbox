@@ -38,9 +38,6 @@ public abstract class AnalysisPageAvgDataPanel {
 		
 		this.contentPanel = new FlowPanel();
 		mainPanel.add(contentPanel);
-		
-		// and refresh our data
-		this.listener.refreshData();
 	}
 	
 	protected Button createRefreshButton() {
@@ -97,6 +94,8 @@ public abstract class AnalysisPageAvgDataPanel {
 	protected abstract String getTitleNameFromKey(StatsResults result, String key);
 
 	protected abstract String[] getAverageKeys(StatsResults result);
+	
+	protected abstract boolean getIsShowMonths();
 
 	private AnalysisPageTileGraph getTile(String title) {
 		AnalysisPageTileGraph tile = null;
@@ -112,7 +111,7 @@ public abstract class AnalysisPageAvgDataPanel {
 			}
 		}
 		if (null == tile) {
-			tile = new AnalysisPageTileGraph(title);
+			tile = new AnalysisPageTileGraph(title, getIsShowMonths());
 			this.tiles.add(tile);
 			this.contentPanel.add(tile.getContent());
 		}

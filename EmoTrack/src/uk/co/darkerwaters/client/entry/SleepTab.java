@@ -111,6 +111,7 @@ public class SleepTab extends ValueEntryTab {
 			public void valueChanged(int value) {
 				if (false == isCreatingDeepSlider) {
 					SleepTab.this.deepSleepText[0].setText(Integer.toString(value));
+					updateEntryValues();
 				}
 				isCreatingDeepSlider = false;
 			}

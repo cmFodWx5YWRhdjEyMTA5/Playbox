@@ -2,8 +2,10 @@ package uk.co.darkerwaters.server;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -15,6 +17,7 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 import javax.jdo.Query;
 
+import uk.co.darkerwaters.client.EmoTrack;
 import uk.co.darkerwaters.client.login.NotLoggedInException;
 import uk.co.darkerwaters.client.tracks.TrackPointService;
 import uk.co.darkerwaters.shared.StatsResultsData;
@@ -247,7 +250,17 @@ public class TrackPointServiceImpl extends RemoteServiceServlet implements Track
 		return toReturn;
 	}
 
-	public StatsResultsData getStatsResults(String fromDayDate, String toDayDate) throws NotLoggedInException {
+	public StatsResultsData getStatsResults() throws NotLoggedInException {
+		// create a list of montly values to get data for, this month, less six months...
+		Date to = new Date();
+		GregorianCalendar calendar = new GregorianCalendar();
+	    calendar.add(Calendar.MONTH, -6);
+	    calendar.set(Calendar.DATE, 1);
+		Date from = calendar.getTime();
+		// get these as search strings
+		String fromDayDate = dayDate.format(from);
+		String toDayDate = dayDate.format(to);
+		ArrayList<String> seriesEncountered = new ArrayList<String>();
 		TrackPointData[] trackPoints = getTrackPoints(fromDayDate, toDayDate);
 		HashMap<String, Integer> numberOfNoneValues = new HashMap<String, Integer>();
 		HashMap<String, ArrayList<Integer>> monthlyValues = new HashMap<String, ArrayList<Integer>>();
@@ -287,26 +300,31 @@ public class TrackPointServiceImpl extends RemoteServiceServlet implements Track
 						numberOfNoneValues.put(title, count);
 					}
 				}
+				if (false == seriesEncountered.contains(title)) {
+					// this is a new series, populate the maps for this
+					populateMap(Calendar.MONTH, monthDate, title, monthlyValues);
+					populateMap(Calendar.WEEK_OF_YEAR, weekDate, title, weeklyValues);
+					seriesEncountered.add(title);
+				}
 				// format the monthly string for this data
 				String monthDataKey = monthDate.format(point.getTrackDate()) + " " + title;
 				ArrayList<Integer> monthKeyValues = monthlyValues.get(monthDataKey);
-				if (null == monthKeyValues) {
-					// create the list
-					monthKeyValues = new ArrayList<Integer>();
-					monthlyValues.put(monthDataKey, monthKeyValues);
+				if (null != monthKeyValues) {
+					// add the data to this monthly tally
+					monthKeyValues.add(value);
 				}
-				// add the data to this monthly tally
-				monthKeyValues.add(value);
+				else {
+					//oops
+					EmoTrack.LOG.severe("Encountered a month not collating stats for: " + monthDataKey);
+				}
+				
 				// format the weekly string for this data
 				String weekDataKey = weekDate.format(point.getTrackDate()) + " " + title;
 				ArrayList<Integer> weekKeyValues = weeklyValues.get(weekDataKey);
-				if (null == weekKeyValues) {
-					// create the list
-					weekKeyValues = new ArrayList<Integer>();
-					weeklyValues.put(weekDataKey, weekKeyValues);
+				if (null != weekKeyValues) {
+					// add the data to this weekly tally
+					weekKeyValues.add(value);
 				}
-				// add the data to this weekly tally
-				weekKeyValues.add(value);
 			}
 		}
 		StatsResultsData results = new StatsResultsData();
@@ -325,7 +343,7 @@ public class TrackPointServiceImpl extends RemoteServiceServlet implements Track
 			for (Integer value : values) {
 				total += value.intValue();
 			}
-			results.addMonthlyAverage(key, total / (float)values.size());
+			results.addMonthlyAverage(key, values.size() == 0 ? 0 : (total / (float)values.size()));
 		}
 		// add weekly averages, in order please
 		sortedList.clear();
@@ -338,10 +356,24 @@ public class TrackPointServiceImpl extends RemoteServiceServlet implements Track
 			for (Integer value : values) {
 				total += value.intValue();
 			}
-			results.addWeeklyAverage(key, total / (float)values.size());
+			results.addWeeklyAverage(key, values.size() == 0 ? 0 : (total / (float)values.size()));
 		}
 		
 		return results;
+	}
+	
+	private void populateMap(int field, SimpleDateFormat format, String seriesTitle, HashMap<String, ArrayList<Integer>> map) {
+		// populate the map with the month keys to collate data for this series
+		//String keys = "";
+		for (int i = -6; i <= 0; ++i) {
+			GregorianCalendar calendar = new GregorianCalendar();
+			calendar.setTime(new Date());
+		    calendar.add(field, i);
+		    String key = format.format(calendar.getTime()) + " " + seriesTitle;
+		    //keys += key + " ";
+		    map.put(key, new ArrayList<Integer>());
+		}
+		//EmoTrack.LOG.info("Added " + keys);
 	}
 
 	private void checkLoggedIn() throws NotLoggedInException {

@@ -1,5 +1,10 @@
 package uk.co.darkerwaters.client.html.analysis;
 
+import java.util.Date;
+
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.user.datepicker.client.CalendarUtil;
+
 import uk.co.darkerwaters.client.graph.DataGraph;
 import uk.co.darkerwaters.client.graph.DataGraph.DataHandler;
 import uk.co.darkerwaters.client.graph.TrackPointGraphDataHandler;
@@ -9,10 +14,15 @@ public class AnalysisAverageGraphDataHandler implements DataHandler<Integer, Flo
 	
 	private final Type type;
 	//private DataGraph<Integer, Float> graph;
+	
+	private final boolean isShowMonths;
+	
+	public static DateTimeFormat monthfmt = DateTimeFormat.getFormat("MMM");
 
-	public AnalysisAverageGraphDataHandler(String seriesTitle) {
+	public AnalysisAverageGraphDataHandler(String seriesTitle, boolean isShowMonths) {
 		// constructor
 		this.type = Type.getTypeForSeriesTitle(seriesTitle);
+		this.isShowMonths = isShowMonths;
 	}
 
 	@Override
@@ -50,17 +60,47 @@ public class AnalysisAverageGraphDataHandler implements DataHandler<Integer, Flo
 
 	@Override
 	public boolean isValid(String seriesTitle, Integer x, Float y) {
-		return true;
+		return null != seriesTitle && null != x && null != y;
 	}
 
 	@Override
 	public String[] getXAxisTitles(Integer min, Integer max) {
-		return new String[0];
+		if (min == null || max == null) {
+			return new String[0];
+		}
+		else {
+			Integer[] xAxisValues = getXAxisValues(min, max);
+			String[] values = new String[xAxisValues.length];
+			for (int i = 1; i < values.length; ++i) {
+				if (isShowMonths) {
+					Date monthDate = new Date();
+					CalendarUtil.addMonthsToDate(monthDate, -xAxisValues[i - 1]);
+					values[values.length - (i + 1)] = monthfmt.format(monthDate);
+				}
+				else {
+					values[values.length - (i + 1)] = xAxisValues[i].toString();
+				}
+			}
+			if (false == isShowMonths) {
+				values[values.length - 2] += " weeks ago";
+			}
+			return values;
+		}
 	}
 
 	@Override
 	public Integer[] getXAxisValues(Integer min, Integer max) {
-		return new Integer[0];
+		if (min == null || max == null) {
+			return new Integer[0];
+		}
+		else {
+			int range = max - min;
+			Integer[] values = new Integer[range + 1];
+			for (int i = 0; i < values.length; ++i) {
+				values[i] = new Integer(i);
+			}
+			return values;
+		}
 	}
 	@Override
 	public String[] getYAxisTitles(Float min, Float max) {

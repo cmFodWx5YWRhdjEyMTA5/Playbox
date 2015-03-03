@@ -66,7 +66,7 @@ public interface EmoTrackMessages extends Messages {
 	@DefaultMessage("Current value is a number: {0}")
 	String describeValErr(int value);
 
-	@DefaultMessage("Please log in to your google account to use this service")
+	@DefaultMessage("Please log in to your Google account to use this service")
 	String notLoggedIn();
 
 	@DefaultMessage("Delete \"{0}\" as a tracked variable")

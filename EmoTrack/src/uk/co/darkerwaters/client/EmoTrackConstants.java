@@ -239,7 +239,7 @@ public interface EmoTrackConstants extends Constants {
 	@DefaultStringValue("Enter the level of activity to track for the selected type")
 	String tipActivityList();
 
-	@DefaultStringValue("The data is now selected to <copy> and <paste> into any spreadsheet application, eg Microsoft Excel.")
+	@DefaultStringValue("The data is now selected to <copy> and <paste> into any spread sheet application, eg Microsoft Excel.")
 	String nowCopyAndPaste();
 
 	@DefaultStringValue("Export / Delete data")
@@ -263,6 +263,6 @@ public interface EmoTrackConstants extends Constants {
 	@DefaultStringValue("Refresh the current statistics data")
 	String refreshStatistics();
 
-	@DefaultStringValue("Recent Acheivements")
+	@DefaultStringValue("Recent Achievements")
 	String noneDaysTitle();
 }

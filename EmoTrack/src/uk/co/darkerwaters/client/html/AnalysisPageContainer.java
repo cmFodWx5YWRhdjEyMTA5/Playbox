@@ -4,7 +4,6 @@ import java.util.Date;
 
 import uk.co.darkerwaters.client.EmoTrackResources;
 import uk.co.darkerwaters.client.entry.ValueEntryPanel.ValueEntryListener;
-import uk.co.darkerwaters.client.graph.DataGraphsPanel;
 import uk.co.darkerwaters.client.html.analysis.AnalysisPageAvgMonthDataPanel;
 import uk.co.darkerwaters.client.html.analysis.AnalysisPageAvgWeekDataPanel;
 import uk.co.darkerwaters.client.html.analysis.AnalysisPageExportDataPanel;
@@ -19,7 +18,6 @@ import uk.co.darkerwaters.shared.TrackPointData;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.datepicker.client.CalendarUtil;
 
 public class AnalysisPageContainer extends PageContainer {
 	
@@ -49,6 +47,9 @@ public class AnalysisPageContainer extends PageContainer {
 		RootPanel.get("analysis").add(avgWeek.getContent());
 		RootPanel.get("analysis").add(avgMonth.getContent());
 		RootPanel.get("analysis").add(export.getContent());
+		
+		// and populate with some data
+		this.panelListener.refreshData();
 	}
 	
 	private AnalysisPanelListener createListener(final ValueEntryListener listener) {
@@ -85,19 +86,8 @@ public class AnalysisPageContainer extends PageContainer {
 	}
 	
 	public void refreshData() {
-		Date to = new Date();
-		// get data until today, end of today please, ie tomorrow (o;
-		CalendarUtil.addDaysToDate(to, 1);
-		Date from = new Date(to.getTime());
-		// from a some weeks ago please
-		CalendarUtil.addDaysToDate(from, -6 * 7);
-		// check our login status to proceed
-		if (false == this.panelListener.checkLoginStatus()) {
-			return;
-		}
-		String fromDayDate = DataGraphsPanel.dayDate.format(from);
-		String toDayDate = DataGraphsPanel.dayDate.format(to);
-		trackService.getStatsResults(fromDayDate, toDayDate, new AsyncCallback<StatsResultsData>() {
+		// get the latest stats
+		trackService.getStatsResults(new AsyncCallback<StatsResultsData>() {
 			@Override
 			public void onSuccess(StatsResultsData result) {
 				populateGrid(new StatsResults(result));

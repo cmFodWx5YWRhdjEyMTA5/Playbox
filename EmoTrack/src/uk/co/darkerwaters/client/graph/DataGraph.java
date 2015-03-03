@@ -402,7 +402,7 @@ public class DataGraph<X, Y> {
 		for (int i = 0; i < xAxisTitles.length && i < xAxisValues.length; ++i) {
 			int x = left + (int)(this.handler.ratioX(minX, maxX, xAxisValues[i]) * axisWidth);
 			if (x <= right) {
-				createText(xAxisTitles[i], x, bottom, 0.5f, 1f);
+				createText(xAxisTitles[i], x, bottom, this.isBoxInValues ? 0f : 0.5f, 1f);
 			}
 		}
 		if (null != this.graphTitle && false == this.graphTitle.isEmpty()) {

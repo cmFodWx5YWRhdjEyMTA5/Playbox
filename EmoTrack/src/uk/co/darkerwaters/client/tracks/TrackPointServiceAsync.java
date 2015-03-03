@@ -14,5 +14,5 @@ public interface TrackPointServiceAsync {
 	
 	public void getTrackPoints(String fromDayDate, String toDayDate, AsyncCallback<TrackPointData[]> async);
 	
-	public void getStatsResults(String fromDayDate, String toDayDate, AsyncCallback<StatsResultsData> async);
+	public void getStatsResults(AsyncCallback<StatsResultsData> async);
 }

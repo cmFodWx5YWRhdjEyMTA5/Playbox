@@ -188,7 +188,7 @@ public class DataGraphsPanel extends VerticalPanel {
 		for (TrackPointGraphDataHandler handler : this.dataHandlers) {
 			handler.setDateRange(this.dataStartDate, this.dataEndDate);
 		}
-		this.eventDataHandler.setDateRange(dayDate.parse(fromDate), toDate.isEmpty() ? new Date() : dayDate.parse(toDate));
+		this.eventDataHandler.setDateRange(this.dataStartDate, this.dataEndDate);
 		// and get the track points for this period
 		trackService.getTrackPoints(fromDate, toDate, new AsyncCallback<TrackPointData[]>() {
 			@Override

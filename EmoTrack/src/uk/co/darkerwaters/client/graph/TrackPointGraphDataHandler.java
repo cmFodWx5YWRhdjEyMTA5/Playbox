@@ -133,9 +133,6 @@ public class TrackPointGraphDataHandler implements DataGraph.DataHandler<Date, I
 			float range = max.getTime() - min.getTime();
 			ratio = (x.getTime() - min.getTime()) / range;
 		}
-		if (ratio > 1f) {
-			EmoTrack.LOG.severe("X Ratio for trach graph is " + ratio);
-		}
 		return ratio;
 	}
 	@Override
@@ -147,9 +144,6 @@ public class TrackPointGraphDataHandler implements DataGraph.DataHandler<Date, I
 		else {
 			float range = max - min;
 			ratio = (y - min) / range;
-		}
-		if (ratio > 1f) {
-			EmoTrack.LOG.severe("Y Ratio for trach graph is " + ratio);
 		}
 		return ratio;
 	}

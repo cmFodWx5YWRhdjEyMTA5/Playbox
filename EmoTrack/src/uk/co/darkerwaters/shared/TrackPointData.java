@@ -32,7 +32,7 @@ public class TrackPointData implements Serializable {
 	}
 	
 	public static boolean IsActivityKey(String value) {
-		return value.startsWith(ACTIVITYKEY);
+		return null != value && value.startsWith(ACTIVITYKEY);
 	}
 	
 	public TrackPointData() {

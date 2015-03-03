@@ -37,8 +37,6 @@ public class AnalysisPageNoneDaysPanel {
 		
 		this.contentPanel = new FlowPanel();
 		mainPanel.add(contentPanel);
-		
-		this.listener.refreshData();
 	}
 	
 	public Panel getContent() {
