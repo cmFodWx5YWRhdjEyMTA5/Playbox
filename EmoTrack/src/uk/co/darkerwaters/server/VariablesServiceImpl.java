@@ -72,6 +72,46 @@ public class VariablesServiceImpl extends RemoteServiceServlet implements Variab
 			pm.close();
 		}
 	}
+	
+	public String[] getAllUsers() throws NotLoggedInException {
+		checkLoggedIn();
+		PersistenceManager pm = getPersistenceManager();
+		ArrayList<User> users = new ArrayList<User>();
+		try {
+			Query q = pm.newQuery(Variable.class);
+			Object executeResult = q.execute(getUser());
+			if (null != executeResult && executeResult instanceof List<?>) {
+				// get all the users
+				List<?> executeList = (List<?>) executeResult;
+				for (Object item : executeList) {
+					if (null != item && item instanceof Variable) {
+						// result is as expected
+						Variable variable = (Variable)item;
+						// get the user
+						User user = variable.getUser();
+						if (null != user && false == users.contains(user)) {
+							users.add(user);
+						}
+					}
+					else {
+						// not expected
+						LOG.log(Level.WARNING, "getAllUsers not returning expected object type:" + item);
+					}
+				}
+			}
+			else {
+				LOG.log(Level.WARNING, "getAllUsers not returning expected execution object type:" + executeResult);
+			}
+		} finally {
+			pm.close();
+		}
+		String[] results = new String[users.size()];
+		int index = 0;
+		for (User user : users) {
+			results[index++] = user.getUserId();
+		}
+		return results;
+	}
 
 	public String[] getVariables() throws NotLoggedInException {
 		checkLoggedIn();

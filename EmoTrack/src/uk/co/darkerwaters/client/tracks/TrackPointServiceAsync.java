@@ -9,6 +9,8 @@ public interface TrackPointServiceAsync {
 	public void addTrackPoint(TrackPointData point, AsyncCallback<TrackPointData> async);
 	
 	public void removeTrackPoint(TrackPointData point, AsyncCallback<Void> async);
+	
+	public void purgeAllData(AsyncCallback<Integer> async);
 
 	public void getTrackPoints(AsyncCallback<TrackPointData[]> async);
 	

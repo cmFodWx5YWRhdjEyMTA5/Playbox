@@ -4,6 +4,7 @@ import java.util.Date;
 
 import uk.co.darkerwaters.client.EmoTrackResources;
 import uk.co.darkerwaters.client.entry.ValueEntryPanel.ValueEntryListener;
+import uk.co.darkerwaters.client.html.analysis.AnalysisPageAdvancedDataPanel;
 import uk.co.darkerwaters.client.html.analysis.AnalysisPageAvgMonthDataPanel;
 import uk.co.darkerwaters.client.html.analysis.AnalysisPageAvgWeekDataPanel;
 import uk.co.darkerwaters.client.html.analysis.AnalysisPageExportDataPanel;
@@ -27,6 +28,7 @@ public class AnalysisPageContainer extends PageContainer {
 	private AnalysisPageAvgWeekDataPanel avgWeek;
 	private AnalysisPageAvgMonthDataPanel avgMonth;
 	private AnalysisPageExportDataPanel export;
+	private AnalysisPageAdvancedDataPanel advanced;
 
 	private AnalysisPanelListener panelListener;
 
@@ -43,10 +45,12 @@ public class AnalysisPageContainer extends PageContainer {
 		this.avgWeek = new AnalysisPageAvgWeekDataPanel(panelListener);
 		this.avgMonth = new AnalysisPageAvgMonthDataPanel(panelListener);
 		this.export = new AnalysisPageExportDataPanel(trackService, panelListener);
+		this.advanced = new AnalysisPageAdvancedDataPanel(trackService, panelListener);
 		RootPanel.get("analysis").add(noneDays.getContent());
 		RootPanel.get("analysis").add(avgWeek.getContent());
 		RootPanel.get("analysis").add(avgMonth.getContent());
 		RootPanel.get("analysis").add(export.getContent());
+		RootPanel.get("analysis").add(advanced.getContent());
 		
 		// and populate with some data
 		this.panelListener.refreshData();

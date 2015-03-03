@@ -150,6 +150,34 @@ public class TrackPointServiceImpl extends RemoteServiceServlet implements Track
 			pm.close();
 		}
 	}
+	
+	public Integer purgeAllData() throws NotLoggedInException {
+		checkLoggedIn();
+		PersistenceManager pm = getPersistenceManager();
+		int deleteCount = 0;
+		try {
+			Query q = pm.newQuery(TrackPoint.class, "user == u");
+			q.declareParameters("com.google.appengine.api.users.User u");
+			Object executeResult = q.execute(getUser());
+			if (null != executeResult && executeResult instanceof List<?>) {
+				// delete the results from the execute result
+				List<?> executeList = (List<?>) executeResult;
+				for (Object item : executeList) {
+					if (null != item) {
+						// delete this
+						pm.deletePersistent(item);
+						++deleteCount;
+					}
+				}
+			}
+			else {
+				LOG.log(Level.WARNING, "purgeAllData not returning expected execution object type:" + executeResult);
+			}
+		} finally {
+			pm.close();
+		}
+		return new Integer(deleteCount);
+	}
 
 	private Object getPointData(PersistenceManager pm, TrackPointData point) {
 		Query q = pm.newQuery(TrackPoint.class, "user == u && trackDate == date");

@@ -8,4 +8,6 @@ public interface VariablesServiceAsync {
 	public void removeVariable(String variableName, AsyncCallback<Void> async);
 
 	public void getVariables(AsyncCallback<String[]> async);
+	
+	public void getAllUsers(AsyncCallback<String[]> async);
 }

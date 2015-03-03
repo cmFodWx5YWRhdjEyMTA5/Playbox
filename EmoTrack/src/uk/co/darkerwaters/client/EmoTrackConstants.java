@@ -242,8 +242,11 @@ public interface EmoTrackConstants extends Constants {
 	@DefaultStringValue("The data is now selected to <copy> and <paste> into any spread sheet application, eg Microsoft Excel.")
 	String nowCopyAndPaste();
 
-	@DefaultStringValue("Export / Delete data")
+	@DefaultStringValue("Export / Modify data")
 	String exportData();
+
+	@DefaultStringValue("Advanced Options")
+	String advancedData();
 	
 	@DefaultStringValue("Restore")
 	String restoreRow();

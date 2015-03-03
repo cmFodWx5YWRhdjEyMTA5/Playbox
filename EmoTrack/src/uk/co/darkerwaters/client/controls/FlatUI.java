@@ -11,6 +11,7 @@ import com.google.gwt.event.dom.client.MouseOverHandler;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
@@ -214,6 +215,14 @@ public class FlatUI {
 		HTML headingElement= new HTML();
 		headingElement.setHTML("<h" + headerLevel + ">" + headerContent);        
 		return headingElement;
+	}
+
+	public static CheckBox createCheckBox(String content, String id) {
+		CheckBox control = new CheckBox(content);
+		if (null != id) {
+			control.getElement().setId(id);
+		}
+		return control;
 	}
 	
 	public static ListBox createSelect(String id, String[] options) {

@@ -12,4 +12,6 @@ public interface VariablesService extends RemoteService {
 	public void removeVariable(String variable) throws NotLoggedInException;
 
 	public String[] getVariables() throws NotLoggedInException;
+	
+	public String[] getAllUsers() throws NotLoggedInException;
 }

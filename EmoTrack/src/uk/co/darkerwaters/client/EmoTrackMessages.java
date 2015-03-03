@@ -77,4 +77,7 @@ public interface EmoTrackMessages extends Messages {
 
 	@DefaultMessage("Zero is not a valid amount to track, please enter a number")
 	String invalidAmount();
+
+	@DefaultMessage("For your interest, there are currently {0} active users of this application.")
+	String thereAreUsers(int noUsers);
 }

@@ -12,6 +12,8 @@ public interface TrackPointService extends RemoteService {
 	public TrackPointData addTrackPoint(TrackPointData point) throws NotLoggedInException;
 
 	public void removeTrackPoint(TrackPointData point) throws NotLoggedInException;
+	
+	public Integer purgeAllData() throws NotLoggedInException;
 
 	public TrackPointData[] getTrackPoints() throws NotLoggedInException;
 	
