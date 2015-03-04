@@ -8,7 +8,6 @@ import uk.co.darkerwaters.client.variables.VariablesService;
 import uk.co.darkerwaters.client.variables.VariablesServiceAsync;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 
 public class SharingPageContainer extends PageContainer {
