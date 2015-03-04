@@ -271,4 +271,31 @@ public interface EmoTrackConstants extends Constants {
 
 	@DefaultStringValue("Setup data sharing")
 	String setupSharingData();
+
+	@DefaultStringValue("Refresh")
+	String refreshUsers();
+
+	@DefaultStringValue("Refresh the list of users with which you are sharing your data")
+	String tipRefreshUsers();
+
+	@DefaultStringValue("Add")
+	String addShareUser();
+	
+	@DefaultStringValue("Add a user ID with which you will share your data")
+	String tipAddShareUser();
+
+	@DefaultStringValue("Stop sharing data with this user")
+	String deleteShareUserButton();
+
+	@DefaultStringValue("Should another user wish to share their data with you, have them share with this ID: ")
+	String ownUserIdExplan();
+
+	@DefaultStringValue("Shared Data")
+	String viewedSharedData();
+
+	@DefaultStringValue("Searching for data shared")
+	String searchingForUsers();
+
+	@DefaultStringValue("Select to view data")
+	String selectUserToView();
 }

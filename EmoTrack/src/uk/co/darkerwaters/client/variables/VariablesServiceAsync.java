@@ -17,5 +17,9 @@ public interface VariablesServiceAsync {
 	
 	public void resolveUserIdToName(String userId, AsyncCallback<String> async);
 	
+	public void getOwnUserId(AsyncCallback<String> async);
+	
 	public void getNumberUsers(AsyncCallback<Integer> async);
+	
+	public void getUsersSharing(AsyncCallback<String[]> async);
 }

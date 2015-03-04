@@ -55,7 +55,12 @@ public class Variables implements Serializable {
 	}
 	
 	public int getNumberVariables() {
-		return this.variableName.split(",").length;
+		if (null == this.variableName || this.variableName.isEmpty()) {
+			return 0;
+		}
+		else {
+			return this.variableName.split(",").length;
+		}
 	}
 
 	public String getVariableName(int index) {
@@ -83,7 +88,7 @@ public class Variables implements Serializable {
 	}
 	
 	public int getNumberSharedUsers() {
-		if (null == this.readAccessUsers) {
+		if (null == this.readAccessUsers || this.readAccessUsers.isEmpty()) {
 			return 0;
 		}
 		else {

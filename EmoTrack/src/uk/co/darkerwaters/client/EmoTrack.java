@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import uk.co.darkerwaters.client.controls.FlatUI;
 import uk.co.darkerwaters.client.entry.ValueEntryPanel;
 import uk.co.darkerwaters.client.entry.ValueEntryPanel.ValueEntryListener;
+import uk.co.darkerwaters.client.graph.DataGraphsDataHandler;
 import uk.co.darkerwaters.client.graph.DataGraphsPanel;
 import uk.co.darkerwaters.client.graph.GaugeChartPanel;
 import uk.co.darkerwaters.client.html.AboutPageContainer;
@@ -93,7 +94,7 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 		History.addValueChangeHandler(this);
 		
 		// add the data graphs
-		this.dataGraphsPanel = new DataGraphsPanel(createChartListener());
+		this.dataGraphsPanel = new DataGraphsPanel(createChartListener(), new DataGraphsDataHandler(null));
 		RootPanel.get(EmoTrackConstants.K_CSS_ID_APPPLACEHOLDERDISPLAY).add(this.dataGraphsPanel);
 		
 		// setup the login panel

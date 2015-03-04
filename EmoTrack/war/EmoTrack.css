@@ -416,6 +416,32 @@ td.datePickerYear {
 	color: #000; /* Fallback for older browsers */
     color: rgba(0, 0, 0, 0);
 }
+#newSharedUserText {
+	float: left;
+	width: 550px;
+}
+.share-text {
+	float: left;
+	width: 25%;
+}
+.share-user-panel {
+	padding: 10px;
+	clear: both;
+}
+.sharing-user-id-panel {
+	padding: 10px;
+	clear: both;
+}
+#sharingUserId {
+	font-size: 2em;
+	clear: both;
+}
+#sharedDataSelect {
+	clear: both;
+}
+.sharing-control {
+	margin-left: 10px;
+}
 /* text inputs in general, to help spec a watermark*/
 #loadingDisplay {
 	position: fixed;

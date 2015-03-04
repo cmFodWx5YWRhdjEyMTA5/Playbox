@@ -86,6 +86,10 @@ public class AnalysisPageContainer extends PageContainer {
 			public void refreshData() {
 				AnalysisPageContainer.this.refreshData();
 			}
+			@Override
+			public boolean isRefreshHandled() {
+				return true;
+			}
 		};
 	}
 	

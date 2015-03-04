@@ -21,5 +21,9 @@ public interface VariablesService extends RemoteService {
 	
 	public String resolveUserIdToName(String userId) throws NotLoggedInException;
 	
+	public String getOwnUserId() throws NotLoggedInException;
+	
 	public Integer getNumberUsers() throws NotLoggedInException;
+	
+	public String[] getUsersSharing() throws NotLoggedInException;
 }

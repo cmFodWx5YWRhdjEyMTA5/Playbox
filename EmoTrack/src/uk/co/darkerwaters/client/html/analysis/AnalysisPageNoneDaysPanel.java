@@ -25,6 +25,7 @@ public class AnalysisPageNoneDaysPanel {
 	
 	public interface AnalysisPanelListener extends ValueEntryListener {
 		public void refreshData();
+		public boolean isRefreshHandled();
 	}
 
 	public AnalysisPageNoneDaysPanel(AnalysisPanelListener listener) {
@@ -32,7 +33,9 @@ public class AnalysisPageNoneDaysPanel {
 		
 		mainPanel.addStyleName("sub-page-section");
 		this.refreshButton = createRefreshButton();
-		mainPanel.add(this.refreshButton);
+		if (this.listener.isRefreshHandled()) {
+			mainPanel.add(this.refreshButton);
+		}
 		mainPanel.add(createTitle(EmoTrackConstants.Instance.noneDaysTitle()));
 		
 		this.contentPanel = new FlowPanel();

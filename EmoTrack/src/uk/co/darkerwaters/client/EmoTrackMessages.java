@@ -80,4 +80,7 @@ public interface EmoTrackMessages extends Messages {
 
 	@DefaultMessage("For your interest, there are currently {0} active users of this application.")
 	String thereAreUsers(int noUsers);
+
+	@DefaultMessage("Successfully discovered {0} users sharing data with you, select one to show their current data.")
+	String foundSharingUsers(int length);
 }

@@ -14,11 +14,8 @@ import uk.co.darkerwaters.client.controls.FlatUI;
 import uk.co.darkerwaters.client.entry.SleepTab;
 import uk.co.darkerwaters.client.graph.DataGraph.DataGraphListener;
 import uk.co.darkerwaters.client.graph.EventGraphDataHandler.EventLabel;
-import uk.co.darkerwaters.client.tracks.TrackPointService;
-import uk.co.darkerwaters.client.tracks.TrackPointServiceAsync;
 import uk.co.darkerwaters.shared.TrackPointData;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
@@ -37,8 +34,6 @@ public class DataGraphsPanel extends VerticalPanel {
 	private final ArrayList<TrackPointData> dataRows = new ArrayList<TrackPointData>();
 	private final HashMap<String, Integer> columnsAdded = new HashMap<String, Integer>();
 	
-	private final TrackPointServiceAsync trackService = GWT.create(TrackPointService.class);
-	
 	private Date currentSelectedDate = null;
 	private Label selectedLabel;
 	private final EmoTrackListener listener;
@@ -55,6 +50,8 @@ public class DataGraphsPanel extends VerticalPanel {
 	
 	private DataGraph<Date, Integer> sleepGraph;
 	
+	private final DataGraphsDataHandler trackDataHandler;
+	
 	private TrackPointGraphDataHandler[] dataHandlers;
 	private TextBox selectedTextBox;
 	private Button deleteButton;
@@ -62,9 +59,10 @@ public class DataGraphsPanel extends VerticalPanel {
 	private Date dataEndDate = new Date();
 	private Date dataStartDate = new Date();
 	
-	public DataGraphsPanel(EmoTrackListener listener) {
+	public DataGraphsPanel(EmoTrackListener listener, DataGraphsDataHandler trackDataHandler) {
 		// create all our controls in this panel
 		this.listener = listener;
+		this.trackDataHandler = trackDataHandler;
 		this.getElement().setId(EmoTrackConstants.K_CSS_ID_DATACHARTPANEL);
 		// create the data handlers
 		dataHandlers = new TrackPointGraphDataHandler[] {
@@ -190,7 +188,7 @@ public class DataGraphsPanel extends VerticalPanel {
 		}
 		this.eventDataHandler.setDateRange(this.dataStartDate, this.dataEndDate);
 		// and get the track points for this period
-		trackService.getTrackPoints(fromDate, toDate, new AsyncCallback<TrackPointData[]>() {
+		this.trackDataHandler.getTrackPoints(fromDate, toDate, new AsyncCallback<TrackPointData[]>() {
 			@Override
 			public void onFailure(Throwable error) {
 				handleError(error);
@@ -226,7 +224,7 @@ public class DataGraphsPanel extends VerticalPanel {
 	}
 
 	protected void deleteSelectedData(final TrackPointData point) {
-		trackService.removeTrackPoint(point, new AsyncCallback<Void>() {
+		this.trackDataHandler.removeTrackPoint(point, new AsyncCallback<Void>() {
 			@Override
 			public void onFailure(Throwable error) {
 				handleError(error);

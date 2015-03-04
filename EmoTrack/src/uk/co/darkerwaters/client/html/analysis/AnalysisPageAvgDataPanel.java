@@ -33,7 +33,9 @@ public abstract class AnalysisPageAvgDataPanel {
 		
 		mainPanel.addStyleName("sub-page-section");
 		this.refreshButton = createRefreshButton();
-		mainPanel.add(this.refreshButton);
+		if (this.listener.isRefreshHandled()) {
+			mainPanel.add(this.refreshButton);
+		}
 		mainPanel.add(createTitle(title));
 		
 		this.contentPanel = new FlowPanel();

@@ -154,42 +154,55 @@ public class VariablesServiceImpl extends RemoteServiceServlet implements Variab
 		return noUsers;
 	}
 	
+	public String getOwnUserId() throws NotLoggedInException {
+		User user = getUser();
+		return user == null ? "" : user.getUserId();
+	}
+	
 	public String resolveUserIdToName(String userId) throws NotLoggedInException {
 		checkLoggedIn();
-		String userName = "";
 		PersistenceManager pm = getPersistenceManager();
+		String name = "";
 		try {
-			Query q = pm.newQuery(Variables.class);
-			Object executeResult = q.execute(getUser());
-			if (null != executeResult && executeResult instanceof List<?>) {
-				// get all the users
-				List<?> executeList = (List<?>) executeResult;
-				for (Object item : executeList) {
-					if (null != item && item instanceof Variables) {
-						// result is as expected
-						Variables variable = (Variables)item;
-						// get the user
-						User user = variable.getUser();
-						if (null != user && user.getUserId().equals(userId)) {
-							// this is the one
-							userName = user.getNickname();
-							break;
-						}
-					}
-					else {
-						// not expected
-						LOG.log(Level.WARNING, "resolveUserIdToName not returning expected object type:" + item);
-					}
-				}
-			}
-			else {
-				LOG.log(Level.WARNING, "resolveUserIdToName not returning expected execution object type:" + executeResult);
+			User user = resolveUserId(userId, pm);
+			if (null != user) {
+				name = user.getNickname();
 			}
 		}
 		finally {
 			pm.close();
 		}
-		return userName;
+		return name;
+	}
+	
+	public static User resolveUserId(String userId, PersistenceManager pm) {
+		User user = null;
+		Query q = pm.newQuery(Variables.class);
+		Object executeResult = q.execute();
+		if (null != executeResult && executeResult instanceof List<?>) {
+			// get all the users
+			List<?> executeList = (List<?>) executeResult;
+			for (Object item : executeList) {
+				if (null != item && item instanceof Variables) {
+					// result is as expected
+					Variables variable = (Variables)item;
+					// get the user
+					user = variable.getUser();
+					if (null != user && user.getUserId().equals(userId)) {
+						// this is the one
+						break;
+					}
+				}
+				else {
+					// not expected
+					LOG.log(Level.WARNING, "resolveUserIdToName not returning expected object type:" + item);
+				}
+			}
+		}
+		else {
+			LOG.log(Level.WARNING, "resolveUserIdToName not returning expected execution object type:" + executeResult);
+		}
+		return user;
 	}
 	
 	public User[] getAllUsers(PersistenceManager pm) throws NotLoggedInException {
@@ -197,7 +210,7 @@ public class VariablesServiceImpl extends RemoteServiceServlet implements Variab
 		ArrayList<User> users = new ArrayList<User>();
 		
 		Query q = pm.newQuery(Variables.class);
-		Object executeResult = q.execute(getUser());
+		Object executeResult = q.execute();
 		if (null != executeResult && executeResult instanceof List<?>) {
 			// get all the users
 			List<?> executeList = (List<?>) executeResult;
@@ -219,6 +232,68 @@ public class VariablesServiceImpl extends RemoteServiceServlet implements Variab
 		}
 		else {
 			LOG.log(Level.WARNING, "getAllUsers not returning expected execution object type:" + executeResult);
+		}
+		return users.toArray(new User[users.size()]);
+	}
+	
+	public String[] getUsersSharing() throws NotLoggedInException {
+		PersistenceManager pm = getPersistenceManager();
+		String[] userIds = new String[0];
+		try {
+			User[] sharingUsers = getUsersSharing(pm);
+			userIds = new String[sharingUsers.length];
+			for (int i = 0; i < userIds.length; ++i) {
+				User user = sharingUsers[i];
+				userIds[i] = user.getUserId() + ":" + user.getNickname();
+			}
+		}
+		finally {
+			pm.close();
+		}
+		return userIds;
+	}
+	
+	private User[] getUsersSharing(PersistenceManager pm) throws NotLoggedInException {
+		checkLoggedIn();
+		User us = getUser();
+		if (null == us) {
+			throw new NotLoggedInException("No user");
+		}
+		String usUserId = us.getUserId();
+		if (null == usUserId) {
+			throw new NotLoggedInException("No user id");
+		}
+		ArrayList<User> users = new ArrayList<User>();
+		Query q = pm.newQuery(Variables.class);
+		Object executeResult = q.execute();
+		if (null != executeResult && executeResult instanceof List<?>) {
+			// get all the users
+			List<?> executeList = (List<?>) executeResult;
+			for (Object item : executeList) {
+				if (null != item && item instanceof Variables) {
+					// result is as expected
+					Variables variable = (Variables)item;
+					int noShared = variable.getNumberSharedUsers();
+					// is this user sharing any data with us
+					for (int i = 0; i < noShared; ++i) {
+						if (usUserId.equals(variable.getSharedUser(i))) {
+							// this user has elected to share data with us
+							User user = variable.getUser();
+							if (null != user && false == users.contains(user)) {
+								users.add(user);
+								break;
+							}
+						}
+					}
+				}
+				else {
+					// not expected
+					LOG.log(Level.WARNING, "getUsersSharing not returning expected object type:" + item);
+				}
+			}
+		}
+		else {
+			LOG.log(Level.WARNING, "getUsersSharing not returning expected execution object type:" + executeResult);
 		}
 		return users.toArray(new User[users.size()]);
 	}

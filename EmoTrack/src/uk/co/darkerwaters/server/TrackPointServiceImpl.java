@@ -224,8 +224,22 @@ public class TrackPointServiceImpl extends RemoteServiceServlet implements Track
 		}
 		return toReturn;
 	}
-
+	
 	public TrackPointData[] getTrackPoints(String fromDayDate, String toDayDate) throws NotLoggedInException {
+		return getTrackPoints(getUser(), fromDayDate, toDayDate);
+	}
+	
+	public TrackPointData[] getTrackPoints(String userId, String fromDayDate, String toDayDate) throws NotLoggedInException {
+		User user = resolveUserId(userId);
+		if (null == user) {
+			return null;
+		}
+		else {
+			return getTrackPoints(user, fromDayDate, toDayDate);
+		}
+	}
+
+	private TrackPointData[] getTrackPoints(User user, String fromDayDate, String toDayDate) throws NotLoggedInException {
 		checkLoggedIn();
 		PersistenceManager pm = getPersistenceManager();
 		TrackPointData[] toReturn = new TrackPointData[0];
@@ -239,14 +253,14 @@ public class TrackPointServiceImpl extends RemoteServiceServlet implements Track
 				q = pm.newQuery(TrackPoint.class, "user == u && trackDate >= fromDate");
 				q.declareParameters("com.google.appengine.api.users.User u, java.util.Date fromDate");
 				q.setOrdering("trackDate");
-				executeResult = q.execute(getUser(), fromDate);
+				executeResult = q.execute(user, fromDate);
 			}
 			else {
 				// do from and to
 				q = pm.newQuery(TrackPoint.class, "user == u && trackDate >= fromDate && trackDate <= toDate");
 				q.declareParameters("com.google.appengine.api.users.User u, java.util.Date fromDate, java.util.Date toDate");
 				q.setOrdering("trackDate");
-				executeResult = q.execute(getUser(), fromDate, toDate);
+				executeResult = q.execute(user, fromDate, toDate);
 			}
 			if (null != executeResult && executeResult instanceof List<?>) {
 				// convert this data to the data to return (client accessible)
@@ -277,8 +291,22 @@ public class TrackPointServiceImpl extends RemoteServiceServlet implements Track
 		}
 		return toReturn;
 	}
-
+	
 	public StatsResultsData getStatsResults() throws NotLoggedInException {
+		return getStatsResults(getUser());
+	}
+	
+	public StatsResultsData getStatsResults(String userId) throws NotLoggedInException {
+		User user = resolveUserId(userId);
+		if (null == user) {
+			return null;
+		}
+		else {
+			return getStatsResults(user);
+		}
+	}
+
+	private StatsResultsData getStatsResults(User user) throws NotLoggedInException {
 		// create a list of montly values to get data for, this month, less six months...
 		Date to = new Date();
 		GregorianCalendar calendar = new GregorianCalendar();
@@ -289,7 +317,7 @@ public class TrackPointServiceImpl extends RemoteServiceServlet implements Track
 		String fromDayDate = dayDate.format(from);
 		String toDayDate = dayDate.format(to);
 		ArrayList<String> seriesEncountered = new ArrayList<String>();
-		TrackPointData[] trackPoints = getTrackPoints(fromDayDate, toDayDate);
+		TrackPointData[] trackPoints = getTrackPoints(user, fromDayDate, toDayDate);
 		HashMap<String, Integer> numberOfNoneValues = new HashMap<String, Integer>();
 		HashMap<String, ArrayList<Integer>> monthlyValues = new HashMap<String, ArrayList<Integer>>();
 		HashMap<String, ArrayList<Integer>> weeklyValues = new HashMap<String, ArrayList<Integer>>();
@@ -402,6 +430,19 @@ public class TrackPointServiceImpl extends RemoteServiceServlet implements Track
 		    map.put(key, new ArrayList<Integer>());
 		}
 		//EmoTrack.LOG.info("Added " + keys);
+	}
+
+	private User resolveUserId(String userId) throws NotLoggedInException {
+		checkLoggedIn();
+		PersistenceManager pm = getPersistenceManager();
+		User user = null;
+		try {
+			user = VariablesServiceImpl.resolveUserId(userId, pm);
+		}
+		finally {
+			pm.close();
+		}
+		return user;
 	}
 
 	private void checkLoggedIn() throws NotLoggedInException {
