@@ -116,7 +116,7 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 							// we are not logged in, set the info to null
 							loginInfo = null;
 							// update our details
-							updateLoginDetails();
+							updateLoginDetails(loginInfo);
 							// and handle the error
 							handleError(error);
 						}
@@ -141,9 +141,10 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 								}
 							}
 							if (isChanged) {
-								loginInfo = result;
-								updateLoginDetails();
+								LOG.log(Level.FINE, "Login state changed");
 							}
+							loginInfo = result;
+							updateLoginDetails(loginInfo);
 							// schedule another check on these details
 							loginCheckTimer.schedule(10000);
 						}
@@ -273,6 +274,7 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 			}
 			@Override
 			public boolean checkLoginStatus() {
+				EmoTrack.this.updateLoginDetails(EmoTrack.this.loginInfo);
 				if (null != loginInfo && loginInfo.isLoggedIn()) {
 					// are logged in
 					return true;
@@ -328,7 +330,8 @@ public class EmoTrack implements EntryPoint, ValueChangeHandler<String> {
 		}
 	}
 
-	private void updateLoginDetails() {
+	private void updateLoginDetails(LoginInfo newLogin) {
+		this.loginInfo = newLogin;
 		// Assemble login panel.
 		if (null != this.loginInfo && this.loginInfo.isLoggedIn()) {
 			// set the name to show

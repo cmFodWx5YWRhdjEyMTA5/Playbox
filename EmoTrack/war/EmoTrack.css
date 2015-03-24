@@ -38,7 +38,10 @@ body {
 #timeDateSelectPanel {
 	width: 100%;
 }
-
+#tabList {
+	float: left;
+	width: 50%;
+}
 .gwt-DatePicker {
   border: 1px solid #888;
   cursor: default;

@@ -82,10 +82,7 @@ public class DateSelectTab extends ValueEntryTab {
 
 	public void updateTime() {
 		if (null != logDateList) {
-			LogDates selected = LogDates.values()[logDateList.getSelectedIndex()];
-			if (selected != LogDates.other) {
-				setDateLabels(selected.getDate());
-			}
+			setDateLabels(getSelectedDate());
 		}
 	}
 
@@ -94,7 +91,7 @@ public class DateSelectTab extends ValueEntryTab {
 		Date selectedDate = new Date();
 		if (selectedIndex == LogDates.other.ordinal()) {
 			// user has selected "other" so get the date from the date picker
-			selectedDate = logDatePicker.getValue();
+			selectedDate = LogDates.limitDateToDay(logDatePicker.getValue());
 		}
 		else if (selectedIndex != -1) {
 			// get the date this data should be logged for
@@ -121,15 +118,15 @@ public class DateSelectTab extends ValueEntryTab {
 					logDatePicker.setVisible(true);
 					dateSelectLabel.setVisible(false);
 					timeSelectLabel.setVisible(false);
-					setDateLabels(LogDates.limitDateToDay(logDatePicker.getValue()));
 				}
 				else {
 					// user has selected another specific time
 					logDatePicker.setVisible(false);
 					timeSelectLabel.setVisible(true);
 					dateSelectLabel.setVisible(true);
-					setDateLabels(selected.getDate());
 				}
+				// set the labels to show the selected date
+				setDateLabels(getSelectedDate());
 			}
 		});
 		return logDateList;
