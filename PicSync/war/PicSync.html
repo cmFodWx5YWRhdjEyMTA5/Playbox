@@ -1,0 +1,98 @@
+<!doctype html>
+<!-- The DOCTYPE declaration above will set the     -->
+<!-- browser's rendering engine into                -->
+<!-- "Standards Mode". Replacing this declaration   -->
+<!-- with a "Quirks Mode" doctype is not supported. -->
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+    <!--                                                               -->
+    <!-- Consider inlining CSS to reduce the number of requested files -->
+    <!--                                                               -->
+    <link type="text/css" rel="stylesheet" href="PicSync.css">
+
+    <!--                                           -->
+    <!-- Any title is fine                         -->
+    <!--                                           -->
+    <title>Darker Waters Pic Sync</title>
+    
+    <!--                                           -->
+    <!-- This script loads your compiled module.   -->
+    <!-- If you add any GWT meta tags, they must   -->
+    <!-- be added before this line.                -->
+    <!--                                           -->
+    <script type="text/javascript" language="javascript" src="picsync/picsync.nocache.js"></script>
+  </head>
+
+  <!--                                           -->
+  <!-- The body can have arbitrary html, or      -->
+  <!-- you can leave the body empty if you want  -->
+  <!-- to create a completely dynamic UI.        -->
+  <!--                                           -->
+  <body>
+
+    <!-- OPTIONAL: include this if you want history support -->
+    <iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' style="position:absolute;width:0;height:0;border:0"></iframe>
+    
+    <!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
+    <noscript>
+      <div style="width: 22em; position: absolute; left: 50%; margin-left: -11em; color: red; background-color: white; border: 1px solid red; padding: 4px; font-family: sans-serif">
+        Your web browser must have JavaScript enabled
+        in order for this application to display correctly.
+      </div>
+    </noscript>
+    <script type="text/javascript">
+	    // Check for the various File API support.
+		if (window.File && window.FileReader && window.FileList && window.Blob) {
+		  // Great success! All the File APIs are supported.
+		} else {
+		  alert('The File APIs are not fully supported in this browser.');
+		}
+	</script>
+    
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="./js/vendor/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="./js/flat-ui.min.js"></script>
+    <script src="./js/application.js"></script>
+    <script src="./js/qrcode.min.js"></script>
+    
+    
+    
+    <div id="thumbnails"></div>
+    <div id="default"></div>
+	
+	<div id="wrapper">
+	    <div id="top"></div>
+	    <div id="middle">
+		    <div class="slide" id="slidemarginleft">
+		    	<button>Show Synchronisation Panel</button>
+		    	<div class="inner">Take a picture of this code to sync your images to</div>
+		    	<div class="inner" id="qrcode"></div>
+		  	</div>
+	    	
+	    </div>
+	    <div id="bottom">
+	    	<div id="browse_panel">
+	    		<input type="file" id="file_browse_button" name="fileLoadedList[]" multiple />
+	    		<button onclick="abortRead();">Cancel read</button>
+	    	</div>
+			<div id="progress_bar"><div class="percent">0%</div></div>
+	    	<div id="file_drop_zone">Drop files here</div>
+	    	<div id="sync_drop_zone">Drop time-image here</div>
+	    	<div class="container-outer">
+			   <div class="container-inner">
+			      <!-- Your images over here -->
+			      <output id="file_loaded_list"></output>
+			   </div>
+			</div>
+	    </div>
+	</div>
+    <!--  and our stuff that controls the application -->
+    <script src="./js/timesync.js"></script>
+    <script src="./js/slide.js"></script>
+    <script src="./js/imagebrowser.js"></script>
+  </body>
+</html>
