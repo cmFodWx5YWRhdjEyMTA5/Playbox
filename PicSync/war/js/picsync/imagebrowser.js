@@ -19,15 +19,6 @@ function handleFileDrop(evt) {
 	showFileThumbnails(files);
 }
 
-function handleSyncDrop(evt) {
-	evt.stopPropagation();
-	evt.preventDefault();
-
-	var files = evt.dataTransfer.files;
-	// FileList object
-	performFileSync(files);
-}
-
 // sort files in the array by modified date
 function fileComparator(a, b) {
   return a.file.lastModifiedDate - b.file.lastModifiedDate;
@@ -35,12 +26,6 @@ function fileComparator(a, b) {
 }
 
 function handleFileDragOver(evt) {
-	evt.stopPropagation();
-	evt.preventDefault();
-	evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
-}
-
-function handleSyncDragOver(evt) {
 	evt.stopPropagation();
 	evt.preventDefault();
 	evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
@@ -58,31 +43,53 @@ function showFiles(files) {
 	document.getElementById('file_loaded_list').innerHTML = '<ul>' + output.join('') + '</ul>';
 }
 
+function getImageLoaded(spanId) {
+	var foundFile = null;
+	for (var j = 0; j < images_loaded.length; ++j) {
+		// loop through all the files we have
+		if (spanId == images_loaded[j].span.id) {
+			foundFile = images_loaded[j].file;
+			break;
+		}
+	}
+	return foundFile;
+}
+
+function getIsImageLoaded(file) {
+	var foundFile = false;
+	for (var j = 0; j < images_loaded.length; ++j) {
+		// loop through all the files we have
+		var existingFile = images_loaded[j].file;
+		if (existingFile.name == file.name && 
+				existingFile.lastModifiedDate - file.lastModifiedDate == 0 &&
+				existingFile.size - file.size == 0) {
+			// checking the name, size, and modified time to see if the same loaded already
+			foundFile = true;
+			break;
+		}
+	}
+	return foundFile;
+}
+
 function showFileThumbnails(files) {
+	if (null == files || files.length == 0) {
+		return;
+	}
 	// Reset progress indicator on new file selection.
 	document.getElementById('progress_bar').className = 'loading';
 	progress.style.width = '0%';
 	progress.textContent = '0%';
 	// Loop through the FileList and render image files as thumbnails.
+	var imagesProcessed = 0;
+	var imagesToProcess = files.length;
 	for (var i = 0, f; f = files[i]; i++) {
-		updateProgress(i, files.length);
 		// Only process image files.
 		if (!f.type.match('image.*')) {
+			updateProgress(++imagesProcessed, imagesToProcess, files[i].name);
 			continue;
 		}
 		// check we have this file or not
-		var fileExists = false;
-		for (var j = 0; j < images_loaded.length; ++j) {
-			// loop through all the files we have
-			var existingFile = images_loaded[j].file;
-			if (existingFile.name == f.name && 
-					existingFile.lastModifiedDate - f.lastModifiedDate == 0 &&
-					existingFile.size - f.size == 0) {
-				// checking the name, size, and modified time to see if the same loaded already
-				fileExists = true;
-				break;
-			}
-		}
+		var fileExists = getIsImageLoaded(f);
 		if (!fileExists) {
 			// the file does not exist in the list yet, load it into a thumbnail
 			var reader = new FileReader();
@@ -92,7 +99,13 @@ function showFileThumbnails(files) {
 					// Render thumbnail as a new span element.
 					var span = document.createElement('span');
 					span.id = "image_thumb_" + uniqueImageId++;
-					span.innerHTML = ['<img class="thumb" src="', e.target.result, '" title="', escape(theFile.name), '"/>'].join('');
+					// create the image
+					var image = document.createElement('img');
+					image.className = "thumb";
+					image.setAttribute("src", e.target.result);
+					image.setAttribute("title", escape(theFile.name));
+					image.setAttribute("spanId", span.id);
+					span.appendChild(image);
 					// and remember what we have loaded
 					var imageObject = new Object();
 					imageObject["file"] = theFile;
@@ -124,48 +137,36 @@ function showFileThumbnails(files) {
 					imageObject["thumbwidth"] = span.offsetWidth;
 					containerWidth = containerWidth + span.offsetWidth;
 					$(".container-inner").css("width", containerWidth);
+					// and update the progress of this
+					updateProgress(++imagesProcessed, imagesToProcess, theFile.name);
 				};
 			})(f);
 			// Read in the image file as a data URL.
 			reader.readAsDataURL(f);
 		}
-	}
-	// Ensure that the progress bar displays 100% at the end for a couple seconds
-	progress.style.width = '100%';
-	progress.textContent = '100%';
-	setTimeout("document.getElementById('progress_bar').className='';", 2000);
-}
-
-function performFileSync(files) {
-	// Reset progress indicator on new file selection.
-	document.getElementById('progress_bar').className = 'loading';
-	progress.style.width = '0%';
-	progress.textContent = '0%';
-	// Loop through the FileList and sync to the QR code in the image
-	for (var i = 0, f; f = files[i]; i++) {
-		updateProgress(i, files.length);
-		// Only process image files.
-		if (!f.type.match('image.*')) {
-			continue;
+		else {
+			// file is already processed, update progress
+			updateProgress(++imagesProcessed, imagesToProcess, files[i].name);
 		}
-		
 	}
-	// Ensure that the progress bar displays 100% at the end for a couple seconds
-	progress.style.width = '100%';
-	progress.textContent = '100%';
-	setTimeout("document.getElementById('progress_bar').className='';", 2000);
 }
 
 function triggerFileSelect() {
 	$('#file_browse_button').trigger('click');
 }
 
-function updateProgress(loaded, total) {
+function updateProgress(loaded, total, description) {
 	var percentLoaded = Math.round((loaded / total) * 100);
 	// Increase the progress bar length.
 	if (percentLoaded < 100) {
 		progress.style.width = percentLoaded + '%';
-		progress.textContent = percentLoaded + '%';
+		progress.textContent = percentLoaded + "% " + description;
+	}
+	else {
+		// Ensure that the progress bar displays 100% at the end for a couple seconds
+		progress.style.width = '100%';
+		progress.textContent = '100%';
+		setTimeout("document.getElementById('progress_bar').className='';", 2000);
 	}
 }
 
@@ -175,8 +176,4 @@ document.getElementById('file_browse_button').addEventListener('change', handleF
 var dropZone = document.getElementById('file_drop_zone');
 dropZone.addEventListener('dragover', handleFileDragOver, false);
 dropZone.addEventListener('drop', handleFileDrop, false);
-//Setup the dnd listeners to sync an image
-var dropZone = document.getElementById('sync_drop_zone');
-dropZone.addEventListener('dragover', handleSyncDragOver, false);
-dropZone.addEventListener('drop', handleSyncDrop, false);
 

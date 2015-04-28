@@ -17,12 +17,13 @@
   width: 350px;
 }
 .slide .inner {
+  padding: 20px;
+  /**background-color: #FFFFFF;
   position: absolute;
   left: 0;
   bottom: 0;
   width: 338px;
-  padding: 6px;
-  background-color: #FFFFFF;
+*/
 }
 .js .slide .inner {
   display: none;

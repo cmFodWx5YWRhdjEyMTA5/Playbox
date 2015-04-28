@@ -43,6 +43,7 @@
         in order for this application to display correctly.
       </div>
     </noscript>
+    <script src="./js/vendor/jquery.min.js"></script>
     <script type="text/javascript">
 	    // Check for the various File API support.
 		if (window.File && window.FileReader && window.FileList && window.Blob) {
@@ -51,6 +52,12 @@
 		  alert('The File APIs are not fully supported in this browser.');
 		}
 	</script>
+	<script>
+		//include a little script to load HTML fragments
+	    $(function(){
+	      $("#qrScanner").load("qrscanner.html"); 
+	    });
+    </script> 
     
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="./js/vendor/jquery.min.js"></script>
@@ -59,20 +66,16 @@
     <script src="./js/application.js"></script>
     <script src="./js/qrcode.min.js"></script>
     
-    
-    
     <div id="thumbnails"></div>
     <div id="default"></div>
 	
 	<div id="wrapper">
 	    <div id="top"></div>
 	    <div id="middle">
-		    <div class="slide" id="slidemarginleft">
-		    	<button>Show Synchronisation Panel</button>
-		    	<div class="inner">Take a picture of this code to sync your images to</div>
-		    	<div class="inner" id="qrcode"></div>
-		  	</div>
-	    	
+		    <button>Show Synchronisation Panel</button>
+		    <div class="inner">Take a picture of this code to sync your images to</div>
+		    <div class="inner" id="time_sync_qr"></div>
+		    <div id="qrScanner"></div>
 	    </div>
 	    <div id="bottom">
 	    	<div id="browse_panel">
@@ -91,8 +94,7 @@
 	    </div>
 	</div>
     <!--  and our stuff that controls the application -->
-    <script src="./js/timesync.js"></script>
-    <script src="./js/slide.js"></script>
-    <script src="./js/imagebrowser.js"></script>
+    <script src="./js/picsync/timesync.js"></script>
+    <script src="./js/picsync/imagebrowser.js"></script>
   </body>
 </html>

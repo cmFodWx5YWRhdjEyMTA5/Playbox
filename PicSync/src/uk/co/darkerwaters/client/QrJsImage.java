@@ -7,7 +7,7 @@ import com.google.gwt.user.client.Timer;
 
 public class QrJsImage {
 	
-	public static DateTimeFormat dateFormat = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss.SSS");
+	public static DateTimeFormat dateFormat = DateTimeFormat.getFormat("yyyyMMddHHmmss");
 	
 	public QrJsImage() {
 		Timer timer = new Timer() {	
