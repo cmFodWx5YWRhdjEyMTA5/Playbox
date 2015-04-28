@@ -1,4 +1,4 @@
-var qrcode = new QRCode(document.getElementById("time_sync_qr"), {
+var displayQrCode = new QRCode(document.getElementById("time_sync_qr"), {
     text: "not-initialised",
     width: 240,
     height: 240,
@@ -10,10 +10,10 @@ var qrcode = new QRCode(document.getElementById("time_sync_qr"), {
 function makeCode (content) {
 	// if the left margin of the slide inner bit is zero then create an image to show
 	// as we are showing the code
-	if (parseInt(slideInnerDiv.css('marginLeft'), 10) == 0) {
-		qrcode.makeCode(content); // make another code.
+	if (parseInt(slideInnerDiv.css('marginLeft'), 10) <= 30) {
+		displayQrCode.makeCode(content); // make another code.
 	}
-}
+};
 
 function handleSyncDrop(evt) {
 	evt.stopPropagation();
@@ -35,13 +35,13 @@ function handleSyncDrop(evt) {
 	}
 	// FileList object
 	performFileSync(files);
-}
+};
 
 function handleSyncDragOver(evt) {
 	evt.stopPropagation();
 	evt.preventDefault();
 	evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
-}
+};
 
 function performFileSync(files) {
 	if (null == files || files.length == 0) {
@@ -81,7 +81,7 @@ function performFileSync(files) {
 	progress.textContent = '100%';
 	setTimeout("document.getElementById('progress_bar').className='';", 2000);
 	*/
-}
+};
 
 function processImageQrCode(sourceFile, dataResult) {
 	var isNumber =  /^\d+$/.test(dataResult);
@@ -111,7 +111,7 @@ function processImageQrCode(sourceFile, dataResult) {
 	else {
 		alert("Sorry no time image found, try another...");
 	}
-}
+};
 
 var slideInnerDiv;
 
@@ -125,7 +125,7 @@ $(document).ready(function() {
 
 	$('#middle button').click(function() {
 		slideInnerDiv.animate({
-			marginLeft: parseInt(slideInnerDiv.css('marginLeft'), 10) == 0 ? slideInnerDiv.outerWidth() + 30 : 0
+			marginLeft: parseInt(slideInnerDiv.css('marginLeft'), 10) == 25 ? slideInnerDiv.outerWidth() + 30 : 25
 		});
 	});
 });  
@@ -139,5 +139,3 @@ function readQrFile(a)
 var dropZone = document.getElementById('sync_drop_zone');
 dropZone.addEventListener('dragover', handleSyncDragOver, false);
 dropZone.addEventListener('drop', handleSyncDrop, false);
-
-qrcode.callback = readQrFile;

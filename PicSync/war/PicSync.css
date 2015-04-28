@@ -1,10 +1,13 @@
 /** Add css rules here for your application. */
-#qrcode {
+#time_sync_qr {
 	float: left;
 	clear: both;
-	width:240px;
-	height:240px;
-	margin:25px;
+	margin: 25px;
+	padding: 25px;
+    background-color: white;
+}
+.timeLabel {
+	margin-top: 20px;
 }
 .slide {
   position: relative;
@@ -49,6 +52,7 @@ html,body,#wrapper {
     bottom:150px;
     width:100%;
     background:orange;
+    overflow: hidden;
 }
 #bottom {
     bottom:0;

@@ -99,13 +99,30 @@ function showFileThumbnails(files) {
 					// Render thumbnail as a new span element.
 					var span = document.createElement('span');
 					span.id = "image_thumb_" + uniqueImageId++;
+					// resample the image into a thumbnail, create a canvas to go into the span element
+					var canvas = document.createElement('canvas');
+					canvas.className = "thumb";
+					canvas.setAttribute("title", escape(theFile.name));
+					canvas.setAttribute("spanId", span.id);
+				    var ctx = canvas.getContext('2d');
+					var img = new Image();
+			        img.onload = function(){
+			        	canvas.width = img.width / img.height * 75;
+			            canvas.height = 75;
+			            ctx.drawImage(img,0,0, canvas.width, canvas.height);
+			        }
+			        img.src = e.target.result;
 					// create the image
+					span.appendChild(canvas);
+					/*
+					// create the image, an image can natively be dragged so helpful functionality
 					var image = document.createElement('img');
 					image.className = "thumb";
 					image.setAttribute("src", e.target.result);
 					image.setAttribute("title", escape(theFile.name));
 					image.setAttribute("spanId", span.id);
 					span.appendChild(image);
+					*/
 					// and remember what we have loaded
 					var imageObject = new Object();
 					imageObject["file"] = theFile;
