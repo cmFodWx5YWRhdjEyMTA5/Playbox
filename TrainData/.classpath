@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" output="test-classes" path="test"/>
+	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="thirdparty/jars/restygwt-2.0.2.jar"/>
+	<classpathentry kind="lib" path="thirdparty/jars/jackson-core-asl-1.9.2.jar"/>
+	<classpathentry kind="lib" path="thirdparty/jars/jackson-jaxrs-1.9.2.jar"/>
+	<classpathentry kind="lib" path="thirdparty/jars/jackson-mapper-asl-1.9.2.jar"/>
+	<classpathentry kind="lib" path="thirdparty/jars/jackson-xc-1.9.2.jar"/>
+	<classpathentry kind="lib" path="thirdparty/jars/jersey-client-1.19.jar"/>
+	<classpathentry kind="lib" path="thirdparty/jars/jersey-core-1.19.jar"/>
+	<classpathentry kind="lib" path="thirdparty/jars/jersey-json-1.19.jar"/>
+	<classpathentry kind="lib" path="thirdparty/jars/jersey-server-1.19.jar" sourcepath="/Users/douglasbrain/.m2/repository/com/sun/jersey/jersey-server/1.19/jersey-server-1.19-sources.jar"/>
+	<classpathentry kind="lib" path="thirdparty/jars/jersey-servlet-1.19.jar"/>
+	<classpathentry kind="lib" path="thirdparty/jars/jettison-1.1.jar"/>
+	<classpathentry kind="lib" path="thirdparty/jars/jsr311-api-1.1.1.jar"/>
+	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
+	<classpathentry kind="output" path="war/WEB-INF/classes"/>
+</classpath>
