@@ -19,6 +19,7 @@ public class TrainResource extends JacksonResource {
 	public String getTrains(@QueryParam("station") String station) {
 		PersistenceManager pm = getPersistenceManager();
 		StationData stationData = null;
+		String returnString = "[]";
 		try {
 			try {
 				stationData = pm.getObjectById(StationData.class, StationData.idifyStation(station));
@@ -26,20 +27,15 @@ public class TrainResource extends JacksonResource {
 			catch (Exception e) {
 				// fine, just not there yet is all
 			}
-			if (null == stationData) {
-				// create new station data
-				stationData = new StationData();
-			}
-			else {
-				// copy the data so we don't mess up the pm
-				stationData = new StationData(stationData);
+			if (null != stationData) {
+				Train[] trains = stationData.getTrains();
+				returnString = toJsonString(trains);
 			}
 		}
 		finally {
 			pm.close();
 		}
 		// return all the trains in this station
-		Train[] trains = stationData.getTrains();
-		return toJsonString(trains);
+		return returnString;
 	}
 }
