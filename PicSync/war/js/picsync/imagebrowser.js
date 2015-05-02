@@ -150,6 +150,10 @@ function showFileThumbnails(files) {
 						// put the span in the end of the list
 						document.getElementById('file_loaded_list').insertBefore(span, null);
 					}
+					// process the span click
+					span.addEventListener("click", function(){
+					    showMainImage(imageObject);
+					});
 					// remember the width of the span we just added in order to measure next time
 					imageObject["thumbwidth"] = span.offsetWidth;
 					containerWidth = containerWidth + span.offsetWidth;
@@ -166,6 +170,27 @@ function showFileThumbnails(files) {
 			updateProgress(++imagesProcessed, imagesToProcess, files[i].name);
 		}
 	}
+}
+
+function showMainImage(imageObject) {
+	// the file does not exist in the list yet, load it into a thumbnail
+	showMainImageFile(imageObject.file);
+}
+
+function showMainImageFile(imageFile) {
+	var reader = new FileReader();
+	reader.onload = (function(theFile) {
+		return function(e) {
+			// create the image, an image can natively be dragged so helpful functionality
+			var image = document.createElement('img');
+			image.className = "mainImage";
+			image.setAttribute("src", e.target.result);
+			image.setAttribute("title", escape(theFile.name));
+			document.getElementById('image_panel').appendChild(image);
+		};
+	})(imageFile);
+	// Read in the image file as a data URL.
+	reader.readAsDataURL(imageFile);
 }
 
 function triggerFileSelect() {
