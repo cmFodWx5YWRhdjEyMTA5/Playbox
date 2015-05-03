@@ -117,38 +117,112 @@ function processImageQrCode(sourceFile, dataResult) {
 	}
 };
 
+function getExifImageDate(sourceFile) {
+	var time = EXIF.getTag(sourceFile, "DateTimeOriginal");
+    var imageDate = sourceFile.lastModifiedDate;
+    if (time != null) {
+        // get the time from this
+        var reggie = /(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})/;
+		var dateArray = reggie.exec(time); 
+		imageDate = new Date(
+		    (+dateArray[1]),
+		    (+dateArray[2])-1, // Careful, month starts at 0!
+		    (+dateArray[3]),
+		    (+dateArray[4]),
+		    (+dateArray[5]),
+		    (+dateArray[6])
+		);
+    }
+    
+    return imageDate;
+}
+
+function createExifCameraId(sourceFile) {
+    var make = EXIF.getTag(sourceFile, "Make"),
+    	model = EXIF.getTag(sourceFile, "Model");
+	var cameraId = (make + " " + model).replace(/\s+/g, '_').toLowerCase();
+	return cameraId;
+}
+
 function storeImageOffsetData(sourceFile, qrDate) {
 	EXIF.getData(sourceFile, function() {
-        var make = EXIF.getTag(this, "Make"),
-            model = EXIF.getTag(this, "Model");
-        var time = EXIF.getTag(this, "DateTimeOriginal");
-        var imageDate = sourceFile.lastModifiedDate;
-        if (time != null) {
-	        // get the time from this
-	        var reggie = /(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})/;
-			var dateArray = reggie.exec(time); 
-			imageDate = new Date(
-			    (+dateArray[1]),
-			    (+dateArray[2])-1, // Careful, month starts at 0!
-			    (+dateArray[3]),
-			    (+dateArray[4]),
-			    (+dateArray[5]),
-			    (+dateArray[6])
-			);
-        }
+		// get the data for this then
+        var imageDate = getExifImageDate(this);
 		// compare the two
 		var diffTime = Math.abs(imageDate.getTime() - qrDate.getTime());
         // store this data in the list
         var cameraObject = new Object();
-        cameraObject["id"] = (make + " " + model).replace(/\s+/g, '_').toLowerCase();;
+        cameraObject["id"] = createExifCameraId(this);
         cameraObject["make"] = make;
         cameraObject["model"] = model;
         cameraObject["difftime"] = diffTime;
         cameraObject["exif"] = this;
-        camera_time_offsets.push(cameraObject);
-        // add the offset for this camera data to the div
-        addCameraRepresentation(cameraObject);
+        // put this in the array
+        var isAddNeeded = true;
+        for (var i = 0; i < camera_time_offsets.length; ++i) {
+        	var extantCamera = camera_time_offsets[i];
+        	if (extantCamera != null && extantCamera.id == cameraObject.id) {
+        		// set this
+        		camera_time_offsets[i] = cameraObject;
+        		isAddNeeded = false;
+        		break;
+        	}
+        }
+        if (isAddNeeded) {
+        	// this is new, add to the list
+        	camera_time_offsets.push(cameraObject);
+        }
+        // store the entire list in memory now
+        storeCameraObjects();
+        // show all the camera representations now at least one is different
+        showCameraRepesentations();
     });
+}
+
+function storeCameraObjects() {
+	var cameraIds = "";
+	for (var i = 0; i < camera_time_offsets.length; ++i) {
+		var cameraObject = camera_time_offsets[i];
+		if (cameraObject != null) {
+			// Put the object into storage
+			localStorage.setItem(cameraObject.id, JSON.stringify(cameraObject));
+			// remember the ID to retrieve them all
+			cameraIds = cameraIds + cameraObject.id;
+			cameraIds = cameraIds + ',';
+		}
+	}
+	// remember all the camera IDs in a place we know
+	localStorage.setItem("cameraObjectIds", cameraIds);
+}
+
+function retrieveCameraObjects() {
+	camera_time_offsets = [];
+	var cameraObjectIds = localStorage.getItem("cameraObjectIds");
+	if (cameraObjectIds != null) {
+		// get all the camera ids
+		var cameraIds = cameraObjectIds.split(',');
+		for (var i = 0; i < cameraIds.length; ++i) {
+			var cameraId = cameraIds[i];
+			var cameraObjectString = localStorage.getItem(cameraId);
+			var cameraObject = JSON.parse(cameraObjectString);
+			if (null != cameraObject) {
+				camera_time_offsets.push(cameraObject);
+			}
+		}
+	}
+}
+
+function showCameraRepesentations() {
+	var cameraListDiv = document.getElementById('camera_list');
+	while (cameraListDiv.firstChild) {
+		cameraListDiv.removeChild(cameraListDiv.firstChild);
+	}
+	for (var i = 0; i < camera_time_offsets.length; ++i) {
+		var cameraObject = camera_time_offsets[i];
+		if (cameraObject != null) {
+			addCameraRepresentation(cameraObject);
+		}
+	}
 }
 
 function addCameraRepresentation(cameraObject) {
@@ -199,6 +273,11 @@ $(document).ready(function() {
 			$('#camera_list_outer').hide();
 		}
 	});
+	
+	// load all our data here
+	retrieveCameraObjects();
+	// and show them
+	showCameraRepesentations();
 });  
 
 function readQrFile(a)
