@@ -45,11 +45,11 @@ function showFiles(files) {
 	document.getElementById('file_loaded_list').innerHTML = '<ul>' + output.join('') + '</ul>';
 }
 
-function getImageLoaded(spanId) {
+function getImageLoaded(thumbId) {
 	var foundFile = null;
 	for (var j = 0; j < images_loaded.length; ++j) {
 		// loop through all the files we have
-		if (spanId == images_loaded[j].span.id) {
+		if (thumbId == images_loaded[j].thumbId) {
 			foundFile = images_loaded[j].file;
 			break;
 		}
@@ -73,6 +73,9 @@ function getIsImageLoaded(file) {
 	return foundFile;
 }
 
+var fileProcessingIndex = 0;
+var filesProcessing = null;
+
 function showFileThumbnails(files) {
 	if (null == files || files.length == 0) {
 		return;
@@ -82,86 +85,116 @@ function showFileThumbnails(files) {
 	progress.style.width = '0%';
 	progress.textContent = '0%';
 	// Loop through the FileList and render image files as thumbnails.
-	var imagesProcessed = 0;
-	var imagesToProcess = files.length;
-	for (var i = 0, f; f = files[i]; i++) {
-		// Only process image files.
-		if (!f.type.match('image.*')) {
-			updateProgress(++imagesProcessed, imagesToProcess, files[i].name);
-			continue;
+	fileProcessingIndex = -1;
+	filesProcessing = files;
+	// process the first file, the call-back function will process the next, and so on...
+	processFileRecursive();
+}
+
+function processFileRecursive() {
+	if (++fileProcessingIndex < filesProcessing.length) {
+		// process this file
+		var f = filesProcessing[fileProcessingIndex];
+		var progressText = "";
+		if (null != f) {
+			progressText = f.name;
 		}
-		// check we have this file or not
-		var fileExists = getIsImageLoaded(f);
-		if (!fileExists) {
-			// the file does not exist in the list yet, load it into a thumbnail, first we have to			
+		updateProgress(fileProcessingIndex + 1, filesProcessing.length, "" + fileProcessingIndex + " " + progressText);
+		if (null != f && f.type.match('image.*') && false == getIsImageLoaded(f)) {
+			// the file is an image does not exist in the list yet, load it into a thumbnail, first we have to			
 			// read the EXIF data here to get the actual size, so can calculate the width and position of the image
 			EXIF.getData(f, function() {
 				// get the relevant EXIF data
 				var imageDate = getExifImageDate(this);
 				var cameraId = createExifCameraId(this);
+				var imageDateIncOffset = getExifImageDateIncOffset(this);
 		        // create the thumbnail for this image
-		        var span = document.createElement('span');
-				span.id = "image_thumb_" + uniqueImageId;
+		        var thumb = document.createElement('div');
+		        thumb.className = "thumbnailImagePanel";
+		        thumb.id = "image_thumb_" + uniqueImageId;
 
 				var img = document.createElement("img");
-				img.src = URL.createObjectURL(this);
+				img.src = "/images/thumbnail.png";
+				img.className = "thumbnailImage";
 			    img.height = 75;
-			    img.onload = function() {
-			    	// release the URL
-			        URL.revokeObjectURL(this.src);
-			        // and update the width of the container to include the width of this
-			        containerWidth = containerWidth + span.offsetWidth;
-					$(".container-inner").css("width", containerWidth);
-			    }
-			    // add the image to the span to show it
-				span.appendChild(img);
-		        
-				// and remember what we have loaded
+			    // add the image to the thumbnail to show it
+			    thumb.appendChild(img);
+			    // also we want to add the date label (including offset) to this thumbnail image
+			    var title = document.createElement("div");
+			    title.className = "thumbnailTitle";
+			    title.textContent = getExifFilename(imageDateIncOffset);
+			    thumb.appendChild(title);
+		        // and remember what we have loaded
 				var imageObject = new Object();
 				imageObject["id"] = uniqueImageId;
 				imageObject["file"] = this;
-				imageObject["span"] = span;
-				imageObject["fileURL"] = img.src;
+				imageObject["imageDate"] = imageDate;
+				imageObject["imageDateOffset"] = imageDateIncOffset;
+				imageObject["thumbId"] = thumb.id;
 				// and push this object to the list
 				images_loaded.push(imageObject);
 				images_loaded.sort(fileComparator);
 				// store this new item locally
-				storeNewImageLoaded(imageObject);
+				//storeNewImageLoaded(imageObject);
 				// find the item after this one in the list of images loaded
 				var beforeId = "";
-				for (var j = 0; j < images_loaded.length; ++j) {
+				for (var j = images_loaded.length - 1; j >= 0; --j) {
 					// loop through all the files we have
-					if (span.id == images_loaded[j].span.id && j < images_loaded.length - 1) {
+					if (thumb.id == images_loaded[j].thumbId ) {
 						// this is the one in the list we want to add
-						beforeId = images_loaded[j + 1].span.id;
+						if (j < images_loaded.length - 1) {
+							beforeId = images_loaded[j + 1].thumbId;
+						}
+						// else we are just at the end, use NULL as the before value
 						break;
 					}
 				}
 				if (beforeId) {
-					// put the span in before the one after it in the list
-					document.getElementById('file_loaded_list').insertBefore(span, document.getElementById(beforeId));
+					// put the thumbnail in before the one after it in the list
+					document.getElementById('file_loaded_list').insertBefore(thumb, document.getElementById(beforeId));
 				}
 				else {
-					// put the span in the end of the list
-					document.getElementById('file_loaded_list').insertBefore(span, null);
+					// put the thumbnail in the end of the list
+					document.getElementById('file_loaded_list').insertBefore(thumb, null);
 				}
-				// process the span click
-				span.addEventListener("click", function(){
+				// process the thumbnail click
+				thumb.addEventListener("click", function(){
 				    showMainImage(imageObject);
 				});
+				var originalWidth = thumb.offsetWidth + 10;	//adding the 2*5 margin widths
+				// and update the width of the container to include this thumbnail image
+				containerWidth = containerWidth + originalWidth;
+				$(".container-inner").css("width", containerWidth);
+				var that = this;
+				// and handle the mouse over operation
+			    var mouseOverFunction = function() {
+			    	// load the image here as a nice thumbnail on hover over it
+			    	img.removeEventListener("mouseover", mouseOverFunction);
+					img.src = URL.createObjectURL(that);
+				    img.height = 75;
+				    img.onload = function() {
+				    	// release the URL
+				        URL.revokeObjectURL(this.src);
+				        // and update the width of the container to include the width of this (minus the original width it was)
+				        containerWidth = containerWidth + thumb.offsetWidth - originalWidth;
+						$(".container-inner").css("width", containerWidth);
+				    }
+			    } 
+			    img.addEventListener("mouseover", mouseOverFunction);
 				// this ID is used now, increment the counter
 				++uniqueImageId;
-				// and update the progress of this
-				updateProgress(++imagesProcessed, imagesToProcess, this.name);
+				// and call the function recursively
+				processFileRecursive();
 		    });
 		}
 		else {
-			// file is already processed, update progress
-			updateProgress(++imagesProcessed, imagesToProcess, files[i].name);
+			// not an image, just move on
+			processFileRecursive();
 		}
 	}
 }
-
+/*
+ * UNABLE TO STORE IMAGE FILE OBJECTS TO USE LATER - WHATEVER (o;
 function storeNewImageLoaded(imageObject) {
 	// store the image object under it's unique ID
 	var imageStoreId = "image_";
@@ -181,9 +214,8 @@ function retrieveImagesLoaded() {
 		var imageObjectString = localStorage.getItem(imageStoreId);
 		var imageObject = JSON.parse(imageObjectString);
 		if (null != imageObject) {
-			// set the file and span, as are nested objects will be empty... stringify is not recursive
+			// set the file, as are nested objects will be empty... stringify is not recursive
 			imageObject.file = JSON.parse(localStorage.getItem(imageStoreId + "_file"));
-			imageObject.span = JSON.parse(localStorage.getItem(imageStoreId + "_span"));
 			images_loaded.push(imageObject);
 			// increment the counter to the next one
 			++uniqueImageId;
@@ -196,7 +228,7 @@ function retrieveImagesLoaded() {
 	// make sure this is nicely sorted now
 	images_loaded.sort(fileComparator);
 }
-
+*/
 function showMainImage(imageObject) {
 	// show the main image file for this object
 	showMainImageFile(imageObject.file);
@@ -266,8 +298,8 @@ $(document).ready(function() {
 	dropZone.addEventListener('drop', handleFileDrop, false);
 	
 	// load all our data here
-	retrieveImagesLoaded();
+	//retrieveImagesLoaded();
 	// and show them
-	showImagesLoaded();
+	//showImagesLoaded();
 });
 

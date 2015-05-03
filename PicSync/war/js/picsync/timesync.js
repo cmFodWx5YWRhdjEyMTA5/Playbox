@@ -132,9 +132,57 @@ function getExifImageDate(sourceFile) {
 		    (+dateArray[5]),
 		    (+dateArray[6])
 		);
-    }
-    
+    } 
     return imageDate;
+}
+
+function getExifImageDateIncOffset(sourceFile) {
+	var time = EXIF.getTag(sourceFile, "DateTimeOriginal");
+    var imageDate = sourceFile.lastModifiedDate;
+    if (time != null) {
+        // get the time from this
+        var reggie = /(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})/;
+		var dateArray = reggie.exec(time); 
+		imageDate = new Date(
+		    (+dateArray[1]),
+		    (+dateArray[2])-1, // Careful, month starts at 0!
+		    (+dateArray[3]),
+		    (+dateArray[4]),
+		    (+dateArray[5]),
+		    (+dateArray[6])
+		);
+    } 
+    var cameraId = createExifCameraId(sourceFile);
+    // find if there is an offset to this
+    var offset = 0;
+    for (var i = 0; i < camera_time_offsets.length; ++i) {
+    	var cameraObject = camera_time_offsets[i];
+    	if (cameraObject != null && cameraObject.id == cameraId) {
+    		// use this offset for the camera
+    		offset = camera_time_offsets[i].difftime;
+    		break;
+    	}
+    }
+    return new Date(imageDate.getTime() - offset);
+}
+
+function twoDigit(number) {
+	if (number >= 10) {
+		return number;
+	}
+	else {
+		return "0" + number;
+	}
+}
+
+function getExifFilename(fileDate) {
+	var fileString = fileDate.getFullYear()
+		+ "-" + twoDigit(fileDate.getMonth() + 1)
+		+ "-" + twoDigit(fileDate.getDate())
+		+ " " + twoDigit(fileDate.getHours())
+		+ twoDigit(fileDate.getMinutes())
+		+ twoDigit(fileDate.getSeconds());
+	return fileString;
 }
 
 function createExifCameraId(sourceFile) {
@@ -153,10 +201,9 @@ function storeImageOffsetData(sourceFile, qrDate) {
         // store this data in the list
         var cameraObject = new Object();
         cameraObject["id"] = createExifCameraId(this);
-        cameraObject["make"] = make;
-        cameraObject["model"] = model;
+        cameraObject["make"] = EXIF.getTag(this, "Make");
+        cameraObject["model"] = EXIF.getTag(this, "Model");
         cameraObject["difftime"] = diffTime;
-        cameraObject["exif"] = this;
         // put this in the array
         var isAddNeeded = true;
         for (var i = 0; i < camera_time_offsets.length; ++i) {
@@ -228,25 +275,39 @@ function showCameraRepesentations() {
 function addCameraRepresentation(cameraObject) {
 	// Render thumbnail as a new span element.
 	var div = document.createElement('div');
+	div.className = "cameraOffsetItem";
 	// create the image, an image can natively be dragged so helpful functionality
 	var image = document.createElement('img');
 	image.className = "camera_thumb";
 	image.setAttribute("src", "/icons/Camera_icon.gif");
 	image.setAttribute("title", cameraObject.make + " " + cameraObject.model);
 	div.appendChild(image);
+	// create an area for the details of this
+	var cameraDetailsDiv = document.createElement('div');
+	cameraDetailsDiv.className = "cameraOffsetDetails";
 	// create the label
-	var span = document.createElement('span');
-	span.textContent = cameraObject.make + " " + cameraObject.model + " offset is " + (cameraObject.difftime / 1000) + "s";
-	div.appendChild(span);
+	var span = document.createElement('div');
+	span.className = "cameraTitle";
+	span.textContent = cameraObject.make + " " + cameraObject.model;
+	cameraDetailsDiv.appendChild(span);
+	// create the offset text
+	span = document.createElement('span');
+	span.className = "cameraOffsetTitle";
+	span.textContent = "Offset by " + (cameraObject.difftime / 1000) + "s";
+	cameraDetailsDiv.appendChild(span);
 	// create the offset spinner
 	span = document.createElement('span');
-	div.appendChild(span);
+	span.className = "cameraOffsetSpin";
+	cameraDetailsDiv.appendChild(span);
 	var spinboxId = cameraObject.id + "_spinner";
 	var spinbox = new SpinBox(span, {'minimum' : -24, 'maximum' : 24});
 	// and the spin text
 	span = document.createElement('span');
+	span.className = "cameraOffsetSpinLabel";
 	span.textContent = "hrs";
-	div.appendChild(span);
+	cameraDetailsDiv.appendChild(span);
+	// append details to the div
+	div.appendChild(cameraDetailsDiv);
 	// put the span in to the div
 	document.getElementById('camera_list').insertBefore(div, null);
 }
