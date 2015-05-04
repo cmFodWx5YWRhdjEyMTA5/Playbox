@@ -225,7 +225,7 @@ function performImageSynchronisation(cameraObject) {
 	// go through all our images and synchronise their position, change their name and
 	// put them in the correct place in the list
 	var previousThumbId = "";
-	for (var i = 0; i < images_loaded.length; ++i) {
+	for (var i = images_loaded.length - 1; i >= 0; --i) {
 		// update the representation
 		var imageObject = images_loaded[i];
 		if (imageObject.cameraId == cameraObject.id) {

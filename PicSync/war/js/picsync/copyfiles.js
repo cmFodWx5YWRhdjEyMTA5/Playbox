@@ -1,7 +1,9 @@
 var zip_files;
 var zip_targetNames;
-var zip;
+var zip_targets;
 var zipFileIndex;
+var zipFilename;
+var zipFileCount;
 
 function copyImageFiles() {
 	var destFolder = "~/Desktop/destination";
@@ -10,7 +12,6 @@ function copyImageFiles() {
 	
 	zip_files = [];
 	zip_targetNames = [];
-	zip = new JSZip();
 	
 	for (var i = 0; i < images_loaded.length; i++) {
 		var imageObject = images_loaded[i];
@@ -54,8 +55,18 @@ function copyImageFiles() {
 	    }
 	}  
 	
+	// create a nice filename
+	var zipFileDate = new Date();
+	zipFilename = zipFileDate.getFullYear() + "_" + twoDigit(zipFileDate.getMonth() + 1) + " images";
+	// Reset progress indicator on new file selection.
+	document.getElementById('progress_bar').className = 'loading';
+	progress.style.width = '0%';
+	progress.textContent = '0%';
 	// recursively create a zip file
+	zipFileCount = 0;
 	zipFileIndex = -1;
+	zip_targets = [];
+	zip_targets.push(new JSZip());
 	recursiveZip();
 	//fileCopy(files, targetNames);
 }
@@ -75,7 +86,14 @@ function recursiveZip() {
 			var reader = new FileReader();
 			reader.onload = function(e) {
 				// add this data to the zip file
-				zip.file(newFilename, reader.result, {base64: true});
+				zip_targets[zip_targets.length - 1].file(newFilename, reader.result, {base64: true});
+				if (++zipFileCount >= 100) {
+					// this is enough files in the zip, close this one and start another
+					dumpZipFileContent();
+					// reset the new zip file
+					zipFileCount = 0;
+					zip_targets.push(new JSZip());
+				}
 				// and call the function recursively
 				recursiveZip();
 			};
@@ -86,14 +104,17 @@ function recursiveZip() {
 			recursiveZip();
 		}
 	}
-	else {
+	else if (zipFileCount > 0) {
 		// zipping all over, save it now		
-		var content = zip.generate({type:"blob"});
-		// create a nice filename
-		var zipFileDate = new Date();
-		var zipFilename = zipFileDate.getFullYear() + "_" + twoDigit(zipFileDate.getMonth() + 1) + " images.zip"; 
-		download(content, zipFilename, "application/zip");
+		dumpZipFileContent();
 	}
+}
+
+function dumpZipFileContent(zip) {
+	var zipFilePostfix = zip_targets.length - 1;
+	var zip = zip_targets[zipFilePostfix];
+	var content = zip.generate({type:"blob"});
+	download(content, zipFilename + " (" + twoDigit(zipFilePostfix + 1) + ").zip", "application/zip");
 }
 
 
