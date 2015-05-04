@@ -160,6 +160,7 @@ function getExifImageDateIncOffset(sourceFile) {
     	if (cameraObject != null && cameraObject.id == cameraId) {
     		// use this offset for the camera
     		offset = camera_time_offsets[i].difftime;
+    		offset -= camera_time_offsets[i].holidayOffset * 3600000;
     		break;
     	}
     }
@@ -176,6 +177,7 @@ function twoDigit(number) {
 }
 
 function getExifFilename(fileDate) {
+	// we are constructing the time by hand as year-month-day hour-min-sec
 	var fileString = fileDate.getFullYear()
 		+ "-" + twoDigit(fileDate.getMonth() + 1)
 		+ "-" + twoDigit(fileDate.getDate())
@@ -203,6 +205,7 @@ function storeImageOffsetData(sourceFile, qrDate) {
         cameraObject["id"] = createExifCameraId(this);
         cameraObject["make"] = EXIF.getTag(this, "Make");
         cameraObject["model"] = EXIF.getTag(this, "Model");
+        cameraObject["holidayOffset"] = 0;
         cameraObject["difftime"] = diffTime;
         // put this in the array
         var isAddNeeded = true;
@@ -223,6 +226,8 @@ function storeImageOffsetData(sourceFile, qrDate) {
         storeCameraObjects();
         // show all the camera representations now at least one is different
         showCameraRepesentations();
+        // and refresh the images we have to synchronise to this camera
+        performImageSynchronisation();
     });
 }
 
@@ -301,6 +306,15 @@ function addCameraRepresentation(cameraObject) {
 	cameraDetailsDiv.appendChild(span);
 	var spinboxId = cameraObject.id + "_spinner";
 	var spinbox = new SpinBox(span, {'minimum' : -24, 'maximum' : 24});
+	spinbox.setValue(cameraObject.holidayOffset);
+	spinbox.input.addEventListener('input', function() {
+		// listens to the user typing in the edit box
+		updateHolidayOffset(cameraObject, spinbox.getValue())
+	});
+	spinbox.input.addEventListener('change', function() {
+		// listens to the user changing the contents from the spin box
+		updateHolidayOffset(cameraObject, spinbox.getValue())
+	});
 	// and the spin text
 	span = document.createElement('span');
 	span.className = "cameraOffsetSpinLabel";
@@ -310,6 +324,15 @@ function addCameraRepresentation(cameraObject) {
 	div.appendChild(cameraDetailsDiv);
 	// put the span in to the div
 	document.getElementById('camera_list').insertBefore(div, null);
+    // and refresh the images we have to synchronise to this new camera object
+    performImageSynchronisation(cameraObject);
+}
+
+function updateHolidayOffset(cameraObject, newValue) {
+	cameraObject.holidayOffset = newValue;
+	performImageSynchronisation(cameraObject);
+    // store the entire list in memory now
+    storeCameraObjects();
 }
 
 var slideInnerDiv;

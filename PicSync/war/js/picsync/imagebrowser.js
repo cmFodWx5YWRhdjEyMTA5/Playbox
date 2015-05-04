@@ -21,9 +21,9 @@ function handleFileDrop(evt) {
 	showFileThumbnails(files);
 }
 
-// sort files in the array by modified date
+// sort files in the array by the calculated offset date
 function fileComparator(a, b) {
-  return a.file.lastModifiedDate - b.file.lastModifiedDate;
+  return a.imageDateOffset - b.imageDateOffset;
 
 }
 
@@ -115,19 +115,23 @@ function processFileRecursive() {
 
 				var img = document.createElement("img");
 				img.src = "/images/thumbnail.png";
+				img.id = thumb.id + "_img";
 				img.className = "thumbnailImage";
+				img.alt = "Taken at " + imageDate + " but will offset to " + imageDateIncOffset;
 			    img.height = 75;
 			    // add the image to the thumbnail to show it
 			    thumb.appendChild(img);
 			    // also we want to add the date label (including offset) to this thumbnail image
 			    var title = document.createElement("div");
 			    title.className = "thumbnailTitle";
+			    title.id = thumb.id + "_title";
 			    title.textContent = getExifFilename(imageDateIncOffset);
 			    thumb.appendChild(title);
 		        // and remember what we have loaded
 				var imageObject = new Object();
 				imageObject["id"] = uniqueImageId;
 				imageObject["file"] = this;
+				imageObject["cameraId"] = cameraId;
 				imageObject["imageDate"] = imageDate;
 				imageObject["imageDateOffset"] = imageDateIncOffset;
 				imageObject["thumbId"] = thumb.id;
@@ -136,27 +140,7 @@ function processFileRecursive() {
 				images_loaded.sort(fileComparator);
 				// store this new item locally
 				//storeNewImageLoaded(imageObject);
-				// find the item after this one in the list of images loaded
-				var beforeId = "";
-				for (var j = images_loaded.length - 1; j >= 0; --j) {
-					// loop through all the files we have
-					if (thumb.id == images_loaded[j].thumbId ) {
-						// this is the one in the list we want to add
-						if (j < images_loaded.length - 1) {
-							beforeId = images_loaded[j + 1].thumbId;
-						}
-						// else we are just at the end, use NULL as the before value
-						break;
-					}
-				}
-				if (beforeId) {
-					// put the thumbnail in before the one after it in the list
-					document.getElementById('file_loaded_list').insertBefore(thumb, document.getElementById(beforeId));
-				}
-				else {
-					// put the thumbnail in the end of the list
-					document.getElementById('file_loaded_list').insertBefore(thumb, null);
-				}
+				insertThumbDivAtCorrectLocation(thumb, null);
 				// process the thumbnail click
 				thumb.addEventListener("click", function(){
 				    showMainImage(imageObject);
@@ -191,6 +175,78 @@ function processFileRecursive() {
 			// not an image, just move on
 			processFileRecursive();
 		}
+	}
+}
+
+function insertThumbDivAtCorrectLocation(thumb, beforeId) {
+	// find the item after this one in the list of images loaded
+	if (beforeId == null) {
+		// not sure where this goes, look for a place
+		for (var j = images_loaded.length - 1; j >= 0; --j) {
+			// loop through all the files we have
+			if (thumb.id == images_loaded[j].thumbId ) {
+				// this is the one in the list we want to add
+				if (j < images_loaded.length - 1) {
+					beforeId = images_loaded[j + 1].thumbId;
+				}
+				// else we are just at the end, use NULL as the before value
+				break;
+			}
+		}
+	}
+	if (beforeId) {
+		// put the thumbnail in before the one after it in the list
+		document.getElementById('file_loaded_list').insertBefore(thumb, document.getElementById(beforeId));
+	}
+	else {
+		// put the thumbnail in the end of the list
+		document.getElementById('file_loaded_list').insertBefore(thumb, null);
+	}
+}
+
+function updateImageRepresentation(imageObject) {
+	var uniqueImageId = imageObject.id;
+	var imageThumbId = "image_thumb_" + uniqueImageId;
+	// update the alt text of the image
+	document.getElementById(imageThumbId + "_img").alt = "Taken at " + imageObject.imageDate + " but will offset to " + imageObject.imageDateOffset;
+	// and the title
+	document.getElementById(imageThumbId + "_title").textContent = getExifFilename(imageObject.imageDateOffset);
+}
+
+function abortRead() {
+	// clear the list of files to process
+	filesProcessing = [];
+	updateProgress(fileProcessingIndex, fileProcessingIndex, "");
+}
+
+function performImageSynchronisation(cameraObject) {
+	// now we need to re-sort the list
+	images_loaded.sort(fileComparator);
+	// go through all our images and synchronise their position, change their name and
+	// put them in the correct place in the list
+	var previousThumbId = "";
+	for (var i = 0; i < images_loaded.length; ++i) {
+		// update the representation
+		var imageObject = images_loaded[i];
+		if (imageObject.cameraId == cameraObject.id) {
+			// ensure this is in the correct position, get the div for the image
+			var thumb = document.getElementById(imageObject.thumbId);
+			thumb.parentNode.removeChild(thumb);
+			insertThumbDivAtCorrectLocation(thumb, previousThumbId);
+			// this image applies to the camera that changed
+			EXIF.getData(imageObject.file, function() {
+				// get the relevant EXIF data
+				var imageDate = getExifImageDate(this);
+				var imageDateIncOffset = getExifImageDateIncOffset(this);
+				// set this data in the image object
+				imageObject["imageDate"] = imageDate;
+				imageObject["imageDateOffset"] = imageDateIncOffset;
+				// and update the representation
+				updateImageRepresentation(imageObject);
+			});
+		}
+		// remember the previous ID in order to put the thumbnail at the correct location
+		previousThumbId = imageObject.thumbId;
 	}
 }
 /*
