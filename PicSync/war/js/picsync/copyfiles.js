@@ -80,7 +80,7 @@ function recursiveZip() {
 		if (null != file) {
 			progressText = file.name;
 		}
-		updateProgress(zipFileIndex + 1, zip_files.length, "" + zipFileIndex + " " + progressText);
+		updateProgress(zipFileIndex + 1, zip_files.length, "Exporting " + progressText);
 		if (null != file) {
 			// load this data into the zip
 			var reader = new FileReader();
@@ -115,6 +115,7 @@ function dumpZipFileContent(zip) {
 	var zip = zip_targets[zipFilePostfix];
 	var content = zip.generate({type:"blob"});
 	download(content, zipFilename + " (" + twoDigit(zipFilePostfix + 1) + ").zip", "application/zip");
+	zip_targets[zipFilePostfix] = null;
 }
 
 

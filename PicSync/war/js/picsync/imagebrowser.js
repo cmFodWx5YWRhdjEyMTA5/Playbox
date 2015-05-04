@@ -99,7 +99,7 @@ function processFileRecursive() {
 		if (null != f) {
 			progressText = f.name;
 		}
-		updateProgress(fileProcessingIndex + 1, filesProcessing.length, "" + fileProcessingIndex + " " + progressText);
+		updateProgress(fileProcessingIndex + 1, filesProcessing.length, "Importing " + progressText);
 		if (null != f && f.type.match('image.*') && false == getIsImageLoaded(f)) {
 			// the file is an image does not exist in the list yet, load it into a thumbnail, first we have to			
 			// read the EXIF data here to get the actual size, so can calculate the width and position of the image
