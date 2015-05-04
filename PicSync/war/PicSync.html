@@ -68,6 +68,8 @@
     <script src="./js/qrcode.min.js"></script>
     <script src="./js/SpinBox.js"></script>
     <script src="./js/exif.js"></script>
+    <script src="./js/jszip.min.js"></script>
+    <script src="./js/download.js"></script>
     
     <div id="thumbnails"></div>
     <div id="default"></div>
@@ -76,7 +78,8 @@
 	    <div id="top"></div>
 	    <div id="middle">
 	    	<div id="camera_panel">
-			    <button>Show Synchronisation Panel</button>
+			    <button id="sync_button">Show Synchronisation Panel</button>
+			    <button id="copy_button" onclick="copyImageFiles();"">Copy Files...</button>
 			    <div id="camera_list_outer">
 			    	<div id="camera_list"></div>
 			    </div>
@@ -86,6 +89,9 @@
 	    	</div>
 	    	<div id="image_panel">
 	    	</div>
+	    	<!-- <div id="copy_panel">
+	    		<button id="copy_button" onclick="copyImageFiles();"">Copy Files...</button>
+	    	</div> -->
 	    </div>
 	    <div id="bottom">
 	    	<div id="browse_panel">
@@ -106,5 +112,6 @@
     <!--  and our stuff that controls the application -->
     <script src="./js/picsync/timesync.js"></script>
     <script src="./js/picsync/imagebrowser.js"></script>
+    <script src="./js/picsync/copyfiles.js"></script>
   </body>
 </html>

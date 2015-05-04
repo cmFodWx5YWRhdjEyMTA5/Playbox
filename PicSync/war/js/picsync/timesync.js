@@ -345,7 +345,7 @@ $(document).ready(function() {
 		display: 'block'
 	});
 
-	$('#middle button').click(function() {
+	$('#sync_button').click(function() {
 		var isSlidIn = parseInt(slideInnerDiv.css('marginLeft'), 10) == 25;
 		slideInnerDiv.animate({
 			marginLeft: isSlidIn ? slideInnerDiv.outerWidth() + 30 : 25
