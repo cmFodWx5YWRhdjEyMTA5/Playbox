@@ -9,6 +9,8 @@ var displayQrCode = new QRCode(document.getElementById("time_sync_qr"), {
 
 var camera_time_offsets = [];
 
+var camera_colors = ['orange', 'blue', 'yellow', 'red', 'green'];
+
 function makeCode (content) {
 	// if the left margin of the slide inner bit is zero then create an image to show
 	// as we are showing the code
@@ -194,6 +196,19 @@ function createExifCameraId(sourceFile) {
 	return cameraId;
 }
 
+function getExifCamera(cameraId) {
+	var cameraObject = null;
+	for (var i = 0; i < camera_time_offsets.length; ++i) {
+    	var extantCamera = camera_time_offsets[i];
+    	if (extantCamera != null && extantCamera.id == cameraId) {
+    		// set this
+    		cameraObject = extantCamera;
+    		break;
+    	}
+    }
+	return cameraObject;
+}
+
 function storeImageOffsetData(sourceFile, qrDate) {
 	EXIF.getData(sourceFile, function() {
 		// get the data for this then
@@ -218,10 +233,22 @@ function storeImageOffsetData(sourceFile, qrDate) {
         		break;
         	}
         }
+        var cameraObjectIndex = i;
         if (isAddNeeded) {
-        	// this is new, add to the list
+        	// this is new, add to the list, remembering the index
+        	cameraObjectIndex = camera_time_offsets.length;
+        	// and add to the list
         	camera_time_offsets.push(cameraObject);
         }
+        // set the color of this camera object now please
+        if (cameraObjectIndex >= camera_colors) {
+    		// just use black
+    		cameraObject["color"] = 'black';
+    	}
+    	else {
+    		// use one from the array
+    		cameraObject["color"] = camera_colors[cameraObjectIndex];
+    	}
         // store the entire list in memory now
         storeCameraObjects();
         // show all the camera representations now at least one is different
@@ -294,6 +321,7 @@ function addCameraRepresentation(cameraObject) {
 	var span = document.createElement('div');
 	span.className = "cameraTitle";
 	span.textContent = cameraObject.make + " " + cameraObject.model;
+	span.style.color = cameraObject.color;
 	cameraDetailsDiv.appendChild(span);
 	// create the offset text
 	span = document.createElement('span');

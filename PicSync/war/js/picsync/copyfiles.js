@@ -68,7 +68,6 @@ function copyImageFiles() {
 	zip_targets = [];
 	zip_targets.push(new JSZip());
 	recursiveZip();
-	//fileCopy(files, targetNames);
 }
 
 function recursiveZip() {
@@ -87,7 +86,7 @@ function recursiveZip() {
 			reader.onload = function(e) {
 				// add this data to the zip file
 				zip_targets[zip_targets.length - 1].file(newFilename, reader.result, {base64: true});
-				if (++zipFileCount >= 100) {
+				if (++zipFileCount >= 50) {
 					// this is enough files in the zip, close this one and start another
 					dumpZipFileContent();
 					// reset the new zip file
@@ -117,53 +116,6 @@ function dumpZipFileContent(zip) {
 	download(content, zipFilename + " (" + twoDigit(zipFilePostfix + 1) + ").zip", "application/zip");
 	zip_targets[zipFilePostfix] = null;
 }
-
-
-function fileCopy(files, targetNames) {
-	requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
-	requestFileSystem(window.TEMPORARY, 1024*1024, function(fs) {
-		// Duplicate each file the user selected to the app's fs.
-		for (var i = 0, file; file = files[i]; ++i) {
-			var newFilename = targetNames[i];
-			// Capture current iteration's file in local scope for the getFile() callback.
-			(function(f) {
-				fs.root.getFile(f.name, {create: true, exclusive: true}, function(fileEntry) {
-					fileEntry.createWriter(function(fileWriter) {
-						fileWriter.write(f); // Note: write() can take a File or Blob object.
-					}, errorHandler);
-				}, errorHandler);
-			})(file);
-
-		}
-	}, errorHandler);
-}
-
-function errorHandler(e) {
-  var msg = '';
-  switch (e.code) {
-    case FileError.QUOTA_EXCEEDED_ERR:
-      msg = 'QUOTA_EXCEEDED_ERR';
-      break;
-    case FileError.NOT_FOUND_ERR:
-      msg = 'NOT_FOUND_ERR';
-      break;
-    case FileError.SECURITY_ERR:
-      msg = 'SECURITY_ERR';
-      break;
-    case FileError.INVALID_MODIFICATION_ERR:
-      msg = 'INVALID_MODIFICATION_ERR';
-      break;
-    case FileError.INVALID_STATE_ERR:
-      msg = 'INVALID_STATE_ERR';
-      break;
-    default:
-      msg = 'Unknown Error';
-      break;
-  };
-  console.log('Error: ' + msg);
-}
-
-
 
 function threeDigit(number) {
 	if (number >= 100) {

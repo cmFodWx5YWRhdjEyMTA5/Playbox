@@ -108,6 +108,7 @@ function processFileRecursive() {
 				var imageDate = getExifImageDate(this);
 				var cameraId = createExifCameraId(this);
 				var imageDateIncOffset = getExifImageDateIncOffset(this);
+				var cameraObject = getExifCamera(cameraId);
 		        // create the thumbnail for this image
 		        var thumb = document.createElement('div');
 		        thumb.className = "thumbnailImagePanel";
@@ -134,6 +135,13 @@ function processFileRecursive() {
 				imageObject["cameraId"] = cameraId;
 				imageObject["imageDate"] = imageDate;
 				imageObject["imageDateOffset"] = imageDateIncOffset;
+				if (null != cameraObject) {
+					imageObject["cameraColor"] = cameraObject.color;
+				}
+				else {
+					imageObject["cameraColor"] = 'grey';
+				}
+		        thumb.style.borderColor = imageObject.cameraColor;
 				imageObject["thumbId"] = thumb.id;
 				// and push this object to the list
 				images_loaded.push(imageObject);
@@ -207,6 +215,8 @@ function insertThumbDivAtCorrectLocation(thumb, beforeId) {
 function updateImageRepresentation(imageObject) {
 	var uniqueImageId = imageObject.id;
 	var imageThumbId = "image_thumb_" + uniqueImageId;
+	// set the correct border color in case it is different
+	document.getElementById(imageThumbId).style.borderColor = imageObject.cameraColor;
 	// update the alt text of the image
 	document.getElementById(imageThumbId + "_img").alt = "Taken at " + imageObject.imageDate + " but will offset to " + imageObject.imageDateOffset;
 	// and the title
@@ -241,6 +251,7 @@ function performImageSynchronisation(cameraObject) {
 				// set this data in the image object
 				imageObject["imageDate"] = imageDate;
 				imageObject["imageDateOffset"] = imageDateIncOffset;
+				imageObject["cameraColor"] = cameraObject.color;
 				// and update the representation
 				updateImageRepresentation(imageObject);
 			});
