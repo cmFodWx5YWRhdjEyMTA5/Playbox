@@ -25,19 +25,21 @@ PicSync.Display = (function () {
 			imagePanel.removeChild(imagePanel.firstChild);
 		}
 		if (imageFile) {
-			var reader = new FileReader();
-			reader.onload = (function(theFile) {
-				return function(e) {
-					// create the image, an image can natively be dragged so helpful functionality
-					var image = document.createElement('img');
-					image.className = "mainImage";
-					image.setAttribute("src", e.target.result);
-					image.setAttribute("title", escape(theFile.name));
-					imagePanel.appendChild(image);
-				};
-			})(imageFile);
-			// Read in the image file as a data URL.
-			reader.readAsDataURL(imageFile);
+			loadImage(
+				imageFile,
+			    function (img) {
+					img.className = "mainImage";
+					img.setAttribute("title", escape(imageFile.name));
+					imagePanel.appendChild(img);
+			    },
+			    {
+			        maxHeight: imagePanel.offsetHeight,
+			        minHeight: imagePanel.offsetHeight / 2,
+			        contain: true,
+			        orientation: true,
+			        canvas: true
+			    }
+			);
 		}
 	}
 	
@@ -81,79 +83,77 @@ PicSync.Display = (function () {
 			if (null != f && f.type.match('image.*') && false == getIsImageLoaded(f)) {
 				// the file is an image does not exist in the list yet, load it into a thumbnail, first we have to			
 				// read the EXIF data here to get the actual size, so can calculate the width and position of the image
-				EXIF.getData(f, function() {
-					// get the relevant EXIF data
-					var imageDate = PicSync.TimeSync.getExifImageDate(this);
-					var cameraId = PicSync.TimeSync.createExifCameraId(this);
-					var imageDateIncOffset = PicSync.TimeSync.getExifImageDateIncOffset(this);
-					var cameraObject = PicSync.TimeSync.getExifCamera(cameraId);
-					var uniqueImageId = PicSync.Images.getNextUniqueImageId();
-			        // create the thumbnail for this image
-			        var thumb = document.createElement('div');
-			        thumb.className = "thumbnailImagePanel";
-			        thumb.id = "image_thumb_" + uniqueImageId;
+				loadImage.parseMetaData(
+				    f,
+				    function (data) {
+				        if (!data.imageHead) {
+				            return;
+				        }
+				        var orientation = PicSync.TimeSync.getExifOrientation(data.exif);
+				        var thumbnail = PicSync.TimeSync.getExifThumbnail(data.exif);
+				        
+				        var imageDate = PicSync.TimeSync.getExifImageDate(data.exif, f);
+				        var cameraId = PicSync.TimeSync.getExifCameraId(data.exif);
+				        
+						var imageDateIncOffset = PicSync.TimeSync.getExifImageDateIncOffset(data.exif, f, cameraId);
+						
+						var cameraObject = PicSync.TimeSync.getExifCamera(cameraId);
+						var uniqueImageId = PicSync.Images.getNextUniqueImageId();
+				        // create the thumbnail for this image
+				        var thumb = document.createElement('div');
+				        thumb.className = "thumbnailImagePanel";
+				        thumb.id = "image_thumb_" + uniqueImageId;
 
-					var img = document.createElement("img");
-					img.src = "/images/thumbnail.png";
-					img.id = thumb.id + "_img";
-					img.className = "thumbnailImage";
-					img.alt = "Taken at " + imageDate + " but will offset to " + imageDateIncOffset;
-				    img.height = 75;
-				    // add the image to the thumbnail to show it
-				    thumb.appendChild(img);
-				    // also we want to add the date label (including offset) to this thumbnail image
-				    var title = document.createElement("div");
-				    title.className = "thumbnailTitle";
-				    title.id = thumb.id + "_title";
-				    title.textContent = PicSync.TimeSync.getExifFilename(imageDateIncOffset);
-				    thumb.appendChild(title);
-			        // and remember what we have loaded
-					var imageObject = new Object();
-					imageObject["id"] = uniqueImageId;
-					imageObject["file"] = this;
-					imageObject["cameraId"] = cameraId;
-					imageObject["imageDate"] = imageDate;
-					imageObject["imageDateOffset"] = imageDateIncOffset;
-					if (null != cameraObject) {
-						imageObject["cameraColor"] = cameraObject.color;
-					}
-					else {
-						imageObject["cameraColor"] = 'grey';
-					}
-			        thumb.style.borderColor = imageObject.cameraColor;
-					imageObject["thumbId"] = thumb.id;
-					// and push this object to the list
-					PicSync.Images.addImage(imageObject);
-					// store this new item locally
-					//storeNewImageLoaded(imageObject);
-					insertThumbDivAtCorrectLocation(thumb, null);
-					// process the thumbnail click
-					thumb.addEventListener("click", function(){
-						public.showMainImage(imageObject);
-					});
-					var originalWidth = thumb.offsetWidth + 10;	//adding the 2*5 margin widths
-					// and update the width of the container to include this thumbnail image
-					containerWidth = containerWidth + originalWidth;
-					$(".container-inner").css("width", containerWidth);
-					var that = this;
-					// and handle the mouse over operation
-				    var mouseOverFunction = function() {
-				    	// load the image here as a nice thumbnail on hover over it
-				    	img.removeEventListener("mouseover", mouseOverFunction);
-						img.src = URL.createObjectURL(that);
+						var img = document.createElement("img");
+						img.src = thumbnail;
+						img.id = thumb.id + "_img";
+						img.className = "thumbnailImage";
+						img.alt = "Taken at " + imageDate + " but will offset to " + imageDateIncOffset;
 					    img.height = 75;
-					    img.onload = function() {
-					    	// release the URL
-					        URL.revokeObjectURL(this.src);
-					        // and update the width of the container to include the width of this (minus the original width it was)
-					        containerWidth = containerWidth + thumb.offsetWidth - originalWidth;
-							$(".container-inner").css("width", containerWidth);
-					    }
-				    } 
-				    img.addEventListener("mouseover", mouseOverFunction);
-					// and call the function recursively
-					processFileRecursive();
-			    });
+					    // add the image to the thumbnail to show it
+					    thumb.appendChild(img);
+					    // also we want to add the date label (including offset) to this thumbnail image
+					    var title = document.createElement("div");
+					    title.className = "thumbnailTitle";
+					    title.id = thumb.id + "_title";
+					    title.textContent = PicSync.TimeSync.getExifFilename(imageDateIncOffset);
+					    thumb.appendChild(title);
+				        // and remember what we have loaded
+						var imageObject = new Object();
+						imageObject["id"] = uniqueImageId;
+						imageObject["file"] = f;
+						imageObject["cameraId"] = cameraId;
+						imageObject["imageDate"] = imageDate;
+						imageObject["imageDateOffset"] = imageDateIncOffset;
+						if (null != cameraObject) {
+							imageObject["cameraColor"] = cameraObject.color;
+						}
+						else {
+							imageObject["cameraColor"] = 'grey';
+						}
+				        thumb.style.borderColor = imageObject.cameraColor;
+						imageObject["thumbId"] = thumb.id;
+						// and push this object to the list
+						PicSync.Images.addImage(imageObject);
+						// store this new item locally
+						//storeNewImageLoaded(imageObject);
+						insertThumbDivAtCorrectLocation(thumb, null);
+						// process the thumbnail click
+						thumb.addEventListener("click", function(){
+							public.showMainImage(imageObject);
+						});
+						var originalWidth = thumb.offsetWidth + 10;	//adding the 2*5 margin widths
+						// and update the width of the container to include this thumbnail image
+						containerWidth = containerWidth + originalWidth;
+						$(".container-inner").css("width", containerWidth);
+						// and call the function recursively
+						processFileRecursive();
+				    },
+				    {
+				        maxMetaDataSize: 262144,
+				        disableImageHead: false
+				    }
+				);
 			}
 			else {
 				// not an image, just move on

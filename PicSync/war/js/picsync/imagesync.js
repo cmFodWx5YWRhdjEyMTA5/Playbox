@@ -19,17 +19,27 @@ PicSync.Sync = (function () {
 				thumb.parentNode.removeChild(thumb);
 				insertThumbDivAtCorrectLocation(thumb, previousThumbId);
 				// this image applies to the camera that changed
-				EXIF.getData(imageObject.file, function() {
-					// get the relevant EXIF data
-					var imageDate = PicSync.TimeSync.getExifImageDate(this);
-					var imageDateIncOffset = PicSync.TimeSync.getExifImageDateIncOffset(this);
-					// set this data in the image object
-					imageObject["imageDate"] = imageDate;
-					imageObject["imageDateOffset"] = imageDateIncOffset;
-					imageObject["cameraColor"] = cameraObject.color;
-					// and update the representation
-					updateImageRepresentation(imageObject);
-				});
+				loadImage.parseMetaData(
+					sourceFile,
+				    function (data) {
+				        if (!data.imageHead) {
+				            return;
+				        }
+				        // get the data for this then
+				        var imageDate = public.getExifImageDate(data.exif, sourceFile);
+				        var imageDateIncOffset = PicSync.TimeSync.getExifImageDateIncOffset(data.exif, sourceFile, cameraObject.id);
+						// set this data in the image object
+						imageObject["imageDate"] = imageDate;
+						imageObject["imageDateOffset"] = imageDateIncOffset;
+						imageObject["cameraColor"] = cameraObject.color;
+						// and update the representation
+						updateImageRepresentation(imageObject);
+				    },
+				    {
+				        maxMetaDataSize: 262144,
+				        disableImageHead: false
+				    }
+				);
 			}
 			// remember the previous ID in order to put the thumbnail at the correct location
 			previousThumbId = imageObject.thumbId;

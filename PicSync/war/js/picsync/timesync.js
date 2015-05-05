@@ -122,8 +122,16 @@ PicSync.TimeSync = (function () {
 		}
 	};
 	
-	public.getExifImageDate = function(sourceFile) {
-		var time = EXIF.getTag(sourceFile, "DateTimeOriginal");
+	public.getExifOrientation = function(exifData) {
+		return exifData.get('Orientation');
+	}
+	
+	public.getExifThumbnail = function(exifData) {
+		return exifData.get('Thumbnail');
+	}
+    
+    public.getExifImageDate = function(exifData, sourceFile) {
+		var time = exifData.get("DateTimeOriginal");
 	    var imageDate = sourceFile.lastModifiedDate;
 	    if (time != null) {
 	        // get the time from this
@@ -141,9 +149,8 @@ PicSync.TimeSync = (function () {
 	    return imageDate;
 	}
 	
-	public.getExifImageDateIncOffset = function(sourceFile) {
-		var tags = EXIF.getAllTags(sourceFile);
-		var time = EXIF.getTag(sourceFile, "DateTimeOriginal");
+	public.getExifImageDateIncOffset = function(exifData, sourceFile, cameraId) {
+		var time = exifData.get("DateTimeOriginal");
 	    var imageDate = sourceFile.lastModifiedDate;
 	    if (time != null) {
 	        // get the time from this
@@ -158,7 +165,6 @@ PicSync.TimeSync = (function () {
 			    (+dateArray[6])
 			);
 	    } 
-	    var cameraId = public.createExifCameraId(sourceFile);
 	    // find if there is an offset to this
 	    var offset = 0;
 	    for (var i = 0; i < camera_time_offsets.length; ++i) {
@@ -193,9 +199,9 @@ PicSync.TimeSync = (function () {
 		return fileString;
 	}
 	
-	public.createExifCameraId = function(sourceFile) {
-	    var make = EXIF.getTag(sourceFile, "Make"),
-	    	model = EXIF.getTag(sourceFile, "Model");
+	public.getExifCameraId = function(exifData) {
+	    var make = exifData.get("Make"),
+	    	model = exifData.get("Model");
 		var cameraId = (make + " " + model).replace(/\s+/g, '_').toLowerCase();
 		return cameraId;
 	}
@@ -214,52 +220,62 @@ PicSync.TimeSync = (function () {
 	}
 	
 	storeImageOffsetData = function(sourceFile, qrDate) {
-		EXIF.getData(sourceFile, function() {
-			// get the data for this then
-	        var imageDate = public.getExifImageDate(this);
-			// compare the two
-			var diffTime = imageDate.getTime() - qrDate.getTime();
-	        // store this data in the list
-	        var cameraObject = new Object();
-	        cameraObject["id"] = public.createExifCameraId(this);
-	        cameraObject["make"] = EXIF.getTag(this, "Make");
-	        cameraObject["model"] = EXIF.getTag(this, "Model");
-	        cameraObject["holidayOffset"] = 0;
-	        cameraObject["difftime"] = diffTime;
-	        // put this in the array
-	        var isAddNeeded = true;
-	        for (var i = 0; i < camera_time_offsets.length; ++i) {
-	        	var extantCamera = camera_time_offsets[i];
-	        	if (extantCamera != null && extantCamera.id == cameraObject.id) {
-	        		// set this
-	        		camera_time_offsets[i] = cameraObject;
-	        		isAddNeeded = false;
-	        		break;
-	        	}
-	        }
-	        var cameraObjectIndex = i;
-	        if (isAddNeeded) {
-	        	// this is new, add to the list, remembering the index
-	        	cameraObjectIndex = camera_time_offsets.length;
-	        	// and add to the list
-	        	camera_time_offsets.push(cameraObject);
-	        }
-	        // set the color of this camera object now please
-	        if (cameraObjectIndex >= camera_colors) {
-	    		// just use black
-	    		cameraObject["color"] = 'black';
-	    	}
-	    	else {
-	    		// use one from the array
-	    		cameraObject["color"] = camera_colors[cameraObjectIndex];
-	    	}
-	        // store the entire list in memory now
-	        storeCameraObjects();
-	        // show all the camera representations now at least one is different
-	        showCameraRepesentations();
-	        // and refresh the images we have to synchronise to this camera
-	        //performImageSynchronisation();
-	    });
+		loadImage.parseMetaData(
+			sourceFile,
+		    function (data) {
+		        if (!data.imageHead) {
+		            return;
+		        }
+		        // get the data for this then
+		        var imageDate = public.getExifImageDate(data.exif, sourceFile);
+				// compare the two
+				var diffTime = imageDate.getTime() - qrDate.getTime();
+		        // store this data in the list
+		        var cameraObject = new Object();
+		        cameraObject["id"] = public.getExifCameraId(data.exif);
+		        cameraObject["make"] = data.exif.get("Make");
+		        cameraObject["model"] = data.exif.get("Model");
+		        cameraObject["holidayOffset"] = 0;
+		        cameraObject["difftime"] = diffTime;
+		        // put this in the array
+		        var isAddNeeded = true;
+		        for (var i = 0; i < camera_time_offsets.length; ++i) {
+		        	var extantCamera = camera_time_offsets[i];
+		        	if (extantCamera != null && extantCamera.id == cameraObject.id) {
+		        		// set this
+		        		camera_time_offsets[i] = cameraObject;
+		        		isAddNeeded = false;
+		        		break;
+		        	}
+		        }
+		        var cameraObjectIndex = i;
+		        if (isAddNeeded) {
+		        	// this is new, add to the list, remembering the index
+		        	cameraObjectIndex = camera_time_offsets.length;
+		        	// and add to the list
+		        	camera_time_offsets.push(cameraObject);
+		        }
+		        // set the color of this camera object now please
+		        if (cameraObjectIndex >= camera_colors) {
+		    		// just use black
+		    		cameraObject["color"] = 'black';
+		    	}
+		    	else {
+		    		// use one from the array
+		    		cameraObject["color"] = camera_colors[cameraObjectIndex];
+		    	}
+		        // store the entire list in memory now
+		        storeCameraObjects();
+		        // show all the camera representations now at least one is different
+		        showCameraRepesentations();
+		        // and refresh the images we have to synchronise to this camera
+		        //performImageSynchronisation();
+		    },
+		    {
+		        maxMetaDataSize: 262144,
+		        disableImageHead: false
+		    }
+		);
 	}
 	
 	storeCameraObjects = function() {
