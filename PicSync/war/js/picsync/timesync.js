@@ -31,14 +31,11 @@ PicSync.TimeSync = (function () {
 		var files = evt.dataTransfer.files;
 		if (null == files || files.length == 0) {
 			// try instead the source node
-			var sourceNode = evt.dataTransfer.mozSourceNode;
-			if (null != sourceNode) {
-				var spanId = sourceNode.getAttribute("spanId");
-				if (spanId != null) {
-					var file = getImageLoaded(spanId);
-					if (file != null) {
-						files = [file];
-					}
+			var thumbId = evt.dataTransfer.getData('thumbId');
+			if (thumbId != null) {
+				var file = PicSync.Images.getImageLoaded(thumbId);
+				if (file != null) {
+					files = [file];
 				}
 			}
 		}

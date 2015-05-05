@@ -112,6 +112,11 @@ PicSync.Display = (function () {
 						img.className = "thumbnailImage";
 						img.alt = "Taken at " + imageDate + " but will offset to " + imageDateIncOffset;
 					    img.height = 75;
+					    img.addEventListener('dragstart', function (event) {
+					    	// set the list of files to be the file, not done as just an image dragging
+					    	var thumbId = thumb.id;
+					    	event.dataTransfer.setData('thumbId', thumbId);
+					    });
 					    // add the image to the thumbnail to show it
 					    thumb.appendChild(img);
 					    // also we want to add the date label (including offset) to this thumbnail image
