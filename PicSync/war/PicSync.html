@@ -79,7 +79,7 @@
 	    <div id="middle">
 	    	<div id="camera_panel">
 			    <button id="sync_button">Show Synchronisation Panel</button>
-			    <button id="copy_button" onclick="copyImageFiles();"">Copy Files...</button>
+			    <button id="copy_button" onclick="PicSync.Copy.copyImageFiles();"">Copy Files...</button>
 			    <div id="camera_list_outer">
 			    	<div id="camera_list"></div>
 			    </div>
@@ -90,13 +90,13 @@
 	    	<div id="image_panel">
 	    	</div>
 	    	<!-- <div id="copy_panel">
-	    		<button id="copy_button" onclick="copyImageFiles();"">Copy Files...</button>
+	    		<button id="copy_button" onclick="PicSync.Copy.copyImageFiles();"">Copy Files...</button>
 	    	</div> -->
 	    </div>
 	    <div id="bottom">
 	    	<div id="browse_panel">
 	    		<input type="file" id="file_browse_button" name="fileLoadedList[]" multiple />
-	    		<button onclick="abortRead();">Cancel read</button>
+	    		<button onclick="PicSync.Display.abortRead();">Cancel read</button>
 	    	</div>
 			<div id="progress_bar"><div class="percent">0%</div></div>
 	    	<div id="file_drop_zone">Drop files here</div>
@@ -110,8 +110,6 @@
 	    </div>
 	</div>
     <!--  and our stuff that controls the application -->
-    <script src="./js/picsync/timesync.js"></script>
-    <script src="./js/picsync/imagebrowser.js"></script>
-    <script src="./js/picsync/copyfiles.js"></script>
+    <script src="./js/picsync/picsync.js"></script>
   </body>
 </html>
