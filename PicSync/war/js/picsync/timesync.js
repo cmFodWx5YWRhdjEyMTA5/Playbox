@@ -33,10 +33,7 @@ PicSync.TimeSync = (function () {
 			// try instead the source node
 			var thumbId = evt.dataTransfer.getData('thumbId');
 			if (thumbId != null) {
-				var file = PicSync.Images.getImageLoaded(thumbId);
-				if (file != null) {
-					files = [file];
-				}
+				files = [PicSync.Images.getImageObjectLoaded(thumbId).file];
 			}
 		}
 		// FileList object
@@ -146,23 +143,8 @@ PicSync.TimeSync = (function () {
 	    return imageDate;
 	}
 	
-	public.getExifImageDateIncOffset = function(exifData, sourceFile, cameraId) {
-		var time = exifData.get("DateTimeOriginal");
-	    var imageDate = sourceFile.lastModifiedDate;
-	    if (time != null) {
-	        // get the time from this
-	        var reggie = /(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})/;
-			var dateArray = reggie.exec(time); 
-			imageDate = new Date(
-			    (+dateArray[1]),
-			    (+dateArray[2])-1, // Careful, month starts at 0!
-			    (+dateArray[3]),
-			    (+dateArray[4]),
-			    (+dateArray[5]),
-			    (+dateArray[6])
-			);
-	    } 
-	    // find if there is an offset to this
+	public.offsetImageDate = function(imageDate, cameraId) {
+		// find if there is an offset to this
 	    var offset = 0;
 	    for (var i = 0; i < camera_time_offsets.length; ++i) {
 	    	var cameraObject = camera_time_offsets[i];
@@ -367,6 +349,21 @@ PicSync.TimeSync = (function () {
 		cameraDetailsDiv.appendChild(span);
 		// append details to the div
 		div.appendChild(cameraDetailsDiv);
+		// setup dropping things to this camera representation
+		div.addEventListener('dragover', handleSyncDragOver, false);
+		div.addEventListener('drop', function(evt) {
+			evt.stopPropagation();
+			evt.preventDefault();
+			// get the thumb ID that has been dropped on this camera ID representation
+			var thumbId = evt.dataTransfer.getData('thumbId');
+			if (thumbId != null) {
+				var imageObject = PicSync.Images.getImageObjectLoaded(thumbId);
+				if (imageObject != null) {
+					// have the image object, associate this with the camera...
+					PicSync.Display.associateImageObjectWithCamera(imageObject, cameraObject)
+				}
+			}
+		}, false);
 		// put the span in to the div
 		document.getElementById('camera_list').insertBefore(div, null);
 	    // and refresh the images we have to synchronise to this new camera object
@@ -394,9 +391,12 @@ PicSync.TimeSync = (function () {
 			});
 			if (isSlidIn) {
 				$('#camera_list_outer').show();
+				this.textContent = 'Show Synchronisation Panel';
+				
 			}
 			else {
 				$('#camera_list_outer').hide();
+				this.textContent = 'Hide Synchronisation Panel';
 			}
 		});
 		

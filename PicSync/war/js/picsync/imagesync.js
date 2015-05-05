@@ -27,7 +27,7 @@ PicSync.Sync = (function () {
 				        }
 				        // get the data for this then
 				        var imageDate = public.getExifImageDate(data.exif, sourceFile);
-				        var imageDateIncOffset = PicSync.TimeSync.getExifImageDateIncOffset(data.exif, sourceFile, cameraObject.id);
+				        var imageDateIncOffset = public.offsetImageDate(imageDate, cameraObject.id);
 						// set this data in the image object
 						imageObject["imageDate"] = imageDate;
 						imageObject["imageDateOffset"] = imageDateIncOffset;

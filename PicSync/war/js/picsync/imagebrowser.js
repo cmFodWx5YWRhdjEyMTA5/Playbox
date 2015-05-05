@@ -76,12 +76,12 @@ PicSync.Images = (function () {
 		evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
 	}
 	
-	public.getImageLoaded = function(thumbId) {
+	public.getImageObjectLoaded = function(thumbId) {
 		var foundFile = null;
 		for (var j = 0; j < images_loaded.length; ++j) {
 			// loop through all the files we have
 			if (thumbId == images_loaded[j].thumbId) {
-				foundFile = images_loaded[j].file;
+				foundFile = images_loaded[j];
 				break;
 			}
 		}

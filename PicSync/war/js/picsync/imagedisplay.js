@@ -89,69 +89,12 @@ PicSync.Display = (function () {
 				    f,
 				    function (data) {
 				        if (!data.imageHead) {
-				            return;
+				        	// no exif data, add to the fix list
+				        	addFixImageFile(f);
 				        }
-				        var orientation = PicSync.TimeSync.getExifOrientation(data.exif);
-				        var thumbnail = PicSync.TimeSync.getExifThumbnail(data.exif);
-				        
-				        var imageDate = PicSync.TimeSync.getExifImageDate(data.exif, f);
-				        var cameraId = PicSync.TimeSync.getExifCameraId(data.exif);
-				        
-						var imageDateIncOffset = PicSync.TimeSync.getExifImageDateIncOffset(data.exif, f, cameraId);
-						
-						var cameraObject = PicSync.TimeSync.getExifCamera(cameraId);
-						var uniqueImageId = PicSync.Images.getNextUniqueImageId();
-				        // create the thumbnail for this image
-				        var thumb = document.createElement('div');
-				        thumb.className = "thumbnailImagePanel";
-				        thumb.id = "image_thumb_" + uniqueImageId;
-
-						var img = document.createElement("img");
-						img.src = thumbnail;
-						img.id = thumb.id + "_img";
-						img.className = "thumbnailImage";
-						img.alt = "Taken at " + imageDate + " but will offset to " + imageDateIncOffset;
-					    img.height = 75;
-					    img.addEventListener('dragstart', function (event) {
-					    	// set the list of files to be the file, not done as just an image dragging
-					    	var thumbId = thumb.id;
-					    	event.dataTransfer.setData('thumbId', thumbId);
-					    });
-					    // add the image to the thumbnail to show it
-					    thumb.appendChild(img);
-					    // also we want to add the date label (including offset) to this thumbnail image
-					    var title = document.createElement("div");
-					    title.className = "thumbnailTitle";
-					    title.id = thumb.id + "_title";
-					    title.textContent = PicSync.TimeSync.getExifFilename(imageDateIncOffset);
-					    thumb.appendChild(title);
-				        // and remember what we have loaded
-						var imageObject = new Object();
-						imageObject["id"] = uniqueImageId;
-						imageObject["file"] = f;
-						imageObject["cameraId"] = cameraId;
-						imageObject["imageDate"] = imageDate;
-						imageObject["imageDateOffset"] = imageDateIncOffset;
-						if (null != cameraObject) {
-							imageObject["cameraColor"] = cameraObject.color;
-						}
-						else {
-							imageObject["cameraColor"] = 'grey';
-						}
-				        thumb.style.borderColor = imageObject.cameraColor;
-						imageObject["thumbId"] = thumb.id;
-						// and push this object to the list
-						PicSync.Images.addImage(imageObject);
-						// store this new item locally
-						//storeNewImageLoaded(imageObject);
-						insertThumbDivAtCorrectLocation(thumb, null);
-						// process the thumbnail click
-						thumb.addEventListener("click", function(){
-							public.showMainImage(imageObject);
-						});
-						// and update the width of the container to include this thumbnail image
-						containerWidth = containerWidth + thumb.offsetWidth;
-						$(".container-inner").css("width", containerWidth);
+				        else {
+					        addTimelineImageFile(f, data);
+				        }
 						// and call the function recursively
 						processFileRecursive();
 				    },
@@ -162,23 +105,147 @@ PicSync.Display = (function () {
 				);
 			}
 			else {
-				// not an image, just move on
+				// add to the list of images to fix
+				addFixImageFile(f);
+				// and move on
 				processFileRecursive();
 			}
 		}
 	}
+	
+	addTimelineImageFile = function(f, data) {
+		// get all the data for this image file and create a nice representation
+		var orientation = PicSync.TimeSync.getExifOrientation(data.exif);
+        var thumbnail = PicSync.TimeSync.getExifThumbnail(data.exif);
+        
+        var imageDate = PicSync.TimeSync.getExifImageDate(data.exif, f);
+        var cameraId = PicSync.TimeSync.getExifCameraId(data.exif);
+        
+		var imageDateIncOffset = PicSync.TimeSync.offsetImageDate(imageDate, cameraId);
+		
+		var cameraObject = PicSync.TimeSync.getExifCamera(cameraId);
+		var color = 'grey';
+		if (null != cameraObject) {
+			color = cameraObject.color;
+		}
+		var titleText = PicSync.TimeSync.getExifFilename(imageDateIncOffset);
+        // create the representation
+		var reps = createImageRepresentation(f, "thumbnailImagePanel", titleText, color, thumbnail);
+		var imageObject = reps[0];
+		var thumb = reps[1];
+		// set the date data on this object
+		imageObject["cameraId"] = cameraId;
+		imageObject["imageDate"] = imageDate;
+		imageObject["imageDateOffset"] = imageDateIncOffset;
+		// put this in the list
+		insertThumbDivAtCorrectLocation(thumb, null);
+		// process the thumbnail click
+		thumb.addEventListener("click", function(){
+			public.showMainImage(imageObject);
+		});
+		// and update the width of the container to include this thumbnail image
+		containerWidth = containerWidth + thumb.offsetWidth;
+		$(".container-inner").css("width", containerWidth);
+	} 
+	
+	public.associateImageObjectWithCamera = function(imageObject, cameraObject) {
+		// set the missing data on the image object
+		imageObject["cameraId"] = cameraObject.id;
+		var imageDateIncOffset = PicSync.TimeSync.offsetImageDate(imageObject.imageDate, cameraObject.id);
+		imageObject["imageDateOffset"] = imageDateIncOffset;
+		// remove the thumb from it's parent, the fix list
+		var thumb = document.getElementById(imageObject.thumbId);
+		thumb.parentNode.removeChild(thumb);
+		// change the style
+		thumb.className = "thumbnailImagePanel";
+		// now we have updated the data, re-sort the list
+		PicSync.Images.sortImages();
+		// put this in the list
+		insertThumbDivAtCorrectLocation(thumb, null);
+		// and update the width of the container to include this thumbnail image
+		containerWidth = containerWidth + thumb.offsetWidth;
+		$(".container-inner").css("width", containerWidth);
+	}
+	
+	addFixImageFile = function(f, data) {
+		var reps = createImageRepresentation(f, "thumbnailFixImagePanel", f.name, 'grey', "./images/thumbnail.png");
+		var imageObject = reps[0];
+		var thumb = reps[1];
+		// set the date data on this object
+		imageObject["cameraId"] = "unknown";
+		imageObject["imageDate"] = f.lastModifiedDate;
+		imageObject["imageDateOffset"] = f.lastModifiedDate;
+		// put this in the panel
+		var fixImagePanel = document.getElementById('fix_image_panel');
+		fixImagePanel.appendChild(thumb, fixImagePanel.firstChild);
+		// ensure it is shown
+		showFixPanel();
+	}
+	
+	createImageRepresentation = function(f, thumbClass, titleText, color, imageSource) {
+		// with a nice new unique ID, create a thumbnail representation of the file
+		var uniqueImageId = PicSync.Images.getNextUniqueImageId();
+		// create the thumbnail for this image
+        var thumb = document.createElement('div');
+        thumb.className = thumbClass;
+        thumb.id = "image_thumb_" + uniqueImageId;
+        thumb.style.borderColor = color;
+        // create the iamge
+		var img = document.createElement("img");
+		img.src = imageSource;
+		img.id = thumb.id + "_img";
+		img.className = "thumbnailImage";
+		img.alt = f.name;
+	    img.height = 75;
+	    img.addEventListener('dragstart', function (event) {
+	    	// set the list of files to be the file, not done as just an image dragging
+	    	var thumbId = thumb.id;
+	    	event.dataTransfer.setData('thumbId', thumbId);
+	    });
+	    // add the image to the thumbnail to show it
+	    thumb.appendChild(img);
+	    // also we want to add the date label (including offset) to this thumbnail image
+	    var title = document.createElement("div");
+	    title.className = "thumbnailTitle";
+	    title.id = thumb.id + "_title";
+	    title.textContent = titleText;
+	    thumb.appendChild(title);
+        // and remember what we have loaded
+		var imageObject = new Object();
+		imageObject["id"] = uniqueImageId;
+		imageObject["file"] = f;
+		imageObject["cameraColor"] = color;
+		imageObject["thumbId"] = thumb.id;
+		// and push this object to the list
+		PicSync.Images.addImage(imageObject);
+		// store this new item locally
+		//storeNewImageLoaded(imageObject);
+		// and return
+		return [imageObject, thumb];
+	}
 
 	insertThumbDivAtCorrectLocation = function(thumb, beforeId) {
 		// find the item after this one in the list of images loaded
+		var parentList = document.getElementById('file_loaded_list');
 		if (beforeId == null) {
 			// not sure where this goes, look for a place
 			var images_loaded = PicSync.Images.getImagesLoaded();
-			for (var j = images_loaded.length - 1; j >= 0; --j) {
+			for (var i = images_loaded.length - 1; i >= 0; --i) {
 				// loop through all the files we have
-				if (thumb.id == images_loaded[j].thumbId ) {
-					// this is the one in the list we want to add
-					if (j < images_loaded.length - 1) {
-						beforeId = images_loaded[j + 1].thumbId;
+				if (thumb.id == images_loaded[i].thumbId ) {
+					// this is the one in the list we want to add, find the first after this who's parent
+					// is the list to which we want to add it
+					for (var j = i + 1; j < images_loaded.length; ++j) {
+						// while there are items after this one, find one who's parent
+						// is the list we want to add to, so we can insert before it, else
+						// beforeId will be null and it will go on the end...
+						var testThumbId = images_loaded[j].thumbId;
+						var testThumb = document.getElementById(testThumbId);
+						if (null != testThumb && testThumb.parentNode.id == parentList.id) {
+							// this is a good one
+							beforeId = testThumbId;
+							break;
+						}
 					}
 					// else we are just at the end, use NULL as the before value
 					break;
@@ -211,8 +278,17 @@ PicSync.Display = (function () {
 		PicSync.Progress.updateProgress(fileProcessingIndex, fileProcessingIndex, "");
 	}
 	
+	showFixPanel = function() {
+		$('#fix_image_panel').show();
+	}
+	
+	hideFixPanel = function() {
+		$('#fix_image_panel').hide();
+	}
+	
 	init = function() {
 		// initialise this module here
+		hideFixPanel();
 	}();
 	
 	return public;
