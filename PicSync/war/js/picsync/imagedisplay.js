@@ -80,7 +80,9 @@ PicSync.Display = (function () {
 				progressText = f.name;
 			}
 			PicSync.Progress.updateProgress(fileProcessingIndex + 1, filesProcessing.length, "Importing " + progressText);
-			if (null != f && f.type.match('image.*') && false == getIsImageLoaded(f)) {
+			if (null != f 
+					&& (f.type.match('image.*'))// || f.type.match('video.*')) 
+					&& false == getIsImageLoaded(f)) {
 				// the file is an image does not exist in the list yet, load it into a thumbnail, first we have to			
 				// read the EXIF data here to get the actual size, so can calculate the width and position of the image
 				loadImage.parseMetaData(
@@ -142,9 +144,8 @@ PicSync.Display = (function () {
 						thumb.addEventListener("click", function(){
 							public.showMainImage(imageObject);
 						});
-						var originalWidth = thumb.offsetWidth + 10;	//adding the 2*5 margin widths
 						// and update the width of the container to include this thumbnail image
-						containerWidth = containerWidth + originalWidth;
+						containerWidth = containerWidth + thumb.offsetWidth;
 						$(".container-inner").css("width", containerWidth);
 						// and call the function recursively
 						processFileRecursive();
