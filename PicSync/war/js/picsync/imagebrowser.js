@@ -37,7 +37,7 @@ PicSync.Images = (function () {
 	function handleFileSelect(evt) {
 		var files = evt.target.files;
 		// FileList object
-		showFileThumbnails(files);
+		PicSync.Display.showFileThumbnails(files, null);
 	}
 
 	function handleFileDrop (evt) {
@@ -49,9 +49,9 @@ PicSync.Images = (function () {
 		var files = [];
 		getFiles(dropContents, files);
 		// FileList object
-		showFileThumbnails(files);
+		PicSync.Display.showFileThumbnails(files, null);
 		*/
-		showFileThumbnails(evt.dataTransfer.files);
+		PicSync.Display.showFileThumbnails(evt.dataTransfer.files, null);
 	}
 	
 	//TODO test and complete (webkitGetAsEntry() only works on Chrome 21+ though)

@@ -322,6 +322,11 @@ PicSync.TimeSync = (function () {
 		span.textContent = cameraObject.make + " " + cameraObject.model;
 		span.style.color = cameraObject.color;
 		cameraDetailsDiv.appendChild(span);
+		// create the 'delete' button
+	    var deleteImage = document.createElement("img");
+	    deleteImage.src = "./images/delete.png";
+	    deleteImage.className = "cameraDeleteButton";
+	    cameraDetailsDiv.appendChild(deleteImage);
 		// create the offset text
 		span = document.createElement('span');
 		span.className = "cameraOffsetTitle";
@@ -355,19 +360,39 @@ PicSync.TimeSync = (function () {
 			evt.stopPropagation();
 			evt.preventDefault();
 			// get the thumb ID that has been dropped on this camera ID representation
-			var thumbId = evt.dataTransfer.getData('thumbId');
-			if (thumbId != null) {
-				var imageObject = PicSync.Images.getImageObjectLoaded(thumbId);
-				if (imageObject != null) {
-					// have the image object, associate this with the camera...
-					PicSync.Display.associateImageObjectWithCamera(imageObject, cameraObject)
-				}
-			}
+			handleCameraDrop(evt, cameraObject);
 		}, false);
+		// setup the delete button
+		deleteImage.addEventListener("click", function(){
+			var removeIndex = camera_time_offsets.indexOf(cameraObject);
+			if (removeIndex > -1) {
+				camera_time_offsets.splice(removeIndex, 1);
+				showCameraRepesentations();
+			}
+		});
 		// put the span in to the div
 		document.getElementById('camera_list').insertBefore(div, null);
 	    // and refresh the images we have to synchronise to this new camera object
 	    //performImageSynchronisation(cameraObject);
+	}
+	
+	handleCameraDrop = function(evt, cameraObject) {
+		var files = evt.dataTransfer.files;
+		if (files && files.length > 0) {
+			// process the files dropped on this
+			for (var i = 0; i < files.length; ++i) {
+				// show the thumbnail for this file 
+				PicSync.Display.showFileThumbnails(evt.dataTransfer.files, cameraObject);
+			}
+		}
+		var thumbId = evt.dataTransfer.getData('thumbId');
+		if (thumbId != null) {
+			var imageObject = PicSync.Images.getImageObjectLoaded(thumbId);
+			if (imageObject != null) {
+				// have the image object, associate this with the camera...
+				PicSync.Display.associateImageObjectWithCamera(imageObject, cameraObject)
+			}
+		}
 	}
 	
 	updateHolidayOffset = function(cameraObject, newValue) {
@@ -397,6 +422,8 @@ PicSync.TimeSync = (function () {
 			else {
 				$('#camera_list_outer').hide();
 				this.textContent = 'Hide Synchronisation Panel';
+				// clear the main image, as don't want to take a picture of a static image
+				PicSync.Display.showMainImageFile(null);
 			}
 		});
 		

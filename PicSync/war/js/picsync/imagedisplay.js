@@ -29,9 +29,19 @@ PicSync.Display = (function () {
 			loadImage(
 				imageFile,
 			    function (img) {
+					if (!img || img.type == "error") {
+						// create the error image
+						img = document.createElement('img');
+						img.setAttribute("src", "/images/thumbnail.png");
+					}
 					img.className = "mainImage";
 					img.setAttribute("title", escape(imageFile.name));
 					imagePanel.appendChild(img);
+					// and create a nice information title
+					var titleDiv = document.createElement('div');
+					titleDiv.className = "mainImageTitle";
+					titleDiv.textContent = escape(imageFile.name);
+					imagePanel.appendChild(titleDiv);
 			    },
 			    {
 			        maxHeight: imagePanel.offsetHeight,
@@ -56,10 +66,10 @@ PicSync.Display = (function () {
 			}
 		}
 		// show the thumbnails for all of these
-		showFileThumbnails(files);
+		public.showFileThumbnails(files, null);
 	}
 
-	showFileThumbnails = function(files) {
+	public.showFileThumbnails = function(files, cameraObject) {
 		if (null == files || files.length == 0) {
 			return;
 		}
@@ -70,10 +80,10 @@ PicSync.Display = (function () {
 		filesProcessing = files;
 		imageObjectsToFix = [];
 		// process the first file, the call-back function will process the next, and so on...
-		processFileRecursive();
+		processFileRecursive(cameraObject);
 	}
 
-	processFileRecursive = function() {
+	processFileRecursive = function(cameraObject) {
 		if (++fileProcessingIndex < filesProcessing.length) {
 			// process this file
 			var f = filesProcessing[fileProcessingIndex];
@@ -82,39 +92,48 @@ PicSync.Display = (function () {
 				progressText = f.name;
 			}
 			PicSync.Progress.updateProgress(fileProcessingIndex + 1, filesProcessing.length, "Importing " + progressText);
-			if (null != f 
-					&& (f.type.match('image.*'))// || f.type.match('video.*')) 
-					&& false == getIsImageLoaded(f)) {
-				// the file is an image does not exist in the list yet, load it into a thumbnail, first we have to			
-				// read the EXIF data here to get the actual size, so can calculate the width and position of the image
-				loadImage.parseMetaData(
-				    f,
-				    function (data) {
-				        if (!data.imageHead) {
-				        	// no exif data, add to the fix list
-				        	var fixingObject = addFixImageFile(f);
-							// remember this to try to fix it once all the images are loaded
-							imageObjectsToFix.push(fixingObject);
-				        }
-				        else {
-					        addTimelineImageFile(f, data);
-				        }
-						// and call the function recursively
-						processFileRecursive();
-				    },
-				    {
-				        maxMetaDataSize: 262144,
-				        disableImageHead: false
-				    }
-				);
+			if (false == getIsImageLoaded(f)) {
+				// the image is not loaded, process this
+				if (null != cameraObject) {
+					// we know the camera to which this applies, create this
+					addTimelineImageFileForCamera(f, cameraObject, f.lastModifiedDate, "./images/thumbnail.png");
+				}
+				else if (null != f && (f.type.match('image.*'))) {
+					// the file is an image does not exist in the list yet, load it into a thumbnail, first we have to			
+					// read the EXIF data here to get the actual size, so can calculate the width and position of the image
+					loadImage.parseMetaData(
+					    f,
+					    function (data) {
+					        if (!data.imageHead) {
+					        	// no exif data, add to the fix list
+					        	var fixingObject = addFixImageFile(f);
+								// remember this to try to fix it once all the images are loaded
+								imageObjectsToFix.push(fixingObject);
+					        }
+					        else {
+						        addTimelineImageFile(f, data);
+					        }
+							// and call the function recursively
+							processFileRecursive(cameraObject);
+					    },
+					    {
+					        maxMetaDataSize: 262144,
+					        disableImageHead: false
+					    }
+					);
+				}
+				else {
+					// add to the list of images to fix
+					var fixingObject = addFixImageFile(f);
+					// remember this to try to fix it once all the images are loaded
+					imageObjectsToFix.push(fixingObject);
+					// and move on
+					processFileRecursive(cameraObject);
+				}
 			}
 			else {
-				// add to the list of images to fix
-				var fixingObject = addFixImageFile(f);
-				// remember this to try to fix it once all the images are loaded
-				imageObjectsToFix.push(fixingObject);
-				// and move on
-				processFileRecursive();
+				// the image is already loaded, just move onto the next one
+				processFileRecursive(cameraObject);
 			}
 		}
 		else {
@@ -133,13 +152,19 @@ PicSync.Display = (function () {
 		// get all the data for this image file and create a nice representation
 		var orientation = PicSync.TimeSync.getExifOrientation(data.exif);
         var thumbnail = PicSync.TimeSync.getExifThumbnail(data.exif);
-        
+        // get the date for this image, and the camera ID
         var imageDate = PicSync.TimeSync.getExifImageDate(data.exif, f);
         var cameraId = PicSync.TimeSync.getExifCameraId(data.exif);
-        
-		var imageDateIncOffset = PicSync.TimeSync.offsetImageDate(imageDate, cameraId);
-		
+		// find the camera object
 		var cameraObject = PicSync.TimeSync.getExifCamera(cameraId);
+		// and add the thumbnail and object representation for this
+		return addTimelineImageFileForCamera(f, cameraObject, imageDate, thumbnail);
+	}
+	
+	addTimelineImageFileForCamera = function(f, cameraObject, imageDate, thumbnail) {
+		// get the data we need and construct the object and thumbnail representation div
+		var cameraId = cameraObject.id;
+		var imageDateIncOffset = PicSync.TimeSync.offsetImageDate(imageDate, cameraId);
 		var color = 'grey';
 		if (null != cameraObject) {
 			color = cameraObject.color;
@@ -159,13 +184,7 @@ PicSync.Display = (function () {
 		//storeNewImageLoaded(imageObject);
 		// put this in the list
 		insertThumbDivAtCorrectLocation(thumb, null);
-		// process the thumbnail click
-		thumb.addEventListener("click", function(){
-			public.showMainImage(imageObject);
-		});
-		// and update the width of the container to include this thumbnail image
-		containerWidth = containerWidth + thumb.offsetWidth;
-		$(".container-inner").css("width", containerWidth);
+		return imageObject;
 	} 
 	
 	autoFixFiles = function() {
@@ -188,6 +207,8 @@ PicSync.Display = (function () {
 					if (timeDifference < 10000) {
 						// the names are the same and were made at a similar time, partner this
 						imageObjects[j].partners.push(fileToFix);
+						// ensure there is an overlay on this thumb
+						addMultiFileOverlay(imageObject);
 						// removing from our list in the store
 						PicSync.Images.removeImage(imageObjectToFix);
 						// and remove this from the list to fix we are showing...
@@ -200,6 +221,18 @@ PicSync.Display = (function () {
 		}
 		// show / hide the fix panel accordingly
 		showFixPanel();
+	}
+	
+	addMultiFileOverlay = function(imageObject) {
+		if (imageObject.partners.length == 1) {
+			// this is the first addition, OK to add the overlay, find the thumb
+			var thumb = document.getElementById(imageObject.thumbId);
+			// create the overlay
+			var image = document.createElement('img');
+			image.className = "thumbnailOverlay";
+			image.setAttribute("src", "/images/filesOverlay.png");
+			thumb.appendChild(image);
+		}
 	}
 	
 	compareNameWithoutExtension = function(fileOne, fileTwo) {
@@ -230,9 +263,6 @@ PicSync.Display = (function () {
 		PicSync.Images.sortImages();
 		// put this in the list
 		insertThumbDivAtCorrectLocation(thumb, null);
-		// and update the width of the container to include this thumbnail image
-		containerWidth = containerWidth + thumb.offsetWidth;
-		$(".container-inner").css("width", containerWidth);
 		// show / hide the fix panel accordingly
 		showFixPanel();
 	}
@@ -284,6 +314,12 @@ PicSync.Display = (function () {
 	    title.id = thumb.id + "_title";
 	    title.textContent = titleText;
 	    thumb.appendChild(title);
+	    // and finally the 'delete' button
+	    var deleteImage = document.createElement("img");
+	    deleteImage.src = "./images/delete.png";
+	    deleteImage.className = "thumbnailDeleteButton";
+	    thumb.appendChild(deleteImage);
+	    
         // and remember what we have loaded
 		var imageObject = new Object();
 		imageObject["id"] = uniqueImageId;
@@ -291,6 +327,16 @@ PicSync.Display = (function () {
 		imageObject["cameraColor"] = color;
 		imageObject["thumbId"] = thumb.id;
 		imageObject["partners"] = [];
+		// process the click events on thumb and button
+		thumb.addEventListener("click", function(){
+			public.showMainImage(imageObject);
+		});
+		deleteImage.addEventListener("click", function(){
+	    	// remove the thumb representation
+	    	thumb.parentNode.removeChild(thumb);
+	    	// and the representation in the data
+	    	PicSync.Images.removeImage(imageObject);
+		});
 		// and return
 		return [imageObject, thumb];
 	}
@@ -330,6 +376,9 @@ PicSync.Display = (function () {
 			// put the thumbnail in the end of the list
 			document.getElementById('file_loaded_list').insertBefore(thumb, null);
 		}
+		// and update the width of the container to include this thumbnail image
+		containerWidth = containerWidth + thumb.offsetWidth + 10; // adding 10 for margins
+		$(".container-inner").css("width", containerWidth);
 	}
 
 	updateImageRepresentation = function(imageObject) {

@@ -39,6 +39,11 @@
     width: auto;
     height: auto;
 }
+.mainImageTitle {
+	position: absolute;
+	bottom: 0px;
+    font-size: 1.2em;
+}
 .timeLabel {
 	margin-top: 20px;
 }
@@ -107,7 +112,8 @@ html,body,#wrapper {
   text-align: center;
   font: 20pt bold 'Vollkorn';
   color: #bbb;
-  width: 70%;
+  margin-left: 10px;
+  width: 90%;
 }
 #sync_drop_zone {
   border: 2px dashed #bbb;
@@ -119,7 +125,6 @@ html,body,#wrapper {
   text-align: center;
   font: 20pt bold 'Vollkorn';
   color: #bbb;
-  width: 50%;
 }
 .cameraOffsetDetails {
 	float: left;
@@ -133,6 +138,9 @@ html,body,#wrapper {
   height: 75px;
   float: left;
   margin: 10px 5px 0 0;
+}
+.cameraDeleteButton {
+	height: 24px;
 }
 .cameraTitle {
   	margin-top: 10px;
@@ -163,12 +171,25 @@ html,body,#wrapper {
     margin-right: 5px;
     border: 1px solid;
     border-radius: 5px;
+    height: 100px;
 }
 .thumbnailFixImagePanel {
 	clear: both;
 	margin: 5px;
     border: 1px solid;
     border-radius: 5px;
+}
+.thumbnailDeleteButton {
+	top: -56px;
+    height: 36px;
+    left: 0px;
+    position: relative;
+}
+.thumbnailOverlay {
+	top: -56px;
+    height: 36px;
+    right: -75px;
+    position: relative;
 }
 #browse_panel {
 	float: left;
