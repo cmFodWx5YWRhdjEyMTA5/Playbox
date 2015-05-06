@@ -5,6 +5,7 @@ PicSync.Display = (function () {
 
 	var fileProcessingIndex = 0;
 	var filesProcessing = null;
+	var imageObjectsToFix = null;
 	
 	var public = {};
 	
@@ -67,6 +68,7 @@ PicSync.Display = (function () {
 		// Loop through the FileList and render image files as thumbnails.
 		fileProcessingIndex = -1;
 		filesProcessing = files;
+		imageObjectsToFix = [];
 		// process the first file, the call-back function will process the next, and so on...
 		processFileRecursive();
 	}
@@ -90,7 +92,9 @@ PicSync.Display = (function () {
 				    function (data) {
 				        if (!data.imageHead) {
 				        	// no exif data, add to the fix list
-				        	addFixImageFile(f);
+				        	var fixingObject = addFixImageFile(f);
+							// remember this to try to fix it once all the images are loaded
+							imageObjectsToFix.push(fixingObject);
 				        }
 				        else {
 					        addTimelineImageFile(f, data);
@@ -106,10 +110,22 @@ PicSync.Display = (function () {
 			}
 			else {
 				// add to the list of images to fix
-				addFixImageFile(f);
+				var fixingObject = addFixImageFile(f);
+				// remember this to try to fix it once all the images are loaded
+				imageObjectsToFix.push(fixingObject);
 				// and move on
 				processFileRecursive();
 			}
+		}
+		else {
+			// this is the end of the processing of files, here we can take a look at all the
+			// files we want to fix and see if any match the data of files in the image list.
+			// these are RAW partner files to image files and can just be handled alongside
+			// the image to which they refer...
+			autoFixFiles();
+			// and clear our data to release the lists
+			filesProcessing = null;
+			imageObjectsToFix = null;
 		}
 	}
 	
@@ -137,6 +153,10 @@ PicSync.Display = (function () {
 		imageObject["cameraId"] = cameraId;
 		imageObject["imageDate"] = imageDate;
 		imageObject["imageDateOffset"] = imageDateIncOffset;
+		// and push this object to the list
+		PicSync.Images.addImage(imageObject);
+		// store this new item locally
+		//storeNewImageLoaded(imageObject);
 		// put this in the list
 		insertThumbDivAtCorrectLocation(thumb, null);
 		// process the thumbnail click
@@ -147,6 +167,54 @@ PicSync.Display = (function () {
 		containerWidth = containerWidth + thumb.offsetWidth;
 		$(".container-inner").css("width", containerWidth);
 	} 
+	
+	autoFixFiles = function() {
+		// go through the list of files to fix and see if any partner other files
+		// if so they can just go with those files...
+		var imageObjects = PicSync.Images.getImagesLoaded();
+		for (var i = 0; i < imageObjectsToFix.length; ++i) {
+			var imageObjectToFix = imageObjectsToFix[i];
+			var fileToFix = imageObjectToFix.file;
+			// for each one, try to find it's partner in the list we just processed
+			for (var j = 0; j < imageObjects.length; ++j) {
+				var imageObject = imageObjects[j];
+				var imageFile = imageObject.file;
+				if (!imageObject.cameraId) {
+					// don't check this, there is no camera ID so it is not a valid thing in the image list (one to fix)...
+				}
+				else if (compareNameWithoutExtension(imageFile, fileToFix)) {
+					// same name, but are they made togehter too?
+					var timeDifference = Math.abs(imageFile.lastModifiedDate - fileToFix.lastModifiedDate);
+					if (timeDifference < 10000) {
+						// the names are the same and were made at a similar time, partner this
+						imageObjects[j].partners.push(fileToFix);
+						// removing from our list in the store
+						PicSync.Images.removeImage(imageObjectToFix);
+						// and remove this from the list to fix we are showing...
+						var thumb = document.getElementById(imageObjectToFix.thumbId);
+						thumb.parentNode.removeChild(thumb);
+						break;
+					}
+				}
+			}
+		}
+		// show / hide the fix panel accordingly
+		showFixPanel();
+	}
+	
+	compareNameWithoutExtension = function(fileOne, fileTwo) {
+		var nameOne = fileOne.name;
+		var dotIndex = nameOne.lastIndexOf('.');
+		if (dotIndex) {
+			nameOne = nameOne.substring(0, dotIndex);
+		}
+		var nameTwo = fileTwo.name;
+		dotIndex = nameTwo.lastIndexOf('.');
+		if (dotIndex) {
+			nameTwo = nameTwo.substring(0, dotIndex);
+		}
+		return nameOne == nameTwo;
+	}
 	
 	public.associateImageObjectWithCamera = function(imageObject, cameraObject) {
 		// set the missing data on the image object
@@ -165,6 +233,8 @@ PicSync.Display = (function () {
 		// and update the width of the container to include this thumbnail image
 		containerWidth = containerWidth + thumb.offsetWidth;
 		$(".container-inner").css("width", containerWidth);
+		// show / hide the fix panel accordingly
+		showFixPanel();
 	}
 	
 	addFixImageFile = function(f, data) {
@@ -172,14 +242,18 @@ PicSync.Display = (function () {
 		var imageObject = reps[0];
 		var thumb = reps[1];
 		// set the date data on this object
-		imageObject["cameraId"] = "unknown";
+		imageObject["cameraId"] = null;
 		imageObject["imageDate"] = f.lastModifiedDate;
 		imageObject["imageDateOffset"] = f.lastModifiedDate;
+		// and push this object to the list
+		PicSync.Images.addImage(imageObject);
+		// store this new item locally
+		//storeNewImageLoaded(imageObject);
 		// put this in the panel
 		var fixImagePanel = document.getElementById('fix_image_panel');
 		fixImagePanel.appendChild(thumb, fixImagePanel.firstChild);
-		// ensure it is shown
-		showFixPanel();
+		// return the created object
+		return imageObject;
 	}
 	
 	createImageRepresentation = function(f, thumbClass, titleText, color, imageSource) {
@@ -216,10 +290,7 @@ PicSync.Display = (function () {
 		imageObject["file"] = f;
 		imageObject["cameraColor"] = color;
 		imageObject["thumbId"] = thumb.id;
-		// and push this object to the list
-		PicSync.Images.addImage(imageObject);
-		// store this new item locally
-		//storeNewImageLoaded(imageObject);
+		imageObject["partners"] = [];
 		// and return
 		return [imageObject, thumb];
 	}
@@ -233,17 +304,16 @@ PicSync.Display = (function () {
 			for (var i = images_loaded.length - 1; i >= 0; --i) {
 				// loop through all the files we have
 				if (thumb.id == images_loaded[i].thumbId ) {
-					// this is the one in the list we want to add, find the first after this who's parent
-					// is the list to which we want to add it
+					// this is our thumb in the list, find the first after this who is in the image list
 					for (var j = i + 1; j < images_loaded.length; ++j) {
-						// while there are items after this one, find one who's parent
-						// is the list we want to add to, so we can insert before it, else
-						// beforeId will be null and it will go on the end...
-						var testThumbId = images_loaded[j].thumbId;
-						var testThumb = document.getElementById(testThumbId);
-						if (null != testThumb && testThumb.parentNode.id == parentList.id) {
-							// this is a good one
-							beforeId = testThumbId;
+						// while there are items after this one, find one who's camera
+						// id is set (ie in the sync image list) that we can insert ourselves after
+						if (!images_loaded[j].cameraId) {
+							// there is no cameraID, ignore this one, in the fix list...
+						}
+						else {
+							// use this one as the one we want to insert ourselves before
+							beforeId = images_loaded[j].thumbId;
 							break;
 						}
 					}
@@ -254,7 +324,7 @@ PicSync.Display = (function () {
 		}
 		if (beforeId) {
 			// put the thumbnail in before the one after it in the list
-			document.getElementById('file_loaded_list').insertBefore(thumb, document.getElementById(beforeId));
+			parentList.insertBefore(thumb, document.getElementById(beforeId));
 		}
 		else {
 			// put the thumbnail in the end of the list
@@ -279,16 +349,20 @@ PicSync.Display = (function () {
 	}
 	
 	showFixPanel = function() {
-		$('#fix_image_panel').show();
-	}
-	
-	hideFixPanel = function() {
-		$('#fix_image_panel').hide();
+		var fixPanel = document.getElementById('fix_image_panel');
+		if (fixPanel.childNodes.length > 1) {
+			// more than just the label
+			$('#fix_image_panel').show();
+		}
+		else {
+			// just the label
+			$('#fix_image_panel').hide();
+		}
 	}
 	
 	init = function() {
 		// initialise this module here
-		hideFixPanel();
+		showFixPanel();
 	}();
 	
 	return public;

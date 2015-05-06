@@ -27,6 +27,13 @@ PicSync.Images = (function () {
 		public.sortImages();
 	}
 	
+	public.removeImage = function(imageObject) {
+		var removeIndex = images_loaded.indexOf(imageObject);
+		if (removeIndex > -1) {
+			images_loaded.splice(removeIndex, 1);
+		}
+	}
+	
 	function handleFileSelect(evt) {
 		var files = evt.target.files;
 		// FileList object

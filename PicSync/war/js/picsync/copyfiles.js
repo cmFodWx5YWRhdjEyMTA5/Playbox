@@ -9,6 +9,16 @@ PicSync.Copy = (function () {
 	
 	var public = {};
 	
+	getFileExtension = function(file) {
+		var name = file.name;
+		var dotIndex = name.lastIndexOf(".");
+		var extension = "";
+		if (dotIndex >= 0) {
+			extension = name.substring(dotIndex + 1, name.length);
+		}
+		return extension;
+	}
+	
 	public.copyImageFiles = function() {
 		var destFolder = "~/Desktop/destination";
 		var filenameNumber = -1;
@@ -22,9 +32,7 @@ PicSync.Copy = (function () {
 			var imageObject = images_loaded[i];
 			var newFilename = PicSync.TimeSync.getExifFilename(imageObject.imageDateOffset);
 			// find the extension
-			var name = imageObject.file.name;
-			var dotIndex = name.lastIndexOf(".");
-			var extension = name.substring(dotIndex + 1, name.length);
+			var extension = getFileExtension(imageObject.file);
 			// but check the one after this...
 			if (i + 1 < images_loaded.length) {
 				// there is one after this, will this clash?
@@ -46,11 +54,21 @@ PicSync.Copy = (function () {
 				// increment the filename number and add to the name
 				newFilename += " (" + threeDigit(++filenameNumber) + ")";
 			}
-			// don't forget the extension
-			newFilename += "." + extension;
 			// push the data to the list to process
 			zip_files.push(imageObject.file);
-			zip_targetNames.push(newFilename);
+			// remember the filename, including the extension
+			zip_targetNames.push(newFilename + "." + extension);
+			
+			// also we want to do the partner files here
+			for (var j = 0; j < imageObject.partners.length; ++j) {
+				// for each partner file, get the new filename
+				var partnerFile = imageObject.partners[j];
+				extension = getFileExtension(partnerFile);
+				// and put this partner in the list to add to the zip
+				zip_files.push(partnerFile);
+				// remember the filename, including the extension
+				zip_targetNames.push(newFilename + "." + extension);
+			}
 			
 			//download(imageObject.file, newFilename, imageObject.file.type);
 			
