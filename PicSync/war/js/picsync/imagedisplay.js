@@ -96,7 +96,7 @@ PicSync.Display = (function () {
 				// the image is not loaded, process this
 				if (null != cameraObject) {
 					// we know the camera to which this applies, create this
-					addTimelineImageFileForCamera(f, cameraObject, f.lastModifiedDate, "./images/thumbnail.png");
+					addTimelineImageFileForCamera(f, cameraObject, cameraObject.id, f.lastModifiedDate, "./images/thumbnail.png");
 				}
 				else if (null != f && (f.type.match('image.*'))) {
 					// the file is an image does not exist in the list yet, load it into a thumbnail, first we have to			
@@ -158,12 +158,11 @@ PicSync.Display = (function () {
 		// find the camera object
 		var cameraObject = PicSync.TimeSync.getExifCamera(cameraId);
 		// and add the thumbnail and object representation for this
-		return addTimelineImageFileForCamera(f, cameraObject, imageDate, thumbnail);
+		return addTimelineImageFileForCamera(f, cameraObject, cameraId, imageDate, thumbnail);
 	}
 	
-	addTimelineImageFileForCamera = function(f, cameraObject, imageDate, thumbnail) {
+	addTimelineImageFileForCamera = function(f, cameraObject, cameraId, imageDate, thumbnail) {
 		// get the data we need and construct the object and thumbnail representation div
-		var cameraId = cameraObject.id;
 		var imageDateIncOffset = PicSync.TimeSync.offsetImageDate(imageDate, cameraId);
 		var color = 'grey';
 		if (null != cameraObject) {
@@ -184,6 +183,9 @@ PicSync.Display = (function () {
 		//storeNewImageLoaded(imageObject);
 		// put this in the list
 		insertThumbDivAtCorrectLocation(thumb, null);
+		// and update the width of the container to include this thumbnail image
+		containerWidth = containerWidth + thumb.offsetWidth + 10; // adding 10 for margins
+		$(".container-inner").css("width", containerWidth);
 		return imageObject;
 	} 
 	
@@ -220,7 +222,49 @@ PicSync.Display = (function () {
 			}
 		}
 		// show / hide the fix panel accordingly
-		showFixPanel();
+		public.showFixPanel();
+	}
+	
+	public.performImageSynchronisation = function(cameraObject) {
+		// now we need to re-sort the list
+		if (!PicSync.Images) {
+			return;
+		}
+		var images_loaded = PicSync.Images.getImagesLoaded();
+		// go through all the images for this camera and update the date for each
+		var previousThumbId = "";
+		for (var i = 0; i < images_loaded.length; ++i) {
+			// update the representation
+			var imageObject = images_loaded[i];
+			if (imageObject.cameraId == cameraObject.id) {
+				// this is for the camera object that changed, update the offset time
+				var imageDate = imageObject.imageDate;
+				imageObject.imageDateOffset = PicSync.TimeSync.offsetImageDate(imageDate, imageObject.cameraId);	
+			}
+		}
+		// now all the dates are corrected, sort the data
+		PicSync.Images.sortImages();
+		// now update the thumbs to be in the correct position (go through backwards to make it easier to remember the previous one)
+		for (var i = images_loaded.length - 1; i >= 0; --i) {
+			// update the representation
+			var imageObject = images_loaded[i];
+			if (imageObject.cameraId == cameraObject.id) {
+				// this is for the camera object that changed, so we can update the thumbnail here
+				// now ensure this is in the correct position, get the div for the image
+				var thumb = document.getElementById(imageObject.thumbId);
+				if (thumb) {
+					thumb.style.borderColor = cameraObject.color;
+					// get the title div
+					var title = document.getElementById(imageObject.thumbId + "_title");
+				    if (title) {
+				    	title.textContent = PicSync.TimeSync.getExifFilename(imageObject.imageDateOffset);
+				    }
+				    // and re-position this thumbnail to where it should be
+					thumb.parentNode.removeChild(thumb);
+					insertThumbDivAtCorrectLocation(thumb, null);
+				}
+			}
+		}
 	}
 	
 	addMultiFileOverlay = function(imageObject) {
@@ -257,14 +301,18 @@ PicSync.Display = (function () {
 		// remove the thumb from it's parent, the fix list
 		var thumb = document.getElementById(imageObject.thumbId);
 		thumb.parentNode.removeChild(thumb);
+		thumb.style.borderColor = cameraObject.color;
 		// change the style
 		thumb.className = "thumbnailImagePanel";
 		// now we have updated the data, re-sort the list
 		PicSync.Images.sortImages();
 		// put this in the list
 		insertThumbDivAtCorrectLocation(thumb, null);
+		// and update the width of the container to include this thumbnail image
+		containerWidth = containerWidth + thumb.offsetWidth + 10; // adding 10 for margins
+		$(".container-inner").css("width", containerWidth);
 		// show / hide the fix panel accordingly
-		showFixPanel();
+		public.showFixPanel();
 	}
 	
 	addFixImageFile = function(f, data) {
@@ -301,11 +349,6 @@ PicSync.Display = (function () {
 		img.className = "thumbnailImage";
 		img.alt = f.name;
 	    img.height = 75;
-	    img.addEventListener('dragstart', function (event) {
-	    	// set the list of files to be the file, not done as just an image dragging
-	    	var thumbId = thumb.id;
-	    	event.dataTransfer.setData('thumbId', thumbId);
-	    });
 	    // add the image to the thumbnail to show it
 	    thumb.appendChild(img);
 	    // also we want to add the date label (including offset) to this thumbnail image
@@ -314,11 +357,6 @@ PicSync.Display = (function () {
 	    title.id = thumb.id + "_title";
 	    title.textContent = titleText;
 	    thumb.appendChild(title);
-	    // and finally the 'delete' button
-	    var deleteImage = document.createElement("img");
-	    deleteImage.src = "./images/delete.png";
-	    deleteImage.className = "thumbnailDeleteButton";
-	    thumb.appendChild(deleteImage);
 	    
         // and remember what we have loaded
 		var imageObject = new Object();
@@ -331,12 +369,12 @@ PicSync.Display = (function () {
 		thumb.addEventListener("click", function(){
 			public.showMainImage(imageObject);
 		});
-		deleteImage.addEventListener("click", function(){
-	    	// remove the thumb representation
-	    	thumb.parentNode.removeChild(thumb);
-	    	// and the representation in the data
-	    	PicSync.Images.removeImage(imageObject);
-		});
+		// setup the image drag start
+	    img.addEventListener('dragstart', function (event) {
+	    	// set the list of files to be the file, not done as just an image dragging
+	    	event.dataTransfer.setData('thumbId', thumb.id);
+	    	event.dataTransfer.setData('imageObjectId', imageObject.id);
+	    });
 		// and return
 		return [imageObject, thumb];
 	}
@@ -376,9 +414,6 @@ PicSync.Display = (function () {
 			// put the thumbnail in the end of the list
 			document.getElementById('file_loaded_list').insertBefore(thumb, null);
 		}
-		// and update the width of the container to include this thumbnail image
-		containerWidth = containerWidth + thumb.offsetWidth + 10; // adding 10 for margins
-		$(".container-inner").css("width", containerWidth);
 	}
 
 	updateImageRepresentation = function(imageObject) {
@@ -397,7 +432,7 @@ PicSync.Display = (function () {
 		PicSync.Progress.updateProgress(fileProcessingIndex, fileProcessingIndex, "");
 	}
 	
-	showFixPanel = function() {
+	public.showFixPanel = function() {
 		var fixPanel = document.getElementById('fix_image_panel');
 		if (fixPanel.childNodes.length > 1) {
 			// more than just the label
@@ -411,7 +446,7 @@ PicSync.Display = (function () {
 	
 	init = function() {
 		// initialise this module here
-		showFixPanel();
+		public.showFixPanel();
 	}();
 	
 	return public;

@@ -20,11 +20,14 @@
 }
 #camera_list {
 	width: 100%;
+    overflow: scroll;
+    height: 80%;
 }
 #fix_image_panel {
 	float: left;
 	height: 100%;
 	min-width: 100px;
+	overflow: scroll;
 	background-color: lightgrey;
 }
 #image_panel {
@@ -101,19 +104,39 @@ html,body,#wrapper {
     width:100%;
     background:grey;
 }
+#title_bar {
+	width: 100%;
+	height: 50px;
+	background: black;
+	font: 20pt bold 'Vollkorn';
+	color: grey;
+}
 #file_drop_zone {
   border: 2px dashed #bbb;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
   padding: 25px;
+  float: left;
+  text-align: center;
+  font: 20pt bold 'Vollkorn';
+  color: #bbb;
+  margin-left: 10px;
+  width: 60%;
+}
+#delete_drop_zone {
+  border: 2px dashed #bbb;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
   clear: both;
   float: left;
   text-align: center;
   font: 20pt bold 'Vollkorn';
   color: #bbb;
   margin-left: 10px;
-  width: 90%;
+  width: 100px;
+	
 }
 #sync_drop_zone {
   border: 2px dashed #bbb;
@@ -178,6 +201,7 @@ html,body,#wrapper {
 	margin: 5px;
     border: 1px solid;
     border-radius: 5px;
+    height: 100px;
 }
 .thumbnailDeleteButton {
 	top: -56px;

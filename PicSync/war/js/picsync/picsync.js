@@ -15,7 +15,6 @@ var PicSync = (function () {
 		public.appendScript("./js/picsync/progress.js");
 		public.appendScript("./js/picsync/imagebrowser.js");
 		public.appendScript("./js/picsync/imagedisplay.js");
-		public.appendScript("./js/picsync/imagesync.js");
 		public.appendScript("./js/picsync/timesync.js");
 		public.appendScript("./js/picsync/copyfiles.js");
 

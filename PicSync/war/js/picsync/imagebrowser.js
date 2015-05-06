@@ -34,6 +34,15 @@ PicSync.Images = (function () {
 		}
 	}
 	
+	public.removeImageId = function(imageObjectId) {
+		for (var i = 0; i < images_loaded.length; ++i) {
+			if (images_loaded[i].id == imageObjectId) {
+				public.removeImage(images_loaded[i]);
+				break;
+			}
+		}
+	}
+	
 	function handleFileSelect(evt) {
 		var files = evt.target.files;
 		// FileList object
@@ -52,6 +61,31 @@ PicSync.Images = (function () {
 		PicSync.Display.showFileThumbnails(files, null);
 		*/
 		PicSync.Display.showFileThumbnails(evt.dataTransfer.files, null);
+	}
+
+	function handleDeleteDrop (evt) {
+		evt.stopPropagation();
+		evt.preventDefault();
+		
+		// find the thumb dropped
+		var thumb = document.getElementById(evt.dataTransfer.getData('thumbId'));
+		if (thumb) {
+			// remove the thumb representation
+	    	thumb.parentNode.removeChild(thumb);
+	    	// find the data to remove
+	    	var imageObjectId = evt.dataTransfer.getData('imageObjectId');
+	    	var cameraObjectId = evt.dataTransfer.getData('cameraObjectId');
+	    	if (imageObjectId) {
+		    	// and the representation in the data
+		    	PicSync.Images.removeImageId(imageObjectId);
+		    	// might need to hide the fix panel, if it deleted from there
+		    	PicSync.Display.showFixPanel();
+	    	}
+	    	if (cameraObjectId) {
+		    	// and the representation in the data
+		    	PicSync.TimeSync.removeCameraId(cameraObjectId);
+	    	}
+		}
 	}
 	
 	//TODO test and complete (webkitGetAsEntry() only works on Chrome 21+ though)
@@ -81,6 +115,12 @@ PicSync.Images = (function () {
 		evt.stopPropagation();
 		evt.preventDefault();
 		evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+	}
+
+	function handleDeleteDragOver(evt) {
+		evt.stopPropagation();
+		evt.preventDefault();
+		evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a move - to the bin
 	}
 	
 	public.getImageObjectLoaded = function(thumbId) {
@@ -122,6 +162,10 @@ PicSync.Images = (function () {
 		var dropZone = document.getElementById('file_drop_zone');
 		dropZone.addEventListener('dragover', handleFileDragOver, false);
 		dropZone.addEventListener('drop', handleFileDrop, false);
+		// and delete things
+		var dropZone = document.getElementById('delete_drop_zone');
+		dropZone.addEventListener('dragover', handleDeleteDragOver, false);
+		dropZone.addEventListener('drop', handleDeleteDrop, false);
 	}();
 	
 	return public;

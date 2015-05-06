@@ -24,6 +24,24 @@ PicSync.TimeSync = (function () {
 		}
 	};
 	
+	public.removeCamera = function(cameraObject) {
+		var removeIndex = camera_time_offsets.indexOf(cameraObject);
+		if (removeIndex > -1) {
+			camera_time_offsets.splice(removeIndex, 1);
+		}
+		storeCameraObjects();
+		showCameraRepesentations();
+	}
+	
+	public.removeCameraId = function(cameraObjectId) {
+		for (var i = 0; i < camera_time_offsets.length; ++i) {
+			if (camera_time_offsets[i].id == cameraObjectId) {
+				public.removeCamera(camera_time_offsets[i]);
+				break;
+			}
+		}
+	}
+	
 	function handleSyncDrop(evt) {
 		evt.stopPropagation();
 		evt.preventDefault();
@@ -234,21 +252,10 @@ PicSync.TimeSync = (function () {
 		        	// and add to the list
 		        	camera_time_offsets.push(cameraObject);
 		        }
-		        // set the color of this camera object now please
-		        if (cameraObjectIndex >= camera_colors) {
-		    		// just use black
-		    		cameraObject["color"] = 'black';
-		    	}
-		    	else {
-		    		// use one from the array
-		    		cameraObject["color"] = camera_colors[cameraObjectIndex];
-		    	}
 		        // store the entire list in memory now
 		        storeCameraObjects();
 		        // show all the camera representations now at least one is different
 		        showCameraRepesentations();
-		        // and refresh the images we have to synchronise to this camera
-		        //performImageSynchronisation();
 		    },
 		    {
 		        maxMetaDataSize: 262144,
@@ -298,6 +305,15 @@ PicSync.TimeSync = (function () {
 		for (var i = 0; i < camera_time_offsets.length; ++i) {
 			var cameraObject = camera_time_offsets[i];
 			if (cameraObject != null) {
+		        // set the color of this camera object now please
+		        if (i >= camera_colors) {
+		    		// just use black
+		    		cameraObject["color"] = 'black';
+		    	}
+		    	else {
+		    		// use one from the array
+		    		cameraObject["color"] = camera_colors[i];
+		    	}
 				addCameraRepresentation(cameraObject);
 			}
 		}
@@ -306,6 +322,7 @@ PicSync.TimeSync = (function () {
 	addCameraRepresentation = function(cameraObject) {
 		// Render thumbnail as a new span element.
 		var div = document.createElement('div');
+		div.id = "camera_thumb_" + cameraObject.id;
 		div.className = "cameraOffsetItem";
 		// create the image, an image can natively be dragged so helpful functionality
 		var image = document.createElement('img');
@@ -322,11 +339,6 @@ PicSync.TimeSync = (function () {
 		span.textContent = cameraObject.make + " " + cameraObject.model;
 		span.style.color = cameraObject.color;
 		cameraDetailsDiv.appendChild(span);
-		// create the 'delete' button
-	    var deleteImage = document.createElement("img");
-	    deleteImage.src = "./images/delete.png";
-	    deleteImage.className = "cameraDeleteButton";
-	    cameraDetailsDiv.appendChild(deleteImage);
 		// create the offset text
 		span = document.createElement('span');
 		span.className = "cameraOffsetTitle";
@@ -362,18 +374,18 @@ PicSync.TimeSync = (function () {
 			// get the thumb ID that has been dropped on this camera ID representation
 			handleCameraDrop(evt, cameraObject);
 		}, false);
-		// setup the delete button
-		deleteImage.addEventListener("click", function(){
-			var removeIndex = camera_time_offsets.indexOf(cameraObject);
-			if (removeIndex > -1) {
-				camera_time_offsets.splice(removeIndex, 1);
-				showCameraRepesentations();
-			}
-		});
+		// setup the image drag start
+	    image.addEventListener('dragstart', function (event) {
+	    	// set the list of files to be the file, not done as just an image dragging
+	    	event.dataTransfer.setData('thumbId', div.id);
+	    	event.dataTransfer.setData('cameraObjectId', cameraObject.id);
+	    });
 		// put the span in to the div
 		document.getElementById('camera_list').insertBefore(div, null);
 	    // and refresh the images we have to synchronise to this new camera object
-	    //performImageSynchronisation(cameraObject);
+		if (null != PicSync.Display) {
+			PicSync.Display.performImageSynchronisation(cameraObject);
+		}
 	}
 	
 	handleCameraDrop = function(evt, cameraObject) {
@@ -390,14 +402,14 @@ PicSync.TimeSync = (function () {
 			var imageObject = PicSync.Images.getImageObjectLoaded(thumbId);
 			if (imageObject != null) {
 				// have the image object, associate this with the camera...
-				PicSync.Display.associateImageObjectWithCamera(imageObject, cameraObject)
+				PicSync.Display.associateImageObjectWithCamera(imageObject, cameraObject);
 			}
 		}
 	}
 	
 	updateHolidayOffset = function(cameraObject, newValue) {
 		cameraObject.holidayOffset = newValue;
-		//performImageSynchronisation(cameraObject);
+		PicSync.Display.performImageSynchronisation(cameraObject);
 	    // store the entire list in memory now
 	    storeCameraObjects();
 	}
