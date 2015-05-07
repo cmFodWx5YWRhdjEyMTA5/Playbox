@@ -6,6 +6,10 @@ PicSync.Copy = (function () {
 	var zipFileIndex;
 	var zipFilename;
 	var zipFileCount;
+	var zipSplitValue = 50;
+	var zipDirectDownload = false;
+	
+	var copyConfirmation = new CopyDialog();
 	
 	var public = {};
 	
@@ -20,6 +24,14 @@ PicSync.Copy = (function () {
 	}
 	
 	public.copyImageFiles = function() {
+		copyConfirmation.render(PicSync.Images.getImagesLoaded());
+	}
+	
+	public.performZipCopy = function() {
+		// close the dialog
+		public.cancelDialog();
+		
+		// and do our copying here
 		var destFolder = "~/Desktop/destination";
 		var filenameNumber = -1;
 		var isNumberingFiles = false;
@@ -102,22 +114,30 @@ PicSync.Copy = (function () {
 			}
 			PicSync.Progress.updateProgress(zipFileIndex + 1, zip_files.length, "Exporting " + progressText);
 			if (null != file) {
-				// load this data into the zip
-				var reader = new FileReader();
-				reader.onload = function(e) {
-					// add this data to the zip file
-					zip_targets[zip_targets.length - 1].file(newFilename, reader.result, {base64: true});
-					if (++zipFileCount >= 50) {
-						// this is enough files in the zip, close this one and start another
-						dumpZipFileContent();
-						// reset the new zip file
-						zipFileCount = 0;
-						zip_targets.push(new JSZip());
-					}
-					// and call the function recursively
+				if (zipDirectDownload) {
+					// just straight download
+					download(file, newFilename, file.type);
+					// and do the next one
 					recursiveZip();
-				};
-				reader.readAsArrayBuffer(file);
+				}
+				else {
+					// load this data into the zip
+					var reader = new FileReader();
+					reader.onload = function(e) {
+						// add this data to the zip file
+						zip_targets[zip_targets.length - 1].file(newFilename, reader.result, {base64: true});
+						if (++zipFileCount >= zipSplitValue) {
+							// this is enough files in the zip, close this one and start another
+							dumpZipFileContent();
+							// reset the new zip file
+							zipFileCount = 0;
+							zip_targets.push(new JSZip());
+						}
+						// and call the function recursively
+						recursiveZip();
+					};
+					reader.readAsArrayBuffer(file);
+				}
 			}
 			else {
 				// not an file, just move on
@@ -147,6 +167,93 @@ PicSync.Copy = (function () {
 		}
 		else {
 			return "00" + number;
+		}
+	}
+	
+	public.cancelDialog = function() {
+		copyConfirmation.ok();
+	}
+	
+	function CopyDialog(){
+		var noZipRadio;
+		var copyPackageCheck;
+		var copyPackageNumber;
+		var downloadFilesWarning;
+	    this.render = function(images_loaded){
+	        var winW = window.innerWidth;
+	        var winH = window.innerHeight;
+	        var dialogoverlay = document.getElementById('dialogoverlay');
+	        var dialogbox = document.getElementById('copydialogbox');
+	        dialogoverlay.style.display = "block";
+	        dialogoverlay.style.height = winH+"px";
+	        dialogbox.style.left = (winW/2) - (550 * .5)+"px";
+	        dialogbox.style.top = "100px";
+	        dialogbox.style.display = "block";
+	        document.getElementById('copydialogboxhead').innerHTML = "Select how to download the collected " + images_loaded.length + " images...";
+	        
+	        // setup input change listeners
+	        noZipRadio = document.getElementById("copy_input_nozip");
+	        copyPackageCheck = document.getElementById("copy_package_check");
+	        copyPackageNumber = document.getElementById("copy_package_number");
+	        downloadFilesWarning = document.getElementById("download_nocheck");
+	        zipSplitValue = 50;
+	        copyPackageNumber.value = zipSplitValue;
+	        // add change listeners
+	        noZipRadio.addEventListener('change', function() {
+				// listens to the user changing the contents
+	        	copyConfirmation.updateContents();
+			});
+	        copyPackageCheck.addEventListener('change', function() {
+				// listens to the user changing the contents
+	        	copyConfirmation.updateContents();
+			});
+	        document.getElementById("copy_input_zip").addEventListener('change', function() {
+				// listens to the user changing the contents
+	        	copyConfirmation.updateContents();
+			});
+	        document.getElementById("copy_input_zip").addEventListener('change', function() {
+				// listens to the user changing the contents
+	        	copyConfirmation.updateContents();
+			});
+	        // and listen for the copy button to do our business
+	        copyPackageNumber.addEventListener('change', function() {
+				// listens to the user changing the contents
+	        	copyConfirmation.updateContents();
+			});
+	        // update contents to set data
+	        copyConfirmation.updateContents();
+	    }
+	    this.updateContents = function() {
+	    	if (noZipRadio.checked) {
+	    		// not zipping
+	    		copyPackageCheck.checked = false;
+	    		copyPackageCheck.disabled = true;
+	    		copyPackageNumber.disabled = true;
+	    		$("#download_nocheck").show();
+	    	}
+	    	else {
+	    		// zipping
+	    		copyPackageCheck.disabled = false;
+	    		copyPackageNumber.disabled = false;
+	    		if (copyPackageCheck.checked) {
+		    		copyPackageNumber.disabled = false;
+		    	}
+		    	else {
+		    		copyPackageNumber.disabled = true;
+		    	}
+	    		$("#download_nocheck").hide();
+	    	}
+	    	// set all the member data
+	    	zipSplitValue = copyPackageNumber.value;
+        	if (!copyPackageCheck.checked) {
+        		// do not split anything, well lets keep it under 1000
+        		zipSplitValue = 1000;
+        	}
+        	zipDirectDownload = noZipRadio.checked;
+	    }
+		this.ok = function(){
+			document.getElementById('copydialogbox').style.display = "none";
+			document.getElementById('dialogoverlay').style.display = "none";
 		}
 	}
 	

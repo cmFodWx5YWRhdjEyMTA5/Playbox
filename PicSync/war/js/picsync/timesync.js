@@ -16,6 +16,8 @@ PicSync.TimeSync = (function () {
 
 	var slideInnerDiv;
 	
+	var qrCodeEntry = new QrEntryDialog();
+	
 	makeCode = function(content) {
 		// if the left margin of the slide inner bit is zero then create an image to show
 		// as we are showing the code
@@ -48,10 +50,18 @@ PicSync.TimeSync = (function () {
 	
 		var files = evt.dataTransfer.files;
 		if (null == files || files.length == 0) {
-			// try instead the source node
-			var thumbId = evt.dataTransfer.getData('thumbId');
-			if (thumbId != null) {
-				files = [PicSync.Images.getImageObjectLoaded(thumbId).file];
+			// try instead getting the thumbs dropped
+			var thumbsString = document.getElementById(evt.dataTransfer.getData('thumbIds'));
+			files = [];
+			if (thumbsString) {
+				var thumbs = thumbsString.split(",");
+				for (var i = 0; i < thumbs.length; ++i) {
+					var thumb = PicSync.Images.getImageObjectLoaded(thumbs[i]);
+					if (thumb) {
+						// add to the list of files to process
+						files.push(thumb.file);
+					}
+				}
 			}
 		}
 		// FileList object
@@ -104,11 +114,16 @@ PicSync.TimeSync = (function () {
 	
 	processImageQrCode = function(sourceFile, dataResult) {
 		var isNumber =  /^\d+$/.test(dataResult);
-		PicSync.Display.showMainImageFile(sourceFile);
 		if (!isNumber) {
-			dataResult = prompt("Please enter the number code on the image", dataResult);
-			isNumber =  /^\d+$/.test(dataResult);
+			qrCodeEntry.render(sourceFile, dataResult);
 		}
+		else {
+			processImageQrCodeFound(sourceFile, dataResult);
+		}
+	}
+	
+	processImageQrCodeFound = function(sourceFile, dataResult) {
+		var isNumber =  /^\d+$/.test(dataResult);
 		if (isNumber && sourceFile != null) {
 			// this is a QR code of our time, get this data and show it
 			var reggie = /(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/;
@@ -256,6 +271,8 @@ PicSync.TimeSync = (function () {
 		        storeCameraObjects();
 		        // show all the camera representations now at least one is different
 		        showCameraRepesentations();
+		        // this is few and far between action, inform the user of its success
+		        alert("The offset for the " + cameraObject.make + " camera (" + cameraObject.model + ") was successfully calculated and stored...");
 		    },
 		    {
 		        maxMetaDataSize: 262144,
@@ -377,8 +394,8 @@ PicSync.TimeSync = (function () {
 		// setup the image drag start
 	    image.addEventListener('dragstart', function (event) {
 	    	// set the list of files to be the file, not done as just an image dragging
-	    	event.dataTransfer.setData('thumbId', div.id);
-	    	event.dataTransfer.setData('cameraObjectId', cameraObject.id);
+	    	event.dataTransfer.setData('thumbIds', div.id);
+	    	event.dataTransfer.setData('cameraObjectIds', cameraObject.id);
 	    });
 		// put the span in to the div
 		document.getElementById('camera_list').insertBefore(div, null);
@@ -397,12 +414,15 @@ PicSync.TimeSync = (function () {
 				PicSync.Display.showFileThumbnails(evt.dataTransfer.files, cameraObject);
 			}
 		}
-		var thumbId = evt.dataTransfer.getData('thumbId');
-		if (thumbId != null) {
-			var imageObject = PicSync.Images.getImageObjectLoaded(thumbId);
-			if (imageObject != null) {
-				// have the image object, associate this with the camera...
-				PicSync.Display.associateImageObjectWithCamera(imageObject, cameraObject);
+		var thumbsString = evt.dataTransfer.getData('thumbIds');
+		if (thumbsString) {
+			var thumbs = thumbsString.split(",");
+			for (var i = 0; i < thumbs.length; ++i) {
+				var imageObject = PicSync.Images.getImageObjectLoaded(thumbs[i]);
+				if (imageObject) {
+					// have the image object, associate this with the camera...
+					PicSync.Display.associateImageObjectWithCamera(imageObject, cameraObject);
+				}
 			}
 		}
 	}
@@ -412,6 +432,72 @@ PicSync.TimeSync = (function () {
 		PicSync.Display.performImageSynchronisation(cameraObject);
 	    // store the entire list in memory now
 	    storeCameraObjects();
+	}
+	
+	public.confirmDialog = function() {
+		qrCodeEntry.ok();
+	}
+	
+	public.cancelDialog = function() {
+		qrCodeEntry.cancel();
+	}
+	
+	function QrEntryDialog(){
+		var qrCodeNumber;
+		var qrFile;
+	    this.render = function(sourceFile, foundCode){
+	        var winW = window.innerWidth;
+	        var winH = window.innerHeight;
+	        var dialogoverlay = document.getElementById('dialogoverlay');
+	        var dialogbox = document.getElementById('syncdialogbox');
+	        dialogoverlay.style.display = "block";
+	        dialogoverlay.style.height = winH+"px";
+	        dialogbox.style.left = (winW/2) - (550 * .5)+"px";
+	        dialogbox.style.top = "100px";
+	        dialogbox.style.display = "block";
+	        document.getElementById('syncdialogboxhead').innerHTML = "Enter the QR code manually...";
+	        
+	        // set the members
+	        qrFile = sourceFile;
+	        qrCodeNumber = document.getElementById("qr_code_entry_number");
+	        qrCodeNumber.value = foundCode;
+	        
+	        // and load the image
+	        loadImage(
+	        	sourceFile,
+			    function (img) {
+					if (!img || img.type == "error") {
+						// create the error image
+						img = document.createElement('img');
+						img.setAttribute("src", "/images/thumbnail.png");
+					}
+					img.id = "qr_code_entry_image";
+					img.setAttribute("title", escape(sourceFile.name));
+					// and replace the current image with this new one
+					var imageElement = document.getElementById("qr_code_entry_image");
+					imageElement.parentNode.replaceChild(img, imageElement);
+			    },
+			    {
+			        maxHeight: 300,
+			        minHeight: 300,
+			        contain: true,
+			        orientation: true,
+			        canvas: true
+			    }
+			);
+	    }
+		this.ok = function(){
+			// hide the dialog
+			document.getElementById('syncdialogbox').style.display = "none";
+			document.getElementById('dialogoverlay').style.display = "none";
+			// and return this to the class with the new result
+			processImageQrCodeFound(qrFile, qrCodeNumber.value);
+		}
+		this.cancel = function(){
+			// hide the dialog
+			document.getElementById('syncdialogbox').style.display = "none";
+			document.getElementById('dialogoverlay').style.display = "none";
+		}
 	}
 
 	init = function () {
@@ -434,8 +520,6 @@ PicSync.TimeSync = (function () {
 			else {
 				$('#camera_list_outer').hide();
 				this.textContent = 'Hide Synchronisation Panel';
-				// clear the main image, as don't want to take a picture of a static image
-				PicSync.Display.showMainImageFile(null);
 			}
 		});
 		

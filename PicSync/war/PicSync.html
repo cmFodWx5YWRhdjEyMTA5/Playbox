@@ -76,7 +76,11 @@
 	
 	<div id="wrapper">
 	    <div id="top">
-	    	<div id="title_bar">Darker Waters Camera Sync</div>
+	    	<div id="title_bar">
+	    		<span id="title_text">Darker Waters Camera Sync</span>
+	    		<a id="author_link" href="http://www.darkerwaters.co.uk">Darker Waters LTD</a>
+	    		<button id="help_button" onclick='PicSync.Display.showHelpImage();'>Help</button>
+	    	</div>
 	    </div>
 	    <div id="middle">
 	    	<div id="camera_panel">
@@ -90,8 +94,7 @@
 	    		<div class="inner" id="sync_drop_zone">Drop time-image here</div>
 			    <div id="qrScanner"></div>
 	    	</div>
-	    	<div id="fix_image_panel">Drag to camera...
-	    	</div>
+	    	<div id="fix_image_panel"><img id="fix_image_panel_titlebar" src="./images/fix_titlebar.png" alt="Drag to camera..."/></div>
 	    	<div id="image_panel">
 	    	</div>
 	    	<!-- <div id="copy_panel">
@@ -114,6 +117,47 @@
 			</div>
 	    </div>
 	</div>
+	<div id="hidden_content">
+		<div id="dialogoverlay"></div>
+		<div id="copydialogbox">
+		  <div>
+		    <div id="copydialogboxhead"></div>
+		    <div id="copydialogboxbody">
+		    	<form action="">
+					<input id="copy_input_nozip" type="radio" name="zip_yesno" value="no">Download individual files<br>
+					<div id="download_nocheck">You will need your browser's settings to not ask permission for each file.<br>
+						Or be prepared to press &lt;OK&gt; a lot...<br>
+						<img src="./images/dont_confirm_downloads.png" alt="change browser settings" height="100px"/>
+					</div>
+					<input id="copy_input_zip"  type="radio" name="zip_yesno" value="yes" checked="checked">Package files into zip<br>
+					Split zip into packages: <input type="checkbox" id="copy_package_check">
+					<input id="copy_package_number" type="number" name="packageNumber" min="10" max="500"><br>
+					N.B. In some browsers, notably Chrome, it will fail to download large (>400MB) files so splitting into small (~50) files will solve this...
+				</form>
+		    </div>
+		    <div id="copydialogboxfoot">
+		    	<button onclick="PicSync.Copy.performZipCopy()"id="copy_button">Copy...</button>
+		    	<button onclick="PicSync.Copy.cancelDialog()">Cancel</button>
+		    </div>
+		  </div>
+		</div>
+		<div id="syncdialogbox">
+		  <div>
+		    <div id="syncdialogboxhead"></div>
+		    <div id="syncdialogboxbody">
+		    	<form action="">
+		    		<img id="qr_code_entry_image" src="./images/thumbnail.png"/>
+		    		<div>Sorry but the software could not decode the image, please enter the 14 digit code below:</div>
+					<input id="qr_code_entry_number" type="number" name="qrCodeEntry" min="10000000000000" max="99999999999999"><br>
+				</form>
+		    </div>
+		    <div id="copydialogboxfoot">
+		    	<button onclick="PicSync.TimeSync.confirmDialog()"id="enter_qr_code_button">OK</button>
+		    	<button onclick="PicSync.TimeSync.cancelDialog()">Cancel</button>
+		    </div>
+		  </div>
+		</div>
+    </div>
     <!--  and our stuff that controls the application -->
     <script src="./js/picsync/picsync.js"></script>
   </body>

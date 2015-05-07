@@ -68,23 +68,37 @@ PicSync.Images = (function () {
 		evt.preventDefault();
 		
 		// find the thumb dropped
-		var thumb = document.getElementById(evt.dataTransfer.getData('thumbId'));
-		if (thumb) {
-			// remove the thumb representation
-	    	thumb.parentNode.removeChild(thumb);
-	    	// find the data to remove
-	    	var imageObjectId = evt.dataTransfer.getData('imageObjectId');
-	    	var cameraObjectId = evt.dataTransfer.getData('cameraObjectId');
-	    	if (imageObjectId) {
-		    	// and the representation in the data
-		    	PicSync.Images.removeImageId(imageObjectId);
-		    	// might need to hide the fix panel, if it deleted from there
-		    	PicSync.Display.showFixPanel();
-	    	}
-	    	if (cameraObjectId) {
-		    	// and the representation in the data
-		    	PicSync.TimeSync.removeCameraId(cameraObjectId);
-	    	}
+		var thumbsString = evt.dataTransfer.getData('thumbIds');
+		var imageObjectIdsString = evt.dataTransfer.getData('imageObjectIds');
+    	var cameraObjectIdsString = evt.dataTransfer.getData('cameraObjectIds');
+		if (thumbsString) {
+			var thumbs = thumbsString.split(",");
+			var imageObjectIds = null;
+			if (imageObjectIdsString) {
+				imageObjectIds = imageObjectIdsString.split(",");
+			}
+			var cameraObjectIds = null;
+			if (cameraObjectIdsString) {
+				cameraObjectIds = cameraObjectIdsString.split(",");
+			}
+			for (var i = 0; i < thumbs.length; ++i) {
+				var thumb = document.getElementById(thumbs[i]);
+				if (thumb) {
+					// remove the thumb representation
+			    	thumb.parentNode.removeChild(thumb);
+					// for each thumb, get the image and camera id associated, and remove
+					if (imageObjectIds && i < imageObjectIds.length && imageObjectIds[i]) {
+						// remove the image data for this thumb
+						PicSync.Images.removeImageId(imageObjectIds[i]);
+					}
+					if (cameraObjectIds && i < cameraObjectIds.length && cameraObjectIds[i]) {
+						// remove the camera data for this thumb
+						PicSync.TimeSync.removeCameraId(cameraObjectIds[i]);
+					}
+				}
+			}
+	    	// might need to hide the fix panel, if it deleted from there
+	    	PicSync.Display.showFixPanel();
 		}
 	}
 	

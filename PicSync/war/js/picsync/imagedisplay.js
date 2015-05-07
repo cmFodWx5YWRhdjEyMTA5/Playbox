@@ -54,6 +54,18 @@ PicSync.Display = (function () {
 		}
 	}
 	
+	public.showHelpImage = function() {
+		// clear the current image
+		var imagePanel = document.getElementById('image_panel');
+		while (imagePanel.firstChild) {
+			imagePanel.removeChild(imagePanel.firstChild);
+		}
+		var img = document.createElement('img');
+		img.setAttribute("src", "/images/instructions.png");
+		img.className = "mainImage";
+		imagePanel.appendChild(img);
+	}
+	
 	public.showImagesLoaded = function() {
 		// go through the list of images and ensure they are all shown as thumbnails
 		// so create a list of files to send to the function
@@ -372,8 +384,8 @@ PicSync.Display = (function () {
 		// setup the image drag start
 	    img.addEventListener('dragstart', function (event) {
 	    	// set the list of files to be the file, not done as just an image dragging
-	    	event.dataTransfer.setData('thumbId', thumb.id);
-	    	event.dataTransfer.setData('imageObjectId', imageObject.id);
+	    	event.dataTransfer.setData('thumbIds', thumb.id);
+	    	event.dataTransfer.setData('imageObjectIds', imageObject.id);
 	    });
 		// and return
 		return [imageObject, thumb];
@@ -447,6 +459,29 @@ PicSync.Display = (function () {
 	init = function() {
 		// initialise this module here
 		public.showFixPanel();
+		// setup dragging of the fix panel title to the correct camera
+		var fixTitle = document.getElementById('fix_image_panel_titlebar');
+		fixTitle.addEventListener('dragstart', function (event) {
+	    	// set the list of files to be the file, not done as just an image dragging
+			var thumbIds = "";
+			var imageObjectIds = "";
+			var fixPanel = document.getElementById('fix_image_panel');
+			for (var i = 0; i < fixPanel.childNodes.length; ++i) {
+				var child = fixPanel.childNodes[i];
+				if (child && child.id) {
+					// have a child, get the thumb id...
+					var imageObject = PicSync.Images.getImageObjectLoaded(child.id);
+					if (imageObject) {
+						// this is a good thumbnail, add the data to the string
+						thumbIds += child.id + ",";
+						imageObjectIds += imageObject.id + ",";
+					}
+				}
+			}
+			// set this data in the drag operation
+	    	event.dataTransfer.setData('thumbIds', thumbIds);
+	    	event.dataTransfer.setData('imageObjectIds', imageObjectIds);
+	    });
 	}();
 	
 	return public;

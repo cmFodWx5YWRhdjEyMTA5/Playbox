@@ -6,6 +6,16 @@
 	padding: 25px;
     background-color: white;
 }
+#title_text {
+	font: 24pt bold 'Vollkorn';
+}
+#help_button {
+	clear: both;
+	float: right;
+}
+#author_link {
+	float: right;
+}
 #camera_panel {
 	float: left;
 	width: 350px;
@@ -44,7 +54,7 @@
 }
 .mainImageTitle {
 	position: absolute;
-	bottom: 0px;
+	bottom: 20px;
     font-size: 1.2em;
 }
 .timeLabel {
@@ -248,3 +258,37 @@ html,body,#wrapper {
   height: auto;
   width: 0;
 }
+#dialogoverlay{
+	display: none;
+	opacity: .8;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	background: #FFF;
+	width: 100%;
+	z-index: 10;
+}
+#copydialogbox{
+	display: none;
+	position: fixed;
+	background: #000;
+	border-radius:7px; 
+	width:550px;
+	z-index: 10;
+}
+#copydialogbox > div{ background:#FFF; margin:8px; }
+#copydialogbox > div > #copydialogboxhead{ background: #666; font-size:19px; padding:10px; color:#CCC; }
+#copydialogbox > div > #copydialogboxbody{ background:#333; padding:20px; color:#FFF; }
+#copydialogbox > div > #copydialogboxfoot{ background: #666; padding:10px; text-align:right; }
+#syncdialogbox{
+	display: none;
+	position: fixed;
+	background: #000;
+	border-radius:7px; 
+	width:550px;
+	z-index: 10;
+}
+#syncdialogbox > div{ background:#FFF; margin:8px; }
+#syncdialogbox > div > #syncdialogboxhead{ background: #666; font-size:19px; padding:10px; color:#CCC; }
+#syncdialogbox > div > #syncdialogboxbody{ background:#333; padding:20px; color:#FFF; }
+#syncdialogbox > div > #syncdialogboxfoot{ background: #666; padding:10px; text-align:right; }
