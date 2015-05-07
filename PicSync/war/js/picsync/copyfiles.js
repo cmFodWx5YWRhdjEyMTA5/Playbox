@@ -82,8 +82,6 @@ PicSync.Copy = (function () {
 				zip_targetNames.push(newFilename + "." + extension);
 			}
 			
-			//download(imageObject.file, newFilename, imageObject.file.type);
-			
 			if (false == isNumberingFiles) {
 		    	// we don't want to number the next one
 		    	filenameNumber = -1;
@@ -116,7 +114,7 @@ PicSync.Copy = (function () {
 			if (null != file) {
 				if (zipDirectDownload) {
 					// just straight download
-					download(file, newFilename, file.type);
+					downloadFileContent(file, newFilename, file.type);
 					// and do the next one
 					recursiveZip();
 				}
@@ -154,8 +152,13 @@ PicSync.Copy = (function () {
 		var zipFilePostfix = zip_targets.length - 1;
 		var zip = zip_targets[zipFilePostfix];
 		var content = zip.generate({type:"blob"});
-		download(content, zipFilename + " (" + twoDigit(zipFilePostfix + 1) + ").zip", "application/zip");
+		downloadFileContent(content, zipFilename + " (" + twoDigit(zipFilePostfix + 1) + ").zip", "application/zip");
 		zip_targets[zipFilePostfix] = null;
+	}
+	
+	downloadFileContent = function(file, newFilename, fileType) {
+		//download(file, newFilename, fileType);
+		saveAs(file, newFilename);
 	}
 	
 	threeDigit = function(number) {
@@ -259,6 +262,17 @@ PicSync.Copy = (function () {
 	
 	init = function() {
 		// initialise this module here
+		var isFileSaverSupported = false;
+		var isSafari = false;
+		if (navigator.userAgent.search("Safari") >= 0 && navigator.userAgent.search("Chrome") < 0) {
+			isSafari = true;          
+		}
+		try {
+		    isFileSaverSupported = !!new Blob;
+		} catch (e) {}
+		if (!isFileSaverSupported || isSafari) {
+			alert("Sorry... this browser does not support the features you need to copy files, please use another - tested on Chrome so try that?...");
+		}
 	}();
 	
 	return public;
