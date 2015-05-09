@@ -71,6 +71,8 @@
     <script src="./js/jszip.min.js"></script>
     <script src="./js/download.js"></script>
     <script src="./js/FileSaver.min.js"></script>
+	<script src="./js/swfobject.js"></script>
+	<script src="./js/downloadify.min.js"></script>
     
     <div id="thumbnails"></div>
     <div id="default"></div>
@@ -126,13 +128,16 @@
 		    <div id="copydialogboxbody">
 		    	<form action="">
 					<input id="copy_input_nozip" type="radio" name="zip_yesno" value="no">Download individual files<br>
+					<div id="safari_desciption">I can see that you are choosing to use Safari as your browser. I am sorry but downloading files in Safari
+					is very horrible in JavaScript. You can proceed but be prepared for a long wait... You might consider using
+					Google's <a href="https://www.google.com/chrome/browser/desktop/">Chrome browser</a> instead?</div>
 					<div id="download_nocheck">You will need your browser's settings to not ask permission for each file.<br>
 						Or be prepared to press &lt;OK&gt; a lot...<br>
 						<img src="./images/dont_confirm_downloads.png" alt="change browser settings" height="100px"/>
 					</div>
 					<input id="copy_input_zip"  type="radio" name="zip_yesno" value="yes" checked="checked">Package files into zip<br>
 					Split zip into packages: <input type="checkbox" id="copy_package_check">
-					<input id="copy_package_number" type="number" name="packageNumber" min="10" max="500"><br>
+					<input id="copy_package_number" type="number" name="packageNumber" min="5" max="500"><br>
 					N.B. In some browsers, notably Chrome, it will fail to download large (>400MB) files so splitting into small (~50) files will solve this...
 				</form>
 		    </div>
@@ -155,6 +160,20 @@
 		    <div id="copydialogboxfoot">
 		    	<button onclick="PicSync.TimeSync.confirmDialog()"id="enter_qr_code_button">OK</button>
 		    	<button onclick="PicSync.TimeSync.cancelDialog()">Cancel</button>
+		    </div>
+		  </div>
+		</div>
+		<div id="saveasdialogbox">
+		  <div>
+		    <div id="saveasdialogboxhead"></div>
+		    <div id="saveasdialogboxbody">
+		    	<p id="downloadify">
+					In Safari we have to use Flash 10 to download this file, press &lt;Save To Disk&gt; on each file to download and save the file...
+					Please be patient and wait for Safari to do it's thing, it can take a while!... Sorry about this, you would be much better off in Chrome (o;
+				</p>
+		    </div>
+		    <div id="saveasdialogboxfoot">
+		    	<button id="saveas_cancelbutton">Close</button>
 		    </div>
 		  </div>
 		</div>

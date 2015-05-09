@@ -292,3 +292,15 @@ html,body,#wrapper {
 #syncdialogbox > div > #syncdialogboxhead{ background: #666; font-size:19px; padding:10px; color:#CCC; }
 #syncdialogbox > div > #syncdialogboxbody{ background:#333; padding:20px; color:#FFF; }
 #syncdialogbox > div > #syncdialogboxfoot{ background: #666; padding:10px; text-align:right; }
+#saveasdialogbox{
+	display: none;
+	position: fixed;
+	background: #000;
+	border-radius:7px; 
+	width:550px;
+	z-index: 10;
+}
+#saveasdialogbox > div{ background:#FFF; margin:8px; }
+#saveasdialogbox > div > #saveasdialogboxhead{ background: #666; font-size:19px; padding:10px; color:#CCC; }
+#saveasdialogbox > div > #saveasdialogboxbody{ background:#333; padding:20px; color:#FFF; }
+#saveasdialogbox > div > #saveasdialogboxfoot{ background: #666; padding:10px; text-align:right; }

@@ -10,6 +10,14 @@ var PicSync = (function () {
 		document.body.appendChild(js);
 	};
 	
+	public.isSafari = function() {
+		var isSafari = false;
+		if (navigator.userAgent.search("Safari") >= 0 && navigator.userAgent.search("Chrome") < 0) {
+			isSafari = true;          
+		}
+		return isSafari;
+	}
+	
 	init = function() {
 		// append all the scripts we require
 		public.appendScript("./js/picsync/progress.js");

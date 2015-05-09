@@ -10,6 +10,8 @@ PicSync.Copy = (function () {
 	var zipDirectDownload = false;
 	
 	var copyConfirmation = new CopyDialog();
+	var saveasConfirmation = new SafariSaveasDialog();
+	var safariDownloadifyId = 0;
 	
 	var public = {};
 	
@@ -151,14 +153,25 @@ PicSync.Copy = (function () {
 	dumpZipFileContent = function(zip) {
 		var zipFilePostfix = zip_targets.length - 1;
 		var zip = zip_targets[zipFilePostfix];
-		var content = zip.generate({type:"blob"});
-		downloadFileContent(content, zipFilename + " (" + twoDigit(zipFilePostfix + 1) + ").zip", "application/zip");
-		zip_targets[zipFilePostfix] = null;
+		
+		if (PicSync.isSafari()) {
+			// here we have a little problem in that Safari only downloads files in an onclick
+			// function, so we have to show a little dialog for the user to click OK, grr...
+			// but OK, show the dialog then
+			//load(file, newFilename);
+			saveasConfirmation.render(zip, zipFilename + " (" + twoDigit(zipFilePostfix + 1) + ").zip");
+		}
+		else {
+			var content = zip.generate({type:"blob"});
+			downloadFileContent(content, zipFilename + " (" + twoDigit(zipFilePostfix + 1) + ").zip", "application/zip");
+			zip_targets[zipFilePostfix] = null;
+		}
 	}
 	
 	downloadFileContent = function(file, newFilename, fileType) {
 		//download(file, newFilename, fileType);
 		saveAs(file, newFilename);
+		//saveAs(file, newFilename);
 	}
 	
 	threeDigit = function(number) {
@@ -199,8 +212,20 @@ PicSync.Copy = (function () {
 	        copyPackageCheck = document.getElementById("copy_package_check");
 	        copyPackageNumber = document.getElementById("copy_package_number");
 	        downloadFilesWarning = document.getElementById("download_nocheck");
-	        zipSplitValue = 50;
-	        copyPackageNumber.value = zipSplitValue;
+	        
+	        // process for Safari - just allow zip files...
+	        if (PicSync.isSafari()) {
+	        	$("#copy_input_nozip").hide();
+	        	copyPackageCheck.checked = true;
+	        	zipSplitValue = 5;
+		        copyPackageNumber.value = zipSplitValue;
+	        }
+	        else {
+	        	$("#safari_desciption").hide();
+	        	zipSplitValue = 50;
+		        copyPackageNumber.value = zipSplitValue;
+	        }
+	        
 	        // add change listeners
 	        noZipRadio.addEventListener('change', function() {
 				// listens to the user changing the contents
@@ -260,17 +285,64 @@ PicSync.Copy = (function () {
 		}
 	}
 	
+	function SafariSaveasDialog(){
+	    this.render = function(saveFile, saveFilename){
+	        var winW = window.innerWidth;
+	        var winH = window.innerHeight;
+	        var dialogoverlay = document.getElementById('dialogoverlay');
+	        var dialogbox = document.getElementById('saveasdialogbox');
+	        var dialogBody = document.getElementById('saveasdialogboxbody');
+	        dialogoverlay.style.display = "block";
+	        dialogoverlay.style.height = winH+"px";
+	        dialogbox.style.left = (winW/2) - (550 * .5)+"px";
+	        dialogbox.style.top = "100px";
+	        dialogbox.style.display = "block";
+	        document.getElementById('saveasdialogboxhead').innerHTML = "Download the packaged file(s) in Safari...";
+	        // create the downloadify handler to process this zip file download, first create a div in which to put
+	        // the downloadify button to use
+	        var titleDiv = document.createElement('div');
+			titleDiv.className = "saveas_title";
+			titleDiv.textContent = saveFilename;
+			titleDiv.id = "downloadify_" + ++safariDownloadifyId;
+	        dialogBody.appendChild(titleDiv);
+	        // and add the save as button from downloadify
+	        Downloadify.create(titleDiv.id, {
+				filename: saveFilename,
+				data: function(){
+					return saveFile.generate({type:"base64"});
+				},
+				dataType: 'base64',
+				onComplete: function() { 
+					// remove the save option from the dialog
+					dialogBody.removeChild(titleDiv);
+				},
+				onCancel: function(){ alert('You have cancelled the saving of this file.'); },
+				onError: function(){ alert('You must put something in the File Contents or there will be nothing to save!'); },
+				swf: 'media/downloadify.swf',
+				downloadImage: 'images/download.png',
+				width: 100,
+				height: 30,
+				transparent: true,
+				append: true
+			});
+	        document.getElementById("saveas_cancelbutton").addEventListener("click", function() {
+	        	// close the dialog
+	        	saveasConfirmation.closeDialog();
+	        });
+	    }
+		this.closeDialog = function(){
+			document.getElementById('saveasdialogbox').style.display = "none";
+			document.getElementById('dialogoverlay').style.display = "none";
+		}
+	}
+	
 	init = function() {
 		// initialise this module here
 		var isFileSaverSupported = false;
-		var isSafari = false;
-		if (navigator.userAgent.search("Safari") >= 0 && navigator.userAgent.search("Chrome") < 0) {
-			isSafari = true;          
-		}
 		try {
 		    isFileSaverSupported = !!new Blob;
 		} catch (e) {}
-		if (!isFileSaverSupported || isSafari) {
+		if (!isFileSaverSupported) {
 			alert("Sorry... this browser does not support the features you need to copy files, please use another - tested on Chrome so try that?...");
 		}
 	}();
