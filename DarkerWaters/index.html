@@ -36,9 +36,9 @@
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Technologies <b class="caret"></b></a>
               <ul class="dropdown-menu">
-                <li><a href="#technologies">Technologies</a></li>
+                <li><a href="#software">Software</a></li>
                 <li><a href="#arduino">Arduino</a></li>
-                <li><a href="#web">Web</a></li>
+                <li><a href="#client-web">Client-Web</a></li>
                 <li class="divider"></li>
                 <li class="dropdown-header">Operating Systems</li>
                 <li><a href="#apple">Mac OS</a></li>
@@ -51,10 +51,8 @@
                 <li><a href="#photography">Photography</a></li>
                 <li><a href="#knitting">Knitting</a></li>
                 <li><a href="#cycling">Cycling</a></li>
-                <li class="divider"></li>
-                <li class="dropdown-header">Languages</li>
-                <li><a href="#french">French</a></li>
-                <li><a href="#spanish">Spanish</a></li>
+                <li><a href="#making">Making</a></li>
+                <li><a href="#learning">Learning</a></li>
               </ul>
             </li>
             <li><a href="#contact">Contact</a></li>
@@ -95,7 +93,9 @@
         $('#content').load('./pages/' + pageTitle + '.html');
       };
       $(document).ready(function(){
-        showNewPageContent();
+        var pageLink = document.location.hash;
+        pageLink = pageLink.replace(/^.*#/, '');
+        showNewPageContent(pageLink);
       });
     </script>
   </body>
