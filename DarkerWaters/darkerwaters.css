@@ -1,0 +1,5 @@
+.paddedTable td,
+.paddedTable th {
+    padding: 10px;
+    text-align: center;
+}
