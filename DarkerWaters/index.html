@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Darker Waters LTD</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Loading Bootstrap -->
+    <link type="text/css" href="./css/vendor/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Loading Flat UI -->
+    <link type="text/css" href="./css/flat-ui.css" rel="stylesheet">
+
+    <link rel="shortcut icon" href="img/favicon.ico">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements. All other JS at the end of file. -->
+    <!--[if lt IE 9]>
+      <script src="js/vendor/html5shiv.js"></script>
+      <script src="js/vendor/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <!-- Static navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+          </button>
+          <a class="navbar-brand" href="#">Darker Waters LTD</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Technologies <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#technologies">Technologies</a></li>
+                <li><a href="#arduino">Arduino</a></li>
+                <li><a href="#web">Web</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Operating Systems</li>
+                <li><a href="#apple">Mac OS</a></li>
+                <li><a href="#windows">Windows</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Interests <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#photography">Photography</a></li>
+                <li><a href="#knitting">Knitting</a></li>
+                <li><a href="#cycling">Cycling</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Languages</li>
+                <li><a href="#french">French</a></li>
+                <li><a href="#spanish">Spanish</a></li>
+              </ul>
+            </li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+          <!--<ul class="nav navbar-nav navbar-right">
+            <li><a href="../navbar/">Default</a></li>
+            <li class="active"><a href="./">Static top</a></li>
+            <li><a href="../navbar-fixed-top/">Fixed top</a></li>
+          </ul>-->
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+
+    <div id="content">
+
+    </div>
+
+
+    <!-- jQuery (necessary for Flat UI's JavaScript plugins) -->
+    <script src="./js/vendor/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="./js/vendor/video.js"></script>
+    <script src="./js/flat-ui.min.js"></script>
+    <script src="./js/application.js"></script>
+
+    <script type="text/javascript" charset="utf-8">
+      window.onpopstate = function(event) {
+        // this has moved to a new #location, load the content for this page now
+        //alert("location: " + document.location + ", state: " + JSON.stringify(event.state));
+        var pageLink = document.location.hash;
+        pageLink = pageLink.replace(/^.*#/, '');
+        showNewPageContent(pageLink);
+      };
+      showNewPageContent = function(pageTitle) {
+        if (!pageTitle) {
+          pageTitle = 'main';
+        }
+        $('#content').load('./pages/' + pageTitle + '.html');
+      };
+      $(document).ready(function(){
+        showNewPageContent();
+      });
+    </script>
+  </body>
+</html>
