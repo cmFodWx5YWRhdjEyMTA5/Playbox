@@ -1,6 +1,7 @@
-package com.alonyx.shared;
+package com.alonyx.server;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
@@ -12,14 +13,15 @@ import javax.jdo.annotations.PrimaryKey;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import com.alonyx.shared.TrainTimeParser;
 import com.google.appengine.api.datastore.Key;
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Train implements Serializable {
+public class TrainData implements Serializable {
 	
-	private static final long serialVersionUID = 1591605955139192213L;
-	
+	private static final long serialVersionUID = -931226299276776969L;
+
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
 	private Key key;
@@ -35,6 +37,10 @@ public class Train implements Serializable {
 	@Persistent
 	@JsonProperty("EVENT_TIME")
     private String eventTime;
+	
+	@Persistent
+	@JsonProperty("EVENT_TIMES")
+    private String eventTimes;
 	
 	@Persistent
 	@JsonProperty("LINE")
@@ -60,19 +66,78 @@ public class Train implements Serializable {
 	@JsonProperty("WAITING_TIME")
     private String waitingTime;
 
-    public Train() {
+    public TrainData() {
     }
 
-	public Train(Train toCopy) {
+	public void initialise() {
+		getEventTimes();
+	}
+    
+	public TrainData(String destination, String direction, String eventTime, String line, String nextArrival, 
+			String station, int trainId, int waitingSeconds, String waitingTime) {
+		this.destination = destination;
+		this.direction = direction;
+		this.eventTime = eventTime;
+		this.eventTimes = eventTime + ",";
+		this.line = line;
+		this.nextArrival = nextArrival;
+		this.station = station;
+		this.trainId = trainId;
+		this.waitingSeconds = waitingSeconds;
+		this.waitingTime = waitingTime;
+	}
+
+	public TrainData(TrainData toCopy) {
 		this.destination = toCopy.destination;
 		this.direction = toCopy.direction;
 		this.eventTime = toCopy.eventTime;
+		this.eventTimes = toCopy.eventTimes;
 		this.line = toCopy.line;
 		this.nextArrival = toCopy.nextArrival;
 		this.station = toCopy.station;
 		this.trainId = toCopy.trainId;
 		this.waitingSeconds = toCopy.waitingSeconds;
 		this.waitingTime = toCopy.waitingTime;
+	}
+	
+	public boolean canMergeTrainEvent(TrainData event) {
+		// if the passed train data is a lot like us then we can combine the event into this one
+		if (this.destination.equals(event.destination) &&
+				this.direction.equals(event.direction) &&
+				this.line.equals(event.line) &&
+				this.trainId == event.trainId) {
+			// all the basic data is the same, are the events close in time?
+			return Math.abs(this.getEventTimeDate().getTime() - event.getEventTimeDate().getTime()) < 600000;
+		}
+		else {
+			// basic data is not the same
+			return false;
+		}
+	}
+	
+	public void mergeTrainEvent(TrainData event) {
+		// update the newer data
+		if (event.getEventTimeDate().getTime() > this.getEventTimeDate().getTime()) {
+			// the event is newer, use some of it's data
+			this.eventTime = event.eventTime;
+			this.nextArrival = event.nextArrival;
+			this.waitingSeconds = event.waitingSeconds;
+			this.waitingTime = event.waitingTime;
+		}
+		else {
+			// fine, leave us as we are, but add the event time to the list of event times
+		}
+		// add to the event times
+		this.eventTimes = getEventTimes() + event.eventTime + ",";
+	}
+	
+	public String getEventTimes() {
+		if (null == this.eventTimes || this.eventTimes.isEmpty()) {
+			// put in the first event time
+			this.eventTimes = this.eventTime + ",";
+		}
+		// return the list of event times
+		return this.eventTimes;
 	}
 
 	public String getDestination() {
@@ -148,5 +213,12 @@ public class Train implements Serializable {
 	}
     
     // getter / setter goes here
+	public Date getEventTimeDate() {
+		return TrainTimeParser.getEventTimeDate(this.eventTime);
+	}
     
+    // getter / setter goes here
+	public Date getNextArrivalDate() {
+		return TrainTimeParser.getNextArrivalDate(this.nextArrival);
+	}
 }

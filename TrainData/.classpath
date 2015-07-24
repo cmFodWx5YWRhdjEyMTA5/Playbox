@@ -17,5 +17,7 @@
 	<classpathentry kind="lib" path="thirdparty/jars/jettison-1.1.jar"/>
 	<classpathentry kind="lib" path="thirdparty/jars/jsr311-api-1.1.1.jar"/>
 	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="thirdparty/jars/mysql-connector-java-5.1.35-bin.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

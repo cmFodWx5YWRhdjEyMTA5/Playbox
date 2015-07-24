@@ -1,13 +1,10 @@
-package com.alonyx.shared;
+package com.alonyx.traindataserver.data;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-
-@XmlRootElement
 public class TrainList {
 	
     @JsonProperty("trains")
@@ -17,7 +14,7 @@ public class TrainList {
 		this.trains = trainString;
 	}
 	
-	public void addTrain(Train train) {
+	public void addTrain(TrainData train) {
 		this.trains += train.toString() + ";";
 	}
 	
@@ -25,8 +22,8 @@ public class TrainList {
 		return this.trains;
 	}
 	
-	public List<Train> getTrains() {
-		List<Train> list = new ArrayList<Train>();
+	public List<TrainData> getTrains() {
+		List<TrainData> list = new ArrayList<TrainData>();
 		
 		return list;
 	}

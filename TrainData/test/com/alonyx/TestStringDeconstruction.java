@@ -6,7 +6,7 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import com.alonyx.shared.Train;
+import com.alonyx.server.TrainData;
 
 public class TestStringDeconstruction {
 
@@ -40,7 +40,7 @@ public class TestStringDeconstruction {
 		
 		
 		try {
-			Train train = new ObjectMapper().readValue(singleEntry, Train.class);
+			TrainData train = new ObjectMapper().readValue(singleEntry, TrainData.class);
 			System.out.println(train);
 		} catch (JsonParseException e1) {
 			// TODO Auto-generated catch block
@@ -54,9 +54,9 @@ public class TestStringDeconstruction {
 		}
 		
 		try {
-			Train[] trainList = new ObjectMapper().readValue(exampleString, Train[].class);
+			TrainData[] trainList = new ObjectMapper().readValue(exampleString, TrainData[].class);
 			//List<Train> trainList = new ObjectMapper().readValue(output, TypeFactory.defaultInstance().constructCollectionType(List.class, Train.class));
-			for (Train train : trainList) {
+			for (TrainData train : trainList) {
 				System.out.println(train);
 			}
 		} catch (JsonParseException e) {

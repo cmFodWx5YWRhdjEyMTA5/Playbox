@@ -3,9 +3,6 @@ package com.alonyx.server;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import javax.jdo.JDOHelper;
-import javax.jdo.PersistenceManager;
-import javax.jdo.PersistenceManagerFactory;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 
@@ -18,8 +15,6 @@ public abstract class JacksonResource {
 	private final ObjectMapper objectMapper;
 
 	public static final Logger LOG = Logger.getLogger(JacksonResource.class.getName());
-	
-	private static final PersistenceManagerFactory PMF = JDOHelper.getPersistenceManagerFactory("transactions-optional");
 	
 	protected JacksonResource() {
 		this.objectMapper = new ObjectMapper();
@@ -49,9 +44,5 @@ public abstract class JacksonResource {
 			throw new WebApplicationException(e, Status.INTERNAL_SERVER_ERROR);
 		}
 		return result;
-	}
-
-	protected PersistenceManager getPersistenceManager() {
-		return PMF.getPersistenceManager();
 	}
 }

@@ -1,4 +1,4 @@
-package com.alonyx.server;
+package com.alonyx.traindataserver.resources;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -6,20 +6,23 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.alonyx.traindataserver.PersistantStore;
+import com.alonyx.traindataserver.data.StationData;
+import com.alonyx.traindataserver.data.TrainData;
+
 @Path("/trains")
 @Produces(value = MediaType.APPLICATION_JSON)
-public class TrainResource extends JacksonResource {
+public class TrainResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getTrains(@QueryParam("station") String station) {
+	public TrainData[] getTrains(@QueryParam("station") String station) {
 		StationData stationData = PersistantStore.INSTANCE.getStation(station);
-		String returnString = "[]";
+		TrainData[] trains = new TrainData[0];
 		if (null != stationData) {
-			TrainData[] trains = stationData.getTrains();
-			returnString = toJsonString(trains);
+			trains = stationData.getTrains();
 		}
 		// return all the trains in this station
-		return returnString;
+		return trains;
 	}
 }
