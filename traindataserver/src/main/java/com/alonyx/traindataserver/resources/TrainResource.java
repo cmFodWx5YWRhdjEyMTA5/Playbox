@@ -9,12 +9,14 @@ import javax.ws.rs.core.MediaType;
 import com.alonyx.traindataserver.PersistantStore;
 import com.alonyx.traindataserver.data.StationData;
 import com.alonyx.traindataserver.data.TrainData;
+import com.codahale.metrics.annotation.Timed;
 
 @Path("/trains")
 @Produces(value = MediaType.APPLICATION_JSON)
 public class TrainResource {
 
 	@GET
+    @Timed
 	@Produces(MediaType.APPLICATION_JSON)
 	public TrainData[] getTrains(@QueryParam("station") String station) {
 		StationData stationData = PersistantStore.INSTANCE.getStation(station);

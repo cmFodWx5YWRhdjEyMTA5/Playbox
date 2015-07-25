@@ -28,7 +28,7 @@ public class TrainDataServerApp extends Application<TrainDataServerConfiguration
     @Override
     public void run(TrainDataServerConfiguration configuration, Environment environment) {
     	// register health checks
-    	environment.healthChecks().register("api-key", new ApiKeyHealthCheck(configuration.getDefaultApiKey()));
+    	environment.healthChecks().register("api-key", new ApiKeyHealthCheck(configuration.getApiKey()));
         // register resources
 	    environment.jersey().register(new GatherResource());
 	    environment.jersey().register(new StationResource());

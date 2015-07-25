@@ -7,15 +7,15 @@ import org.hibernate.validator.constraints.NotEmpty;
 public class TrainDataServerConfiguration extends Configuration {
 
     @NotEmpty
-    private String defaultApiKey = "c3917141-7b8c-4c5c-b628-0d1a06939eb7";
+    private String apiKey = "c3917141-7b8c-4c5c-b628-0d1a06939eb7";
 
     @JsonProperty
-    public String getDefaultApiKey() {
-        return defaultApiKey;
+    public String getApiKey() {
+        return apiKey;
     }
 
     @JsonProperty
-    public void setDefaultApiKey(String key) {
-        this.defaultApiKey = key;
+    public void setApiKey(String key) {
+        this.apiKey = key;
     }
 }
