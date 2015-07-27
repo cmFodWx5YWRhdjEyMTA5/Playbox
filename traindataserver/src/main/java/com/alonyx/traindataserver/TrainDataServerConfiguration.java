@@ -13,35 +13,48 @@ public class TrainDataServerConfiguration extends Configuration {
     private String storagePath = "./stations/";
     
     @NotEmpty
-    private long storageDelay = 300000l;
+    private String storageDelay = "300000";
+    
+    @NotEmpty
+    private String gatherInterval = "60000";
 
-    @JsonProperty
+    @JsonProperty("api-key")
     public String getApiKey() {
         return apiKey;
     }
 
-    @JsonProperty
+    @JsonProperty("api-key")
     public void setApiKey(String key) {
         this.apiKey = key;
     }
     
-    @JsonProperty
+    @JsonProperty("storage-path")
     public String getStoragePath() {
     	return this.storagePath;
     }
     
-    @JsonProperty
+    @JsonProperty("storage-path")
     public void setStoragePath(String path) {
     	this.storagePath = path;
     }
     
-    @JsonProperty
-    public long getStorageDelay() {
+    @JsonProperty("storage-delay")
+    public String getStorageDelay() {
     	return this.storageDelay;
     }
     
-    @JsonProperty
-    public void setStorageDelay(long delay) {
+    @JsonProperty("storage-delay")
+    public void setStorageDelay(String delay) {
     	this.storageDelay = delay;
+    }
+    
+    @JsonProperty("gather-interval")
+    public String getGatherInterval() {
+    	return this.gatherInterval;
+    }
+    
+    @JsonProperty("gather-interval")
+    public void setGatherInterval(String interval) {
+    	this.gatherInterval = interval;
     }
 }

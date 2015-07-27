@@ -22,7 +22,7 @@ public class TrainResource {
 		StationData stationData = DataCollectionManager.INSTANCE.getStation(station);
 		TrainData[] trains = new TrainData[0];
 		if (null != stationData) {
-			trains = stationData.getTrains();
+			trains = stationData.getTrainData();
 		}
 		// return all the trains in this station
 		return trains;

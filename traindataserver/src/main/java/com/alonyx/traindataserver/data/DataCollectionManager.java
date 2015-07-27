@@ -13,6 +13,7 @@ import javax.ws.rs.core.Response.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alonyx.traindataserver.resources.GatherResource;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,9 +30,11 @@ public class DataCollectionManager implements Managed {
 	
 	private final Thread storingThread;
 	
+	private final Thread gatheringThread;
+	
 	private final Object threadWait = new Object();
 	
-	private volatile boolean isStoring = true;
+	private volatile boolean isProcessing = true;
 	
 	private volatile boolean isDirty = false;
 	
@@ -41,7 +44,7 @@ public class DataCollectionManager implements Managed {
 	
 	private final ObjectMapper objectMapper;
 	
-    public DataCollectionManager(final long storageDelay, String storagePath) throws InstantiationException {
+    public DataCollectionManager(final long gatherInterval, final long storageDelay, String storagePath) throws InstantiationException {
     	if (null != INSTANCE) {
     		throw new InstantiationException("Don't create more than one data collection manager");
     	}
@@ -58,7 +61,7 @@ public class DataCollectionManager implements Managed {
 			public void run() {
 				// store and wait periodically
 				LOG.info("Storage thread starting with " + Long.toString(storageDelay) + "ms delay between storage calls");
-				while (isStoring) {
+				while (isProcessing) {
 					// store the stations
 					storeStations();
 					synchronized (threadWait) {
@@ -73,16 +76,35 @@ public class DataCollectionManager implements Managed {
 				LOG.info("Storage thread ending");
 			}
 		}, "StationStoring");
+		// and start the thread gathering data
+		this.gatheringThread = new Thread(new Runnable() {
+			public void run() {
+				// gather data and wait periodically
+				while (isProcessing) {
+					// gather data
+					new GatherResource().getTrains();
+					synchronized (threadWait) {
+						try {
+							// sleep the specified delay
+							threadWait.wait(storageDelay);
+						} catch (InterruptedException e) {
+							// fine to interrupt
+						}
+					}
+				}
+			}
+		}, "DataGathering");
     }
 
     public void start() throws Exception {
-    	// start up the thread
+    	// start up the threads
 		this.storingThread.start();
+		this.gatheringThread.start();
     }
 
     public void stop() throws Exception {
-    	// stop the thread from running
-        this.isStoring = false;
+    	// stop the threads from running
+        this.isProcessing = false;
         this.threadWait.notify();
     }
 	

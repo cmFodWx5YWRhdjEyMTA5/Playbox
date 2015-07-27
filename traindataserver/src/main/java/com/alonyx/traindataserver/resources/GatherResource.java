@@ -20,6 +20,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.client.ClientConfig;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -30,6 +31,8 @@ import org.slf4j.LoggerFactory;
 @Path("/gather")
 @Produces(value = MediaType.APPLICATION_JSON)
 public class GatherResource {
+	
+	private Logger LOG = LoggerFactory.getLogger(GatherResource.class);
 
 	@GET
     @Timed
@@ -59,7 +62,7 @@ public class GatherResource {
 			// check the response
 			if (response.getStatus() != 200) {
 				// log the error
-				LoggerFactory.getLogger(getClass()).error("Failed : HTTP error code : " + response.getStatus());
+				LOG.error("Failed : HTTP error code : " + response.getStatus());
 			}
 			else {
 				String output = response.readEntity(String.class);
@@ -78,10 +81,10 @@ public class GatherResource {
 						stationIds.add(stationId);
 					}
 				}
-				LoggerFactory.getLogger(getClass()).info(loggingData);
+				LOG.info(loggingData);
 			}
 		} catch (Exception e) {
-			LoggerFactory.getLogger(getClass()).error(e.getMessage());
+			LOG.error(e.getMessage());
 		}
 		// and return the response of train data gathered
 		return trainList;

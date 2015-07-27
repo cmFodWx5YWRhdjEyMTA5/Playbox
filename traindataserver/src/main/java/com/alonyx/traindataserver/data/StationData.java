@@ -92,7 +92,7 @@ public class StationData implements Serializable {
 		}
 	}
 
-	public TrainData[] getTrains() {
+	public TrainData[] getTrainData() {
 		synchronized (this.trainData) {
 			sortTrains();
 			// and return as an array
@@ -101,10 +101,10 @@ public class StationData implements Serializable {
 	}
 
 	public void clearExpiredTrainData() {
-		// data expiry, for now just keep the trains list at 5...
+		// data expiry, for now just keep the trains list at 50...
 		synchronized (this.trainData) {
 			sortTrains();
-			while (this.trainData.size() > 5) {
+			while (this.trainData.size() > 50) {
 				this.trainData.remove(0);
 			}
 		}

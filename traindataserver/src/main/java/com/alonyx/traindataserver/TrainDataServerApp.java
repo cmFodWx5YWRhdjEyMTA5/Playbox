@@ -30,12 +30,15 @@ public class TrainDataServerApp extends Application<TrainDataServerConfiguration
 
     @Override
     public void run(TrainDataServerConfiguration configuration, Environment environment) {
+    	long storageDelay = Long.parseLong(configuration.getStorageDelay());
+    	long gatherInterval = Long.parseLong(configuration.getGatherInterval());
     	// register health checks
     	environment.healthChecks().register("configuration-file", 
     			new ConfigurationFileHealthCheck(
     					configuration.getApiKey(),
     					configuration.getStoragePath(),
-    					configuration.getStorageDelay()));
+    					configuration.getStorageDelay(),
+    					configuration.getGatherInterval()));
         // register resources
 	    environment.jersey().register(new GatherResource());
 	    environment.jersey().register(new StationResource());
@@ -44,7 +47,7 @@ public class TrainDataServerApp extends Application<TrainDataServerConfiguration
 	    // and startup the data collection manager
 		try {
 			// create the manager
-			DataCollectionManager dataCollectionManager = new DataCollectionManager(configuration.getStorageDelay(), configuration.getStoragePath());
+			DataCollectionManager dataCollectionManager = new DataCollectionManager(gatherInterval, storageDelay, configuration.getStoragePath());
 			// manage the created manager
 		    environment.lifecycle().manage(dataCollectionManager);
 		} catch (InstantiationException e) {
