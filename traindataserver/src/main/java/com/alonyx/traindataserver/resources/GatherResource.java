@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.alonyx.traindataserver.PersistantStore;
+import com.alonyx.traindataserver.data.DataCollectionManager;
 import com.alonyx.traindataserver.data.StationData;
 import com.alonyx.traindataserver.data.TrainData;
 import com.codahale.metrics.annotation.Timed;
@@ -88,7 +88,7 @@ public class GatherResource {
 	}
 
 	public void addTrainToStationData(String station, TrainData train) {
-		StationData stationData = PersistantStore.INSTANCE.getStation(station);
+		StationData stationData = DataCollectionManager.INSTANCE.getStation(station);
 		boolean isAddRequired = false;
 		if (null == stationData) {
 			// create new station data
@@ -100,7 +100,7 @@ public class GatherResource {
 		// persist this change
 		if (isAddRequired) {
 			// just add to the store
-			PersistantStore.INSTANCE.addStation(stationData);
+			DataCollectionManager.INSTANCE.addStation(stationData);
 		}
 	}
 }
