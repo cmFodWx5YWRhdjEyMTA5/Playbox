@@ -14,6 +14,8 @@ gather-interval: 60000
 server:
 #  softNofileLimit: 1000
 #  hardNofileLimit: 1000
+  rootPath: /api/*
+  applicationContextPath: /
   applicationConnectors:
     - type: http
       port: 8080

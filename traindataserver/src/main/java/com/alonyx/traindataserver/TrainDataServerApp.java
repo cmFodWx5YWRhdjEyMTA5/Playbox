@@ -9,6 +9,7 @@ import com.alonyx.traindataserver.resources.StationResource;
 import com.alonyx.traindataserver.resources.TrainResource;
 
 import io.dropwizard.Application;
+import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
@@ -25,13 +26,18 @@ public class TrainDataServerApp extends Application<TrainDataServerConfiguration
 
     @Override
     public void initialize(Bootstrap<TrainDataServerConfiguration> bootstrap) {
-        // nothing to do yet
+        // initialise the assets to serve out the web-page
+    	bootstrap.addBundle(new AssetsBundle("/assets/", "/", "index.html"));
     }
 
     @Override
     public void run(TrainDataServerConfiguration configuration, Environment environment) {
     	long storageDelay = Long.parseLong(configuration.getStorageDelay());
     	long gatherInterval = Long.parseLong(configuration.getGatherInterval());
+    	
+    	// set the URL for the api calls
+    	environment.jersey().setUrlPattern("/api/*");
+    	
     	// register health checks
     	environment.healthChecks().register("configuration-file", 
     			new ConfigurationFileHealthCheck(

@@ -105,7 +105,9 @@ public class DataCollectionManager implements Managed {
     public void stop() throws Exception {
     	// stop the threads from running
         this.isProcessing = false;
-        this.threadWait.notify();
+        synchronized (this.threadWait) {
+			this.threadWait.notifyAll();
+        }
     }
 	
 	public StationData[] getStations() {
