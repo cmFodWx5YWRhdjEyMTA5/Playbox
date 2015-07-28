@@ -1,47 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Flat UI Free 101 Template</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+<meta charset="utf-8">
+<title>Alonyx Train Data Server</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Loading Bootstrap -->
-    <link href="../css/vendor/bootstrap.min.css" rel="stylesheet">
+<!-- Loading Bootstrap -->
+<link href="../css/vendor/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Loading Flat UI -->
-    <link href="../css/flat-ui.min.css" rel="stylesheet">
+<!-- Loading Flat UI -->
+<link href="../css/flat-ui.min.css" rel="stylesheet">
 
-    <link rel="shortcut icon" href="img/favicon.ico">
+<link rel="shortcut icon" href="img/favicon.ico">
 
-    <!-- HTML5 shim, for IE6-8 support of HTML5 elements. All other JS at the end of file. -->
-    <!--[if lt IE 9]>
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements. All other JS at the end of file. -->
+<!--[if lt IE 9]>
       <script src="js/vendor/html5shiv.js"></script>
       <script src="js/vendor/respond.min.js"></script>
     <![endif]-->
-  </head>
-  <body>
-    <div class="container">
-        <h1>Alonyx Train Data Server</h1>
-    </div>
-    <!-- /.container -->
-    <div id="main">
-    	<div id="stations_div"></div>
-    	<div id="details_div"></div>
-    </div>
+</head>
+<body>
+	<div class="container">
+		<h1>Alonyx Train Data Server</h1>
+	</div>
+	<!-- /.container -->
+	<div id="main">
+		<div id="station_list" class="pagination">
+			<ul id="station_list_body">
+				<li class="previous"><a href="#fakelink" class="fui-arrow-left"></a></li>
+				<li class="next"><a href="#fakelink" class="fui-arrow-right"></a></li>
+			</ul>
+		</div>
+		<div id="train_list">
+			<h4 id="train_title"></h4>
+			<ul id="train_list_body">
+				
+			</ul>
+		</div>
+	</div>
 
 
-    <!-- jQuery (necessary for Flat UI's JavaScript plugins) -->
-    <script src="../js/vendor/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="../js/vendor/video.js"></script>
-    <script src="../js/flat-ui.min.js"></script>
-    <script src="../js/train.js"></script>
-    
-    <script type="text/javascript" charset="utf-8">
-      $(document).ready(function(){
-        getStations();
-      });
+	<!-- jQuery (necessary for Flat UI's JavaScript plugins) -->
+	<script src="../js/vendor/jquery.min.js"></script>
+	<!-- Include all compiled plugins (below), or include individual files as needed -->
+	<script src="../js/vendor/video.js"></script>
+	<script src="../js/flat-ui.min.js"></script>
+	<script src="../js/train.js"></script>
+
+	<script type="text/javascript" charset="utf-8">
+	    window.onpopstate = function(event) {
+	      // this has moved to a new #location, load the content for this page now
+	      //alert("location: " + document.location + ", state: " + JSON.stringify(event.state));
+	      var stationId = document.location.hash;
+	      stationId = stationId.replace(/^.*#/, '');
+	      if (stationId && stationId != "fakelink") {
+	      	showStationData(stationId);
+	      }
+	    };
+	    $(document).ready(function(){
+	      getStations();
+      	});
     </script>
 
-  </body>
+</body>
 </html>
