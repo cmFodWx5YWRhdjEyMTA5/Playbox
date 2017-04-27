@@ -1,12 +1,10 @@
 package uk.co.darkerwaters;
 
 import java.awt.BorderLayout;
-import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -24,7 +22,6 @@ import java.util.List;
 import java.util.TimeZone;
 
 import javax.activation.MimetypesFileTypeMap;
-import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -36,6 +33,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -67,8 +65,8 @@ import org.apache.commons.io.FileUtils;
 public class Main extends JPanel implements ActionListener {
     private static final long serialVersionUID = 5770429033884005460L;
 	
-    static private final String newline = "\n";
-	private static SimpleDateFormat filenameDateFormat = new SimpleDateFormat("yyyy-MM-dd HHmmss");
+    static final String newline = "\n";
+	static SimpleDateFormat filenameDateFormat = new SimpleDateFormat("yyyy-MM-dd HHmmss");
 	private static final SimpleDateFormat K_ASCII_EXIF_DATE = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
 	
 	private boolean isCancelProcessing = false;
@@ -78,73 +76,10 @@ public class Main extends JPanel implements ActionListener {
     JButton openButton, cancelButton, goButton;
     JCheckBox locateCheck, nameCheck, dateCheck;
     JTextArea filenameFormatText;
-    JTextArea log;
-    JTextArea error;
+    static JTextArea log;
+    static JTextArea error;
     JFileChooser fc;
     JProgressBar progress;
-    
-    public class ImagePanel extends JPanel{
-		private static final long serialVersionUID = 5361662653638618359L;
-		private BufferedImage image = null;
-
-        public ImagePanel() {
-           
-        }
-        public void setImage(ImageFile imageFile) {
-        	try {                
-        		if (null != image) {
-        			image.flush();
-        			image = null;
-        		}
-                image = ImageIO.read(imageFile.file);
-                this.updateUI();
-             } catch (IOException e) {
-                  error.append("Failed to read image " + imageFile.getName() + ": " + e.getMessage());
-             }
-        }
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            g.drawImage(image, 0, 0, getWidth(), getHeight(), null); // see javadoc for more info on the parameters            
-        }
-
-    }
-    
-    private static class GpxTrack {
-    	String name;
-    	Date startTimeLocal;
-    	Date endTimeLocal;
-    	int timeOffset;
-    	Trackpoint[] track;
-		public String timezoneString;
-    	
-    	@Override
-    	public String toString() {
-    		return name + 
-    				" starting at " + filenameDateFormat.format(startTimeLocal) +
-    				" in " + timezoneString + 
-    				" with " + (timeOffset / (60 * 60 * 1000)) + "hr offset"; 
-    	}
-    }
-    
-    private static class ImageFile {
-    	File file;
-		Boolean isLocationSet = null;
-    	
-    	public ImageFile(File file) {
-			this.file = file;
-		}
-
-		@Override
-    	public String toString() {
-    		return file.getName() + 
-    				(this.isLocationSet == null ? "" : (this.isLocationSet ? " located" : " not located")); 
-    	}
-
-		public String getName() {
-			return this.file.getName();
-		}
-    }
     
     DefaultListModel<ImageFile> imageListModel = new DefaultListModel<ImageFile>() {
 		private static final long serialVersionUID = 1038301917406489264L;
@@ -157,11 +92,14 @@ public class Main extends JPanel implements ActionListener {
     private JList<GpxTrack> trackList;
     private ImagePanel previewImage;
 
+	private JSplitPane listSplitPane;
+
+	private JSplitPane lrSplitPane;
+
     public Main() {
         super(new BorderLayout());
 
-        //Create the log first, because the action listeners
-        //need to refer to it.
+        //Create the log first, because the action listeners need to refer to it.
         log = new JTextArea(5,20);
         log.setMargin(new Insets(5,5,5,5));
         log.setEditable(false);
@@ -246,13 +184,11 @@ public class Main extends JPanel implements ActionListener {
         });
         // create the preview image
         this.previewImage = new ImagePanel();
-        //For layout purposes, put the lists in a separate panel
-        JPanel listPanel = new JPanel(new GridLayout(0, 2));
-        listPanel.add(new JScrollPane(imageList));
-        JPanel rightListPanel = new JPanel(new GridLayout(2, 1));
-        rightListPanel.add(new JScrollPane(trackList));
-        rightListPanel.add(previewImage);
-        listPanel.add(rightListPanel);
+        
+        listSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(imageList), new JScrollPane(trackList));
+        
+		lrSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, listSplitPane, previewImage);
+		
         
         //For layout purposes, put the logs in a separate panel
         JPanel logPanel = new JPanel(new GridLayout(0, 2));
@@ -261,11 +197,13 @@ public class Main extends JPanel implements ActionListener {
 
         //Add the buttons and the log to this panel.
         add(topPanel, BorderLayout.PAGE_START);
-        add(listPanel, BorderLayout.CENTER);
+        add(lrSplitPane, BorderLayout.CENTER);
         add(logPanel, BorderLayout.PAGE_END);
         
         setSize(1200, 1600);
     }
+    
+    
 
     public void actionPerformed(ActionEvent e) {
     	
@@ -290,6 +228,10 @@ public class Main extends JPanel implements ActionListener {
             } else {
                 log.append("Open command cancelled by user." + newline);
             }
+            
+            listSplitPane.setDividerLocation(0.75);
+    		lrSplitPane.setDividerLocation(0.25);
+    		repaint();
 
         //Handle locate button action.
         } else if (e.getSource() == goButton) {
@@ -331,7 +273,7 @@ public class Main extends JPanel implements ActionListener {
 		    if (mimeType != null && mimeType.substring(0,5).equalsIgnoreCase("image")){
 		    	//its an image
 		    	log.append("Processing: image " + imageFile.getName() + newline);
-		    	processImageFile(imageFile);
+		    	createImageFile(imageFile);
 		    }
 		    else {
 		    	// check the extension
@@ -341,19 +283,25 @@ public class Main extends JPanel implements ActionListener {
 		    		String extension = filename.substring(dotIndex, filename.length()) ;
 		    		if (extension.equalsIgnoreCase(".gpx") || extension.equalsIgnoreCase(".tcx")) {
 		    			log.append("Processing: track " + imageFile.getName() + newline);
-		    			processTrackFile(imageFile.file, extension);
+		    			GpxTrack gpxTrack = new GpxTrack(imageFile.file, extension);
+		    			// add to the list
+		    			this.trackListModel.addElement(gpxTrack);
+		    			this.trackList.ensureIndexIsVisible(this.trackListModel.size() - 1);
+		    			// and log this action
+		    			log.append("Added: track starting " + filenameDateFormat.format(gpxTrack.startTimeLocal) + "." + newline);
 		    		}
 		    		else if (extension.equalsIgnoreCase(".mp4") || 
-		    				 extension.equalsIgnoreCase(".mov")) {
+		    				 extension.equalsIgnoreCase(".mov") || 
+		    				 extension.equalsIgnoreCase(".m4v")) {
 		    			log.append("Processing: movie " + imageFile.getName() + newline);
-		    			processImageFile(imageFile);
+		    			createImageFile(imageFile);
 		    		} else {
 		    			// check for a filename matching our string
 		    			Date filenameDate = getFilenameDate(imageFile);
 		    			if (null != filenameDate) {
 		    				// this is something worth processing
 		    				log.append("Processing: file " + imageFile.getName() + newline);
-		    				processImageFile(imageFile);
+		    				createImageFile(imageFile);
 		    			}
 		    		}
 		    	}
@@ -370,7 +318,7 @@ public class Main extends JPanel implements ActionListener {
     	}
 	}
 
-	private void processImageFile(ImageFile file) {
+	private void createImageFile(ImageFile file) {
 		// remeber to process later
 		imageListModel.addElement(file);
 		this.imageList.ensureIndexIsVisible(this.imageListModel.size() - 1);
@@ -609,59 +557,6 @@ public class Main extends JPanel implements ActionListener {
 		}
 		// no valid track / point
 		return null;
-	}
-
-	private void processTrackFile(File file, String extension) {
-		// add this track data
-		Trackpoint[] track = null;
-		if (extension.equalsIgnoreCase(".gpx")) {
-			try {
-				track = GpxReader.readTrack(file);
-			} catch (IOException e) {
-				error.append("Error: " + e.getMessage() + "." + newline);
-			}
-		}
-		else if (extension.equalsIgnoreCase(".tcx")) {
-			try {
-				track = TcxReader.readTrack(file);
-			} catch (IOException e) {
-				error.append("Error: " + e.getMessage() + "." + newline);
-			}
-		}
-		if (null != track && track.length > 0) {
-			// add the the list of tracks
-			GpxTrack gpxTrack = new GpxTrack();
-			// and work out the timezone offset
-			gpxTrack.name = file.getName();
-			gpxTrack.timeOffset = 0;
-			gpxTrack.timezoneString = TimezoneMapper.latLngToTimezoneString(track[0].getLatitude(), track[0].getLongitude());
-			if (null != gpxTrack.timezoneString) {
-				TimeZone timeZone = TimeZone.getTimeZone(gpxTrack.timezoneString);
-				if (null != timeZone) {
-					gpxTrack.timeOffset = timeZone.getOffset(track[0].getTime().getTime());
-				}
-			}
-			
-			// offset all the track times to the local filetime string
-			for (Trackpoint point : track) {
-				long pointTime = point.getTime().getTime() + gpxTrack.timeOffset;
-				String newTimeString = filenameDateFormat.format(new Date(pointTime));
-				try {
-					point.setTime(filenameDateFormat.parse(newTimeString));
-				} catch (ParseException e) {
-					error.append("Error: " + e.getMessage() + "." + newline);
-				}
-			}
-			// this is the track now
-			gpxTrack.track = track;
-			gpxTrack.startTimeLocal = track[0].getTime();
-			gpxTrack.endTimeLocal = track[track.length - 1].getTime();
-			// add to the list
-			this.trackListModel.addElement(gpxTrack);
-			this.trackList.ensureIndexIsVisible(this.trackListModel.size() - 1);
-			// and log this action
-			log.append("Added: track starting " + filenameDateFormat.format(gpxTrack.startTimeLocal) + "." + newline);
-		}
 	}
 	
 	public Date getFileDate(final ImageFile file) {
