@@ -88,7 +88,7 @@ void main(void)
     while (1)
     {
         // Add your application code
-        //adc_result_t value = ADC_GetConversion(channel_POT);
+        adc_result_t pot = ADC_GetConversion(channel_POT);
         //printf("POT AT:");
         //printf("%i", value);
         
@@ -96,12 +96,15 @@ void main(void)
         adc_result_t internal = ADC_GetConversion(channel_Temperature);
         adc_result_t sensor = ADC_GetConversion(channel_TEMP);
         // http://microcontrollerslab.com/temperature-sensor-using-pic16f877a-microcontroller/
-        float temp = sensor * 3.3 / 1023;
+        
+        // ignoring the information, using the POT as a reference, the values
+        // appear to go from zero to 4095 - so use that as the range
+        float temp = sensor / 4095.0 * 100.0;
         //float temp = value - 0.5f;
         //temp = temp / 0.01f;
         
         //NOTE: printf passing %3.2f doesn't complile - grr
-        printf("INT: %d, SEN: %d, TEMP: %d\r\n", internal, sensor, ((int)temp));
+        printf("POT: %d, INT: %d, SEN: %d, TEMP: %d\r\n", pot, internal, sensor, ((int)temp));
         
         if(eusartRxCount!=0) 
         {   

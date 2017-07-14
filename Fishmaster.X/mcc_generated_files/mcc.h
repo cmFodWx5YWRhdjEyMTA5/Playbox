@@ -50,8 +50,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "interrupt_manager.h"
-#include "adc.h"
 #include "eusart.h"
+#include "adc.h"
 #include "fvr.h"
 
 #define _XTAL_FREQ  32000000

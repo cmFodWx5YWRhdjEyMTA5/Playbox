@@ -59,6 +59,23 @@
 #define PULL_UP_ENABLED      1
 #define PULL_UP_DISABLED     0
 
+// get/set channel_POT aliases
+#define channel_POT_TRIS               TRISAbits.TRISA0
+#define channel_POT_LAT                LATAbits.LATA0
+#define channel_POT_PORT               PORTAbits.RA0
+#define channel_POT_WPU                WPUAbits.WPUA0
+#define channel_POT_ANS                ANSELAbits.ANSA0
+#define channel_POT_SetHigh()            do { LATAbits.LATA0 = 1; } while(0)
+#define channel_POT_SetLow()             do { LATAbits.LATA0 = 0; } while(0)
+#define channel_POT_Toggle()             do { LATAbits.LATA0 = ~LATAbits.LATA0; } while(0)
+#define channel_POT_GetValue()           PORTAbits.RA0
+#define channel_POT_SetDigitalInput()    do { TRISAbits.TRISA0 = 1; } while(0)
+#define channel_POT_SetDigitalOutput()   do { TRISAbits.TRISA0 = 0; } while(0)
+#define channel_POT_SetPullup()      do { WPUAbits.WPUA0 = 1; } while(0)
+#define channel_POT_ResetPullup()    do { WPUAbits.WPUA0 = 0; } while(0)
+#define channel_POT_SetAnalogMode()  do { ANSELAbits.ANSA0 = 1; } while(0)
+#define channel_POT_SetDigitalMode() do { ANSELAbits.ANSA0 = 0; } while(0)
+
 // get/set LED aliases
 #define LED_TRIS               TRISAbits.TRISA5
 #define LED_LAT                LATAbits.LATA5
