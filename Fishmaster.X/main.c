@@ -49,6 +49,16 @@
 
 /*
                          Main application
+ * 
+ * WIRING:
+ * 3V3 to positive pin of temp sensor (1)
+ * GND to negative pin of temp sensor (3)
+ * RB0 to read pin of temp sensor (2)
+ * 
+ * RC7 orange TTL-232RG wire
+ * RC6 yellow TTL-232RG wire
+ * 3V3 red TTL-232RG wire
+ * GND black TTL-232RG wire
  */
 
 void main(void)
