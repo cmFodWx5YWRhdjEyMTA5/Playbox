@@ -95,11 +95,13 @@ void main(void)
         
         adc_result_t internal = ADC_GetConversion(channel_Temperature);
         adc_result_t sensor = ADC_GetConversion(channel_TEMP);
-        int temp = sensor * 3.3 / 1023;
+        // http://microcontrollerslab.com/temperature-sensor-using-pic16f877a-microcontroller/
+        float temp = sensor * 3.3 / 1023;
         //float temp = value - 0.5f;
         //temp = temp / 0.01f;
         
-        printf("INT: %d, SEN: %d, TEMP: %d\r\n", internal, sensor, temp);
+        //NOTE: printf passing %3.2f doesn't complile - grr
+        printf("INT: %d, SEN: %d, TEMP: %d\r\n", internal, sensor, ((int)temp));
         
         if(eusartRxCount!=0) 
         {   
