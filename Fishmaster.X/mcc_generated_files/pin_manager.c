@@ -65,7 +65,7 @@ void PIN_MANAGER_Initialize(void)
     */    
     TRISE = 0x0F;
     TRISA = 0xDF;
-    TRISB = 0xFF;
+    TRISB = 0x7F;
     TRISC = 0xFF;
     TRISD = 0xFF;
 
@@ -82,7 +82,7 @@ void PIN_MANAGER_Initialize(void)
     */ 
     WPUD = 0xFF;
     WPUE = 0x0F;
-    WPUB = 0xFE;
+    WPUB = 0x7E;
     WPUA = 0xDE;
     WPUC = 0x2F;
     OPTION_REGbits.nWPUEN = 0;

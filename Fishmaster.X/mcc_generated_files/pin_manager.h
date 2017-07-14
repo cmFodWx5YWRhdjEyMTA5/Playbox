@@ -110,6 +110,16 @@
 #define channel_TEMP_SetAnalogMode()  do { ANSELBbits.ANSB0 = 1; } while(0)
 #define channel_TEMP_SetDigitalMode() do { ANSELBbits.ANSB0 = 0; } while(0)
 
+// get/set RB7 procedures
+#define RB7_SetHigh()    do { LATBbits.LATB7 = 1; } while(0)
+#define RB7_SetLow()   do { LATBbits.LATB7 = 0; } while(0)
+#define RB7_Toggle()   do { LATBbits.LATB7 = ~LATBbits.LATB7; } while(0)
+#define RB7_GetValue()         PORTBbits.RB7
+#define RB7_SetDigitalInput()   do { TRISBbits.TRISB7 = 1; } while(0)
+#define RB7_SetDigitalOutput()  do { TRISBbits.TRISB7 = 0; } while(0)
+#define RB7_SetPullup()     do { WPUBbits.WPUB7 = 1; } while(0)
+#define RB7_ResetPullup()   do { WPUBbits.WPUB7 = 0; } while(0)
+
 // get/set RC6 procedures
 #define RC6_SetHigh()    do { LATCbits.LATC6 = 1; } while(0)
 #define RC6_SetLow()   do { LATCbits.LATC6 = 0; } while(0)

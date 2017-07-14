@@ -76,6 +76,7 @@ void SYSTEM_Initialize(void)
     WDT_Initialize();
     FVR_Initialize();
     ADC_Initialize();
+    DAC1_Initialize();
     EUSART_Initialize();
 }
 

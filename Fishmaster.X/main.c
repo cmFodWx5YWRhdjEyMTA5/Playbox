@@ -59,6 +59,8 @@
  * RC6 yellow TTL-232RG wire
  * 3V3 red TTL-232RG wire
  * GND black TTL-232RG wire
+ * 
+ * RB7 is analogue out for the DAC
  */
 
 void main(void)
@@ -91,6 +93,16 @@ void main(void)
         adc_result_t pot = ADC_GetConversion(channel_POT);
         //printf("POT AT:");
         //printf("%i", value);
+        
+        printf("Outputting variable voltage from RB7");
+        for(uint8_t count=0; count<=30; count++)
+        {
+            DAC1_SetOutput(count);
+            printf(".");
+            __delay_ms(250);
+
+        }
+        printf("\r\n");
         
         
         adc_result_t internal = ADC_GetConversion(channel_Temperature);
