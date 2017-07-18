@@ -1,5 +1,8 @@
 
 #include "mcc_generated_files/dac1.h"
+//#include "mcc_generated_files/pwm1.h"
+//#include "mcc_generated_files/pwm2.h"
+//#include "mcc_generated_files/pwm3.h"
 #include "fishoutput.h"
 #include "fishstate.h"
 
@@ -48,4 +51,12 @@ void FISHOUTPUT_setHotPlatePower(uint8_t powerPercent)
         // set this on the state
         FISH_State.hotPlatePower = powerPercent;
     }
+}
+
+void FISHOUTPUT_setLighting(void)
+{
+    // For now just set the LEDs based on the position of the POT
+    //PWM1_LoadDutyValue(FISH_State.potPosition);
+    //PWM2_LoadDutyValue(FISH_State.potPosition);
+    //PWM3_LoadDutyValue(FISH_State.potPosition);
 }

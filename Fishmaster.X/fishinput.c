@@ -1,7 +1,10 @@
 
 #include "mcc_generated_files/adc.h"
+#include "mcc_generated_files/pin_manager.h"
+
 #include "fishinput.h"
 #include "fishstate.h"
+
 
 void FISHINPUT_Initialize(void)
 {
@@ -10,17 +13,31 @@ void FISHINPUT_Initialize(void)
 
 void FISHINPUT_process(void)
 {
-    // there is no real processing here but for interest we like to know
-    // the position of the potentiometer on the programming board and
-    // the internal chip temperature, calling these functions will set them
-    // on the state which might be of interest to us later
+    // for interest we like to know the position of the potentiometer on 
+    // the programming board and the internal chip temperature, calling 
+    // these functions will set them on the state which might be of interest 
+    // to us later
     FISHINPUT_getChipTemp();
     FISHINPUT_getPotPosition();
+    
+    
+    // here is some real processing, we want to poll the state of the button
+    // all the time so a little blip is ignored, we only want real, hard presses
+    if (IO_BTN_GetValue() != 0) {
+        // this is pressed, reset the down timer
+    }
 }
     
 bool FISHINPUT_isPressed(void)
 {
-    return false;
+    if (IO_BTN_GetValue() == 0) {
+        // we are pressed
+        return true;
+    }
+    else {
+        // we are not
+        return false;
+    }
 }
 
 bool FISHINPUT_isLongPressed(void)
@@ -34,8 +51,9 @@ float FISHINPUT_getHotPlateTemp(void)
 #ifdef K_DEBUG_HPT
     // if we are debugging then use the POT instead of the actual sensor
     adc_result_t sensor = FISHINPUT_getPotPosition();
+    printf("DEBUGGING HOT PLATE\r\n");
 #else
-    // use he actual sensor
+    // use the actual sensor
     adc_result_t sensor = ADC_GetConversion(channel_HPT);
 #endif
 
@@ -53,6 +71,7 @@ float FISHINPUT_getWaterTemp(void)
 #ifdef K_DEBUG_WT
     // if we are debugging then use the POT instead of the actual sensor
     adc_result_t sensor = FISHINPUT_getPotPosition();
+    printf("DEBUGGING WATER\r\n");
 #else
     // use he actual sensor
     adc_result_t sensor = ADC_GetConversion(channel_WT);

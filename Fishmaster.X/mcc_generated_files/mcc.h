@@ -50,9 +50,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "interrupt_manager.h"
-#include "dac1.h"
-#include "eusart.h"
 #include "fvr.h"
+#include "eusart.h"
+#include "dac1.h"
 #include "adc.h"
 
 #define _XTAL_FREQ  32000000
