@@ -1,21 +1,21 @@
 /**
-  @Generated PIC10 / PIC12 / PIC16 / PIC18 MCUs  Header File
+  TMR2 Generated Driver File
 
-  @Company:
+  @Company
     Microchip Technology Inc.
 
-  @File Name:
-    mcc.h
+  @File Name
+    tmr2.c
 
-  @Summary:
-    This is the mcc.h file generated using PIC10 / PIC12 / PIC16 / PIC18 MCUs 
+  @Summary
+    This is the generated driver implementation file for the TMR2 driver using PIC10 / PIC12 / PIC16 / PIC18 MCUs 
 
-  @Description:
-    This header file provides implementations for driver APIs for all modules selected in the GUI.
+  @Description
+    This source file provides APIs for TMR2.
     Generation Information :
         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs  - 1.45
         Device            :  PIC16F1784
-        Version           :  1.02
+        Driver Version    :  2.00
     The generated drivers are tested against the following:
         Compiler          :  XC8 1.35
         MPLAB             :  MPLAB X 3.40
@@ -43,66 +43,84 @@
     TERMS.
 */
 
-#ifndef MCC_H
-#define	MCC_H
+/**
+  Section: Included Files
+*/
+
 #include <xc.h>
-#include "pin_manager.h"
-#include <stdint.h>
-#include <stdbool.h>
-#include "interrupt_manager.h"
 #include "tmr2.h"
-#include "dac1.h"
-#include "fvr.h"
-#include "pwm3.h"
-#include "pwm2.h"
-#include "eusart.h"
-#include "pwm1.h"
-#include "adc.h"
-
-#define _XTAL_FREQ  32000000
-
 
 /**
- * @Param
-    none
- * @Returns
-    none
- * @Description
-    Initializes the device to the default states configured in the
- *                  MCC GUI
- * @Example
-    SYSTEM_Initialize(void);
- */
-void SYSTEM_Initialize(void);
+  Section: Global Variables Definitions
+*/
 
 /**
- * @Param
-    none
- * @Returns
-    none
- * @Description
-    Initializes the oscillator to the default states configured in the
- *                  MCC GUI
- * @Example
-    OSCILLATOR_Initialize(void);
- */
-void OSCILLATOR_Initialize(void);
+  Section: TMR2 APIs
+*/
 
+void TMR2_Initialize(void)
+{
+    // Set TMR2 to the options selected in the User Interface
+
+    // T2CKPS 1:1; T2OUTPS 1:1; TMR2ON off; 
+    T2CON = 0x00;
+
+    // PR2 255; 
+    PR2 = 0xFF;
+
+    // TMR2 0; 
+    TMR2 = 0x00;
+
+    // Clearing IF flag.
+    PIR1bits.TMR2IF = 0;
+
+    // Start TMR2
+    TMR2_StartTimer();
+}
+
+void TMR2_StartTimer(void)
+{
+    // Start the Timer by writing to TMRxON bit
+    T2CONbits.TMR2ON = 1;
+}
+
+void TMR2_StopTimer(void)
+{
+    // Stop the Timer by writing to TMRxON bit
+    T2CONbits.TMR2ON = 0;
+}
+
+uint8_t TMR2_ReadTimer(void)
+{
+    uint8_t readVal;
+
+    readVal = TMR2;
+
+    return readVal;
+}
+
+void TMR2_WriteTimer(uint8_t timerVal)
+{
+    // Write to the Timer2 register
+    TMR2 = timerVal;
+}
+
+void TMR2_LoadPeriodRegister(uint8_t periodVal)
+{
+   PR2 = periodVal;
+}
+
+bool TMR2_HasOverflowOccured(void)
+{
+    // check if  overflow has occurred by checking the TMRIF bit
+    bool status = PIR1bits.TMR2IF;
+    if(status)
+    {
+        // Clearing IF flag.
+        PIR1bits.TMR2IF = 0;
+    }
+    return status;
+}
 /**
- * @Param
-    none
- * @Returns
-    none
- * @Description
-    Initializes the WDT module to the default states configured in the
- *                  MCC GUI
- * @Example
-    WDT_Initialize(void);
- */
-void WDT_Initialize(void);
-
-
-#endif	/* MCC_H */
-/**
- End of File
+  End of File
 */

@@ -68,6 +68,10 @@
  * 
  * RB7 is analog out for the DAC - connect to hot-plate
  * 
+ * RC2 is CCP1 on TMR2 for G LED Lighting
+ * RC1 is CCP2 on TMR2 for R LED Lighting
+ * RE0 is CCP3 on TMR2 for B LED Lighting
+ * 
  * SERIAL-OUT
  * RC7 orange TTL-232RG wire
  * RC6 yellow TTL-232RG wire
@@ -122,6 +126,8 @@ void fishProcess()
         // either way just turn the hot-plate off
         FISHOUTPUT_setHotPlatePower(0);
     }
+    // set the lighting correctly
+    FISHOUTPUT_setLighting();
     // for debugging print out our state
     FISHSTATE_print();
 

@@ -1,21 +1,21 @@
 /**
-  @Generated PIC10 / PIC12 / PIC16 / PIC18 MCUs  Header File
+  CCP3 Generated Driver File
 
-  @Company:
+  @Company
     Microchip Technology Inc.
 
-  @File Name:
-    mcc.h
+  @File Name
+    ccp3.h
 
-  @Summary:
-    This is the mcc.h file generated using PIC10 / PIC12 / PIC16 / PIC18 MCUs 
+  @Summary
+    This is the generated driver implementation file for the CCP3 driver using PIC10 / PIC12 / PIC16 / PIC18 MCUs 
 
-  @Description:
-    This header file provides implementations for driver APIs for all modules selected in the GUI.
+  @Description
+    This header file provides implementations for driver APIs for CCP3.
     Generation Information :
         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs  - 1.45
         Device            :  PIC16F1784
-        Version           :  1.02
+        Driver Version    :  2.00
     The generated drivers are tested against the following:
         Compiler          :  XC8 1.35
         MPLAB             :  MPLAB X 3.40
@@ -43,66 +43,95 @@
     TERMS.
 */
 
-#ifndef MCC_H
-#define	MCC_H
+#ifndef _PWM3_H
+#define _PWM3_H
+
+/**
+  Section: Included Files
+*/
+
 #include <xc.h>
-#include "pin_manager.h"
 #include <stdint.h>
 #include <stdbool.h>
-#include "interrupt_manager.h"
-#include "tmr2.h"
-#include "dac1.h"
-#include "fvr.h"
-#include "pwm3.h"
-#include "pwm2.h"
-#include "eusart.h"
-#include "pwm1.h"
-#include "adc.h"
 
-#define _XTAL_FREQ  32000000
+#ifdef __cplusplus  // Provide C++ Compatibility
 
+    extern "C" {
+
+#endif
 
 /**
- * @Param
-    none
- * @Returns
-    none
- * @Description
-    Initializes the device to the default states configured in the
- *                  MCC GUI
- * @Example
-    SYSTEM_Initialize(void);
- */
-void SYSTEM_Initialize(void);
+  Section: PWM Module APIs
+*/
 
 /**
- * @Param
-    none
- * @Returns
-    none
- * @Description
-    Initializes the oscillator to the default states configured in the
- *                  MCC GUI
- * @Example
-    OSCILLATOR_Initialize(void);
+  @Summary
+    Initializes the CCP3
+
+  @Description
+    This routine initializes the CCP3 module.
+    This routine must be called before any other CCP3 routine is called.
+    This routine should only be called once during system initialization.
+
+  @Preconditions
+    None
+
+  @Param
+    None
+
+  @Returns
+    None
+
+  @Comment
+    
+
+ @Example
+    <code>
+    uint16_t dutycycle;
+
+    PWM3_Initialize();
+	PWM3_LoadDutyValue(dutycycle);
+    </code>
  */
-void OSCILLATOR_Initialize(void);
+void PWM3_Initialize(void);
 
 /**
- * @Param
-    none
- * @Returns
-    none
- * @Description
-    Initializes the WDT module to the default states configured in the
- *                  MCC GUI
- * @Example
-    WDT_Initialize(void);
- */
-void WDT_Initialize(void);
+  @Summary
+    Loads 16-bit duty cycle.
+
+  @Description
+    This routine loads the 16 bit duty cycle value.
+
+  @Preconditions
+    PWM3_Initialize() function should have been called
+	before calling this function.
+
+  @Param
+    Pass 16bit duty cycle value.
+
+  @Returns
+    None
+
+  @Example
+    <code>
+    uint16_t dutycycle;
+
+    PWM3_Initialize();
+    PWM3_LoadDutyValue(dutycycle);
+    </code>
+*/
+void PWM3_LoadDutyValue(uint16_t dutyValue);
 
 
-#endif	/* MCC_H */
+
+        
+#ifdef __cplusplus  // Provide C++ Compatibility
+
+    }
+
+#endif
+
+#endif	//PWM3_H
 /**
  End of File
 */

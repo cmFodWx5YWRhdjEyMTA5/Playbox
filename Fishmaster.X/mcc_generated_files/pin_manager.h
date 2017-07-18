@@ -154,6 +154,26 @@
 #define RB7_SetPullup()     do { WPUBbits.WPUB7 = 1; } while(0)
 #define RB7_ResetPullup()   do { WPUBbits.WPUB7 = 0; } while(0)
 
+// get/set RC1 procedures
+#define RC1_SetHigh()    do { LATCbits.LATC1 = 1; } while(0)
+#define RC1_SetLow()   do { LATCbits.LATC1 = 0; } while(0)
+#define RC1_Toggle()   do { LATCbits.LATC1 = ~LATCbits.LATC1; } while(0)
+#define RC1_GetValue()         PORTCbits.RC1
+#define RC1_SetDigitalInput()   do { TRISCbits.TRISC1 = 1; } while(0)
+#define RC1_SetDigitalOutput()  do { TRISCbits.TRISC1 = 0; } while(0)
+#define RC1_SetPullup()     do { WPUCbits.WPUC1 = 1; } while(0)
+#define RC1_ResetPullup()   do { WPUCbits.WPUC1 = 0; } while(0)
+
+// get/set RC2 procedures
+#define RC2_SetHigh()    do { LATCbits.LATC2 = 1; } while(0)
+#define RC2_SetLow()   do { LATCbits.LATC2 = 0; } while(0)
+#define RC2_Toggle()   do { LATCbits.LATC2 = ~LATCbits.LATC2; } while(0)
+#define RC2_GetValue()         PORTCbits.RC2
+#define RC2_SetDigitalInput()   do { TRISCbits.TRISC2 = 1; } while(0)
+#define RC2_SetDigitalOutput()  do { TRISCbits.TRISC2 = 0; } while(0)
+#define RC2_SetPullup()     do { WPUCbits.WPUC2 = 1; } while(0)
+#define RC2_ResetPullup()   do { WPUCbits.WPUC2 = 0; } while(0)
+
 // get/set RC6 procedures
 #define RC6_SetHigh()    do { LATCbits.LATC6 = 1; } while(0)
 #define RC6_SetLow()   do { LATCbits.LATC6 = 0; } while(0)
@@ -173,6 +193,18 @@
 #define RC7_SetDigitalOutput()  do { TRISCbits.TRISC7 = 0; } while(0)
 #define RC7_SetPullup()     do { WPUCbits.WPUC7 = 1; } while(0)
 #define RC7_ResetPullup()   do { WPUCbits.WPUC7 = 0; } while(0)
+
+// get/set RE0 procedures
+#define RE0_SetHigh()    do { LATEbits.LATE0 = 1; } while(0)
+#define RE0_SetLow()   do { LATEbits.LATE0 = 0; } while(0)
+#define RE0_Toggle()   do { LATEbits.LATE0 = ~LATEbits.LATE0; } while(0)
+#define RE0_GetValue()         PORTEbits.RE0
+#define RE0_SetDigitalInput()   do { TRISEbits.TRISE0 = 1; } while(0)
+#define RE0_SetDigitalOutput()  do { TRISEbits.TRISE0 = 0; } while(0)
+#define RE0_SetPullup()     do { WPUEbits.WPUE0 = 1; } while(0)
+#define RE0_ResetPullup()   do { WPUEbits.WPUE0 = 0; } while(0)
+#define RE0_SetAnalogMode() do { ANSELEbits.ANSE0 = 1; } while(0)
+#define RE0_SetDigitalMode()do { ANSELEbits.ANSE0 = 0; } while(0)
 
 /**
    @Param

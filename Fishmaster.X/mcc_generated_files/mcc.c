@@ -75,8 +75,12 @@ void SYSTEM_Initialize(void)
     OSCILLATOR_Initialize();
     WDT_Initialize();
     FVR_Initialize();
+    PWM1_Initialize();
+    PWM2_Initialize();
     ADC_Initialize();
     DAC1_Initialize();
+    PWM3_Initialize();
+    TMR2_Initialize();
     EUSART_Initialize();
 }
 
