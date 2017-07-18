@@ -188,25 +188,19 @@ void main(void)
     // now do the processing
     uint32_t startTime = FISH_State.tick_count;
     while(1) {
-        /*if (TMR2_HasOverflowOccured()) {
-            FISH_State.tick_count += 256;
-        }
+        FISH_State.tick_count += TMR2_ReadTimer();
         if (FISH_State.tick_count < startTime) {
-            printf("counter-overflow\r\n");
             FISH_State.tick_count = 0;
             startTime = 0;
         }
-        else if (FISH_State.tick_count - startTime > 100000) {
-            // a second has passed, for debugging print out our state
-            uint32_t msElapsed = (FISH_State.tick_count - startTime) / 100.0;
-            printf("%u milliseconds elapsed\r\n", msElapsed);
+        else if (FISH_State.tick_count - startTime > 500000) {
+            // 5 seconds have passed, for debugging print out our state
             FISHSTATE_print();
+            LED_Toggle();
             startTime = FISH_State.tick_count;
-        }*/
+        }
         // and process the tasks we want to process
         fishProcess();
-        // and print out our state
-        FISHSTATE_print();
     }
 }
 
