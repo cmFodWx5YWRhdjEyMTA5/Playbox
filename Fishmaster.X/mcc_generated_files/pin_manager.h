@@ -93,22 +93,56 @@
 #define LED_SetAnalogMode()  do { ANSELAbits.ANSA5 = 1; } while(0)
 #define LED_SetDigitalMode() do { ANSELAbits.ANSA5 = 0; } while(0)
 
-// get/set channel_TEMP aliases
-#define channel_TEMP_TRIS               TRISBbits.TRISB0
-#define channel_TEMP_LAT                LATBbits.LATB0
-#define channel_TEMP_PORT               PORTBbits.RB0
-#define channel_TEMP_WPU                WPUBbits.WPUB0
-#define channel_TEMP_ANS                ANSELBbits.ANSB0
-#define channel_TEMP_SetHigh()            do { LATBbits.LATB0 = 1; } while(0)
-#define channel_TEMP_SetLow()             do { LATBbits.LATB0 = 0; } while(0)
-#define channel_TEMP_Toggle()             do { LATBbits.LATB0 = ~LATBbits.LATB0; } while(0)
-#define channel_TEMP_GetValue()           PORTBbits.RB0
-#define channel_TEMP_SetDigitalInput()    do { TRISBbits.TRISB0 = 1; } while(0)
-#define channel_TEMP_SetDigitalOutput()   do { TRISBbits.TRISB0 = 0; } while(0)
-#define channel_TEMP_SetPullup()      do { WPUBbits.WPUB0 = 1; } while(0)
-#define channel_TEMP_ResetPullup()    do { WPUBbits.WPUB0 = 0; } while(0)
-#define channel_TEMP_SetAnalogMode()  do { ANSELBbits.ANSB0 = 1; } while(0)
-#define channel_TEMP_SetDigitalMode() do { ANSELBbits.ANSB0 = 0; } while(0)
+// get/set channel_HPT aliases
+#define channel_HPT_TRIS               TRISBbits.TRISB0
+#define channel_HPT_LAT                LATBbits.LATB0
+#define channel_HPT_PORT               PORTBbits.RB0
+#define channel_HPT_WPU                WPUBbits.WPUB0
+#define channel_HPT_ANS                ANSELBbits.ANSB0
+#define channel_HPT_SetHigh()            do { LATBbits.LATB0 = 1; } while(0)
+#define channel_HPT_SetLow()             do { LATBbits.LATB0 = 0; } while(0)
+#define channel_HPT_Toggle()             do { LATBbits.LATB0 = ~LATBbits.LATB0; } while(0)
+#define channel_HPT_GetValue()           PORTBbits.RB0
+#define channel_HPT_SetDigitalInput()    do { TRISBbits.TRISB0 = 1; } while(0)
+#define channel_HPT_SetDigitalOutput()   do { TRISBbits.TRISB0 = 0; } while(0)
+#define channel_HPT_SetPullup()      do { WPUBbits.WPUB0 = 1; } while(0)
+#define channel_HPT_ResetPullup()    do { WPUBbits.WPUB0 = 0; } while(0)
+#define channel_HPT_SetAnalogMode()  do { ANSELBbits.ANSB0 = 1; } while(0)
+#define channel_HPT_SetDigitalMode() do { ANSELBbits.ANSB0 = 0; } while(0)
+
+// get/set channel_WT aliases
+#define channel_WT_TRIS               TRISBbits.TRISB1
+#define channel_WT_LAT                LATBbits.LATB1
+#define channel_WT_PORT               PORTBbits.RB1
+#define channel_WT_WPU                WPUBbits.WPUB1
+#define channel_WT_ANS                ANSELBbits.ANSB1
+#define channel_WT_SetHigh()            do { LATBbits.LATB1 = 1; } while(0)
+#define channel_WT_SetLow()             do { LATBbits.LATB1 = 0; } while(0)
+#define channel_WT_Toggle()             do { LATBbits.LATB1 = ~LATBbits.LATB1; } while(0)
+#define channel_WT_GetValue()           PORTBbits.RB1
+#define channel_WT_SetDigitalInput()    do { TRISBbits.TRISB1 = 1; } while(0)
+#define channel_WT_SetDigitalOutput()   do { TRISBbits.TRISB1 = 0; } while(0)
+#define channel_WT_SetPullup()      do { WPUBbits.WPUB1 = 1; } while(0)
+#define channel_WT_ResetPullup()    do { WPUBbits.WPUB1 = 0; } while(0)
+#define channel_WT_SetAnalogMode()  do { ANSELBbits.ANSB1 = 1; } while(0)
+#define channel_WT_SetDigitalMode() do { ANSELBbits.ANSB1 = 0; } while(0)
+
+// get/set IO_BTN aliases
+#define IO_BTN_TRIS               TRISBbits.TRISB2
+#define IO_BTN_LAT                LATBbits.LATB2
+#define IO_BTN_PORT               PORTBbits.RB2
+#define IO_BTN_WPU                WPUBbits.WPUB2
+#define IO_BTN_ANS                ANSELBbits.ANSB2
+#define IO_BTN_SetHigh()            do { LATBbits.LATB2 = 1; } while(0)
+#define IO_BTN_SetLow()             do { LATBbits.LATB2 = 0; } while(0)
+#define IO_BTN_Toggle()             do { LATBbits.LATB2 = ~LATBbits.LATB2; } while(0)
+#define IO_BTN_GetValue()           PORTBbits.RB2
+#define IO_BTN_SetDigitalInput()    do { TRISBbits.TRISB2 = 1; } while(0)
+#define IO_BTN_SetDigitalOutput()   do { TRISBbits.TRISB2 = 0; } while(0)
+#define IO_BTN_SetPullup()      do { WPUBbits.WPUB2 = 1; } while(0)
+#define IO_BTN_ResetPullup()    do { WPUBbits.WPUB2 = 0; } while(0)
+#define IO_BTN_SetAnalogMode()  do { ANSELBbits.ANSB2 = 1; } while(0)
+#define IO_BTN_SetDigitalMode() do { ANSELBbits.ANSB2 = 0; } while(0)
 
 // get/set RB7 procedures
 #define RB7_SetHigh()    do { LATBbits.LATB7 = 1; } while(0)

@@ -47,21 +47,114 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// local includes
+#include "fishinput.h"
+#include "fishstate.h"
+#include "fishoutput.h"
+
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+
+
 /*
                          Main application
  * 
  * WIRING:
  * 3V3 to positive pin of temp sensor (1)
  * GND to negative pin of temp sensor (3)
- * RB0 to read pin of temp sensor (2)
+ * RB0 is AN_12 to read pin of hotplate temp sensor (2)
+ * RB1 is AN_10 to read pin of water temp sensor (2)
+ * RB2 is GPIO to read the state of the button
  * 
+ * RB7 is analog out for the DAC - connect to hot-plate
+ * 
+ * SERIAL-OUT
  * RC7 orange TTL-232RG wire
  * RC6 yellow TTL-232RG wire
  * 3V3 red TTL-232RG wire
  * GND black TTL-232RG wire
  * 
- * RB7 is analogue out for the DAC
  */
+    
+/**
+ * Do input for button - long and short press both debounced
+ * Do timer
+ * Do set time from button
+ * Do clock display
+ * Do LED outputs (CCP with FWM)
+ * Do serial send and receive (MASTER / SLAVE header?)
+ * 
+ * Diagram PINS
+ * Comment up and document - maybe tests?
+ */
+
+void fishInitialise(void)
+{
+    //output the startup state on the serial port for debugging
+    printf("\rFishMaster controller application - Date 18/07/2017\r\n");  
+    printf("UART Communications 8-bit Rx and Tx\r\n\n");
+    
+    // do the local initialization
+    FISHINPUT_Initialize();
+    FISHOUTPUT_Initialize();
+}
+
+void fishProcess()
+{
+    // perform the processing here
+    FISHINPUT_process();
+    FISHOUTPUT_process();
+    
+    // get our data - this will also update our state
+    FISHINPUT_getHotPlateTemp();
+    
+    // now we want to set the temperature of the hot-plate
+    float tempDifferential = K_TARGETWATERTEMP - FISHINPUT_getWaterTemp();
+    if (tempDifferential > K_TARGETWATERTEMPTHREHOLD) {
+        // we are below temp, let's get this differential as a percentage
+        // of our target temp (using 500% of the target temp to get their quicker when really cold)
+        uint8_t power = (uint8_t)MIN(tempDifferential / K_TARGETWATERTEMP * 500.0, 100.0);
+        // now this is a percentage, let's set the power level of the hot-plate
+        FISHOUTPUT_setHotPlatePower(power);
+    }
+    else {
+        // we are fine either at temp or unfortunately too hot, 
+        // either way just turn the hot-plate off
+        FISHOUTPUT_setHotPlatePower(0);
+    }
+    // for debugging print out our state
+    FISHSTATE_print();
+
+    if(eusartRxCount!=0) 
+    {   
+        unsigned char readChar=EUSART_Read();  // read a byte for RX
+
+        EUSART_Write(readChar);  // send a byte to TX  (from Rx)
+
+        switch(readChar)    // check command  
+        {
+         case 'H':
+         case 'h':
+            {
+                LED_SetHigh();
+                printf(" -> LED On!!      \r");             
+                break;
+            }
+         case 'L':
+         case 'l':
+            {
+                LED_SetLow();
+                printf(" -> LED Off!!     \r");   
+                break;
+            }
+         default:
+            {
+                printf(" -> Fail Command!! \r");            
+                break;
+            }       
+        }
+    }
+}
 
 void main(void)
 {
@@ -83,72 +176,15 @@ void main(void)
     // Disable the Peripheral Interrupts
     //INTERRUPT_PeripheralInterruptDisable();
     
-    printf("\rPICDEM LAB II - Date 08/11/2015\r\n");  
-    printf("UART Communications 8-bit Rx and Tx\r\n\n");
-    printf("Keyboard Type H : LED ON   Type L: LED OFF \r\n\n");
+    // do the local initialization
+    fishInitialise();
     
-    while (1)
-    {
-        // Add your application code
-        adc_result_t pot = ADC_GetConversion(channel_POT);
-        //printf("POT AT:");
-        //printf("%i", value);
-        
-        printf("Outputting variable voltage from RB7");
-        for(uint8_t count=0; count<=30; count++)
-        {
-            DAC1_SetOutput(count);
-            printf(".");
-            __delay_ms(250);
-
-        }
-        printf("\r\n");
-        
-        
-        adc_result_t internal = ADC_GetConversion(channel_Temperature);
-        adc_result_t sensor = ADC_GetConversion(channel_TEMP);
-        // http://microcontrollerslab.com/temperature-sensor-using-pic16f877a-microcontroller/
-        
-        // ignoring the information, using the POT as a reference, the values
-        // appear to go from zero to 4095 - so use that as the range
-        float temp = sensor / 4095.0 * 100.0;
-        //float temp = value - 0.5f;
-        //temp = temp / 0.01f;
-        
-        //NOTE: printf passing %3.2f doesn't complile - grr
-        printf("POT: %d, INT: %d, SEN: %d, TEMP: %d\r\n", pot, internal, sensor, ((int)temp));
-        
-        if(eusartRxCount!=0) 
-        {   
-            unsigned char readChar=EUSART_Read();  // read a byte for RX
-
-            EUSART_Write(readChar);  // send a byte to TX  (from Rx)
-
-            switch(readChar)    // check command  
-            {
-             case 'H':
-             case 'h':
-                {
-                    LED_SetHigh();
-                    printf(" -> LED On!!      \r");             
-                    break;
-                }
-             case 'L':
-             case 'l':
-                {
-                    LED_SetLow();
-                    printf(" -> LED Off!!     \r");   
-                    break;
-                }
-             default:
-                {
-                    printf(" -> Fail Command!! \r");            
-                    break;
-                }       
-            }
-        }
+    // now do the processing
+    while(1) {
+        fishProcess();
     }
 }
+
 /**
  End of File
 */
