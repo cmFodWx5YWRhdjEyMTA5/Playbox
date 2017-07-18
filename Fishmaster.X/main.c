@@ -101,6 +101,8 @@ void fishInitialise(void)
     // do the local initialization
     FISHINPUT_Initialize();
     FISHOUTPUT_Initialize();
+    
+    FISH_State.tick_count = 0;
 }
 
 void fishProcess()
@@ -128,8 +130,6 @@ void fishProcess()
     }
     // set the lighting correctly
     FISHOUTPUT_setLighting();
-    // for debugging print out our state
-    FISHSTATE_print();
 
     if(eusartRxCount!=0) 
     {   
@@ -186,8 +186,27 @@ void main(void)
     fishInitialise();
     
     // now do the processing
+    uint32_t startTime = FISH_State.tick_count;
     while(1) {
+        /*if (TMR2_HasOverflowOccured()) {
+            FISH_State.tick_count += 256;
+        }
+        if (FISH_State.tick_count < startTime) {
+            printf("counter-overflow\r\n");
+            FISH_State.tick_count = 0;
+            startTime = 0;
+        }
+        else if (FISH_State.tick_count - startTime > 100000) {
+            // a second has passed, for debugging print out our state
+            uint32_t msElapsed = (FISH_State.tick_count - startTime) / 100.0;
+            printf("%u milliseconds elapsed\r\n", msElapsed);
+            FISHSTATE_print();
+            startTime = FISH_State.tick_count;
+        }*/
+        // and process the tasks we want to process
         fishProcess();
+        // and print out our state
+        FISHSTATE_print();
     }
 }
 

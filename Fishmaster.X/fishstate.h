@@ -27,6 +27,7 @@ extern "C" {
 
 // the state structure that all classes share and put their latest data in
 static struct t_fishstate {
+    uint32_t tick_count;
     uint16_t potPosition;
     uint8_t hotPlatePower;
     float waterTemp;

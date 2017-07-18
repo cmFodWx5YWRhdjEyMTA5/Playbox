@@ -9,6 +9,7 @@
 void FISHINPUT_Initialize(void)
 {
     // initialize anything we need to here...
+    
 }
 
 void FISHINPUT_process(void)
