@@ -16,6 +16,9 @@ extern "C" {
 #endif
     
 // defines that are helpful
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+    
 #define K_MAX_HOTPLATETEMP              90 // when exceed this, shut down
 #define K_MIN_HOTPLATETEMPTORESTART     50 // when exceeded, don't restart until at least this
 #define K_TARGETWATERTEMP               49 // the target temp for the water
@@ -37,11 +40,16 @@ static struct t_fishstate {
     uint32_t miliseconds;
     uint16_t potPosition;
     uint8_t hotPlatePower;
+    uint8_t red;
+    uint8_t green;
+    uint8_t blue;
+    uint8_t hour;
     float waterTemp;
     float hotPlateTemp;
     float chipTemp;
     bool isButtonPress;
     bool isLongButtonPress;
+    bool isSlave;
 };
 extern struct t_fishstate FISH_State;
 

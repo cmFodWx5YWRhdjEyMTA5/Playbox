@@ -29,6 +29,10 @@ extern "C" {
     float FISHINPUT_getChipTemp(void);
     
     uint16_t FISHINPUT_getPotPosition(void);
+    
+    void FISHINPUT_getStateSerial(void);
+    
+    void FISHINPUT_sendStateSerial(void);
 
 #ifdef	__cplusplus
 }

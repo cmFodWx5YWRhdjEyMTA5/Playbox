@@ -1,6 +1,7 @@
 
 #include "mcc_generated_files/adc.h"
 #include "mcc_generated_files/pin_manager.h"
+#include "mcc_generated_files/eusart.h"
 
 #include "fishinput.h"
 #include "fishstate.h"
@@ -11,89 +12,124 @@ uint32_t button_pressed_time;
 bool last_button_state;
 bool button_state;
 
+#define K_RX_BUFFER_SIZE 64
+unsigned char rxBuffer[K_RX_BUFFER_SIZE + 1];
+int rxIndex = 0;
+char rxCommand = '0';
+
 void FISHINPUT_Initialize(void)
 {
     // initialize anything we need to here...
     button_pressed_time = 0;
     last_button_state = false;
     button_state = false;
+	rxBuffer[0] = 0;
+	rxIndex = 0;
+	rxCommand = '0';
 }
 
 void FISHINPUT_process(void)
-{
-    // for interest we like to know the position of the potentiometer on 
-    // the programming board and the internal chip temperature, calling 
-    // these functions will set them on the state which might be of interest 
-    // to us later
+{   
+    // get the chip temp for our interest
     FISHINPUT_getChipTemp();
-    FISHINPUT_getPotPosition();
-    
-    
-    // here is some real processing, we want to poll the state of the button
-    // all the time so a little blip is ignored, we only want real, hard presses
-    
-    //TODO De-bouncing isn't working because the noise is incredible while
-    //testing - let's just listen for the 1 and leave it at that for now
-    bool buttonReading = IO_BTN_GetValue() == 1;
-    if (buttonReading == true) {
-        // the button is down
-        if (last_button_state == false) {
-            // wasn't pressed, now it is
-            button_state = buttonReading;
-            button_pressed_time = FISH_State.miliseconds;
-        }
-    }
-    else if (last_button_state) {
-        // button is released from being pressed, if not a long press
-        // then this was a short press
-        if (FISH_State.miliseconds - button_pressed_time > K_LONGBUTTONPRESSTIME) {
-            // this was held down for more than a second - this is a long-press
-            FISH_State.isLongButtonPress = true;
-        }
-        else {//TODO - add debounce if (FISH_State.miliseconds - button_pressed_time > K_DEBOUNCEDELAY) {
-            // this was enough to register a quick press
-            FISH_State.isButtonPress = true;
-        }
-    }
-    last_button_state = buttonReading;
-    
-    // process this button press
-    if (FISH_State.isButtonPress) {
-        // move the time forward an hour
-        FISH_State.miliseconds += K_MSECONDSINHOUR;
-        // handled this, reset the flag
-        FISH_State.isButtonPress = false;
-        // calc time to fix any overrun
-        FISHSTATE_calcTime();
-        // and debug
-        printf("Moved time forward an hour to %d\r\n", (int)(FISH_State.miliseconds / (K_MSECONDSINHOUR * 1.0)));
-    }
-    if (FISH_State.isLongButtonPress) {
-        //TODO handle the long press for something...
-        printf("That was a looooong, press\r\n");
-        FISH_State.isLongButtonPress = false;
-    }
-    
-    /*bool reading = IO_BTN_GetValue() == 1;
-    if (reading) {
-        printf(".");
+    // if we are the slave then we want to get our state from the serial line
+    if (FISH_State.isSlave) {
+        FISHINPUT_getStateSerial();
     }
     else {
-        printf("*");
+        // we want to get our state from sensors etc
+        FISHINPUT_getHotPlateTemp();
+        FISHINPUT_getWaterTemp();
+        // for debugging we can get the POT position too
+        FISHINPUT_getPotPosition();
+
+        //TODO De-bouncing isn't working because the noise is incredible while
+        //testing - let's just listen for the 1 and leave it at that for now
+        bool buttonReading = IO_BTN_GetValue() == 1;
+        if (buttonReading == true) {
+            // the button is down
+            if (last_button_state == false) {
+                // wasn't pressed, now it is
+                button_state = buttonReading;
+                button_pressed_time = FISH_State.miliseconds;
+            }
+        }
+        else if (last_button_state) {
+            // button is released from being pressed, if not a long press
+            // then this was a short press
+            if (FISH_State.miliseconds - button_pressed_time > K_LONGBUTTONPRESSTIME) {
+                // this was held down for more than a second - this is a long-press
+                FISH_State.isLongButtonPress = true;
+            }
+            else {//TODO - add debounce if (FISH_State.miliseconds - button_pressed_time > K_DEBOUNCEDELAY) {
+                // this was enough to register a quick press
+                FISH_State.isButtonPress = true;
+            }
+        }
+        last_button_state = buttonReading;
+        //TODO send this state to the slave over serial
+        //FISHINPUT_sendStateSerial();
     }
-    // de-bounce this for fun, in case there is noise in the power
-    if (reading != last_button_state) {
-        // this is pressed, reset the down timer
-        printf("-");
-        button_pressed_time = FISH_State.miliseconds;
-        last_button_state = reading;
-    }
-    if (reading != button_state && FISH_State.miliseconds - button_pressed_time > K_DEBOUNCEDELAY) {
-        // whatever the reading is at, it's been there longer than the delay
-        // so this is the actual state of the button
-        button_state = reading;
-        printf("button state is now %d\r\n", (button_state ? 1 : 0));
-    }*/
+}
+
+void FISHINPUT_sendStateSerial(void)
+{
+    // send out the serial data to encapsulate the data we need to send
+    EUSART_Write('{');
+    EUSART_Write(FISH_State.hour);
+    EUSART_Write(FISH_State.red);
+    EUSART_Write(FISH_State.green);
+    EUSART_Write(FISH_State.blue);
+    EUSART_Write('}');
+}
+
+void FISHINPUT_getStateSerial(void)
+{
+    while(eusartRxCount!=0 && rxIndex < K_RX_BUFFER_SIZE) 
+    {   
+        unsigned char ch = EUSART_Read();  // read a byte for RX
+    	// read in a value, add to the buffer
+		if (ch == '{') {
+			// starting, set the rx counter to the start of the buffer
+			rxIndex = 0;
+		}
+		else if (ch == '}') {
+			// ended, process this command
+            printf("received: ");
+            printf(rxBuffer);
+            printf(" with rxIndex of %d\r\n", rxIndex);
+            
+            FISH_State.hour = rxBuffer[rxIndex - 4];
+            FISH_State.red  = rxBuffer[rxIndex - 3];
+            FISH_State.green = rxBuffer[rxIndex - 2];
+            FISH_State.blue = rxBuffer[rxIndex - 1];
+			
+			// reset for any more data
+			rxCommand = '0';
+			// reset the buffer to start again, wipe out the processed data
+			rxIndex = 0;
+			rxBuffer[0] = '\0';
+		}
+		else {
+			if (rxCommand == '0') {
+				// the first char is the command, set this
+				rxCommand = ch;
+			}
+			else {
+				// put the value after the command into the buffer
+				rxBuffer[rxIndex++] = ch;
+				// and terminate it here for the time being
+				rxBuffer[rxIndex] = '\0';
+			}
+		}
+	}
+	if (rxIndex >= K_RX_BUFFER_SIZE) {
+		// there is no more room left in the buffer (maxed out with room for the terminating char)
+		// wipe out all that data to ignore it
+		rxIndex = 0;
+		rxCommand = '\0';
+		rxBuffer[0] = '\0';
+	}
 }
 
 float FISHINPUT_getHotPlateTemp(void)

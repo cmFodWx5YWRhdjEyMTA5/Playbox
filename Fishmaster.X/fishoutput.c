@@ -3,9 +3,12 @@
 #include "mcc_generated_files/pwm1.h"
 #include "mcc_generated_files/pwm2.h"
 #include "mcc_generated_files/pwm3.h"
+#include "mcc_generated_files/pin_manager.h"
+
 #include "fishoutput.h"
 #include "fishstate.h"
-#include "mcc_generated_files/pin_manager.h"
+
+#include <stdio.h>
 
 bool FISHOUTPUT_disableHeat = true;
 
@@ -16,7 +19,40 @@ void FISHOUTPUT_Initialize(void)
 
 void FISHOUTPUT_process(void)
 {
-    // there is no real processing here but there might be...
+    // now we want to set the temperature of the hot-plate
+    float tempDifferential = K_TARGETWATERTEMP - FISH_State.waterTemp;
+    if (tempDifferential > K_TARGETWATERTEMPTHREHOLD) {
+        // we are below temp, let's get this differential as a percentage
+        // of our target temp (using 500% of the target temp to get their quicker when really cold)
+        uint8_t power = (uint8_t)MIN(tempDifferential / K_TARGETWATERTEMP * 500.0, 100.0);
+        // now this is a percentage, let's set the power level of the hot-plate
+        FISHOUTPUT_setHotPlatePower(power);
+    }
+    else {
+        // we are fine either at temp or unfortunately too hot, 
+        // either way just turn the hot-plate off
+        FISHOUTPUT_setHotPlatePower(0);
+    }
+    // process this button press
+    if (FISH_State.isButtonPress) {
+        // move the time forward an hour
+        FISH_State.miliseconds += K_MSECONDSINHOUR;
+        // handled this, reset the flag
+        FISH_State.isButtonPress = false;
+        // calc time to fix any overrun
+        FISHSTATE_calcTime();
+        // and debug
+        printf("Moved time forward an hour to %d\r\n", FISH_State.hour);
+    }
+    if (FISH_State.isLongButtonPress) {
+        //TODO handle the long press for something...
+        printf("That was a looooong, press\r\n");
+        FISH_State.isLongButtonPress = false;
+    }
+    // set the lighting correctly
+    FISHOUTPUT_setLighting();
+    // and the clock
+    FISHOUPUT_setClock();
 }
 
 void FISHOUTPUT_setHotPlatePower(uint8_t powerPercent)
@@ -59,6 +95,7 @@ void FISHOUTPUT_setLighting(void)
     // For now just set the LEDs based on the position of the POT
     // which is 0-4095 instead of 0-1023 so divide by 4
     uint16_t dutyValue = (uint16_t) (FISH_State.potPosition / 4.0);
+    //TODO use the R, G, B values from the state we have received / calculated
     PWM1_LoadDutyValue(dutyValue);
     PWM2_LoadDutyValue(dutyValue);
     PWM3_LoadDutyValue(dutyValue);
@@ -67,14 +104,13 @@ void FISHOUTPUT_setLighting(void)
 void FISHOUPUT_setClock(void)
 {
     // show the current time on the clock
-    uint8_t hours = (uint8_t) (FISH_State.miliseconds / (K_MSECONDSINHOUR * 1.0));
     // only doing 12 rather than 24 hour clock
     bool isPm = false;
-    if (hours > 12) {
-        hours -= 12;
+    while (FISH_State.hour > 12) {
+        FISH_State.hour -= 12;
         isPm = true;
     }
-    switch(hours) {
+    switch(FISH_State.hour) {
         case 1 :
             IO_TM1_SetHigh();
             IO_TM2_SetLow();

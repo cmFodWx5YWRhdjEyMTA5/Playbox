@@ -36,5 +36,7 @@ void FISHSTATE_calcTime(void)
         // in the day, so remove the day in seconds
         FISH_State.miliseconds -= K_MSECONDSINDAY;
     }
+    // update the hour displayed for this
+    FISH_State.hour = (uint8_t) (FISH_State.miliseconds / (K_MSECONDSINHOUR * 1.0));
 }
     

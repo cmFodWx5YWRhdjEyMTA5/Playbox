@@ -124,6 +124,23 @@
 #define IO_TM2_SetPullup()      do { WPUAbits.WPUA6 = 1; } while(0)
 #define IO_TM2_ResetPullup()    do { WPUAbits.WPUA6 = 0; } while(0)
 
+// get/set IO_SLV aliases
+#define IO_SLV_TRIS               TRISAbits.TRISA7
+#define IO_SLV_LAT                LATAbits.LATA7
+#define IO_SLV_PORT               PORTAbits.RA7
+#define IO_SLV_WPU                WPUAbits.WPUA7
+#define IO_SLV_ANS                ANSELAbits.ANSA7
+#define IO_SLV_SetHigh()            do { LATAbits.LATA7 = 1; } while(0)
+#define IO_SLV_SetLow()             do { LATAbits.LATA7 = 0; } while(0)
+#define IO_SLV_Toggle()             do { LATAbits.LATA7 = ~LATAbits.LATA7; } while(0)
+#define IO_SLV_GetValue()           PORTAbits.RA7
+#define IO_SLV_SetDigitalInput()    do { TRISAbits.TRISA7 = 1; } while(0)
+#define IO_SLV_SetDigitalOutput()   do { TRISAbits.TRISA7 = 0; } while(0)
+#define IO_SLV_SetPullup()      do { WPUAbits.WPUA7 = 1; } while(0)
+#define IO_SLV_ResetPullup()    do { WPUAbits.WPUA7 = 0; } while(0)
+#define IO_SLV_SetAnalogMode()  do { ANSELAbits.ANSA7 = 1; } while(0)
+#define IO_SLV_SetDigitalMode() do { ANSELAbits.ANSA7 = 0; } while(0)
+
 // get/set channel_HPT aliases
 #define channel_HPT_TRIS               TRISBbits.TRISB0
 #define channel_HPT_LAT                LATBbits.LATB0
