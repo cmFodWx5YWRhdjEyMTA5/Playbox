@@ -21,6 +21,8 @@ extern "C" {
     void FISHOUTPUT_setHotPlatePower(uint8_t);
     
     void FISHOUTPUT_setLighting(void);
+    
+    void FISHOUPUT_setClock(void);
 
 #ifdef	__cplusplus
 }

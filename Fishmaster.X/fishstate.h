@@ -21,6 +21,12 @@ extern "C" {
 #define K_TARGETWATERTEMP               49 // the target temp for the water
 #define K_TARGETWATERTEMPTHREHOLD       00 // the temp in which the water is fine
     
+#define K_MSECONDSINHOUR                 36000000    // the number of miliseconds in an hour
+#define K_MSECONDSINDAY                  864000000   // the number of miliseconds in a day
+    
+#define K_DEBOUNCEDELAY                 200    // the time (in ms) to debounce a button
+#define K_LONGBUTTONPRESSTIME           1000   // the time (in ms) that constitues a long-press)
+    
 // debugging defines
 //#define K_DEBUG_HPT     // will get hot plate temp from to potentiometer instead
 //#define K_DEBUG_WT      // will get water temp from the potentiometer instead
@@ -28,15 +34,20 @@ extern "C" {
 // the state structure that all classes share and put their latest data in
 static struct t_fishstate {
     uint32_t tick_count;
+    uint32_t miliseconds;
     uint16_t potPosition;
     uint8_t hotPlatePower;
     float waterTemp;
     float hotPlateTemp;
     float chipTemp;
+    bool isButtonPress;
+    bool isLongButtonPress;
 };
 extern struct t_fishstate FISH_State;
 
 void FISHSTATE_print(void);
+
+void FISHSTATE_calcTime(void);
 
 
 #ifdef	__cplusplus

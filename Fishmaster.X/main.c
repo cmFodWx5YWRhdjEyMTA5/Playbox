@@ -68,6 +68,11 @@
  * 
  * RB7 is analog out for the DAC - connect to hot-plate
  * 
+ * RA4, RA6, RC0, RC3, RC4, RC5 is 1-6 hours
+ * RD0-RD5 is 7-12 hours
+ * RD6 is AM
+ * RD7 is PM
+ * 
  * RC2 is CCP1 on TMR2 for G LED Lighting
  * RC1 is CCP2 on TMR2 for R LED Lighting
  * RE0 is CCP3 on TMR2 for B LED Lighting
@@ -81,11 +86,6 @@
  */
     
 /**
- * Do input for button - long and short press both debounced
- * Do timer
- * Do set time from button
- * Do clock display
- * Do LED outputs (CCP with FWM)
  * Do serial send and receive (MASTER / SLAVE header?)
  * 
  * Diagram PINS
@@ -101,8 +101,9 @@ void fishInitialise(void)
     // do the local initialization
     FISHINPUT_Initialize();
     FISHOUTPUT_Initialize();
-    
+    // initialise the time from now
     FISH_State.tick_count = 0;
+    FISH_State.miliseconds = 0;
 }
 
 void fishProcess()
@@ -130,6 +131,8 @@ void fishProcess()
     }
     // set the lighting correctly
     FISHOUTPUT_setLighting();
+    // and the clock
+    FISHOUPUT_setClock();
 
     if(eusartRxCount!=0) 
     {   
@@ -186,21 +189,20 @@ void main(void)
     fishInitialise();
     
     // now do the processing
-    uint32_t startTime = FISH_State.tick_count;
+    uint32_t lastPrintTime = FISH_State.miliseconds;
     while(1) {
         FISH_State.tick_count += TMR2_ReadTimer();
         //if (TMR2_HasOverflowOccured()) {
         //    FISH_State.tick_count += 256;
         //}
-        if (FISH_State.tick_count < startTime) {
-            FISH_State.tick_count = 0;
-            startTime = 0;
-        }
-        else if (FISH_State.tick_count - startTime > 100000) {
+        // calculate the time (seconds) from this
+        FISHSTATE_calcTime();
+        // and we can print out state here for debugging
+        if (FISH_State.miliseconds - lastPrintTime > 5000) {
             // a second has passed, for debugging print out our state
             FISHSTATE_print();
             LED_Toggle();
-            startTime = FISH_State.tick_count;
+            lastPrintTime = FISH_State.miliseconds;
         }
         // and process the tasks we want to process
         fishProcess();
