@@ -42,7 +42,7 @@ void FISHINPUT_process(void)
         FISHINPUT_getWaterTemp();
         // for debugging we can get the POT position too
         FISHINPUT_getPotPosition();
-
+/*
         //TODO De-bouncing isn't working because the noise is incredible while
         //testing - let's just listen for the 1 and leave it at that for now
         bool buttonReading = IO_BTN_GetValue() == 1;
@@ -67,6 +67,7 @@ void FISHINPUT_process(void)
             }
         }
         last_button_state = buttonReading;
+*/
         //TODO send this state to the slave over serial
         //FISHINPUT_sendStateSerial();
     }

@@ -5,7 +5,7 @@
 
 struct t_fishstate FISH_State;
 
-#define K_TICKSPERMSECOND 80
+#define K_TICKSPERMSECOND 100
 
 void FISHSTATE_print(void)
 {
@@ -24,7 +24,10 @@ void FISHSTATE_print(void)
 void FISHSTATE_calcTime(void)
 {
     // calculate the time elapsed from the tick_count.
-    // we are running at 8MHz so that is 8,000,000 cycles per-second
+    // we are counting 2.56ms as 256 each time so there
+    // will be 100 ticks per ms, we are counting separately
+    // so we don't lose that .56, they will add up to 1 at some
+    // point and we want to count that (O;
     while (FISH_State.tick_count > K_TICKSPERMSECOND) {
         // this has a second, remove it
         FISH_State.tick_count -= K_TICKSPERMSECOND;

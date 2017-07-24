@@ -41,7 +41,7 @@
 void fishInitialise(void)
 {
     //output the startup state on the serial port for debugging
-    printf("\rFishMaster controller application - Date 18/07/2017\r\n");
+    printf("\rFishMaster controller application - %s %s\r\n",__DATE__, __TIME__);
     // do the local initialization
     FISHINPUT_Initialize();
     FISHOUTPUT_Initialize();
@@ -89,10 +89,15 @@ void main(void)
     // now do the processing
     uint32_t lastPrintTime = FISH_State.miliseconds;
     while(1) {
-        FISH_State.tick_count += TMR2_ReadTimer();
-        //if (TMR2_HasOverflowOccured()) {
-        //    FISH_State.tick_count += 256;
-        //}
+        // reset the time counter so we don't overflow
+        FISH_State.tick_count += TMR0_ReadTimer();
+        TMR0_Initialize();
+        /*if (TMR0_HasOverflowOccured()) {
+            // add the time interval to the tick (2.56ms)
+            FISH_State.tick_count += 256;
+            // and reset the timer
+            TMR0_Initialize();
+        }*/
         // calculate the time (seconds) from this
         FISHSTATE_calcTime();
         // and we can print out state here for debugging
