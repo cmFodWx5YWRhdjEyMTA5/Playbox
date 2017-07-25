@@ -54,7 +54,6 @@
 #include "dac1.h"
 #include "fvr.h"
 #include "pwm3.h"
-#include "tmr0.h"
 #include "pwm2.h"
 #include "eusart.h"
 #include "pwm1.h"

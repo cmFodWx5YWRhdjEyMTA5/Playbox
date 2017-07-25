@@ -63,9 +63,8 @@ void fishProcess()
     FISHOUTPUT_process();
 }
 
-void timer0Interrupt(void) {
-    FISH_State.tick_count += 4864;
-    //printf("%d/r/n", ((uint32_t) (TMR0_ReadTimer() * 1000)));
+void timer2Interrupt(void) {
+    FISH_State.tick_count += 816; // 816 is the callback function rate
     //TMR0_Initialize();
 }
 
@@ -74,8 +73,8 @@ void main(void)
     // initialize the device
     SYSTEM_Initialize();
     
-      //Define interrupt Handlers
-    TMR0_SetInterruptHandler (timer0Interrupt);
+    //Define interrupt Handlers
+    TMR2_SetInterruptHandler (timer2Interrupt);
 
     // When using interrupts, you need to set the Global and Peripheral Interrupt Enable bits
     // Use the following macros to:
