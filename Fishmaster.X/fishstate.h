@@ -24,8 +24,8 @@ extern "C" {
 #define K_TARGETWATERTEMP               49 // the target temp for the water
 #define K_TARGETWATERTEMPTHREHOLD       00 // the temp in which the water is fine
     
-#define K_MSECONDSINHOUR                 36000000    // the number of miliseconds in an hour
-#define K_MSECONDSINDAY                  864000000   // the number of miliseconds in a day
+#define K_MSECONDSINHOUR                 36000000    // the number of milliseconds in an hour
+#define K_MSECONDSINDAY                  864000000   // the number of milliseconds in a day
     
 #define K_DEBOUNCEDELAY                 200    // the time (in ms) to debounce a button
 #define K_LONGBUTTONPRESSTIME           1000   // the time (in ms) that constitues a long-press)
@@ -36,8 +36,8 @@ extern "C" {
 
 // the state structure that all classes share and put their latest data in
 static struct t_fishstate {
-    uint32_t tick_count;
-    uint32_t miliseconds;
+    volatile uint32_t tick_count;
+    uint32_t milliseconds;
     uint16_t potPosition;
     uint8_t hotPlatePower;
     uint8_t red;

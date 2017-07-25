@@ -52,15 +52,15 @@
 #include "interrupt_manager.h"
 #include "tmr2.h"
 #include "dac1.h"
-#include "adc.h"
-#include "eusart.h"
-#include "tmr0.h"
-#include "pwm1.h"
-#include "pwm2.h"
-#include "pwm3.h"
 #include "fvr.h"
+#include "pwm3.h"
+#include "tmr0.h"
+#include "pwm2.h"
+#include "eusart.h"
+#include "pwm1.h"
+#include "adc.h"
 
-#define _XTAL_FREQ  32000000
+#define _XTAL_FREQ  8000000
 
 
 /**

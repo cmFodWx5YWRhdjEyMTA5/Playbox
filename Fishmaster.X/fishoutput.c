@@ -36,7 +36,7 @@ void FISHOUTPUT_process(void)
     // process this button press
     if (FISH_State.isButtonPress) {
         // move the time forward an hour
-        FISH_State.miliseconds += K_MSECONDSINHOUR;
+        FISH_State.milliseconds += K_MSECONDSINHOUR;
         // handled this, reset the flag
         FISH_State.isButtonPress = false;
         // calc time to fix any overrun

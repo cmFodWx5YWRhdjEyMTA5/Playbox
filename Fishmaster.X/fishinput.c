@@ -51,17 +51,17 @@ void FISHINPUT_process(void)
             if (last_button_state == false) {
                 // wasn't pressed, now it is
                 button_state = buttonReading;
-                button_pressed_time = FISH_State.miliseconds;
+                button_pressed_time = FISH_State.milliseconds;
             }
         }
         else if (last_button_state) {
             // button is released from being pressed, if not a long press
             // then this was a short press
-            if (FISH_State.miliseconds - button_pressed_time > K_LONGBUTTONPRESSTIME) {
+            if (FISH_State.milliseconds - button_pressed_time > K_LONGBUTTONPRESSTIME) {
                 // this was held down for more than a second - this is a long-press
                 FISH_State.isLongButtonPress = true;
             }
-            else {//TODO - add debounce if (FISH_State.miliseconds - button_pressed_time > K_DEBOUNCEDELAY) {
+            else {//TODO - add debounce if (FISH_State.milliseconds - button_pressed_time > K_DEBOUNCEDELAY) {
                 // this was enough to register a quick press
                 FISH_State.isButtonPress = true;
             }

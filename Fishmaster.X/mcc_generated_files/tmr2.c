@@ -65,8 +65,8 @@ void TMR2_Initialize(void)
     // T2CKPS 1:1; T2OUTPS 1:1; TMR2ON off; 
     T2CON = 0x00;
 
-    // PR2 255; 
-    PR2 = 0xFF;
+    // PR2 63; 
+    PR2 = 0x3F;
 
     // TMR2 0; 
     TMR2 = 0x00;

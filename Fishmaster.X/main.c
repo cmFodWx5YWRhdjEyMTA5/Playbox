@@ -47,7 +47,7 @@ void fishInitialise(void)
     FISHOUTPUT_Initialize();
     // initialize the time from now
     FISH_State.tick_count = 0;
-    FISH_State.miliseconds = 0;
+    FISH_State.milliseconds = 0;
     
     //TODO set the master/slave switch
     FISH_State.isSlave = false;//IO_SLV_GetValue() == 0;
@@ -63,10 +63,19 @@ void fishProcess()
     FISHOUTPUT_process();
 }
 
+void timer0Interrupt(void) {
+    FISH_State.tick_count += 4864;
+    //printf("%d/r/n", ((uint32_t) (TMR0_ReadTimer() * 1000)));
+    //TMR0_Initialize();
+}
+
 void main(void)
 {
     // initialize the device
     SYSTEM_Initialize();
+    
+      //Define interrupt Handlers
+    TMR0_SetInterruptHandler (timer0Interrupt);
 
     // When using interrupts, you need to set the Global and Peripheral Interrupt Enable bits
     // Use the following macros to:
@@ -87,11 +96,10 @@ void main(void)
     fishInitialise();
     
     // now do the processing
-    uint32_t lastPrintTime = FISH_State.miliseconds;
+    uint32_t lastPrintTime = FISH_State.milliseconds;
     while(1) {
         // reset the time counter so we don't overflow
-        FISH_State.tick_count += TMR0_ReadTimer();
-        TMR0_Initialize();
+        //
         /*if (TMR0_HasOverflowOccured()) {
             // add the time interval to the tick (2.56ms)
             FISH_State.tick_count += 256;
@@ -101,11 +109,11 @@ void main(void)
         // calculate the time (seconds) from this
         FISHSTATE_calcTime();
         // and we can print out state here for debugging
-        if (FISH_State.miliseconds - lastPrintTime > 5000) {
+        if (FISH_State.milliseconds - lastPrintTime > 5000) {
             // a second has passed, for debugging print out our state
             FISHSTATE_print();
             LED_Toggle();
-            lastPrintTime = FISH_State.miliseconds;
+            lastPrintTime = FISH_State.milliseconds;
         }
         // and process the tasks we want to process
         fishProcess();
