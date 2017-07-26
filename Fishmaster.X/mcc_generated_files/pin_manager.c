@@ -14,7 +14,7 @@
     This header file provides implementations for pin APIs for all pins selected in the GUI.
     Generation Information :
         Product Revision  :  MPLAB(c) Code Configurator - 4.26
-        Device            :  PIC16F1784
+        Device            :  PIC16F1787
         Driver Version    :  1.02
     The generated drivers are tested against the following:
         Compiler          :  XC8 1.35
@@ -56,7 +56,7 @@ void PIN_MANAGER_Initialize(void)
     */   
     LATE = 0x00;    
     LATD = 0xFF;    
-    LATA = 0x00;    
+    LATA = 0x50;    
     LATB = 0x00;    
     LATC = 0x3F;    
 
@@ -75,7 +75,7 @@ void PIN_MANAGER_Initialize(void)
     ANSELB = 0x7B;
     ANSELD = 0x00;
     ANSELE = 0x07;
-    ANSELA = 0x3F;
+    ANSELA = 0x0F;
 
     /**
     WPUx registers
@@ -83,7 +83,7 @@ void PIN_MANAGER_Initialize(void)
     WPUD = 0x00;
     WPUE = 0x0E;
     WPUB = 0x78;
-    WPUA = 0x5E;
+    WPUA = 0x0E;
     WPUC = 0x00;
     OPTION_REGbits.nWPUEN = 0;
 

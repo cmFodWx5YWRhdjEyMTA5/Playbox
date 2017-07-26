@@ -14,7 +14,7 @@
     This source file provides implementations for driver APIs for CCP2.
     Generation Information :
         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs  - 1.45
-        Device            :  PIC16F1784
+        Device            :  PIC16F1787
         Driver Version    :  2.00
     The generated drivers are tested against the following:
         Compiler          :  XC8 1.35

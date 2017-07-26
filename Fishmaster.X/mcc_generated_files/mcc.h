@@ -14,7 +14,7 @@
     This header file provides implementations for driver APIs for all modules selected in the GUI.
     Generation Information :
         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs  - 1.45
-        Device            :  PIC16F1784
+        Device            :  PIC16F1787
         Version           :  1.02
     The generated drivers are tested against the following:
         Compiler          :  XC8 1.35
@@ -51,13 +51,13 @@
 #include <stdbool.h>
 #include "interrupt_manager.h"
 #include "tmr2.h"
-#include "dac1.h"
+#include "adc.h"
 #include "fvr.h"
+#include "eusart.h"
 #include "pwm3.h"
 #include "pwm2.h"
-#include "eusart.h"
 #include "pwm1.h"
-#include "adc.h"
+#include "dac1.h"
 
 #define _XTAL_FREQ  8000000
 
