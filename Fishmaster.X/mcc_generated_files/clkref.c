@@ -1,21 +1,21 @@
 /**
-  @Generated PIC10 / PIC12 / PIC16 / PIC18 MCUs  Header File
+  CLKREF Generated Driver File
 
-  @Company:
+  @Company
     Microchip Technology Inc.
 
-  @File Name:
-    mcc.h
+  @File Name
+    clkref.c
 
-  @Summary:
-    This is the mcc.h file generated using PIC10 / PIC12 / PIC16 / PIC18 MCUs 
+  @Summary
+    This is the generated driver implementation file for the CLKREF driver using PIC10 / PIC12 / PIC16 / PIC18 MCUs 
 
-  @Description:
-    This header file provides implementations for driver APIs for all modules selected in the GUI.
+  @Description
+    This source file provides APIs for CLKREF.
     Generation Information :
         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs  - 1.45
         Device            :  PIC16F1787
-        Version           :  1.02
+        Driver Version    :  2.00
     The generated drivers are tested against the following:
         Compiler          :  XC8 1.35
         MPLAB             :  MPLAB X 3.40
@@ -43,67 +43,22 @@
     TERMS.
 */
 
-#ifndef MCC_H
-#define	MCC_H
+/**
+  Section: Included Files
+*/
+
 #include <xc.h>
-#include "pin_manager.h"
-#include <stdint.h>
-#include <stdbool.h>
-#include "interrupt_manager.h"
-#include "pwm3.h"
-#include "eusart.h"
-#include "pwm2.h"
-#include "pwm1.h"
-#include "dac1.h"
-#include "adc.h"
 #include "clkref.h"
-#include "tmr2.h"
-#include "fvr.h"
-
-#define _XTAL_FREQ  8000000
-
 
 /**
- * @Param
-    none
- * @Returns
-    none
- * @Description
-    Initializes the device to the default states configured in the
- *                  MCC GUI
- * @Example
-    SYSTEM_Initialize(void);
- */
-void SYSTEM_Initialize(void);
+  Section: CLKREF APIs
+*/
 
-/**
- * @Param
-    none
- * @Returns
-    none
- * @Description
-    Initializes the oscillator to the default states configured in the
- *                  MCC GUI
- * @Example
-    OSCILLATOR_Initialize(void);
- */
-void OSCILLATOR_Initialize(void);
-
-/**
- * @Param
-    none
- * @Returns
-    none
- * @Description
-    Initializes the WDT module to the default states configured in the
- *                  MCC GUI
- * @Example
-    WDT_Initialize(void);
- */
-void WDT_Initialize(void);
-
-
-#endif	/* MCC_H */
+void CLKREF_Initialize(void)
+{
+    // CLKRSLR enabled; CLKROE disabled; CLKRDC 50% Duty Cycle; CLKRDIV BaseClock; CLKREN enabled; 
+    CLKRCON = 0xB0;
+}
 /**
  End of File
 */

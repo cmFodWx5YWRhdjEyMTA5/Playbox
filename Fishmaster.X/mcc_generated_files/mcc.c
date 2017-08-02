@@ -80,6 +80,7 @@ void SYSTEM_Initialize(void)
     ADC_Initialize();
     PWM3_Initialize();
     DAC1_Initialize();
+    CLKREF_Initialize();
     TMR2_Initialize();
     EUSART_Initialize();
 }
