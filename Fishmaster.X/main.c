@@ -3,9 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <time.h>
-#include <stdio.h>
-
 // local includes
 #include "fishinput.h"
 #include "fishstate.h"
@@ -116,8 +113,6 @@ void main(void)
             FISHSTATE_print();
             LED_Toggle();
             lastPrintTime = FISH_State.milliseconds;
-            
-            printf("%d\r\n", gmtime(0)->tm_hour);
         }
         // and process the tasks we want to process
         fishProcess();
