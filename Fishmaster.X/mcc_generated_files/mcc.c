@@ -74,12 +74,13 @@ void SYSTEM_Initialize(void)
     PIN_MANAGER_Initialize();
     OSCILLATOR_Initialize();
     WDT_Initialize();
+    I2C_Initialize();
     FVR_Initialize();
     PWM1_Initialize();
     PWM2_Initialize();
     ADC_Initialize();
-    DAC1_Initialize();
     PWM3_Initialize();
+    DAC1_Initialize();
     TMR2_Initialize();
     EUSART_Initialize();
 }

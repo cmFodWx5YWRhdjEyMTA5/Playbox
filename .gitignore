@@ -32,3 +32,6 @@ traindataserver/target/maven-status/maven-compiler-plugin/compile/default-compil
 *.txt
 
 *.stn
+/Avo.X/nbproject/private/
+/Avo.X/build/default/
+/Avo.X/dist/default/
