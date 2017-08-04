@@ -109,7 +109,7 @@ void FISHOUPUT_setClock(void)
     while (FISH_State.hour > 12) {
         FISH_State.hour -= 12;
         isPm = true;
-    }
+    }/*
     switch(FISH_State.hour) {
         case 1 :
             IO_TM1_SetHigh();
@@ -292,5 +292,5 @@ void FISHOUPUT_setClock(void)
         // set the AM bit HIGH and the PM bit LOW
         IO_TMAM_SetHigh();
         IO_TMPM_SetLow();
-    }
+    }*/
 }

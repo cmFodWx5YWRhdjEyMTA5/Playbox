@@ -75,7 +75,7 @@ void timer2Interrupt(void) {
 void rtcRead(void)
 {   
     uint8_t     writeBuffer[2];
-    writeBuffer[0] = 0xFF;
+    writeBuffer[0] = 0x00;
     writeBuffer[1] = 0b11011111;
     uint8_t     data;
 
@@ -83,7 +83,7 @@ void rtcRead(void)
     // As a work around on these slaves, the application can
     // retry sending the transaction
     uint16_t timeOut = 0;
-    I2C_MESSAGE_STATUS status;
+    I2C_MESSAGE_STATUS status = I2C_MESSAGE_PENDING;
     while(status != I2C_MESSAGE_FAIL)
     {
         // write the data on the I2C channel to request the time data

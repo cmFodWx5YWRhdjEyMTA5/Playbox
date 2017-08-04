@@ -56,8 +56,8 @@
 
 void DAC1_Initialize(void)
 {
-    // DACEN enabled; DACNSS VSS; DACPSS VDD; DACOE1 disabled; DACOE2 enabled; 
-    DACCON0 = 0x90;
+    // DACEN enabled; DACNSS VSS; DACPSS VDD; DACOE1 disabled; DACOE2 disabled; 
+    DACCON0 = 0x80;
     // DACR 51; 
     DACCON1 = 0x33;
 }
