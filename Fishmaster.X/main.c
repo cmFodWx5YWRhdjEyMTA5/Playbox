@@ -73,12 +73,10 @@ void timer2Interrupt(void) {
 }
 
 void rtcRead(void)
-{
-    I2C_Initialize();
-    
+{   
     uint8_t     writeBuffer[2];
-    writeBuffer[0] = 0b11011111;
-    writeBuffer[1] = 0x0;
+    writeBuffer[0] = 0xFF;
+    writeBuffer[1] = 0b11011111;
     uint8_t     data;
 
     // Now it is possible that the slave device will be slow.
@@ -89,7 +87,7 @@ void rtcRead(void)
     while(status != I2C_MESSAGE_FAIL)
     {
         // write the data on the I2C channel to request the time data
-        I2C_MasterWrite(0x0, 2, MCP79410_ADDRESS, &status);
+        I2C_MasterWrite(&writeBuffer, 1, MCP79410_ADDRESS, &status);
 
         // wait for the message to be sent or status has changed.
         while(status == I2C_MESSAGE_PENDING);
