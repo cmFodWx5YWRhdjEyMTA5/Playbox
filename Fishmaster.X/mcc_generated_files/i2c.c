@@ -211,7 +211,7 @@ void I2C_Initialize(void)
     // ACKTIM ackseq; SBCDE disabled; BOEN disabled; SCIE disabled; PCIE disabled; DHEN disabled; SDAHT 100ns; AHEN disabled; 
     SSP1CON3 = 0x00;
     // Baud Rate Generator Value: SSP1ADD 3; 
-    //** CHANGED TO 13 which is d19 to inialise as 100mHz
+    //** CHANGED TO 13 which is d19 to initialize as 100mHz
     SSP1ADD = 0x13;
 
    

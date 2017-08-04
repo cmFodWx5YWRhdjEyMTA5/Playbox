@@ -73,10 +73,72 @@ void timer2Interrupt(void) {
 }
 
 void rtcRead(void)
+{
+    I2C_MESSAGE_STATUS status;
+    I2C_TRANSACTION_REQUEST_BLOCK readTRB[3];
+    uint8_t     writeBuffer[1];
+    uint16_t    timeOut;
+    uint8_t     readBuffer[6];
+
+    // this initial value is important
+    status = I2C_MESSAGE_PENDING;
+
+    // build the write buffer first
+    writeBuffer[0] = 0x00;
+    /*writeBuffer[1] = 0x01;
+    writeBuffer[2] = 0x02;
+    writeBuffer[3] = 0x03;
+    writeBuffer[4] = 0x04;
+    writeBuffer[5] = 0x05;*/
+    
+    uint8_t readData = 0x0;
+
+    // Build TRB for sending address
+    I2C_MasterWriteTRBBuild(&readTRB[0],
+                            writeBuffer,
+                            1,
+                            MCP79410_ADDRESS);
+    // Build TRB for receiving data
+    I2C_MasterReadTRBBuild( &readTRB[1],
+                            &readData,
+                            1,
+                            MCP79410_ADDRESS);
+
+    timeOut = 0;
+
+    while(status != I2C_MESSAGE_FAIL)
+    {
+        // now send the transactions
+        I2C_MasterTRBInsert(2, readTRB, &status);
+
+        // wait for the message to be sent or status has changed.
+        while(status == I2C_MESSAGE_PENDING);
+
+        if (status == I2C_MESSAGE_COMPLETE) {
+            printf("Data received: %d\r\n", readData);
+            break;
+        }
+
+        // if status is  I2C_MESSAGE_ADDRESS_NO_ACK,
+        //               or I2C_DATA_NO_ACK,
+        // The device may be busy and needs more time for the last
+        // write so we can retry writing the data, this is why we
+        // use a while loop here
+
+        // check for max retry and skip this byte
+        if (timeOut == MCP79410_RETRY_MAX)
+            break;
+        else
+            timeOut++;
+
+    }
+}
+
+void rtcRead2(void)
 {   
     uint8_t     writeBuffer[2];
-    writeBuffer[0] = 0x00;
-    writeBuffer[1] = 0b11011111;
+    writeBuffer[0] = 0x01;
+    writeBuffer[1] = 0b1101111;
     uint8_t     data;
 
     // Now it is possible that the slave device will be slow.
