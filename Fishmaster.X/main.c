@@ -7,9 +7,7 @@
 #include "fishinput.h"
 #include "fishstate.h"
 #include "fishoutput.h"
-
-#define MCP79410_RETRY_MAX  100  // define the retry count
-#define MCP79410_ADDRESS    0b1101111 // RTC device address
+#include "rtc.h"
 
 /*
                          Main application
@@ -48,6 +46,7 @@ void fishInitialise(void)
     // do the local initialization
     FISHINPUT_Initialize();
     FISHOUTPUT_Initialize();
+    RTC_Initialise();
     // initialize the time from now
     FISH_State.tick_count = 0;
     FISH_State.milliseconds = 0;
@@ -55,8 +54,6 @@ void fishInitialise(void)
     //TODO set the master/slave switch
     FISH_State.isSlave = false;//IO_SLV_GetValue() == 0;
     FISH_State.isSlave ? printf("IS SLAVE\r\n") : printf("IS MASTER\r\n");
-    
-    
 }
 
 void fishProcess()
@@ -69,147 +66,6 @@ void fishProcess()
 
 void timer2Interrupt(void) {
     FISH_State.tick_count += 816; // 816 is the callback function rate
-    //TMR0_Initialize();
-}
-
-void rtcRead(void)
-{
-    I2C_MESSAGE_STATUS status;
-    I2C_TRANSACTION_REQUEST_BLOCK readTRB[3];
-    uint8_t     writeBuffer[1];
-    uint16_t    timeOut;
-    uint8_t     readBuffer[6];
-
-    // this initial value is important
-    status = I2C_MESSAGE_PENDING;
-
-    // build the write buffer first
-    writeBuffer[0] = 0x00;
-    /*writeBuffer[1] = 0x01;
-    writeBuffer[2] = 0x02;
-    writeBuffer[3] = 0x03;
-    writeBuffer[4] = 0x04;
-    writeBuffer[5] = 0x05;*/
-    
-    uint8_t readData = 0x0;
-
-    // Build TRB for sending address
-    I2C_MasterWriteTRBBuild(&readTRB[0],
-                            writeBuffer,
-                            1,
-                            MCP79410_ADDRESS);
-    // Build TRB for receiving data
-    I2C_MasterReadTRBBuild( &readTRB[1],
-                            &readData,
-                            1,
-                            MCP79410_ADDRESS);
-
-    timeOut = 0;
-
-    while(status != I2C_MESSAGE_FAIL)
-    {
-        // now send the transactions
-        I2C_MasterTRBInsert(2, readTRB, &status);
-
-        // wait for the message to be sent or status has changed.
-        while(status == I2C_MESSAGE_PENDING);
-
-        if (status == I2C_MESSAGE_COMPLETE) {
-            printf("Data received: %d\r\n", readData);
-            break;
-        }
-
-        // if status is  I2C_MESSAGE_ADDRESS_NO_ACK,
-        //               or I2C_DATA_NO_ACK,
-        // The device may be busy and needs more time for the last
-        // write so we can retry writing the data, this is why we
-        // use a while loop here
-
-        // check for max retry and skip this byte
-        if (timeOut == MCP79410_RETRY_MAX)
-            break;
-        else
-            timeOut++;
-
-    }
-}
-
-void rtcRead2(void)
-{   
-    uint8_t     writeBuffer[2];
-    writeBuffer[0] = 0x01;
-    writeBuffer[1] = 0b1101111;
-    uint8_t     data;
-
-    // Now it is possible that the slave device will be slow.
-    // As a work around on these slaves, the application can
-    // retry sending the transaction
-    uint16_t timeOut = 0;
-    I2C_MESSAGE_STATUS status = I2C_MESSAGE_PENDING;
-    while(status != I2C_MESSAGE_FAIL)
-    {
-        // write the data on the I2C channel to request the time data
-        I2C_MasterWrite(&writeBuffer, 1, MCP79410_ADDRESS, &status);
-
-        // wait for the message to be sent or status has changed.
-        while(status == I2C_MESSAGE_PENDING);
-
-        if (status == I2C_MESSAGE_COMPLETE)
-            break;
-
-        // if status is  I2C_MESSAGE_ADDRESS_NO_ACK,
-        //               or I2C_DATA_NO_ACK,
-        // The device may be busy and needs more time for the last
-        // write so we can retry writing the data, this is why we
-        // use a while loop here
-
-        // check for max retry and skip this byte
-        if (timeOut == MCP79410_RETRY_MAX)
-            break;
-        else
-            timeOut++;
-    }
-
-    if (status == I2C_MESSAGE_COMPLETE)
-    {
-
-        // this portion will read the byte from the memory location.
-        timeOut = 0;
-        for (int i = 0; i < 1; ++i) {
-            // read in the 3 expected items of data
-            while(status != I2C_MESSAGE_FAIL)
-            {
-                // read the data from the RTC one at a time
-                I2C_MasterRead(&data, 1, MCP79410_ADDRESS, &status);
-
-                // wait for the message to be sent or status has changed.
-                while(status == I2C_MESSAGE_PENDING);
-
-                if (status == I2C_MESSAGE_COMPLETE) {
-                    printf("Data received: %d\r\n", data);
-                    break;
-                }
-
-                // if status is  I2C_MESSAGE_ADDRESS_NO_ACK,
-                //               or I2C_DATA_NO_ACK,
-                // The device may be busy and needs more time for the last
-                // write so we can retry writing the data, this is why we
-                // use a while loop here
-
-                // check for max retry and skip this byte
-                if (timeOut == MCP79410_RETRY_MAX)
-                    break;
-                else
-                    timeOut++;
-            }
-
-            // exit if the last transaction failed
-            if (status == I2C_MESSAGE_FAIL)
-            {
-                break;
-            }
-        }
-    }
 }
 
 void main(void)
@@ -237,49 +93,35 @@ void main(void)
     
     // do the local initialization
     fishInitialise();
-
-    //PORT RC4 appears to be the SDA line, enable the internal pull up resistor
-    /*RC
-    nRBPU = 0;                    //Enable PORTB internal pull up resistor
-    TRISB = 0xFF;                 //PORTB as input
-    I2C_Master_Init(100000);      //Initialize I2C Master with 100KHz clock
-    while(1)
-    {
-        // start the I2C communications
-        I2C_Master_Start();
-        // send the control byte to the clock (which is 7-bits only) 1-read 0-write
-        I2C_Master_Write(0b11011111);
-        // now send the address we want to read (0x0 is seconds please)
-        I2C_Master_Write(0x0);
-        // now we can read the seconds
-        unsigned short seconds = I2C_Master_Read(0); //Read + Acknowledge
-        printf("Seconds: %d\r\n", seconds);
-        I2C_Master_Stop();          //Stop condition
-        __delay_ms(200);
-    }*/
     
     // now do the processing
-    uint32_t lastPrintTime = FISH_State.milliseconds;
+    uint32_t lastRtcReadTime = FISH_State.milliseconds;
+    uint32_t lastPrintTime = lastRtcReadTime;
     while(1) {
-        rtcRead();
-        // reset the time counter so we don't overflow
-        //
-        /*if (TMR0_HasOverflowOccured()) {
-            // add the time interval to the tick (2.56ms)
-            FISH_State.tick_count += 256;
-            // and reset the timer
-            TMR0_Initialize();
-        }*/
+        // we want to get the time on a periodic counter, so do this now
+        if (FISH_State.milliseconds - lastRtcReadTime > 500) {
+            // update the time
+            RTC_ReadTime();
+            // reset the time counter
+            lastRtcReadTime = FISH_State.milliseconds;
+        }
+        // along with the RTC we have a rolling milliseconds and tick
+        // counter we can use for rougher timing functions, update this now
         // calculate the time (seconds) from this
         FISHSTATE_calcTime();
         // and we can print out state here for debugging
         if (FISH_State.milliseconds - lastPrintTime > 5000) {
-            // a second has passed, for debugging print out our state
+            // enough time has passed that we want to know what is going on
+            // print our time
+            RTC_Print();
+            // and the state
             FISHSTATE_print();
+            // and toggle the LED so we know we are running without serial on
             LED_Toggle();
+            // reset the print time to print only periodically
             lastPrintTime = FISH_State.milliseconds;
         }
-        // and process the tasks we want to process
+        // always process the tasks we want to process
         fishProcess();
     }
 }
