@@ -9,9 +9,9 @@ struct t_rtcstate RTC_State;
 
 //http://ww1.microchip.com/downloads/en/DeviceDoc/20002266F.pdf
 #define MCP79410_RETRY_MAX  100  // define the retry count
-#define MCP79410_ADDRESS    0b1101111 // RTC device address
+#define MCP79410_ADDRESS    0b1101111   // RTC device address
 
-#define MCP79410_RAWWAITING 1000 // the number of times we wait for the ack
+#define MCP79410_RAWWAITING 120000      // the number of times we wait for the ack
 
 #define MCP79410_ADDRESS_SEC    0x0     // the memory address for the seconds
 #define MCP79410_ADDRESS_MIN    0x1     // the memory address for the minutes
@@ -23,7 +23,7 @@ struct t_rtcstate RTC_State;
 #define MCP79410_ADDRESS_CTRL   0x7     // the RTC control reg for settings
 
 #define MCP79410_CTRL_BITS      0x0     // the state we want the RTC to be in
-#define MCP79410_WKDY_CTRL_BITS 0b00101000 // the state of the WKDY ctrl bits we want
+#define MCP79410_OSCRUN_MASK    0b00100000  // the mask to get the OSCRUN state
 
 void RTC_Initialise(void)
 {
@@ -33,7 +33,7 @@ void RTC_Initialise(void)
     RTC_State.time_minutes = 0;
     RTC_State.time_seconds = 0;
     // the ST bit is important as it tells us if the chip is running
-    RTC_State.ST_BITSET = 0;
+    RTC_State.ST_BITSET = false;
     // start the index at zero
     RTC_State.time_getIndex = 0;
     
@@ -44,19 +44,12 @@ void RTC_Initialise(void)
     SSP1CON1 = 0x28; // enable module, I2C master SSP1ADD=baud rate
     SSP1CON2 = 0x00;
     
-    // first things first - setup the oscillator by clearing the control bits
-    RTC_Write(MCP79410_ADDRESS_CTRL, MCP79410_CTRL_BITS);
-    printf("RTC Control BITS set\r\n");
-    // now, we don't really care about the day of the week but we do care
-    // about the other control bits in this address, the battery status and
-    // the oscillator state, set these up now each time
-    //RTC_Write(MCP79410_ADDRESS_WKDY, MCP79410_WKDY_CTRL_BITS);
     
     //TODO Remove this, we just want to do this when the clock hasn't been
     //initialised, ie ST bit is set to zero
-    if (!RTC_SetCurrentDate()) {
-        printf("Failed to set the date correctly\r\n");
-    }
+    //if (!RTC_SetCurrentDate()) {
+    //    printf("Failed to set the date correctly\r\n");
+    //}
 }
 
 void RTC_Print(void)
@@ -77,36 +70,30 @@ bool RTC_ReadTime(void)
     
     // first is the special case for seconds
     if (RTC_State.time_getIndex == 0) {
-        // get the seconds and only proceed if successful
+        // get the seconds and only proceed if this was successful
         if (RTC_ReadSeconds(true)) {
-            // this was good, call minutes next time
+            // this was good, call the function to get minutes next time
             ++RTC_State.time_getIndex;
         }
     }
-    else {
-        // call the next one
-        switch(RTC_State.time_getIndex) {
-            case 0:
-                // should never be here, but for good code, let's go to seconds
-                RTC_ReadSeconds(false);
-                break;
-            case 1:
-                // read the minutes
-                RTC_ReadMinutes();
-                break;
-            case 2:
-                // read hours
-                RTC_ReadHours();
-                break;
-            default:
-                // shouldn't be here either, reset
-                break;
-        }
-        // increment the counter
-        if (++RTC_State.time_getIndex > 2) {
-            // rolled over the number of functions, start again
-            RTC_State.time_getIndex = 0;
-        }
+    // call the next one
+    switch(RTC_State.time_getIndex) {
+        case 0:
+            // should never be here, but for good code, let's go to seconds
+            RTC_ReadSeconds(false);
+            break;
+        case 1:
+            // read the minutes and hours together to prevent roll-over
+            RTC_ReadHoursMinutes();
+            break;
+        default:
+            // shouldn't be here either, reset
+            break;
+    }
+    // increment the counter
+    if (++RTC_State.time_getIndex > 1) {
+        // rolled over the number of functions, start again
+        RTC_State.time_getIndex = 0;
     }
     // return the state of the ST bit after all this
     return RTC_State.ST_BITSET;
@@ -122,20 +109,20 @@ bool RTC_Read(uint8_t bitAddress, uint8_t* readBuffer)
     while (++waitCounter < MCP79410_RAWWAITING && SSPCON2bits.SEN == 1);
     if (SSPCON2bits.SEN != 0) {
         // we didn't get the ack - quit
-        return 0;
+        return false;
     }
     // set the control code to the address of the device with a zero to indicate
     // that we are sending a writing request...
     SSP1BUF = MCP79410_ADDRESS << 1;
     if (RTC_WaitForRAWWriteAck() == 0) {
         // we didn't get the ack - quit
-        return 0;
+        return false;
     }
     // now set the address that we want to read data from
     SSP1BUF = bitAddress;
     if (RTC_WaitForRAWWriteAck() == 0) {
         // we didn't get the ack - quit
-        return 0;
+        return false;
     }
     // now set the resend data bit to send the read request
     SSP1CON2bits.RSEN = 1;
@@ -143,7 +130,7 @@ bool RTC_Read(uint8_t bitAddress, uint8_t* readBuffer)
     while (++waitCounter < MCP79410_RAWWAITING && SSPCON2bits.RSEN == 1);
     if (SSPCON2bits.RSEN != 0) {
         // we didn't get the ack - quit
-        return 0;
+        return false;
     }
     // now we can send the data request, first the control code with a 1 at the end
     SSP1BUF = MCP79410_ADDRESS << 1;
@@ -158,7 +145,7 @@ bool RTC_Read(uint8_t bitAddress, uint8_t* readBuffer)
     while (++waitCounter < MCP79410_RAWWAITING && SSPCON2bits.RCEN == 1);
     if (SSPCON2bits.RCEN != 0) {
         // we didn't get the ack for this resend - quit
-        return 0;
+        return false;
     }
     // here we now have the data
     *readBuffer = SSP1BUF;
@@ -171,17 +158,17 @@ bool RTC_Read(uint8_t bitAddress, uint8_t* readBuffer)
     if (SSPCON2bits.ACKEN != 0) {
         // we didn't get the ack for this close - quit
         //TODO this is where our get of data seems to fail
-        return 0;
+        return false;
     }
     SSP1CON2bits.PEN = 1;
     waitCounter = 0;
     while (++waitCounter < MCP79410_RAWWAITING && SSPCON2bits.PEN == 1);
     if (SSPCON2bits.PEN != 0) {
         // we didn't get the ack for this close - quit
-        return 0;
+        return false;
     }
     // here? return success then
-    return 1;
+    return true;
 }
 #else
 bool RTC_Read(uint8_t bitAddress, uint8_t* readBuffer)
@@ -206,18 +193,19 @@ bool RTC_Read(uint8_t bitAddress, uint8_t* readBuffer)
     // now we can run through the loop sending the data and checking our status
     uint16_t timeOut = 0;
     I2C_MESSAGE_STATUS status = I2C_MESSAGE_PENDING;
-    bool result = 0;
+    bool result = false;
     while (status != I2C_MESSAGE_FAIL) {
         // insert the transactions into the I2C queue that Microchip created
         I2C_MasterTRBInsert(2, transactionRequests, &status);
 
         // wait for the message to be sent or status has changed.
-        uint16_t waitCounter = 0;
+        uint32_t waitCounter = 0;
         while(status == I2C_MESSAGE_PENDING) {
             // while the status is pending we want to wait a little
             // but not forever - that would be bad code
-            if (++waitCounter > 1000) {
+            if (++waitCounter > MCP79410_RAWWAITING) {
                 // wait a thousand clock cycles, that should be enough
+                printf("Waited more than %d cycles for read I2C_PENDING to go away\r\n", waitCounter);
                 break;
             }
         }
@@ -225,7 +213,7 @@ bool RTC_Read(uint8_t bitAddress, uint8_t* readBuffer)
         // pending, check here and deal with the result
         if (status == I2C_MESSAGE_COMPLETE) {
             // this data read was a success
-            result = 1;
+            result = true;
             break;
         }
 
@@ -262,26 +250,26 @@ bool RTC_Write(uint8_t bitAddress, uint8_t writeValue)
     while (++waitCounter < MCP79410_RAWWAITING && SSPCON2bits.SEN == 1);
     if (SSPCON2bits.SEN != 0) {
         // we didn't get the ack - quit
-        return 0;
+        return false;
     }
     // set the control code to the address of the device with a zero to indicate
     // that we are sending a writing request...
     SSP1BUF = MCP79410_ADDRESS << 1;
     if (RTC_WaitForRAWWriteAck() == 0) {
         // we didn't get the ack - quit
-        return 0;
+        return false;
     }
     // now set the address that we want to write data to
     SSP1BUF = bitAddress;
     if (RTC_WaitForRAWWriteAck() == 0) {
         // we didn't get the ack - quit
-        return 0;
+        return false;
     }
     // now set the data we want to set on this address
     SSP1BUF = writeValue;
     if (RTC_WaitForRAWWriteAck() == 0) {
         // we didn't get the ack - quit
-        return 0;
+        return false;
     }
     // and finally close the request
     SSP1CON2bits.PEN = 1;
@@ -291,24 +279,10 @@ bool RTC_Write(uint8_t bitAddress, uint8_t writeValue)
     while (++waitCounter < MCP79410_RAWWAITING && SSPCON2bits.PEN == 1);
     if (SSP1CON2bits.PEN != 0) {
         // we didn't get the ack - quit
-        return 0;
+        return false;
     }
     // this is the success area
-    return 1;
-}
-
-bool RTC_WaitForRAWWriteAck(void)
-{
-    uint32_t waitCounter = 0;
-    bool isAck = 0;
-    while (++waitCounter < MCP79410_RAWWAITING) {
-        if ((SSPSTATbits.R_nW != 1) || (SSPSTATbits.BF != 1) || (SSPCON2bits.ACKSTAT != 1)) {
-            // this is an ack, something has changed
-            isAck = 1;
-            break;
-        }
-    }
-    return isAck;
+    return true;
 }
 #else
 bool RTC_Write(uint8_t bitAddress, uint8_t writeValue)
@@ -333,18 +307,19 @@ bool RTC_Write(uint8_t bitAddress, uint8_t writeValue)
     // now we can run through the loop sending the data and checking our status
     uint16_t timeOut = 0;
     I2C_MESSAGE_STATUS status = I2C_MESSAGE_PENDING;
-    bool result = 0;
+    bool result = false;
     while (status != I2C_MESSAGE_FAIL) {
         // insert the transactions into the I2C queue that Microchip created
         I2C_MasterTRBInsert(2, transactionRequests, &status);
 
         // wait for the message to be sent or status has changed.
-        uint16_t waitCounter = 0;
+        uint32_t waitCounter = 0;
         while(status == I2C_MESSAGE_PENDING) {
             // while the status is pending we want to wait a little
             // but not forever - that would be bad code
-            if (++waitCounter > 1000) {
+            if (++waitCounter > MCP79410_RAWWAITING) {
                 // wait a thousand clock cycles, that should be enough
+                printf("Waited more than %d cycles for Write I2C_PENDING to go away\r\n", waitCounter);
                 break;
             }
         }
@@ -352,7 +327,7 @@ bool RTC_Write(uint8_t bitAddress, uint8_t writeValue)
         // pending, check here and deal with the result
         if (status == I2C_MESSAGE_COMPLETE) {
             // this data write was a success
-            result = 1;
+            result = true;
             break;
         }
 
@@ -373,6 +348,21 @@ bool RTC_Write(uint8_t bitAddress, uint8_t writeValue)
     return result;
 }
 #endif //MICROCHIPI2CNOTWORKING
+
+bool RTC_WaitForRAWWriteAck(void)
+{
+    uint32_t waitCounter = 0;
+    bool isAck = false;
+    while (++waitCounter < MCP79410_RAWWAITING) {
+        if ((SSPSTATbits.R_nW != 1) && (SSPSTATbits.BF != 1) && (SSPCON2bits.ACKSTAT != 1)) {
+            // this is an ack, something has changed
+            isAck = true;
+            break;
+        }
+    }
+    return isAck;
+}
+
 bool RTC_SetCurrentDate(void)
 {
     // set the current date and time, being sure to set the ST bit in the seconds
@@ -433,63 +423,47 @@ bool RTC_SetCurrentDate(void)
     // now the 'ones' which are bits 3-0
     rtcSeconds |= (0b1111) & (seconds - (tensValue * 10));
     
-    // I know we did this in initialise but if the date isn't working
-    // then maybe this failed, keep trying to set this important control bit
-    bool result = RTC_Write(MCP79410_ADDRESS_CTRL, MCP79410_CTRL_BITS);
-    // and the control bits in the weekday field, setting the oscillator on
-    // and the battery backup to be on
-    //result = RTC_Write(MCP79410_ADDRESS_WKDY, MCP79410_WKDY_CTRL_BITS);
-    // and stop the timer from running now by setting the ST BIT to zero
-    result = RTC_Write(MCP79410_ADDRESS_SEC, 0x0);
+    printf("Setting the current time to: %2d:%2d:%2d\r\n", hours, minutes, seconds);
+    // now stop the timer from running now by setting the ST BIT to zero
+    bool result = RTC_Write(MCP79410_ADDRESS_SEC, 0x0);
     if (result) {
+        printf("ST BIT Set to zero - waiting for OSCRUN to clear... ");
         // have stopped the timer, wait for it to actually stop now then
         RTC_State.ST_BITSET = 0;
-        // so now we have to wait for the OSCRUN bit in the WKDY time to clear
-        uint8_t weekday;
-        uint16_t retryCounter = 0;
-        while (++retryCounter < MCP79410_RETRY_MAX) {
-            if (RTC_Read(MCP79410_ADDRESS_WKDY, &weekday) == 0) {
-                // failed to read, forget it then
-                break;
-            }
-            else {
-                // have the data, is the OSCRUN bit reset?
-                if ((weekday & 0b00100000) == 0) {
-                    // OSCRUN Reset
-                    break;
-                }
-            }
-        }
+        RTC_WaitForOSCRUN(0);
+    }
+    else {
+        printf("Failed to stop the ST-BIT to set the time \r\n");
     }
     // now we have all the data setup and initialised ready, we can set it
     // one at a time for the I2C chip to be happy with the starts and stops
+/*
+ LET's not bother with the year month day etc for now...
     if (result) {
         // set the year
         result = RTC_Write(MCP79410_ADDRESS_YEAR, rtcYear);
-    }
-    else {
-        printf("Failed to stop the ST-BIT to set the time -- ");
     }
     if (result) {
         // set the month
         result = RTC_Write(MCP79410_ADDRESS_MONTH, rtcMonth);
     }
     else {
-        printf("Failed to set year -- ");
+        printf("Failed to set the year \r\n");
     }
     if (result) {
         // set the day
         result = RTC_Write(MCP79410_ADDRESS_DAY, rtcDay);
     }
     else {
-        printf("Failed to set month -- ");
+        printf("Failed to set the month \r\n");
     }
+ */
     if (result) {
         // set the hour
         result = RTC_Write(MCP79410_ADDRESS_HOUR, rtcHours);
     }
     else {
-        printf("Failed to set day -- ");
+        printf("Failed to set the day \r\n");
     }
     if (result) {
         // set the minutes
@@ -503,18 +477,92 @@ bool RTC_SetCurrentDate(void)
         printf("Failed to set minutes -- ");
     }
     
-    
-    // and the control bits in the weekday field, setting the oscillator on
-    // and the battery backup to be on
-    //result = RTC_Write(MCP79410_ADDRESS_WKDY, MCP79410_WKDY_CTRL_BITS);
     // and finally the oh-so-important seconds that contains the ST bit
     // always set this to try and keep it running at all times
     result = RTC_Write(MCP79410_ADDRESS_SEC, 0x80);
+    // just setting the ST bit and seconds to zero here then, for simplicity
     if (result) {
+        // have set ST to be one
         RTC_State.ST_BITSET = 1;
+        // have set the ST to be one, enable it in the control configuration now
+        printf("Setting RTC control BITS -- ");
+        RTC_Write(MCP79410_ADDRESS_CTRL, MCP79410_CTRL_BITS);
+        if (result) {
+            printf("Worked \r\n");
+        }
+        else {
+            printf("FAILURE to set \r\n");
+        }
+        printf("ST BIT Set to one- waiting for OSCRUN to restart... ");
+        // have restarted the timer, wait for it to actually start now then
+        RTC_WaitForOSCRUN(1);
+    }
+    else {
+        // failed to set to one for some reason
+        //TODO properly make this work the normal way rather than resorting
+        // to the following raw code...
+        printf("Failed to set ST-BIT BACK TO be one, trying another way\r\n");
+        // start the transaction
+        result = false;
+        SSPCON2bits.SEN = 1;
+        uint32_t waitCounter = 0;
+        // wait for our ack to this setting of the start status
+        while (++waitCounter < MCP79410_RAWWAITING && SSPCON2bits.SEN == 1);
+        if (SSPCON2bits.SEN == 0) {
+            // we got the SEN reset - proceed
+            SSP1BUF = 0xde;
+            if (RTC_WaitForRAWWriteAck() == 1) {
+                SSP1BUF = 0x00;
+                if (RTC_WaitForRAWWriteAck() == 1) {
+                    SSP1BUF = 0x80; // start the clock!
+                    if (RTC_WaitForRAWWriteAck() == 1) {
+                        SSP1CON2bits.PEN = 1;
+                        waitCounter = 0;
+                        // wait for our ack to this setting of the start status
+                        while (++waitCounter < MCP79410_RAWWAITING && SSPCON2bits.PEN == 1);
+                        if (SSPCON2bits.PEN == 0) {
+                            result = true;
+                        }
+                    }
+                }
+            }
+        }
+        if (result == false) {
+            // this failed too
+            printf("BOO!\r\n");
+        }
+        else {
+            printf("YEY!\r\n");
+        }
     }
     // and finally return the result of this
     return result;
+}
+
+void RTC_WaitForOSCRUN(uint8_t statusRequired)
+{
+    // wait for the OSCRUN bit in the WKDY time to change to the desired state
+    uint8_t weekday = MCP79410_OSCRUN_MASK;
+    uint16_t retryCounter = 0;
+    while (++retryCounter < MCP79410_RETRY_MAX) {
+        if (RTC_Read(MCP79410_ADDRESS_WKDY, &weekday) == 0) {
+            // failed to read, forget it then
+            break;
+        }
+        else {
+            // have the data, is the OSCRUN bit reset?
+            if ((weekday & MCP79410_OSCRUN_MASK) == statusRequired) {
+                // OSCRUN Reset
+                break;
+            }
+        }
+    }
+    if ((weekday & MCP79410_OSCRUN_MASK) == statusRequired) {
+        printf("OSCRUN changed to be %d as expected\r\n", statusRequired);
+    }
+    else {
+        printf("Failed to read the value for OSCRUN\r\n");
+    }
 }
 
 bool RTC_ReadSeconds(bool isSetIfFail)
@@ -525,7 +573,7 @@ bool RTC_ReadSeconds(bool isSetIfFail)
     // doesn't count. So we need to set it running!...
     // first read the seconds bit (0x0) from the RTC
     uint8_t seconds = 0;
-    bool result = 0;
+    bool result = false;
     if (RTC_Read(MCP79410_ADDRESS_SEC, &seconds) != 1) {
         // this failed for some reason
         printf("Getting the RTC value for seconds failed.\r\n");
@@ -541,6 +589,7 @@ bool RTC_ReadSeconds(bool isSetIfFail)
             // the ST bit is zero, not one, the cock is not set, so let us set
             // the clock by initialising the bit to be a one
             if (isSetIfFail) {
+                printf("ST-BIT not enabled, setting date and time now.\r\n");
                 // we want to set this data if the ST was not set
                 // so set the current data and time to be the compile time
                 // which should be very close as running it to test it works
@@ -562,11 +611,34 @@ bool RTC_ReadSeconds(bool isSetIfFail)
             // set the ST bit state on the state
             RTC_State.ST_BITSET = secondsST == 0 ? 0 : 1;
             // and return that the time is running and retrieved
-            result = 1;
+            result = true;
         }
     }
     // return the result of this retrieval
     return result;
+}
+
+void RTC_ReadHoursMinutes(void)
+{
+    // read the hours and the minutes, if the minutes roll-over in the time
+    // it takes us to read the hours then do it again
+    bool isRollover = false;
+    do {
+        // get the minutes
+        RTC_ReadMinutes();
+        // remember this
+        uint8_t minutes = RTC_State.time_minutes;
+        // get the hours
+        RTC_ReadHours();
+        // now check the minutes for a rollover
+        RTC_ReadMinutes();
+        if (minutes > RTC_State.time_minutes) {
+            // the minutes went down during this call, so we just rolled
+            // over on the hour, try again
+            printf("Minutes rolled over while we got hours, trying again\r\n");
+            isRollover = true;
+        }
+    } while (isRollover == true);
 }
 
 void RTC_ReadMinutes(void)
@@ -601,10 +673,10 @@ void RTC_ReadHours(void)
     else {
         // so get the hours
         // bit number 6 is 12/24hr format (1 is 12 hour, 0 is 24 hour)
-        bool isAmPmHours = hours & 0b01000000 >> 6;
+        bool isAmPmHours = (hours & 0b01000000 >> 6) == 1;
         if (isAmPmHours) {
             // this is separated into am and pm, so bit 5 1 is PM, 0 is AM
-            bool isPm = hours & 0b00100000 >> 5;
+            bool isPm = (hours & 0b00100000 >> 5) == 1;
             // bit 4 is the 'tens' digit
             uint8_t hoursTens = (hours & 0b00010000) >> 4;
             // bits 3-0 is the 'ones' digit

@@ -95,16 +95,8 @@ void main(void)
     fishInitialise();
     
     // now do the processing
-    uint32_t lastRtcReadTime = FISH_State.milliseconds;
-    uint32_t lastPrintTime = lastRtcReadTime;
+    uint32_t lastPrintTime = FISH_State.milliseconds;
     while(1) {
-        // we want to get the time on a periodic counter, so do this now
-        if (FISH_State.milliseconds - lastRtcReadTime > 500) {
-            // update the time
-            RTC_ReadTime();
-            // reset the time counter
-            lastRtcReadTime = FISH_State.milliseconds;
-        }
         // along with the RTC we have a rolling milliseconds and tick
         // counter we can use for rougher timing functions, update this now
         // calculate the time (seconds) from this
@@ -112,6 +104,7 @@ void main(void)
         // and we can print out state here for debugging
         if (FISH_State.milliseconds - lastPrintTime > 5000) {
             // enough time has passed that we want to know what is going on
+            RTC_ReadTime();
             // print our time
             RTC_Print();
             // and the state
