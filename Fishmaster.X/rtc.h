@@ -28,8 +28,8 @@ extern struct t_rtcstate RTC_State;
 
 // If this define is set then the microchip I2C code isn't writing for
 // some reason and we can use the RAW code that we know does work
-//#define MICROCHIPI2CREADNOTWORKING
-//#define MICROCHIPI2CWRITENOTWORKING
+#define MICROCHIPI2CREADNOTWORKING
+#define MICROCHIPI2CWRITENOTWORKING
 
 void RTC_Initialise(void);
 
@@ -55,6 +55,10 @@ void RTC_ReadHoursMinutes(void);
 bool RTC_SetCurrentDate(void);
 
 void RTC_WaitForOSCRUN(uint8_t statusRequired);
+
+bool RTC_IncrementHour(void);
+
+bool RTC_setDate(uint16_t year, uint16_t month, uint16_t day, uint16_t hours, uint16_t minutes, uint16_t seconds);
 
 
 #ifdef	__cplusplus

@@ -47,9 +47,9 @@ void RTC_Initialise(void)
     
     //TODO Remove this, we just want to do this when the clock hasn't been
     //initialised, ie ST bit is set to zero
-    //if (!RTC_SetCurrentDate()) {
-    //    printf("Failed to set the date correctly\r\n");
-    //}
+    if (!RTC_SetCurrentDate()) {
+        printf("Failed to set the date correctly\r\n");
+    }
 }
 
 void RTC_Print(void)
@@ -370,13 +370,19 @@ bool RTC_SetCurrentDate(void)
     // first let's set the date - we want the seconds to be last of course
     // as this will start the counting from the date we just spent ages setting
     uint16_t year = BUILD_YEAR - 2000;
-    bool isLeap = false;
     uint16_t month = BUILD_MONTH;
     uint16_t day = BUILD_DAY;
     uint16_t hours = BUILD_HOUR;
     uint16_t minutes = BUILD_MIN;
     uint16_t seconds = BUILD_SEC;
-    
+    // and set the date
+    return RTC_setDate(year, month, day, hours, minutes, seconds);
+}
+
+bool RTC_setDate(uint16_t year, uint16_t month, uint16_t day, uint16_t hours, uint16_t minutes, uint16_t seconds)
+{
+    // get all the actual BYTEs to set on the RTC chip
+    bool isLeap = false;
     // set the year, bits 7-4 are the 'tens' just 0-9 then
     uint16_t tensValue = (uint16_t)(year / 10);
     uint8_t rtcYear = (0b1111 & tensValue) << 4;
@@ -424,7 +430,7 @@ bool RTC_SetCurrentDate(void)
     rtcSeconds |= (0b1111) & (seconds - (tensValue * 10));
     
     printf("Setting the current time to: %2d:%2d:%2d\r\n", hours, minutes, seconds);
-    // now stop the timer from running now by setting the ST BIT to zero
+    // first stop the timer from running now by setting the ST BIT to zero
     bool result = RTC_Write(MCP79410_ADDRESS_SEC, 0x0);
     if (result) {
         printf("ST BIT Set to zero - waiting for OSCRUN to clear... ");
@@ -495,7 +501,7 @@ bool RTC_SetCurrentDate(void)
         }
         printf("ST BIT Set to one- waiting for OSCRUN to restart... ");
         // have restarted the timer, wait for it to actually start now then
-        RTC_WaitForOSCRUN(1);
+        RTC_WaitForOSCRUN(MCP79410_OSCRUN_MASK);
     }
     else {
         // failed to set to one for some reason
@@ -539,6 +545,17 @@ bool RTC_SetCurrentDate(void)
     return result;
 }
 
+bool RTC_IncrementHour(void)
+{
+    // get the hours + 1 as a nice normal number
+    uint16_t hours = RTC_State.time_hours + 1;
+    while (hours > 23) {
+        hours -= 24;
+    }
+    // and set the date according to this, resetting minutes and seconds
+    return RTC_setDate(0, 0, 0, hours, 0, 0);
+}
+
 void RTC_WaitForOSCRUN(uint8_t statusRequired)
 {
     // wait for the OSCRUN bit in the WKDY time to change to the desired state
@@ -561,7 +578,7 @@ void RTC_WaitForOSCRUN(uint8_t statusRequired)
         printf("OSCRUN changed to be %d as expected\r\n", statusRequired);
     }
     else {
-        printf("Failed to read the value for OSCRUN\r\n");
+        printf("OSCRUN is not %d, it is %d\r\n", statusRequired, weekday);
     }
 }
 
@@ -673,10 +690,10 @@ void RTC_ReadHours(void)
     else {
         // so get the hours
         // bit number 6 is 12/24hr format (1 is 12 hour, 0 is 24 hour)
-        bool isAmPmHours = (hours & 0b01000000 >> 6) == 1;
+        bool isAmPmHours = (hours & 0b01000000) == 0b01000000;
         if (isAmPmHours) {
             // this is separated into am and pm, so bit 5 1 is PM, 0 is AM
-            bool isPm = (hours & 0b00100000 >> 5) == 1;
+            bool isPm = (hours & 0b00100000) == 0b00100000;
             // bit 4 is the 'tens' digit
             uint8_t hoursTens = (hours & 0b00010000) >> 4;
             // bits 3-0 is the 'ones' digit
