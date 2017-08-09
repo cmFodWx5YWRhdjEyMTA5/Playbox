@@ -18,11 +18,13 @@
  * RB0 is AN_12 to read pin of hotplate temp sensor (2)
  * RB1 is AN_10 to read pin of water temp sensor (2)
  * RB2 is GPIO to read the state of the button
+ * RA5 is GPIO_Out for a LED for debugging on curiosity
+ * RA0 is GPIO_In for a POT for debugging on curiosity
  * RA7 is the slave pin, power to this if you want it to listen for serial
  * 
  * RB7 is analog out for the DAC - connect to hot-plate
  * 
- * RA4, RA6, RC0, RC3, RC4, RC5 is 1-6 hours
+ * RB3, RB4, RB5, RB6, RC0, RC5 is 1-6 hours
  * RD0-RD5 is 7-12 hours
  * RD6 is AM
  * RD7 is PM
@@ -36,6 +38,10 @@
  * RC6 yellow TTL-232RG wire
  * 3V3 red TTL-232RG wire
  * GND black TTL-232RG wire
+ * 
+ * MSSP
+ * RC3 is SCL for I2C communications
+ * RC4 is SDA for I2C communications
  * 
  */
 
