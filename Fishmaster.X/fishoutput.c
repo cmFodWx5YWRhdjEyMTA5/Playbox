@@ -7,14 +7,18 @@
 
 #include "fishoutput.h"
 #include "fishstate.h"
+#include "fishinput.h"
+#include "rtc.h"
 
 #include <stdio.h>
 
 bool FISHOUTPUT_disableHeat = true;
+uint8_t hourPreviousSet = 99;   // initially invalid to set first time
 
 void FISHOUTPUT_Initialize(void)
 {
     // initialize anything we need to here...
+    FISH_State.isLightsOn = true;
 }
 
 void FISHOUTPUT_process(void)
@@ -35,19 +39,22 @@ void FISHOUTPUT_process(void)
     }
     // process this button press
     if (FISH_State.isButtonPress) {
-        // move the time forward an hour
-        FISH_State.milliseconds += K_MSECONDSINHOUR;
         // handled this, reset the flag
         FISH_State.isButtonPress = false;
-        // calc time to fix any overrun
-        FISHSTATE_calcTime();
-        // and debug
-        printf("Moved time forward an hour to %d\r\n", FISH_State.hour);
+        // toggle the lights on/off
+        FISH_State.isLightsOn = !FISH_State.isLightsOn;
+        // and debug this
+        printf("Button press\r\n");
     }
     if (FISH_State.isLongButtonPress) {
-        //TODO handle the long press for something...
-        printf("That was a looooong, press\r\n");
+        // move the time forward an hour
+        RTC_IncrementHour();
+        // and reset the flag
         FISH_State.isLongButtonPress = false;
+        // and inform the input we dealt with this
+        FISHINPUT_longButtonPressHandled();
+        // and debug this
+        printf("Long Button press\r\n");
     }
     // set the lighting correctly
     FISHOUTPUT_setLighting();
@@ -106,191 +113,82 @@ void FISHOUPUT_setClock(void)
     // show the current time on the clock
     // only doing 12 rather than 24 hour clock
     bool isPm = false;
-    while (FISH_State.hour > 12) {
-        FISH_State.hour -= 12;
-        isPm = true;
-    }/*
-    switch(FISH_State.hour) {
-        case 1 :
-            IO_TM1_SetHigh();
-            IO_TM2_SetLow();
-            IO_TM3_SetLow();
-            IO_TM4_SetLow();
-            IO_TM5_SetLow();
-            IO_TM6_SetLow();
-            IO_TM7_SetLow();
-            IO_TM8_SetLow();
-            IO_TM9_SetLow();
-            IO_TM10_SetLow();
-            IO_TM11_SetLow();
-            IO_TM12_SetLow();
-            break;
-        case 2 :
-            IO_TM1_SetLow();
-            IO_TM2_SetHigh();
-            IO_TM3_SetLow();
-            IO_TM4_SetLow();
-            IO_TM5_SetLow();
-            IO_TM6_SetLow();
-            IO_TM7_SetLow();
-            IO_TM8_SetLow();
-            IO_TM9_SetLow();
-            IO_TM10_SetLow();
-            IO_TM11_SetLow();
-            IO_TM12_SetLow();
-            break;
-        case 3 :
-            IO_TM1_SetLow();
-            IO_TM2_SetLow();
-            IO_TM3_SetHigh();
-            IO_TM4_SetLow();
-            IO_TM5_SetLow();
-            IO_TM6_SetLow();
-            IO_TM7_SetLow();
-            IO_TM8_SetLow();
-            IO_TM9_SetLow();
-            IO_TM10_SetLow();
-            IO_TM11_SetLow();
-            IO_TM12_SetLow();
-            break;
-        case 4 :
-            IO_TM1_SetLow();
-            IO_TM2_SetLow();
-            IO_TM3_SetLow();
-            IO_TM4_SetHigh();
-            IO_TM5_SetLow();
-            IO_TM6_SetLow();
-            IO_TM7_SetLow();
-            IO_TM8_SetLow();
-            IO_TM9_SetLow();
-            IO_TM10_SetLow();
-            IO_TM11_SetLow();
-            IO_TM12_SetLow();
-            break;
-        case 5 :
-            IO_TM1_SetLow();
-            IO_TM2_SetLow();
-            IO_TM3_SetLow();
-            IO_TM4_SetLow();
-            IO_TM5_SetHigh();
-            IO_TM6_SetLow();
-            IO_TM7_SetLow();
-            IO_TM8_SetLow();
-            IO_TM9_SetLow();
-            IO_TM10_SetLow();
-            IO_TM11_SetLow();
-            IO_TM12_SetLow();
-            break;
-        case 6 :
-            IO_TM1_SetLow();
-            IO_TM2_SetLow();
-            IO_TM3_SetLow();
-            IO_TM4_SetLow();
-            IO_TM5_SetLow();
-            IO_TM6_SetHigh();
-            IO_TM7_SetLow();
-            IO_TM8_SetLow();
-            IO_TM9_SetLow();
-            IO_TM10_SetLow();
-            IO_TM11_SetLow();
-            IO_TM12_SetLow();
-            break;
-        case 7 :
-            IO_TM1_SetLow();
-            IO_TM2_SetLow();
-            IO_TM3_SetLow();
-            IO_TM4_SetLow();
-            IO_TM5_SetLow();
-            IO_TM6_SetLow();
-            IO_TM7_SetHigh();
-            IO_TM8_SetLow();
-            IO_TM9_SetLow();
-            IO_TM10_SetLow();
-            IO_TM11_SetLow();
-            IO_TM12_SetLow();
-            break;
-        case 8 :
-            IO_TM1_SetLow();
-            IO_TM2_SetLow();
-            IO_TM3_SetLow();
-            IO_TM4_SetLow();
-            IO_TM5_SetLow();
-            IO_TM6_SetLow();
-            IO_TM7_SetLow();
-            IO_TM8_SetHigh();
-            IO_TM9_SetLow();
-            IO_TM10_SetLow();
-            IO_TM11_SetLow();
-            IO_TM12_SetLow();
-            break;
-        case 9 :
-            IO_TM1_SetLow();
-            IO_TM2_SetLow();
-            IO_TM3_SetLow();
-            IO_TM4_SetLow();
-            IO_TM5_SetLow();
-            IO_TM6_SetLow();
-            IO_TM7_SetLow();
-            IO_TM8_SetLow();
-            IO_TM9_SetHigh();
-            IO_TM10_SetLow();
-            IO_TM11_SetLow();
-            IO_TM12_SetLow();
-            break;
-        case 10 :
-            IO_TM1_SetLow();
-            IO_TM2_SetLow();
-            IO_TM3_SetLow();
-            IO_TM4_SetLow();
-            IO_TM5_SetLow();
-            IO_TM6_SetLow();
-            IO_TM7_SetLow();
-            IO_TM8_SetLow();
-            IO_TM9_SetLow();
-            IO_TM10_SetHigh();
-            IO_TM11_SetLow();
-            IO_TM12_SetLow();
-            break;
-        case 11 :
-            IO_TM1_SetLow();
-            IO_TM2_SetLow();
-            IO_TM3_SetLow();
-            IO_TM4_SetLow();
-            IO_TM5_SetLow();
-            IO_TM6_SetLow();
-            IO_TM7_SetLow();
-            IO_TM8_SetLow();
-            IO_TM9_SetLow();
-            IO_TM10_SetLow();
-            IO_TM11_SetHigh();
-            IO_TM12_SetLow();
-            break;
-        case 12 :
-        case 0 :
-        default :
-            IO_TM1_SetLow();
-            IO_TM2_SetLow();
-            IO_TM3_SetLow();
-            IO_TM4_SetLow();
-            IO_TM5_SetLow();
-            IO_TM6_SetLow();
-            IO_TM7_SetLow();
-            IO_TM8_SetLow();
-            IO_TM9_SetLow();
-            IO_TM10_SetLow();
-            IO_TM11_SetLow();
-            IO_TM12_SetHigh();
-            break;
-    }
-    // and set the AM / PM lights
-    if (isPm) {
-        // set the AM bit LOW and the PM bit HIGH
+    uint8_t hour = RTC_State.time_hours;
+    if (hour != hourPreviousSet) {
+        // this is a change in time clear the old and set the new
+        hourPreviousSet = hour;
+        // get the hour in 12hr format
+        while (hour > 12) {
+            // counteract the 24 hour display by removing 12 and remembering PM
+            hour -= 12;
+            isPm = true;
+        }
+        // clear the previous time display
+        IO_TM1_SetLow();
+        IO_TM2_SetLow();
+        IO_TM3_SetLow();
+        IO_TM4_SetLow();
+        IO_TM5_SetLow();
+        IO_TM6_SetLow();
+        IO_TM7_SetLow();
+        IO_TM8_SetLow();
+        IO_TM9_SetLow();
+        IO_TM10_SetLow();
+        IO_TM11_SetLow();
+        IO_TM12_SetLow();
         IO_TMAM_SetLow();
-        IO_TMPM_SetHigh();
-    }
-    else {
-        // set the AM bit HIGH and the PM bit LOW
-        IO_TMAM_SetHigh();
         IO_TMPM_SetLow();
-    }*/
+        // and set the new one
+        switch(hour) {
+            case 1 :
+                IO_TM1_SetHigh();
+                break;
+            case 2 :
+                IO_TM2_SetHigh();
+                break;
+            case 3 :
+                IO_TM3_SetHigh();
+                break;
+            case 4 :
+                IO_TM4_SetHigh();
+                break;
+            case 5 :
+                IO_TM5_SetHigh();
+                break;
+            case 6 :
+                IO_TM6_SetHigh();
+                break;
+            case 7 :
+                IO_TM7_SetHigh();
+                break;
+            case 8 :
+                IO_TM8_SetHigh();
+                break;
+            case 9 :
+                IO_TM9_SetHigh();
+                // time to reset the lights off to always be true, bad for the
+                // fish never to have lights!...
+                FISH_State.isLightsOn = true;
+                break;
+            case 10 :
+                IO_TM10_SetHigh();
+                break;
+            case 11 :
+                IO_TM11_SetHigh();
+                break;
+            case 12 :
+            case 0 :
+            default :
+                IO_TM12_SetHigh();
+                break;
+        }
+        if (isPm) {
+            // set the PM bit HIGH
+            IO_TMPM_SetHigh();
+        }
+        else {
+            // set the AM bit HIGH
+            IO_TMAM_SetHigh();
+        }
+    }
 }

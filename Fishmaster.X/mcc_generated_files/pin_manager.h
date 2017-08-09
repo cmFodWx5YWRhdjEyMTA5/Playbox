@@ -76,6 +76,23 @@
 #define channel_POT_SetAnalogMode()  do { ANSELAbits.ANSA0 = 1; } while(0)
 #define channel_POT_SetDigitalMode() do { ANSELAbits.ANSA0 = 0; } while(0)
 
+// get/set IO_BTN aliases
+#define IO_BTN_TRIS               TRISAbits.TRISA4
+#define IO_BTN_LAT                LATAbits.LATA4
+#define IO_BTN_PORT               PORTAbits.RA4
+#define IO_BTN_WPU                WPUAbits.WPUA4
+#define IO_BTN_ANS                ANSELAbits.ANSA4
+#define IO_BTN_SetHigh()            do { LATAbits.LATA4 = 1; } while(0)
+#define IO_BTN_SetLow()             do { LATAbits.LATA4 = 0; } while(0)
+#define IO_BTN_Toggle()             do { LATAbits.LATA4 = ~LATAbits.LATA4; } while(0)
+#define IO_BTN_GetValue()           PORTAbits.RA4
+#define IO_BTN_SetDigitalInput()    do { TRISAbits.TRISA4 = 1; } while(0)
+#define IO_BTN_SetDigitalOutput()   do { TRISAbits.TRISA4 = 0; } while(0)
+#define IO_BTN_SetPullup()      do { WPUAbits.WPUA4 = 1; } while(0)
+#define IO_BTN_ResetPullup()    do { WPUAbits.WPUA4 = 0; } while(0)
+#define IO_BTN_SetAnalogMode()  do { ANSELAbits.ANSA4 = 1; } while(0)
+#define IO_BTN_SetDigitalMode() do { ANSELAbits.ANSA4 = 0; } while(0)
+
 // get/set LED aliases
 #define LED_TRIS               TRISAbits.TRISA5
 #define LED_LAT                LATAbits.LATA5
@@ -143,23 +160,6 @@
 #define channel_WT_ResetPullup()    do { WPUBbits.WPUB1 = 0; } while(0)
 #define channel_WT_SetAnalogMode()  do { ANSELBbits.ANSB1 = 1; } while(0)
 #define channel_WT_SetDigitalMode() do { ANSELBbits.ANSB1 = 0; } while(0)
-
-// get/set IO_BTN aliases
-#define IO_BTN_TRIS               TRISBbits.TRISB2
-#define IO_BTN_LAT                LATBbits.LATB2
-#define IO_BTN_PORT               PORTBbits.RB2
-#define IO_BTN_WPU                WPUBbits.WPUB2
-#define IO_BTN_ANS                ANSELBbits.ANSB2
-#define IO_BTN_SetHigh()            do { LATBbits.LATB2 = 1; } while(0)
-#define IO_BTN_SetLow()             do { LATBbits.LATB2 = 0; } while(0)
-#define IO_BTN_Toggle()             do { LATBbits.LATB2 = ~LATBbits.LATB2; } while(0)
-#define IO_BTN_GetValue()           PORTBbits.RB2
-#define IO_BTN_SetDigitalInput()    do { TRISBbits.TRISB2 = 1; } while(0)
-#define IO_BTN_SetDigitalOutput()   do { TRISBbits.TRISB2 = 0; } while(0)
-#define IO_BTN_SetPullup()      do { WPUBbits.WPUB2 = 1; } while(0)
-#define IO_BTN_ResetPullup()    do { WPUBbits.WPUB2 = 0; } while(0)
-#define IO_BTN_SetAnalogMode()  do { ANSELBbits.ANSB2 = 1; } while(0)
-#define IO_BTN_SetDigitalMode() do { ANSELBbits.ANSB2 = 0; } while(0)
 
 // get/set IO_TM1 aliases
 #define IO_TM1_TRIS               TRISBbits.TRISB3

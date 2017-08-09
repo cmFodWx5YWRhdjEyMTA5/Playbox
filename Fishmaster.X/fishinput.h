@@ -33,6 +33,8 @@ extern "C" {
     void FISHINPUT_getStateSerial(void);
     
     void FISHINPUT_sendStateSerial(void);
+    
+    void FISHINPUT_longButtonPressHandled(void);
 
 #ifdef	__cplusplus
 }

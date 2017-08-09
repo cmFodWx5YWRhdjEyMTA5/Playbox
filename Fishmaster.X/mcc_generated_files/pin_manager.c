@@ -56,7 +56,7 @@ void PIN_MANAGER_Initialize(void)
     */   
     LATE = 0x07;    
     LATD = 0xFF;    
-    LATA = 0x50;    
+    LATA = 0x40;    
     LATB = 0x78;    
     LATC = 0x27;    
 
@@ -72,7 +72,7 @@ void PIN_MANAGER_Initialize(void)
     /**
     ANSELx registers
     */   
-    ANSELB = 0x03;
+    ANSELB = 0x07;
     ANSELD = 0x00;
     ANSELE = 0x00;
     ANSELA = 0x0F;
@@ -82,7 +82,7 @@ void PIN_MANAGER_Initialize(void)
     */ 
     WPUD = 0x00;
     WPUE = 0x08;
-    WPUB = 0x00;
+    WPUB = 0x04;
     WPUA = 0x0E;
     WPUC = 0x18;
     OPTION_REGbits.nWPUEN = 0;

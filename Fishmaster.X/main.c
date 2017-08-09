@@ -17,7 +17,7 @@
  * GND to negative pin of temp sensor (3)
  * RB0 is AN_12 to read pin of hotplate temp sensor (2)
  * RB1 is AN_10 to read pin of water temp sensor (2)
- * RB2 is GPIO to read the state of the button
+ * RA4 is GPIO to read the state of the button
  * RA5 is GPIO_Out for a LED for debugging on curiosity
  * RA0 is GPIO_In for a POT for debugging on curiosity
  * RA7 is the slave pin, power to this if you want it to listen for serial

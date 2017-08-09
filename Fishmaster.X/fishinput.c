@@ -5,12 +5,14 @@
 
 #include "fishinput.h"
 #include "fishstate.h"
+#include "rtc.h"
 
 #include <stdio.h>
 
 uint32_t button_pressed_time;
 bool last_button_state;
 bool button_state;
+bool wasLongButtonPress;
 
 #define K_RX_BUFFER_SIZE 64
 unsigned char rxBuffer[K_RX_BUFFER_SIZE + 1];
@@ -23,9 +25,13 @@ void FISHINPUT_Initialize(void)
     button_pressed_time = 0;
     last_button_state = false;
     button_state = false;
+    wasLongButtonPress = false;
 	rxBuffer[0] = 0;
 	rxIndex = 0;
 	rxCommand = '0';
+    
+    // setup the button
+    IO_BTN_SetDigitalInput();
 }
 
 void FISHINPUT_process(void)
@@ -42,9 +48,8 @@ void FISHINPUT_process(void)
         FISHINPUT_getWaterTemp();
         // for debugging we can get the POT position too
         FISHINPUT_getPotPosition();
-/*
-        //TODO De-bouncing isn't working because the noise is incredible while
-        //testing - let's just listen for the 1 and leave it at that for now
+
+        // read the state of the button to get short and long presses
         bool buttonReading = IO_BTN_GetValue() == 1;
         if (buttonReading == true) {
             // the button is down
@@ -53,31 +58,43 @@ void FISHINPUT_process(void)
                 button_state = buttonReading;
                 button_pressed_time = FISH_State.milliseconds;
             }
-        }
-        else if (last_button_state) {
-            // button is released from being pressed, if not a long press
-            // then this was a short press
+            // the button is down, has it been down a while?
             if (FISH_State.milliseconds - button_pressed_time > K_LONGBUTTONPRESSTIME) {
                 // this was held down for more than a second - this is a long-press
                 FISH_State.isLongButtonPress = true;
             }
-            else {//TODO - add debounce if (FISH_State.milliseconds - button_pressed_time > K_DEBOUNCEDELAY) {
-                // this was enough to register a quick press
+        }
+        else if (last_button_state) {
+            // button is released from being pressed, if not a long press
+            // then this was a short press
+            if (false == wasLongButtonPress &&
+                FISH_State.milliseconds - button_pressed_time > K_SHORTBUTTONPRESSTIME &&
+                FISH_State.milliseconds - button_pressed_time < K_LONGBUTTONPRESSTIME) {
+                // this was enough to register a quick press, not a long press
                 FISH_State.isButtonPress = true;
             }
+            // released now, reset any long button press we might have picked up
+            wasLongButtonPress = false;
         }
         last_button_state = buttonReading;
-*/
+
         //TODO send this state to the slave over serial
         //FISHINPUT_sendStateSerial();
     }
+}
+
+void FISHINPUT_longButtonPressHandled(void)
+{
+    // when the long button press is handled, reset the timer
+    button_pressed_time = FISH_State.milliseconds;
+    wasLongButtonPress = true;
 }
 
 void FISHINPUT_sendStateSerial(void)
 {
     // send out the serial data to encapsulate the data we need to send
     EUSART_Write('{');
-    EUSART_Write(FISH_State.hour);
+    EUSART_Write(RTC_State.time_hours);
     EUSART_Write(FISH_State.red);
     EUSART_Write(FISH_State.green);
     EUSART_Write(FISH_State.blue);
@@ -100,7 +117,7 @@ void FISHINPUT_getStateSerial(void)
             printf(rxBuffer);
             printf(" with rxIndex of %d\r\n", rxIndex);
             
-            FISH_State.hour = rxBuffer[rxIndex - 4];
+            RTC_State.time_hours = rxBuffer[rxIndex - 4];
             FISH_State.red  = rxBuffer[rxIndex - 3];
             FISH_State.green = rxBuffer[rxIndex - 2];
             FISH_State.blue = rxBuffer[rxIndex - 1];

@@ -27,8 +27,8 @@ extern "C" {
 #define K_MSECONDSINHOUR                 36000000    // the number of milliseconds in an hour
 #define K_MSECONDSINDAY                  864000000   // the number of milliseconds in a day
     
-#define K_DEBOUNCEDELAY                 200    // the time (in ms) to debounce a button
-#define K_LONGBUTTONPRESSTIME           1000   // the time (in ms) that constitues a long-press)
+#define K_SHORTBUTTONPRESSTIME          200    // the time (in ms) that constitues a press
+#define K_LONGBUTTONPRESSTIME           2000   // the time (in ms) that constitues a long-press
     
 // debugging defines
 //#define K_DEBUG_HPT     // will get hot plate temp from to potentiometer instead
@@ -43,10 +43,10 @@ static struct t_fishstate {
     uint8_t red;
     uint8_t green;
     uint8_t blue;
-    uint8_t hour;
     float waterTemp;
     float hotPlateTemp;
     float chipTemp;
+    bool isLightsOn;
     bool isButtonPress;
     bool isLongButtonPress;
     bool isSlave;

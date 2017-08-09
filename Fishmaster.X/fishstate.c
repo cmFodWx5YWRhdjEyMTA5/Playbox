@@ -11,10 +11,8 @@ void FISHSTATE_print(void)
 {
     // print out all the members of the global struct that stores our state
     // mostly for debugging purposes
-    printf("S:%5d POT: %d, CHIP: %d, HotPlate: %d, Water: %d, HPPower: %d\r\n", 
-            (int)(FISH_State.milliseconds / 1000.0),
+    printf("POT: %d, HotPlate: %d, Water: %d, HPPower: %d\r\n", 
             FISH_State.potPosition, 
-            ((int)FISH_State.chipTemp),
             ((int)FISH_State.hotPlateTemp),
             ((int)FISH_State.waterTemp),
             FISH_State.hotPlatePower);
@@ -36,16 +34,6 @@ void FISHSTATE_calcTime(void)
     // but add the actual milliseconds to our counter
     FISH_State.milliseconds += msecs;
     
-    // do the day roll over too, this is more straightforward as only expecting
-    // one at a time, do it in a lazy loop instead of with maths.
-    while (FISH_State.milliseconds > K_MSECONDSINDAY) {
-        // we have overflowed a day, just need to know the time
-        // in the day, so remove the day in seconds
-        FISH_State.milliseconds -= K_MSECONDSINDAY;
-    }
-    // update the hour displayed for this
-    FISH_State.hour = (uint8_t) (FISH_State.milliseconds / (K_MSECONDSINHOUR * 1.0));
-    
     /* TODO: Why doesn't this compile )O; FULL CODE?
      div_t output;
 
@@ -66,4 +54,3 @@ void FISHSTATE_calcTime(void)
     // update the hour displayed for this
     FISH_State.hour = output.quot;*/
 }
-    
