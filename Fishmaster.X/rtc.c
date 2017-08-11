@@ -639,8 +639,9 @@ void RTC_ReadHoursMinutes(void)
 {
     // read the hours and the minutes, if the minutes roll-over in the time
     // it takes us to read the hours then do it again
-    bool isRollover = false;
+    bool isRollover;
     do {
+        isRollover = false;
         // get the minutes
         RTC_ReadMinutes();
         // remember this

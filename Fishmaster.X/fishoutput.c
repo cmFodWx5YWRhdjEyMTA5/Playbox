@@ -15,7 +15,7 @@
 bool FISHOUTPUT_disableHeat = true;
 uint8_t hourPreviousSet = 99;   // initially invalid to set first time
 
-static const uint8_t ledValues[][] = {
+static const uint8_t ledValues[49][3] = {
     {0,	0,	0},
     {0,	0,	0},
     {0,	0,	0},

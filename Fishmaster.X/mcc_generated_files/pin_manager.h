@@ -195,22 +195,22 @@
 #define IO_TM2_SetAnalogMode()  do { ANSELBbits.ANSB4 = 1; } while(0)
 #define IO_TM2_SetDigitalMode() do { ANSELBbits.ANSB4 = 0; } while(0)
 
-// get/set IO_TM3 aliases
-#define IO_TM3_TRIS               TRISBbits.TRISB5
-#define IO_TM3_LAT                LATBbits.LATB5
-#define IO_TM3_PORT               PORTBbits.RB5
-#define IO_TM3_WPU                WPUBbits.WPUB5
-#define IO_TM3_ANS                ANSELBbits.ANSB5
-#define IO_TM3_SetHigh()            do { LATBbits.LATB5 = 1; } while(0)
-#define IO_TM3_SetLow()             do { LATBbits.LATB5 = 0; } while(0)
-#define IO_TM3_Toggle()             do { LATBbits.LATB5 = ~LATBbits.LATB5; } while(0)
-#define IO_TM3_GetValue()           PORTBbits.RB5
-#define IO_TM3_SetDigitalInput()    do { TRISBbits.TRISB5 = 1; } while(0)
-#define IO_TM3_SetDigitalOutput()   do { TRISBbits.TRISB5 = 0; } while(0)
-#define IO_TM3_SetPullup()      do { WPUBbits.WPUB5 = 1; } while(0)
-#define IO_TM3_ResetPullup()    do { WPUBbits.WPUB5 = 0; } while(0)
-#define IO_TM3_SetAnalogMode()  do { ANSELBbits.ANSB5 = 1; } while(0)
-#define IO_TM3_SetDigitalMode() do { ANSELBbits.ANSB5 = 0; } while(0)
+// get/set IO_TM3O aliases
+#define IO_TM3O_TRIS               TRISBbits.TRISB5
+#define IO_TM3O_LAT                LATBbits.LATB5
+#define IO_TM3O_PORT               PORTBbits.RB5
+#define IO_TM3O_WPU                WPUBbits.WPUB5
+#define IO_TM3O_ANS                ANSELBbits.ANSB5
+#define IO_TM3O_SetHigh()            do { LATBbits.LATB5 = 1; } while(0)
+#define IO_TM3O_SetLow()             do { LATBbits.LATB5 = 0; } while(0)
+#define IO_TM3O_Toggle()             do { LATBbits.LATB5 = ~LATBbits.LATB5; } while(0)
+#define IO_TM3O_GetValue()           PORTBbits.RB5
+#define IO_TM3O_SetDigitalInput()    do { TRISBbits.TRISB5 = 1; } while(0)
+#define IO_TM3O_SetDigitalOutput()   do { TRISBbits.TRISB5 = 0; } while(0)
+#define IO_TM3O_SetPullup()      do { WPUBbits.WPUB5 = 1; } while(0)
+#define IO_TM3O_ResetPullup()    do { WPUBbits.WPUB5 = 0; } while(0)
+#define IO_TM3O_SetAnalogMode()  do { ANSELBbits.ANSB5 = 1; } while(0)
+#define IO_TM3O_SetDigitalMode() do { ANSELBbits.ANSB5 = 0; } while(0)
 
 // get/set IO_TM4 aliases
 #define IO_TM4_TRIS               TRISBbits.TRISB6
@@ -229,15 +229,19 @@
 #define IO_TM4_SetAnalogMode()  do { ANSELBbits.ANSB6 = 1; } while(0)
 #define IO_TM4_SetDigitalMode() do { ANSELBbits.ANSB6 = 0; } while(0)
 
-// get/set RB7 procedures
-#define RB7_SetHigh()    do { LATBbits.LATB7 = 1; } while(0)
-#define RB7_SetLow()   do { LATBbits.LATB7 = 0; } while(0)
-#define RB7_Toggle()   do { LATBbits.LATB7 = ~LATBbits.LATB7; } while(0)
-#define RB7_GetValue()         PORTBbits.RB7
-#define RB7_SetDigitalInput()   do { TRISBbits.TRISB7 = 1; } while(0)
-#define RB7_SetDigitalOutput()  do { TRISBbits.TRISB7 = 0; } while(0)
-#define RB7_SetPullup()     do { WPUBbits.WPUB7 = 1; } while(0)
-#define RB7_ResetPullup()   do { WPUBbits.WPUB7 = 0; } while(0)
+// get/set IO_TM3 aliases
+#define IO_TM3_TRIS               TRISBbits.TRISB7
+#define IO_TM3_LAT                LATBbits.LATB7
+#define IO_TM3_PORT               PORTBbits.RB7
+#define IO_TM3_WPU                WPUBbits.WPUB7
+#define IO_TM3_SetHigh()            do { LATBbits.LATB7 = 1; } while(0)
+#define IO_TM3_SetLow()             do { LATBbits.LATB7 = 0; } while(0)
+#define IO_TM3_Toggle()             do { LATBbits.LATB7 = ~LATBbits.LATB7; } while(0)
+#define IO_TM3_GetValue()           PORTBbits.RB7
+#define IO_TM3_SetDigitalInput()    do { TRISBbits.TRISB7 = 1; } while(0)
+#define IO_TM3_SetDigitalOutput()   do { TRISBbits.TRISB7 = 0; } while(0)
+#define IO_TM3_SetPullup()      do { WPUBbits.WPUB7 = 1; } while(0)
+#define IO_TM3_ResetPullup()    do { WPUBbits.WPUB7 = 0; } while(0)
 
 // get/set IO_TM5 aliases
 #define IO_TM5_TRIS               TRISCbits.TRISC0
