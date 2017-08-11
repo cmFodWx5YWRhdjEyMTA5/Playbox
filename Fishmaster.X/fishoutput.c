@@ -15,6 +15,58 @@
 bool FISHOUTPUT_disableHeat = true;
 uint8_t hourPreviousSet = 99;   // initially invalid to set first time
 
+static const uint8_t ledValues[][] = {
+    {0,	0,	0},
+    {0,	0,	0},
+    {0,	0,	0},
+    {0,	0,	0},
+    {0,	0,	0},
+    {0,	0,	0},
+    {0,	0,	0},
+    {0,	0,	0},
+    {10,0,	0},
+    {25,0,	0},
+    {45,0,	0},
+    {66,0,	0},
+    {85,0,	0},
+    {98,0,	0},
+    {100,0,	0},
+    {98,0,	0},
+    {85,0,	10},
+    {66,0,	25},
+    {45,0,	45},
+    {25,0,	66},
+    {10,0,	85},
+    {0,	0,	95},
+    {0,	0,	100},
+    {0,	0,	100},
+    {0,	0,	100},
+    {0,	0,	100},
+    {0,	0,	100},
+    {0,	0,	100},
+    {0,	0,	100},
+    {0,	0,	100},
+    {0,	0,	100},
+    {0,	0,	100},
+    {0,	0,	100},
+    {0,	0,	100},
+    {0,	10,	100},
+    {0,	25,	95},
+    {0,	45,	85},
+    {0,	66,	66},
+    {0,	85,	45},
+    {0,	98,	25},
+    {0,	100,10},
+    {0,	98,	0},
+    {0,	85,	0},
+    {0,	66,	0},
+    {0,	45,	0},
+    {0,	25,	0},
+    {0,	10,	0},
+    {0,	0,	0},
+    {0,	0,	0},  
+};
+
 void FISHOUTPUT_Initialize(void)
 {
     // initialize anything we need to here...
@@ -102,7 +154,17 @@ void FISHOUTPUT_setLighting(void)
     // For now just set the LEDs based on the position of the POT
     // which is 0-4095 instead of 0-1023 so divide by 4
     uint16_t dutyValue = (uint16_t) (FISH_State.potPosition / 4.0);
-    //TODO use the R, G, B values from the state we have received / calculated
+    // calculate the index in the array we require
+    uint8_t timeIndex = RTC_State.time_hours * 2;
+    // if we have 30 mins or more, add one
+    if (RTC_State.time_minutes >= 30) {
+        ++timeIndex;
+    }
+    // now get the percentages we require
+    float red = ledValues[timeIndex][0]     / 100.0;
+    float blue = ledValues[timeIndex][1]    / 100.0;
+    float white = ledValues[timeIndex][2]   / 100.0;
+    //TODO - calculate the duty value to set these percentages
     PWM1_LoadDutyValue(dutyValue);
     PWM2_LoadDutyValue(dutyValue);
     PWM3_LoadDutyValue(dutyValue);
