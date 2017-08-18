@@ -43,13 +43,6 @@ void RTC_Initialise(void)
     SSP1STAT = 0x80; // slew rate dis, SMBUS disabled  
     SSP1CON1 = 0x28; // enable module, I2C master SSP1ADD=baud rate
     SSP1CON2 = 0x00;
-    
-    
-    //TODO Remove this, we just want to do this when the clock hasn't been
-    //initialised, ie ST bit is set to zero
-    if (!RTC_SetCurrentDate()) {
-        printf("Failed to set the date correctly\r\n");
-    }
 }
 
 void RTC_Print(void)

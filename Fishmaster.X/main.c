@@ -22,7 +22,7 @@
  * RA0 is GPIO_In for a POT for debugging on curiosity
  * RA7 is the slave pin, power to this if you want it to listen for serial
  * 
- * RB7 is analog out for the DAC - connect to hot-plate
+ * RA2 is analog out for the DAC - connect to hot-plate
  * 
  * RB3, RB4, RB5, RB6, RC0, RC5 is 1-6 hours
  * RD0-RD5 is 7-12 hours
@@ -68,6 +68,7 @@ void fishProcess()
     FISHINPUT_process();
     // and then handle the output to displays etc
     FISHOUTPUT_process();
+    //** VERY IMPORTANT THAT OUTPUT IS AFTER INPUT - FOR BUTTON PRESSES
 }
 
 void timer2Interrupt(void) {

@@ -161,13 +161,13 @@ void FISHOUTPUT_setLighting(void)
         ++timeIndex;
     }
     // now get the percentages we require
-    float red = ledValues[timeIndex][0]     / 100.0;
-    float blue = ledValues[timeIndex][1]    / 100.0;
-    float white = ledValues[timeIndex][2]   / 100.0;
+    uint16_t red =   ((uint16_t)ledValues[timeIndex][0] / 100.0 * 1023.0);
+    uint16_t blue =  ((uint16_t)ledValues[timeIndex][1] / 100.0 * 1023.0);
+    uint16_t white = ((uint16_t)ledValues[timeIndex][2] / 100.0 * 1023.0);
     //TODO - calculate the duty value to set these percentages
-    PWM1_LoadDutyValue(dutyValue);
-    PWM2_LoadDutyValue(dutyValue);
-    PWM3_LoadDutyValue(dutyValue);
+    PWM1_LoadDutyValue(red);
+    PWM2_LoadDutyValue(blue);
+    PWM3_LoadDutyValue(white);
 }
 
 void FISHOUPUT_setClock(void)
