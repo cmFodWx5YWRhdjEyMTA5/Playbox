@@ -153,9 +153,7 @@ void FISHOUTPUT_setHotPlatePower(uint8_t powerPercent)
 
 void FISHOUTPUT_setLighting(void)
 {
-    // For now just set the LEDs based on the position of the POT
-    // which is 0-4095 instead of 0-1023 so divide by 4
-    //uint16_t dutyValue = (uint16_t) (FISH_State.potPosition / 4.0);
+    //http://embedded-lab.com/blog/lab-9-pulse-width-modulation-pwm/
     // calculate the index in the array we require
     uint8_t timeIndex = RTC_State.time_hours * 2;
     // if we have 30 mins or more, add one
@@ -163,13 +161,22 @@ void FISHOUTPUT_setLighting(void)
         ++timeIndex;
     }
     // now get the percentages we require
-    uint16_t red =   ((uint16_t)ledValues[timeIndex][0] / 100.0 * 1023.0);
-    uint16_t blue =  ((uint16_t)ledValues[timeIndex][1] / 100.0 * 1023.0);
-    uint16_t white = ((uint16_t)ledValues[timeIndex][2] / 100.0 * 1023.0);
-    //TODO - calculate the duty value to set these percentages
-    PWM1_LoadDutyValue(red);
-    PWM2_LoadDutyValue(blue);
-    PWM3_LoadDutyValue(white);
+    // CCP module uses the 8 MSBs to set the duty value so 0-255
+    // LAB site says don't go over 250, not sure why but we can do that...
+    uint16_t red =   ((uint16_t)ledValues[timeIndex][0] / 100.0 * 250.0);
+    uint16_t blue =  ((uint16_t)ledValues[timeIndex][1] / 100.0 * 250.0);
+    uint16_t white = ((uint16_t)ledValues[timeIndex][2] / 100.0 * 250.0);
+    
+    // for debugging set the LEDs based on the position of the POT
+    // which is 0-4095 
+    /*red = ((uint16_t)FISH_State.potPosition / 4095.0 * 250.0);
+    blue = ((uint16_t)FISH_State.potPosition / 4095.0 * 250.0);
+    white = ((uint16_t)FISH_State.potPosition / 4095.0 * 250.0);
+    */
+    // PWM on the CCP module uses only the 8 MSBs of the CCPCON so 0-255 << 2
+    PWM1_LoadDutyValue(red << 2);
+    PWM2_LoadDutyValue(blue << 2);
+    PWM3_LoadDutyValue(white << 2);
 }
 
 void FISHOUPUT_setClock(void)
