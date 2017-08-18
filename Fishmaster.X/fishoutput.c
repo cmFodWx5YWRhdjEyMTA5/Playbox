@@ -13,7 +13,7 @@
 #include <stdio.h>
 
 bool FISHOUTPUT_disableHeat = true;
-uint8_t hourPreviousSet = 99;   // initially invalid to set first time
+uint8_t hourPreviousSet = 99;   // start off with invalid value to set first time
 
 static const uint8_t ledValues[49][3] = {
     {0,	0,	0},
@@ -89,26 +89,28 @@ void FISHOUTPUT_process(void)
         // either way just turn the hot-plate off
         FISHOUTPUT_setHotPlatePower(0);
     }
-    // process this button press
-    if (FISH_State.isButtonPress) {
-        printf("Button press\r\n");
-        // handled this, reset the flag
-        FISH_State.isButtonPress = false;
-        // toggle the lights on/off
-        FISH_State.isLightsOn = !FISH_State.isLightsOn;
-    }
-    if (FISH_State.isLongButtonPress) {
-        printf("Long Button press\r\n");
-        // move the time forward an hour
-        RTC_IncrementHour();
-        // now we have changed the hour - update it straight away
-        RTC_ReadTime();
-        // and debug it
-        RTC_Print();
-        // and reset the flag
-        FISH_State.isLongButtonPress = false;
-        // and inform the input we dealt with this
-        FISHINPUT_longButtonPressHandled();
+    if (!FISH_State.isDemoMode) {
+        // we are not in demo mode, process this button press
+        if (FISH_State.isButtonPress) {
+            printf("Button press\r\n");
+            // handled this, reset the flag
+            FISH_State.isButtonPress = false;
+            // toggle the lights on/off
+            FISH_State.isLightsOn = FISH_State.isLightsOn == false;
+        }
+        if (FISH_State.isLongButtonPress) {
+            printf("Long Button press\r\n");
+            // move the time forward an hour
+            RTC_IncrementHour();
+            // now we have changed the hour - update it straight away
+            RTC_ReadTime();
+            // and debug it
+            RTC_Print();
+            // and reset the flag
+            FISH_State.isLongButtonPress = false;
+            // and inform the input we dealt with this
+            FISHINPUT_longButtonPressHandled();
+        }
     }
     // set the lighting correctly
     FISHOUTPUT_setLighting();
@@ -155,7 +157,7 @@ void FISHOUTPUT_setLighting(void)
 {
     //http://embedded-lab.com/blog/lab-9-pulse-width-modulation-pwm/
     // calculate the index in the array we require
-    uint8_t timeIndex = RTC_State.time_hours * 2;
+    uint16_t timeIndex = (uint16_t)(RTC_State.time_hours * 2);
     // if we have 30 mins or more, add one
     if (RTC_State.time_minutes >= 30) {
         ++timeIndex;
@@ -163,20 +165,29 @@ void FISHOUTPUT_setLighting(void)
     // now get the percentages we require
     // CCP module uses the 8 MSBs to set the duty value so 0-255
     // LAB site says don't go over 250, not sure why but we can do that...
-    uint16_t red =   ((uint16_t)ledValues[timeIndex][0] / 100.0 * 250.0);
-    uint16_t blue =  ((uint16_t)ledValues[timeIndex][1] / 100.0 * 250.0);
-    uint16_t white = ((uint16_t)ledValues[timeIndex][2] / 100.0 * 250.0);
+    uint16_t red =   (uint16_t)(ledValues[timeIndex][0] / 100.0 * 250.0);
+    uint16_t blue =  (uint16_t)(ledValues[timeIndex][1] / 100.0 * 250.0);
+    uint16_t white = (uint16_t)(ledValues[timeIndex][2] / 100.0 * 250.0);
     
+#ifdef K_DEBUG_LED
     // for debugging set the LEDs based on the position of the POT
     // which is 0-4095 
-    /*red = ((uint16_t)FISH_State.potPosition / 4095.0 * 250.0);
+    red = ((uint16_t)FISH_State.potPosition / 4095.0 * 250.0);
     blue = ((uint16_t)FISH_State.potPosition / 4095.0 * 250.0);
     white = ((uint16_t)FISH_State.potPosition / 4095.0 * 250.0);
-    */
-    // PWM on the CCP module uses only the 8 MSBs of the CCPCON so 0-255 << 2
-    PWM1_LoadDutyValue(red << 2);
-    PWM2_LoadDutyValue(blue << 2);
-    PWM3_LoadDutyValue(white << 2);
+#endif
+    if (FISH_State.isLightsOn) {
+        // PWM on the CCP module uses only the 8 MSBs of the CCPCON so 0-255 << 2
+        PWM1_LoadDutyValue(red << 2);
+        PWM2_LoadDutyValue(blue << 2);
+        PWM3_LoadDutyValue(white << 2);
+    }
+    else {
+        // turn off the lights
+        PWM1_LoadDutyValue(0);
+        PWM2_LoadDutyValue(0);
+        PWM3_LoadDutyValue(0);
+    }
 }
 
 void FISHOUPUT_setClock(void)

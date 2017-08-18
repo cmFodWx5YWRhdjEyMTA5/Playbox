@@ -26,14 +26,11 @@ extern "C" {
     
     float FISHINPUT_getWaterTemp(void);
     
+#ifdef K_DEBUG
     float FISHINPUT_getChipTemp(void);
     
     uint16_t FISHINPUT_getPotPosition(void);
-    
-    void FISHINPUT_getStateSerial(void);
-    
-    void FISHINPUT_sendStateSerial(void);
-    
+#endif
     void FISHINPUT_longButtonPressHandled(void);
 
 #ifdef	__cplusplus

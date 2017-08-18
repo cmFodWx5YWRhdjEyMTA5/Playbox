@@ -8,21 +8,23 @@ struct t_fishstate FISH_State;
 
 #define K_TICKSPERMSECOND 100
 
+#ifdef K_DEBUG
 void FISHSTATE_print(void)
 {
     // print out all the members of the global struct that stores our state
     // mostly for debugging purposes
-    printf("TIME: %.2d:%.2d:%.2d POT: %.4d, HotPlate: %.3d, Water: %.3d, HPPower: %.3d\r\n",
+    printf("TIME: %.2d:%.2d:%.2d POT: %.4d, Chip: %.3d, HotPlate: %.3d, Water: %.3d, HPPower: %.3d\r\n", 
             RTC_State.time_hours,
             RTC_State.time_minutes,
             RTC_State.time_seconds,
             FISH_State.potPosition, 
-            ((int)FISH_State.hotPlateTemp),
-            ((int)FISH_State.waterTemp),
+            FISH_State.chipTemp,
+            ((uint16_t)FISH_State.hotPlateTemp),
+            ((uint16_t)FISH_State.waterTemp),
             FISH_State.hotPlatePower);
     //TODO: printf passing %3.2f doesn't complile - grr
 }
-
+#endif
 void FISHSTATE_calcTime(void)
 {
     // calculate the time elapsed from the tick_count which is stored in 1/100

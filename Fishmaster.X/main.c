@@ -56,10 +56,7 @@ void fishInitialise(void)
     // initialize the time from now
     FISH_State.tick_count = 0;
     FISH_State.milliseconds = 0;
-    
-    //TODO set the master/slave switch
-    FISH_State.isSlave = false;//IO_SLV_GetValue() == 0;
-    FISH_State.isSlave ? printf("IS SLAVE\r\n") : printf("IS MASTER\r\n");
+    FISH_State.isDemoMode = false;
 }
 
 void fishProcess()
@@ -102,23 +99,52 @@ void main(void)
     fishInitialise();
     
     // now do the processing
+#ifdef K_DEBUG
     uint32_t lastPrintTime = FISH_State.milliseconds;
+#endif
+    uint32_t lastOffsetTime = FISH_State.milliseconds;
     while(1) {
         // along with the RTC we have a rolling milliseconds and tick
         // counter we can use for rougher timing functions, update this now
         // calculate the time (seconds) from this
         FISHSTATE_calcTime();
+        if (FISH_State.milliseconds - lastOffsetTime > 1000) {
+            // a second has passed, read in the time
+            if (FISH_State.isDemoMode) {
+                // we are in demo mode, force time on artificially to advance the lighting etc
+                RTC_State.time_minutes += 15;
+                if (RTC_State.time_minutes >= 60) {
+                    // too many minutes, roll back to zero
+                    RTC_State.time_minutes = 0;
+                    // and move on the hour instead
+                    RTC_State.time_hours += 1;
+                    if (RTC_State.time_hours >= 24) {
+                        // too many hours, roll back to zero
+                        RTC_State.time_hours = 0;
+                    }
+                }
+            }
+            else {
+                // read the time from the clock
+                RTC_ReadTime();
+            }
+            // and reset the timer for this functionality
+            lastOffsetTime = FISH_State.milliseconds;
+#ifdef K_DEBUG
+            // and toggle the LED so we know we are running
+            LED_Toggle();
+            printf(".");
+#endif
+        }
+#ifdef K_DEBUG
         // and we can print out state here for debugging
         if (FISH_State.milliseconds - lastPrintTime > 5000) {
-            // enough time has passed that we want to know what is going on
-            RTC_ReadTime();
-            // and the state
+            // print the state periodically for debugging purposes
             FISHSTATE_print();
-            // and toggle the LED so we know we are running without serial on
-            LED_Toggle();
             // reset the print time to print only periodically
             lastPrintTime = FISH_State.milliseconds;
         }
+#endif
         // always process the tasks we want to process
         fishProcess();
     }
