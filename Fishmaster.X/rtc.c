@@ -48,7 +48,7 @@ void RTC_Initialise(void)
 void RTC_Print(void)
 {
     // print out the current time for debugging purposes
-    printf("RTC%d:%2d:%2d:%2d\r\n", 
+    printf("RTC State:%d Time is %.2d:%.2d:%.2d\r\n", 
             RTC_State.ST_BITSET,
             RTC_State.time_hours,
             RTC_State.time_minutes,
@@ -422,11 +422,11 @@ bool RTC_setDate(uint16_t year, uint16_t month, uint16_t day, uint16_t hours, ui
     // now the 'ones' which are bits 3-0
     rtcSeconds |= (0b1111) & (seconds - (tensValue * 10));
     
-    printf("Setting the current time to: %2d:%2d:%2d\r\n", hours, minutes, seconds);
+    //printf("Setting the current time to: %2d:%2d:%2d\r\n", hours, minutes, seconds);
     // first stop the timer from running now by setting the ST BIT to zero
     bool result = RTC_Write(MCP79410_ADDRESS_SEC, 0x0);
     if (result) {
-        printf("ST BIT Set to zero - waiting for OSCRUN to clear... ");
+        //printf("ST BIT Set to zero - waiting for OSCRUN to clear... ");
         // have stopped the timer, wait for it to actually stop now then
         RTC_State.ST_BITSET = 0;
         RTC_WaitForOSCRUN(0);
@@ -484,55 +484,12 @@ bool RTC_setDate(uint16_t year, uint16_t month, uint16_t day, uint16_t hours, ui
         // have set ST to be one
         RTC_State.ST_BITSET = 1;
         // have set the ST to be one, enable it in the control configuration now
-        printf("Setting RTC control BITS -- ");
         RTC_Write(MCP79410_ADDRESS_CTRL, MCP79410_CTRL_BITS);
-        if (result) {
-            printf("Worked \r\n");
+        if (!result) {
+            printf("Failed to set RTC control BITS \r\n");
         }
-        else {
-            printf("FAILURE to set \r\n");
-        }
-        printf("ST BIT Set to one- waiting for OSCRUN to restart... ");
         // have restarted the timer, wait for it to actually start now then
         RTC_WaitForOSCRUN(MCP79410_OSCRUN_MASK);
-    }
-    else {
-        // failed to set to one for some reason
-        //TODO properly make this work the normal way rather than resorting
-        // to the following raw code...
-        printf("Failed to set ST-BIT BACK TO be one, trying another way\r\n");
-        // start the transaction
-        result = false;
-        SSPCON2bits.SEN = 1;
-        uint32_t waitCounter = 0;
-        // wait for our ack to this setting of the start status
-        while (++waitCounter < MCP79410_RAWWAITING && SSPCON2bits.SEN == 1);
-        if (SSPCON2bits.SEN == 0) {
-            // we got the SEN reset - proceed
-            SSP1BUF = 0xde;
-            if (RTC_WaitForRAWWriteAck() == 1) {
-                SSP1BUF = 0x00;
-                if (RTC_WaitForRAWWriteAck() == 1) {
-                    SSP1BUF = 0x80; // start the clock!
-                    if (RTC_WaitForRAWWriteAck() == 1) {
-                        SSP1CON2bits.PEN = 1;
-                        waitCounter = 0;
-                        // wait for our ack to this setting of the start status
-                        while (++waitCounter < MCP79410_RAWWAITING && SSPCON2bits.PEN == 1);
-                        if (SSPCON2bits.PEN == 0) {
-                            result = true;
-                        }
-                    }
-                }
-            }
-        }
-        if (result == false) {
-            // this failed too
-            printf("BOO!\r\n");
-        }
-        else {
-            printf("YEY!\r\n");
-        }
     }
     // and finally return the result of this
     return result;
@@ -567,10 +524,7 @@ void RTC_WaitForOSCRUN(uint8_t statusRequired)
             }
         }
     }
-    if ((weekday & MCP79410_OSCRUN_MASK) == statusRequired) {
-        printf("OSCRUN changed to be %d as expected\r\n", statusRequired);
-    }
-    else {
+    if ((weekday & MCP79410_OSCRUN_MASK) != statusRequired) {
         printf("OSCRUN is not %d, it is %d\r\n", statusRequired, weekday);
     }
 }

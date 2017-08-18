@@ -112,8 +112,6 @@ void main(void)
         if (FISH_State.milliseconds - lastPrintTime > 5000) {
             // enough time has passed that we want to know what is going on
             RTC_ReadTime();
-            // print our time
-            RTC_Print();
             // and the state
             FISHSTATE_print();
             // and toggle the LED so we know we are running without serial on

@@ -1,5 +1,6 @@
 
 #include "fishstate.h"
+#include "rtc.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -11,7 +12,10 @@ void FISHSTATE_print(void)
 {
     // print out all the members of the global struct that stores our state
     // mostly for debugging purposes
-    printf("POT: %d, HotPlate: %d, Water: %d, HPPower: %d\r\n", 
+    printf("TIME: %.2d:%.2d:%.2d POT: %.4d, HotPlate: %.3d, Water: %.3d, HPPower: %.3d\r\n",
+            RTC_State.time_hours,
+            RTC_State.time_minutes,
+            RTC_State.time_seconds,
             FISH_State.potPosition, 
             ((int)FISH_State.hotPlateTemp),
             ((int)FISH_State.waterTemp),

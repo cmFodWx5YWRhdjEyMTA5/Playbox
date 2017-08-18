@@ -91,22 +91,24 @@ void FISHOUTPUT_process(void)
     }
     // process this button press
     if (FISH_State.isButtonPress) {
+        printf("Button press\r\n");
         // handled this, reset the flag
         FISH_State.isButtonPress = false;
         // toggle the lights on/off
         FISH_State.isLightsOn = !FISH_State.isLightsOn;
-        // and debug this
-        printf("Button press\r\n");
     }
     if (FISH_State.isLongButtonPress) {
+        printf("Long Button press\r\n");
         // move the time forward an hour
         RTC_IncrementHour();
+        // now we have changed the hour - update it straight away
+        RTC_ReadTime();
+        // and debug it
+        RTC_Print();
         // and reset the flag
         FISH_State.isLongButtonPress = false;
         // and inform the input we dealt with this
         FISHINPUT_longButtonPressHandled();
-        // and debug this
-        printf("Long Button press\r\n");
     }
     // set the lighting correctly
     FISHOUTPUT_setLighting();
@@ -153,7 +155,7 @@ void FISHOUTPUT_setLighting(void)
 {
     // For now just set the LEDs based on the position of the POT
     // which is 0-4095 instead of 0-1023 so divide by 4
-    uint16_t dutyValue = (uint16_t) (FISH_State.potPosition / 4.0);
+    //uint16_t dutyValue = (uint16_t) (FISH_State.potPosition / 4.0);
     // calculate the index in the array we require
     uint8_t timeIndex = RTC_State.time_hours * 2;
     // if we have 30 mins or more, add one
@@ -201,48 +203,44 @@ void FISHOUPUT_setClock(void)
         IO_TMAM_SetLow();
         IO_TMPM_SetLow();
         // and set the new one
-        switch(hour) {
-            case 1 :
-                IO_TM1_SetHigh();
-                break;
-            case 2 :
-                IO_TM2_SetHigh();
-                break;
-            case 3 :
-                IO_TM3_SetHigh();
-                break;
-            case 4 :
-                IO_TM4_SetHigh();
-                break;
-            case 5 :
-                IO_TM5_SetHigh();
-                break;
-            case 6 :
-                IO_TM6_SetHigh();
-                break;
-            case 7 :
-                IO_TM7_SetHigh();
-                break;
-            case 8 :
-                IO_TM8_SetHigh();
-                break;
-            case 9 :
-                IO_TM9_SetHigh();
-                // time to reset the lights off to always be true, bad for the
-                // fish never to have lights!...
-                FISH_State.isLightsOn = true;
-                break;
-            case 10 :
-                IO_TM10_SetHigh();
-                break;
-            case 11 :
-                IO_TM11_SetHigh();
-                break;
-            case 12 :
-            case 0 :
-            default :
-                IO_TM12_SetHigh();
-                break;
+        if (hour == 1) {
+            IO_TM1_SetHigh();
+        }
+        else if (hour == 2) {
+            IO_TM2_SetHigh();
+        }
+        else if (hour == 3) {
+            IO_TM3_SetHigh();
+        }
+        else if (hour == 4) {
+            IO_TM4_SetHigh();
+        }
+        else if (hour == 5) {
+            IO_TM5_SetHigh();
+        }
+        else if (hour == 6) {
+            IO_TM6_SetHigh();
+        }
+        else if (hour == 7) {
+            IO_TM7_SetHigh();
+        }
+        else if (hour == 8) {
+            IO_TM8_SetHigh();
+        }
+        else if (hour == 9) {
+            IO_TM9_SetHigh();
+            // time to reset the lights off to always be true, bad for the
+            // fish never to have lights!...
+            FISH_State.isLightsOn = true;
+        }
+        else if (hour == 10) {
+            IO_TM10_SetHigh();
+        }
+        else if (hour == 11) {
+            IO_TM11_SetHigh();
+        }
+        else {//if (hour == 12) {
+            IO_TM12_SetHigh();
         }
         if (isPm) {
             // set the PM bit HIGH
