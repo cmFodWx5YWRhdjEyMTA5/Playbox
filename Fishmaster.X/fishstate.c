@@ -13,14 +13,24 @@ void FISHSTATE_print(void)
 {
     // print out all the members of the global struct that stores our state
     // mostly for debugging purposes
-    printf("TIME: %.2d:%.2d:%.2d POT: %.4d, Chip: %.3d, HotPlate: %.3d, Water: %.3d, HPPower: %.3d\r\n", 
+    
+    printf("TIME: %.2d:%.2d:%.2d POT: %.4d, Chip: %.3d, HotPlate: %.3d, Water: %.3d, Intensity: %.3d, HPPower: %.3d\r\n", 
             RTC_State.time_hours,
             RTC_State.time_minutes,
             RTC_State.time_seconds,
+#if defined(K_DEBUG_WT) || defined(K_DEBUG_HPT)
             FISH_State.potPosition, 
+#else
+            0,
+#endif
+#ifdef K_DEBUG
             FISH_State.chipTemp,
+#else
+            0,
+#endif
             ((uint16_t)FISH_State.hotPlateTemp),
             ((uint16_t)FISH_State.waterTemp),
+            ((uint16_t)FISH_State.intensity),
             FISH_State.hotPlatePower);
     //TODO: printf passing %3.2f doesn't complile - grr
 }

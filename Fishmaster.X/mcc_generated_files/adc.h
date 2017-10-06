@@ -86,10 +86,10 @@ typedef enum
 {
     channel_Temperature =  0x1D,
     channel_DAC1 =  0x1E,
-    channel_HPT =  0x0C,
-    channel_WT =  0x0A,
-    channel_POT =  0x00,
     channel_FVR =  0x1F,
+    channel_WT =  0x0A,
+    channel_HPT =  0x0C,
+    channel_INPT =  0x01
 } adc_channel_t;
 
 /**

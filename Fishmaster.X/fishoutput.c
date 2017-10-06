@@ -15,58 +15,6 @@
 bool FISHOUTPUT_disableHeat = true;
 uint8_t hourPreviousSet = 99;   // start off with invalid value to set first time
 
-static const uint8_t ledValues[49][3] = {
-    {0,	0,	0},
-    {0,	0,	0},
-    {0,	0,	0},
-    {0,	0,	0},
-    {0,	0,	0},
-    {0,	0,	0},
-    {0,	0,	0},
-    {0,	0,	0},
-    {10,0,	0},
-    {25,0,	0},
-    {45,0,	0},
-    {66,0,	0},
-    {85,0,	0},
-    {98,0,	0},
-    {100,0,	0},
-    {98,0,	0},
-    {85,0,	10},
-    {66,0,	25},
-    {45,0,	45},
-    {25,0,	66},
-    {10,0,	85},
-    {0,	0,	95},
-    {0,	0,	100},
-    {0,	0,	100},
-    {0,	0,	100},
-    {0,	0,	100},
-    {0,	0,	100},
-    {0,	0,	100},
-    {0,	0,	100},
-    {0,	0,	100},
-    {0,	0,	100},
-    {0,	0,	100},
-    {0,	0,	100},
-    {0,	0,	100},
-    {0,	10,	100},
-    {0,	25,	95},
-    {0,	45,	85},
-    {0,	66,	66},
-    {0,	85,	45},
-    {0,	98,	25},
-    {0,	100,10},
-    {0,	98,	0},
-    {0,	85,	0},
-    {0,	66,	0},
-    {0,	45,	0},
-    {0,	25,	0},
-    {0,	10,	0},
-    {0,	0,	0},
-    {0,	0,	0},  
-};
-
 void FISHOUTPUT_Initialize(void)
 {
     // initialize anything we need to here...
@@ -75,19 +23,25 @@ void FISHOUTPUT_Initialize(void)
 
 void FISHOUTPUT_process(void)
 {
-    // now we want to set the temperature of the hot-plate
-    float tempDifferential = K_TARGETWATERTEMP - FISH_State.waterTemp;
-    if (tempDifferential > K_TARGETWATERTEMPTHREHOLD) {
-        // we are below temp, let's get this differential as a percentage
-        // of our target temp (using 500% of the target temp to get their quicker when really cold)
-        uint8_t power = (uint8_t)MIN(tempDifferential / K_TARGETWATERTEMP * 500.0, 100.0);
-        // now this is a percentage, let's set the power level of the hot-plate
-        FISHOUTPUT_setHotPlatePower(power);
+    if (FISH_State.waterTemp < K_TEMPLOWERLIMIT || FISH_State.hotPlateTemp < K_TEMPLOWERLIMIT) {
+        // the sensors are not reading right, do nothing with this else we could set fire to something
+        FISHOUTPUT_setHotPlatePower(0);
     }
     else {
-        // we are fine either at temp or unfortunately too hot, 
-        // either way just turn the hot-plate off
-        FISHOUTPUT_setHotPlatePower(0);
+        // now we want to set the temperature of the hot-plate
+        float tempDifferential = K_TARGETWATERTEMP - FISH_State.waterTemp;
+        if (tempDifferential > K_TARGETWATERTEMPTHREHOLD) {
+            // we are below temp, let's get this differential as a percentage
+            // of our target temp (using 500% of the target temp to get their quicker when really cold)
+            uint8_t power = (uint8_t)MIN(tempDifferential / K_TARGETWATERTEMP * 500.0, 100.0);
+            // now this is a percentage, let's set the power level of the hot-plate
+            FISHOUTPUT_setHotPlatePower(power);
+        }
+        else {
+            // we are fine either at temp or unfortunately too hot, 
+            // either way just turn the hot-plate off
+            FISHOUTPUT_setHotPlatePower(0);
+        }
     }
     if (!FISH_State.isDemoMode) {
         // we are not in demo mode, process this button press
@@ -153,22 +107,22 @@ void FISHOUTPUT_setHotPlatePower(uint8_t powerPercent)
     }
 }
 
+float FISHOUTPUT_gaussianValue(float time, float peak, float std, float max)
+{
+    // apply the gaussian formulae
+    float value = max - (((time-peak) * (time-peak)) / (2.0 * (std * std)));
+    //TODO reduce the intensity % based on the developer's preset input
+    
+    // and return limited to the max value of 0 to stop negative values and 250
+    // to prevent overflowing the PWM
+    return MAX(0.0, MIN(250.0, value));
+}
+
 void FISHOUTPUT_setLighting(void)
 {
     //http://embedded-lab.com/blog/lab-9-pulse-width-modulation-pwm/
-    // calculate the index in the array we require
-    uint16_t timeIndex = (uint16_t)(RTC_State.time_hours * 2);
-    // if we have 30 mins or more, add one
-    if (RTC_State.time_minutes >= 30) {
-        ++timeIndex;
-    }
     // now get the percentages we require
     // CCP module uses the 8 MSBs to set the duty value so 0-255
-    // LAB site says don't go over 250, not sure why but we can do that...
-    uint16_t red =   (uint16_t)(ledValues[timeIndex][0] / 100.0 * 250.0);
-    uint16_t blue =  (uint16_t)(ledValues[timeIndex][1] / 100.0 * 250.0);
-    uint16_t white = (uint16_t)(ledValues[timeIndex][2] / 100.0 * 250.0);
-    
 #ifdef K_DEBUG_LED
     // for debugging set the LEDs based on the position of the POT
     // which is 0-4095 
@@ -177,10 +131,32 @@ void FISHOUTPUT_setLighting(void)
     white = ((uint16_t)FISH_State.potPosition / 4095.0 * 250.0);
 #endif
     if (FISH_State.isLightsOn) {
+        // the value for time needs to be a decimal value of hours
+        float timeHrs = RTC_State.time_hours + (RTC_State.time_minutes / 60.0);
+        // the formula is simple, we are using a gaussian curve...
+        uint16_t value =   (uint16_t)FISHOUTPUT_gaussianValue(
+                timeHrs,
+                K_GAUSSIAN_RED_PEAK,
+                K_GAUSSIAN_RED_STD,
+                K_GAUSSIAN_RED_MAX);
         // PWM on the CCP module uses only the 8 MSBs of the CCPCON so 0-255 << 2
-        PWM1_LoadDutyValue(red << 2);
-        PWM2_LoadDutyValue(blue << 2);
-        PWM3_LoadDutyValue(white << 2);
+        PWM2_LoadDutyValue(value << 2);
+        // now do blue
+        value = (uint16_t)FISHOUTPUT_gaussianValue(
+                timeHrs,
+                K_GAUSSIAN_BLUE_PEAK,
+                K_GAUSSIAN_BLUE_STD,
+                K_GAUSSIAN_BLUE_MAX);
+        // PWM on the CCP module uses only the 8 MSBs of the CCPCON so 0-255 << 2
+        PWM1_LoadDutyValue(value << 2);
+        // and white
+        value = (uint16_t)FISHOUTPUT_gaussianValue(
+                timeHrs,
+                K_GAUSSIAN_WHITE_PEAK,
+                K_GAUSSIAN_WHITE_STD,
+                K_GAUSSIAN_WHITE_MAX);
+        // PWM on the CCP module uses only the 8 MSBs of the CCPCON so 0-255 << 2
+        PWM3_LoadDutyValue(value << 2);
     }
     else {
         // turn off the lights
@@ -206,67 +182,70 @@ void FISHOUPUT_setClock(void)
             isPm = true;
         }
         // clear the previous time display
-        IO_TM1_SetLow();
-        IO_TM2_SetLow();
-        IO_TM3_SetLow();
-        IO_TM4_SetLow();
-        IO_TM5_SetLow();
-        IO_TM6_SetLow();
-        IO_TM7_SetLow();
-        IO_TM8_SetLow();
-        IO_TM9_SetLow();
-        IO_TM10_SetLow();
-        IO_TM11_SetLow();
-        IO_TM12_SetLow();
-        IO_TMAM_SetLow();
-        IO_TMPM_SetLow();
-        // and set the new one
-        if (hour == 1) {
-            IO_TM1_SetHigh();
-        }
-        else if (hour == 2) {
-            IO_TM2_SetHigh();
-        }
-        else if (hour == 3) {
-            IO_TM3_SetHigh();
-        }
-        else if (hour == 4) {
-            IO_TM4_SetHigh();
-        }
-        else if (hour == 5) {
-            IO_TM5_SetHigh();
-        }
-        else if (hour == 6) {
-            IO_TM6_SetHigh();
-        }
-        else if (hour == 7) {
-            IO_TM7_SetHigh();
-        }
-        else if (hour == 8) {
-            IO_TM8_SetHigh();
-        }
-        else if (hour == 9) {
-            IO_TM9_SetHigh();
-            // time to reset the lights off to always be true, bad for the
-            // fish never to have lights!...
-            FISH_State.isLightsOn = true;
-        }
-        else if (hour == 10) {
-            IO_TM10_SetHigh();
-        }
-        else if (hour == 11) {
-            IO_TM11_SetHigh();
-        }
-        else {//if (hour == 12) {
-            IO_TM12_SetHigh();
-        }
+        LED_11_SetLow();
+        LED_9_10_SetLow();
+        LED_7_8_SetLow();
+        LED_5_6_SetLow();
+        LED_3_4_SetLow();
+        // do the PM / AM light
         if (isPm) {
-            // set the PM bit HIGH
-            IO_TMPM_SetHigh();
+            LED_1_2_SetHigh();
         }
         else {
-            // set the AM bit HIGH
-            IO_TMAM_SetHigh();
+            LED_1_2_SetLow();
+        }
+        LED_PM_SetLow();
+        if (hour % 2 == 0) {
+            // it is an even number, set the COM to high to do 2, 4, 6, 8, 10
+            LED_COM_SetHigh();
+            switch(hour) {
+                case 2 :
+                    LED_1_2_SetHigh();
+                    break;
+                case 4 :
+                    LED_3_4_SetHigh();
+                    break;
+                case 6 :
+                    LED_5_6_SetHigh();
+                    break;
+                case 8 :
+                    LED_7_8_SetHigh();
+                    break;
+                case 10 :
+                    LED_9_10_SetHigh();
+                    break;
+                default:
+                    break;
+            }
+        }
+        else {
+            // do the odd numbers, COM on low
+            LED_COM_SetLow();
+            switch(hour) {
+                case 1 :
+                    LED_1_2_SetHigh();
+                    break;
+                case 3 :
+                    LED_3_4_SetHigh();
+                    break;
+                case 5 :
+                    LED_5_6_SetHigh();
+                    break;
+                case 7 :
+                    LED_7_8_SetHigh();
+                    break;
+                case 9 :
+                    LED_9_10_SetHigh();
+                    // time to reset the lights off to always be true, bad for the
+                    // fish never to have lights!...
+                    FISH_State.isLightsOn = true;
+                    break;
+                case 11 :
+                    LED_11_SetHigh();
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

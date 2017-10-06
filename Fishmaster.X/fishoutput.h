@@ -23,6 +23,8 @@ extern "C" {
     void FISHOUTPUT_setLighting(void);
     
     void FISHOUPUT_setClock(void);
+    
+    float FISHOUTPUT_gaussianValue(float time, float peak, float std, float max);
 
 #ifdef	__cplusplus
 }
