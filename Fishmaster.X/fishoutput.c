@@ -190,9 +190,9 @@ void FISHOUPUT_setClock(void)
         }
         if (hour % 2 == 0) {
             // it is an even number, set the COM to high to do 2, 4, 6, 8, 10
-            LED_COM_SetHigh();
             switch(hour) {
                 case 2 :
+                    LED_COM_SetHigh();
                     // set the appropriate time to be opposite the COM
                     LED_1_2_SetLow();
                     LED_3_4_SetHigh();
@@ -200,8 +200,10 @@ void FISHOUPUT_setClock(void)
                     LED_7_8_SetHigh();
                     LED_9_10_SetHigh();
                     LED_11_SetHigh();
+                    LED_PM_SetHigh();
                     break;
                 case 4 :
+                    LED_COM_SetHigh();
                     // set the appropriate time to be opposite the COM
                     LED_1_2_SetHigh();
                     LED_3_4_SetLow();
@@ -209,8 +211,10 @@ void FISHOUPUT_setClock(void)
                     LED_7_8_SetHigh();
                     LED_9_10_SetHigh();
                     LED_11_SetHigh();
+                    LED_PM_SetHigh();
                     break;
                 case 6 :
+                    LED_COM_SetHigh();
                     // set the appropriate time to be opposite the COM
                     LED_1_2_SetHigh();
                     LED_3_4_SetHigh();
@@ -218,8 +222,10 @@ void FISHOUPUT_setClock(void)
                     LED_7_8_SetHigh();
                     LED_9_10_SetHigh();
                     LED_11_SetHigh();
+                    LED_PM_SetHigh();
                     break;
                 case 8 :
+                    LED_COM_SetHigh();
                     // set the appropriate time to be opposite the COM
                     LED_1_2_SetHigh();
                     LED_3_4_SetHigh();
@@ -227,8 +233,10 @@ void FISHOUPUT_setClock(void)
                     LED_7_8_SetLow();
                     LED_9_10_SetHigh();
                     LED_11_SetHigh();
+                    LED_PM_SetHigh();
                     break;
                 case 10 :
+                    LED_COM_SetHigh();
                     // set the appropriate time to be opposite the COM
                     LED_1_2_SetHigh();
                     LED_3_4_SetHigh();
@@ -236,9 +244,21 @@ void FISHOUPUT_setClock(void)
                     LED_7_8_SetHigh();
                     LED_9_10_SetLow();
                     LED_11_SetHigh();
+                    LED_PM_SetHigh();
                     break;
-                case 0:
-                case 12 :
+                case 12:
+                    LED_COM_SetLow();
+                    // set the appropriate time to be opposite the COM
+                    LED_1_2_SetLow();
+                    LED_3_4_SetLow();
+                    LED_5_6_SetLow();
+                    LED_7_8_SetLow();
+                    LED_9_10_SetLow();
+                    LED_11_SetLow();
+                    LED_PM_SetHigh();
+                    break;
+                case 0 :
+                    LED_COM_SetHigh();
                     // set the appropriate time to be opposite the COM
                     LED_1_2_SetHigh();
                     LED_3_4_SetHigh();
@@ -246,16 +266,10 @@ void FISHOUPUT_setClock(void)
                     LED_7_8_SetHigh();
                     LED_9_10_SetHigh();
                     LED_11_SetHigh();
+                    LED_PM_SetLow();
                     break;
                 default:
                     break;
-            }
-            // do the PM / AM light
-            if (isPm) {
-                LED_PM_SetLow();
-            }
-            else {
-                LED_PM_SetHigh();
             }
         }
         else {
@@ -270,6 +284,7 @@ void FISHOUPUT_setClock(void)
                     LED_7_8_SetLow();
                     LED_9_10_SetLow();
                     LED_11_SetLow();
+                    LED_PM_SetLow();
                     break;
                 case 3 :
                     // set the appropriate time to be opposite the COM
@@ -279,6 +294,7 @@ void FISHOUPUT_setClock(void)
                     LED_7_8_SetLow();
                     LED_9_10_SetLow();
                     LED_11_SetLow();
+                    LED_PM_SetLow();
                     break;
                 case 5 :
                     // set the appropriate time to be opposite the COM
@@ -288,6 +304,7 @@ void FISHOUPUT_setClock(void)
                     LED_7_8_SetLow();
                     LED_9_10_SetLow();
                     LED_11_SetLow();
+                    LED_PM_SetLow();
                     break;
                 case 7 :
                     // set the appropriate time to be opposite the COM
@@ -297,6 +314,7 @@ void FISHOUPUT_setClock(void)
                     LED_7_8_SetHigh();
                     LED_9_10_SetLow();
                     LED_11_SetLow();
+                    LED_PM_SetLow();
                     break;
                 case 9 :
                     // set the appropriate time to be opposite the COM
@@ -306,6 +324,7 @@ void FISHOUPUT_setClock(void)
                     LED_7_8_SetLow();
                     LED_9_10_SetHigh();
                     LED_11_SetLow();
+                    LED_PM_SetLow();
                     // time to reset the lights off to always be true, bad for the
                     // fish never to have lights!...
                     FISH_State.isLightsOn = true;
@@ -318,16 +337,10 @@ void FISHOUPUT_setClock(void)
                     LED_7_8_SetLow();
                     LED_9_10_SetLow();
                     LED_11_SetHigh();
+                    LED_PM_SetLow();
                     break;
                 default:
                     break;
-            }
-            // do the PM / AM light
-            if (isPm) {
-                LED_PM_SetHigh();
-            }
-            else {
-                LED_PM_SetLow();
             }
         }
     }

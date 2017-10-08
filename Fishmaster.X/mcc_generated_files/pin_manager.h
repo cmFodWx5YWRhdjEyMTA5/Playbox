@@ -59,23 +59,6 @@
 #define PULL_UP_ENABLED      1
 #define PULL_UP_DISABLED     0
 
-// get/set IO_PWR aliases
-#define IO_PWR_TRIS               TRISAbits.TRISA0
-#define IO_PWR_LAT                LATAbits.LATA0
-#define IO_PWR_PORT               PORTAbits.RA0
-#define IO_PWR_WPU                WPUAbits.WPUA0
-#define IO_PWR_ANS                ANSELAbits.ANSA0
-#define IO_PWR_SetHigh()            do { LATAbits.LATA0 = 1; } while(0)
-#define IO_PWR_SetLow()             do { LATAbits.LATA0 = 0; } while(0)
-#define IO_PWR_Toggle()             do { LATAbits.LATA0 = ~LATAbits.LATA0; } while(0)
-#define IO_PWR_GetValue()           PORTAbits.RA0
-#define IO_PWR_SetDigitalInput()    do { TRISAbits.TRISA0 = 1; } while(0)
-#define IO_PWR_SetDigitalOutput()   do { TRISAbits.TRISA0 = 0; } while(0)
-#define IO_PWR_SetPullup()      do { WPUAbits.WPUA0 = 1; } while(0)
-#define IO_PWR_ResetPullup()    do { WPUAbits.WPUA0 = 0; } while(0)
-#define IO_PWR_SetAnalogMode()  do { ANSELAbits.ANSA0 = 1; } while(0)
-#define IO_PWR_SetDigitalMode() do { ANSELAbits.ANSA0 = 0; } while(0)
-
 // get/set channel_INPT aliases
 #define channel_INPT_TRIS               TRISAbits.TRISA1
 #define channel_INPT_LAT                LATAbits.LATA1

@@ -109,8 +109,6 @@ void main(void)
         if (FISH_State.milliseconds - lastPrintTime > 5000) {
             // print the state periodically for debugging purposes
             FISHSTATE_print();
-            // and toggle the LED so we know we are running
-            IO_PWR_Toggle();
             // reset the print time to print only periodically
             lastPrintTime = FISH_State.milliseconds;
         }

@@ -48,7 +48,7 @@ float FISHINPUT_getHotPlateTemp(void)
 #endif
     // this is set as a 12-bit 2s-compliment number so ranges from 0 to 4095
     // to represent +2 to +150 degrees
-    float temp = (sensor / 4095.0 * 100.0) + 0.0;
+    float temp = (sensor / 4095.0 * 148.0) + 2.0;
     // we want a global state of everything - so set that here direct
     FISH_State.hotPlateTemp = temp;
     // and return the result
@@ -67,7 +67,8 @@ float FISHINPUT_getWaterTemp(void)
     adc_result_t sensor = ADC_GetConversion(channel_WT);
 #endif
     // this is set as a 12-bit 2s-compliment number so ranges from 0 to 4095
-    float temp = sensor / 4095.0 * 100.0;
+    // to represent +2 to +150 degrees
+    float temp = (sensor / 4095.0 * 148.0) + 2.0;
     // we want a global state of everything - so set that here direct
     FISH_State.waterTemp = temp;
     // and return the result
