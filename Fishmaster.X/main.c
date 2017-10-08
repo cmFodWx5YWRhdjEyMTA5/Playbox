@@ -78,11 +78,11 @@ void main(void)
         // counter we can use for rougher timing functions, update this now
         // calculate the time (seconds) from this
         FISHSTATE_calcTime();
-        if (FISH_State.milliseconds - lastOffsetTime > 1000) {
-            // a second has passed, read in the time
+        if (FISH_State.milliseconds - lastOffsetTime > 100) {
+            // a tenth of a second has passed, read in the time
             if (FISH_State.isDemoMode) {
                 // we are in demo mode, force time on artificially to advance the lighting etc
-                RTC_State.time_minutes += 15;
+                RTC_State.time_minutes += 1;
                 if (RTC_State.time_minutes >= 60) {
                     // too many minutes, roll back to zero
                     RTC_State.time_minutes = 0;
@@ -100,8 +100,6 @@ void main(void)
             }
             // and reset the timer for this functionality
             lastOffsetTime = FISH_State.milliseconds;
-            // and toggle the LED so we know we are running
-            IO_PWR_Toggle();
 #ifdef K_DEBUG
             printf(".");
 #endif
@@ -111,6 +109,8 @@ void main(void)
         if (FISH_State.milliseconds - lastPrintTime > 5000) {
             // print the state periodically for debugging purposes
             FISHSTATE_print();
+            // and toggle the LED so we know we are running
+            IO_PWR_Toggle();
             // reset the print time to print only periodically
             lastPrintTime = FISH_State.milliseconds;
         }

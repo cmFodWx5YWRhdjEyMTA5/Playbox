@@ -104,14 +104,14 @@ void FISHOUTPUT_setHotPlatePower(uint8_t powerPercent)
         DAC1_SetOutput(0);
         // set this on the state
         FISH_State.hotPlatePower = powerPercent;
-    }/*
+    }
     if (!IO_BTN_GetValue()) {
         printf("@");
         DAC1_SetOutput(255);
     }
     else {
         DAC1_SetOutput(0);
-    }*/
+    }
 }
 
 float FISHOUTPUT_gaussianValue(float time, float peak, float std, float max)
