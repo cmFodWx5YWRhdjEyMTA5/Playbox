@@ -47,7 +47,8 @@ float FISHINPUT_getHotPlateTemp(void)
     adc_result_t sensor = ADC_GetConversion(channel_HPT);
 #endif
     // this is set as a 12-bit 2s-compliment number so ranges from 0 to 4095
-    float temp = sensor / 4095.0 * 100.0;
+    // to represent +2 to +150 degrees
+    float temp = (sensor / 4095.0 * 100.0) + 0.0;
     // we want a global state of everything - so set that here direct
     FISH_State.hotPlateTemp = temp;
     // and return the result
@@ -127,7 +128,7 @@ void FISHINPUT_process(void)
     FISHINPUT_getIntensity();
 
     // read the state of the button to get short and long presses
-    bool buttonReading = IO_BTN_GetValue();
+    bool buttonReading = !IO_BTN_GetValue();
     if (buttonReading == true) {
         // the button is down
         if (last_button_state == false) {

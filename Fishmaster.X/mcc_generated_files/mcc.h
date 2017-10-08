@@ -50,15 +50,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "interrupt_manager.h"
-#include "tmr2.h"
 #include "fvr.h"
-#include "eusart.h"
-#include "dac1.h"
-#include "pwm2.h"
-#include "pwm1.h"
-#include "pwm3.h"
-#include "i2c.h"
 #include "adc.h"
+#include "pwm2.h"
+#include "dac1.h"
+#include "pwm1.h"
+#include "i2c.h"
+#include "eusart.h"
+#include "tmr2.h"
+#include "pwm3.h"
 
 #define _XTAL_FREQ  8000000
 
