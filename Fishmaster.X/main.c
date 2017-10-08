@@ -13,6 +13,17 @@
  * 
  * DEV SITE: http://microchipdeveloper.com/8bit:interrupts
  * 
+ * OPERATING INSTRUCTIONS
+ * Connect Serial Yellow to Com (pin 2)
+ * Connect Serial Orange to Com (pin 3)
+ * Connect up 12v power
+ * Plug in the hot-plate
+ * Away you go!
+ * Hold down the button, turn on, wait for clock to advance an hour = demo (quick time)
+ * Hold down button to advance time an hour
+ * Click button to turn lights off / on (turn back on at 9am)
+ * Red 12 o'clock for midnight
+ * Green 12 o'clock for midday
  */
 
 void fishInitialise(void)
