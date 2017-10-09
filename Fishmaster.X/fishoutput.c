@@ -19,6 +19,7 @@ void FISHOUTPUT_Initialize(void)
 {
     // initialize anything we need to here...
     FISH_State.isLightsOn = true;
+    DAC1_Initialize();
 }
 
 void FISHOUTPUT_process(void)
@@ -93,6 +94,7 @@ void FISHOUTPUT_setHotPlatePower(uint8_t powerPercent)
     if (false == FISHOUTPUT_disableHeat) {
         // we are enabled, set the output on the DAC
         // the DAC goes from 0 - 255 so get the value as a percentage now
+        //N.B. doing 150 to limit to 3V on the max
         uint8_t powerOutput = (uint8_t)(255.0 * (powerPercent / 100.0));
         // set this on the state
         FISH_State.hotPlatePower = powerPercent;

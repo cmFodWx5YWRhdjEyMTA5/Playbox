@@ -48,7 +48,8 @@ float FISHINPUT_getHotPlateTemp(void)
 #endif
     // this is set as a 12-bit 2s-compliment number so ranges from 0 to 4095
     // to represent +2 to +150 degrees
-    float temp = (sensor / 4095.0 * 148.0) + 2.0;
+    // 1.5v is 150 degrees (0 - 1228)
+    float temp = (sensor / 1228.0 * 148.0);
     // we want a global state of everything - so set that here direct
     FISH_State.hotPlateTemp = temp;
     // and return the result
@@ -68,7 +69,8 @@ float FISHINPUT_getWaterTemp(void)
 #endif
     // this is set as a 12-bit 2s-compliment number so ranges from 0 to 4095
     // to represent +2 to +150 degrees
-    float temp = (sensor / 4095.0 * 148.0) + 2.0;
+    // 1.5v is 150 degrees (0 - 1228)
+    float temp = (sensor / 1228.0 * 148.0);
     // we want a global state of everything - so set that here direct
     FISH_State.waterTemp = temp;
     // and return the result

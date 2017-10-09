@@ -54,7 +54,7 @@ void PIN_MANAGER_Initialize(void)
     /**
     LATx registers
     */   
-    LATE = 0x07;    
+    LATE = 0x06;    
     LATD = 0x00;    
     LATA = 0x40;    
     LATB = 0xF8;    
