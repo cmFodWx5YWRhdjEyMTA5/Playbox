@@ -274,9 +274,9 @@ void FISHOUPUT_setClock(void)
         }
         else {
             // do the odd numbers, COM on low
-            LED_COM_SetLow();
             switch(hour) {
                 case 1 :
+                    LED_COM_SetLow();
                     // set the appropriate time to be opposite the COM
                     LED_1_2_SetHigh();
                     LED_3_4_SetLow();
@@ -287,6 +287,7 @@ void FISHOUPUT_setClock(void)
                     LED_PM_SetLow();
                     break;
                 case 3 :
+                    LED_COM_SetLow();
                     // set the appropriate time to be opposite the COM
                     LED_1_2_SetLow();
                     LED_3_4_SetHigh();
@@ -297,6 +298,7 @@ void FISHOUPUT_setClock(void)
                     LED_PM_SetLow();
                     break;
                 case 5 :
+                    LED_COM_SetLow();
                     // set the appropriate time to be opposite the COM
                     LED_1_2_SetLow();
                     LED_3_4_SetLow();
@@ -307,6 +309,7 @@ void FISHOUPUT_setClock(void)
                     LED_PM_SetLow();
                     break;
                 case 7 :
+                    LED_COM_SetLow();
                     // set the appropriate time to be opposite the COM
                     LED_1_2_SetLow();
                     LED_3_4_SetLow();
@@ -317,6 +320,7 @@ void FISHOUPUT_setClock(void)
                     LED_PM_SetLow();
                     break;
                 case 9 :
+                    LED_COM_SetLow();
                     // set the appropriate time to be opposite the COM
                     LED_1_2_SetLow();
                     LED_3_4_SetLow();
@@ -330,6 +334,7 @@ void FISHOUPUT_setClock(void)
                     FISH_State.isLightsOn = true;
                     break;
                 case 11 :
+                    LED_COM_SetLow();
                     // set the appropriate time to be opposite the COM
                     LED_1_2_SetLow();
                     LED_3_4_SetLow();
