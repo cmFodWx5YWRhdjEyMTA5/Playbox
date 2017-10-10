@@ -28,8 +28,8 @@ extern "C" {
 #define K_MSECONDSINHOUR                36000000    // the number of milliseconds in an hour
 #define K_MSECONDSINDAY                 864000000   // the number of milliseconds in a day
     
-#define K_SHORTBUTTONPRESSTIME          200    // the time (in ms) that constitues a press
-#define K_LONGBUTTONPRESSTIME           2000   // the time (in ms) that constitues a long-press
+#define K_SHORTBUTTONPRESSTIME          50     // the time (in ms) that constitues a press
+#define K_LONGBUTTONPRESSTIME           1000   // the time (in ms) that constitues a long-press
     
 #define K_GAUSSIAN_RED_PEAK             20.0     // the peak value for the gaussian curve for red lighting
 #define K_GAUSSIAN_RED_STD              0.15     // the standard deviation for the gaussian curve for red lighting

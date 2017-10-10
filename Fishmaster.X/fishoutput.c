@@ -16,6 +16,22 @@
 bool FISHOUTPUT_disableHeat = true;
 uint8_t hourPreviousSet = 99;   // start off with invalid value to set first time
 
+unsigned char clockStates[] = {
+    0b01111111,     // midnight, set COM to be HIGH, PM to LOW and all others HIGH
+    0b01000000,     // 1 - COM to LOW - 1-2 HIGH to be on and all others LOW
+    0b10111111,     // 2 - COM to HIGH - 1-2 LOW to be on and all others HIGH
+    0b00100000,     // 3 - COM to LOW - 3-4 HIGH to be on and all others LOW
+    0b11011111,     // 4 - COM to HIGH - 3-4 LOW to be on and all others HIGH
+    0b00010000,     // 5 - COM to LOW - 5-6 HIGH to be on and all others LOW
+    0b11101111,     // 6 - COM to HIGH - 5-6 LOW to be on and all others HIGH
+    0b00001000,     // 7 - COM to LOW - 7-8 HIGH to be on and all others LOW
+    0b11110111,     // 8 - COM to HIGH - 7-8 LOW to be on and all others HIGH
+    0b00000100,     // 9 - COM to LOW - 9-10 HIGH to be on and all others LOW
+    0b11111011,     // 10- COM to HIGH - 9-10 LOW to be on and all others HIGH
+    0b00000010,     // 11- COM to LOW - 11 HIGH to be on and all others LOW
+    0b10000000      // mid-day, set COM to be LOW, PM to HIGH and all others LOW
+};
+
 void FISHOUTPUT_Initialize(void)
 {
     // initialize anything we need to here...
@@ -194,61 +210,7 @@ void FISHOUPUT_setClock(void)
         
         // PORTS are all on D and as follows:
         // PM, 1-2, 3-4, 5-6 7-8, 9-10, 11, COM
-        switch(hour) {
-            case 1 :
-                // COM to LOW - 1-2 HIGH to be on and all others LOW
-                PORTD = 0b01000000;
-                break;
-            case 2 :
-                // COM to HIGH - 1-2 LOW to be on and all others HIGH
-                PORTD = 0b10111111;
-                break;
-            case 3 :
-                // COM to LOW - 3-4 HIGH to be on and all others LOW
-                PORTD = 0b00100000;
-                break;
-            case 4 :
-                // COM to HIGH - 3-4 LOW to be on and all others HIGH
-                PORTD = 0b11011111;
-                break;
-            case 5 :
-                // COM to LOW - 5-6 HIGH to be on and all others LOW
-                PORTD = 0b00010000;
-                break;
-            case 6 :
-                // COM to HIGH - 5-6 LOW to be on and all others HIGH
-                PORTD = 0b11101111;
-                break;
-            case 7 :
-                // COM to LOW - 7-8 HIGH to be on and all others LOW
-                PORTD = 0b00001000;
-                break;
-            case 8 :
-                // COM to HIGH - 7-8 LOW to be on and all others HIGH
-                PORTD = 0b11110111;
-                break;
-            case 9 :
-                // COM to LOW - 9-10 HIGH to be on and all others LOW
-                PORTD = 0b00000100;
-                break;
-            case 10 :
-                // COM to HIGH - 9-10 LOW to be on and all others HIGH
-                PORTD = 0b11111011;
-                break;
-            case 11 :
-                // COM to LOW - 11 HIGH to be on and all others LOW
-                PORTD = 0b00000010;
-                break;
-            case 12:
-                // this is mid-day, set COM to be LOW, PM to HIGH and all others LOW
-                PORTD = 0b10000000;
-                break;
-            case 0 :
-                // this is midnight, set COM to be HIGH, PM to LOW and all others HIGH
-                PORTD = 0b01111111;
-                break;
-            default:
-                break;
-        }
+        // so set the state all in one go
+        PORTD = clockStates[hour];
     }
 }

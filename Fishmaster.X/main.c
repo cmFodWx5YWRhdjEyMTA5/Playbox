@@ -82,6 +82,7 @@ void main(void)
     // now do the processing
 #ifdef K_DEBUG
     uint32_t lastPrintTime = FISH_State.milliseconds;
+    uint8_t dotCounter = 0;
 #endif
     uint32_t lastOffsetTime = FISH_State.milliseconds;
     while(1) {
@@ -112,7 +113,11 @@ void main(void)
             // and reset the timer for this functionality
             lastOffsetTime = FISH_State.milliseconds;
 #ifdef K_DEBUG
-            printf(".");
+            // print dots every ten times (once a second) to show we are working
+            if (++dotCounter > 9) {
+                printf(".");
+                dotCounter = 0;
+            }
 #endif
         }
 #ifdef K_DEBUG
