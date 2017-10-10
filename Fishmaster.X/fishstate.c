@@ -14,7 +14,8 @@ void FISHSTATE_print(void)
     // print out all the members of the global struct that stores our state
     // mostly for debugging purposes
     
-    printf("\r\nTIME: %.2d:%.2d:%.2d POT: %.4d, Chip: %.3d, HotPlate: %.3d, Water: %.3d, Intensity: %.3d, HPPower: %.3d\r\n", 
+    printf("\r\n%s: %.2d:%.2d:%.2d POT: %.4d, Chip: %.3d, HotPlate: %.3d, Water: %.3d, Intensity: %.3d, HPPower: %.3d\r\n",
+            FISH_State.isDemoMode ? "DEMO" : "TIME",
             RTC_State.time_hours,
             RTC_State.time_minutes,
             RTC_State.time_seconds,

@@ -11,6 +11,7 @@
 #include "rtc.h"
 
 #include <stdio.h>
+#include <pic16f1787.h>
 
 bool FISHOUTPUT_disableHeat = true;
 uint8_t hourPreviousSet = 99;   // start off with invalid value to set first time
@@ -190,165 +191,64 @@ void FISHOUPUT_setClock(void)
             hour -= 12;
             isPm = true;
         }
-        if (hour % 2 == 0) {
-            // it is an even number, set the COM to high to do 2, 4, 6, 8, 10
-            switch(hour) {
-                case 2 :
-                    LED_COM_SetHigh();
-                    // set the appropriate time to be opposite the COM
-                    LED_1_2_SetLow();
-                    LED_3_4_SetHigh();
-                    LED_5_6_SetHigh();
-                    LED_7_8_SetHigh();
-                    LED_9_10_SetHigh();
-                    LED_11_SetHigh();
-                    LED_PM_SetHigh();
-                    break;
-                case 4 :
-                    LED_COM_SetHigh();
-                    // set the appropriate time to be opposite the COM
-                    LED_1_2_SetHigh();
-                    LED_3_4_SetLow();
-                    LED_5_6_SetHigh();
-                    LED_7_8_SetHigh();
-                    LED_9_10_SetHigh();
-                    LED_11_SetHigh();
-                    LED_PM_SetHigh();
-                    break;
-                case 6 :
-                    LED_COM_SetHigh();
-                    // set the appropriate time to be opposite the COM
-                    LED_1_2_SetHigh();
-                    LED_3_4_SetHigh();
-                    LED_5_6_SetLow();
-                    LED_7_8_SetHigh();
-                    LED_9_10_SetHigh();
-                    LED_11_SetHigh();
-                    LED_PM_SetHigh();
-                    break;
-                case 8 :
-                    LED_COM_SetHigh();
-                    // set the appropriate time to be opposite the COM
-                    LED_1_2_SetHigh();
-                    LED_3_4_SetHigh();
-                    LED_5_6_SetHigh();
-                    LED_7_8_SetLow();
-                    LED_9_10_SetHigh();
-                    LED_11_SetHigh();
-                    LED_PM_SetHigh();
-                    break;
-                case 10 :
-                    LED_COM_SetHigh();
-                    // set the appropriate time to be opposite the COM
-                    LED_1_2_SetHigh();
-                    LED_3_4_SetHigh();
-                    LED_5_6_SetHigh();
-                    LED_7_8_SetHigh();
-                    LED_9_10_SetLow();
-                    LED_11_SetHigh();
-                    LED_PM_SetHigh();
-                    break;
-                case 12:
-                    LED_COM_SetLow();
-                    // set the appropriate time to be opposite the COM
-                    LED_1_2_SetLow();
-                    LED_3_4_SetLow();
-                    LED_5_6_SetLow();
-                    LED_7_8_SetLow();
-                    LED_9_10_SetLow();
-                    LED_11_SetLow();
-                    LED_PM_SetHigh();
-                    break;
-                case 0 :
-                    LED_COM_SetHigh();
-                    // set the appropriate time to be opposite the COM
-                    LED_1_2_SetHigh();
-                    LED_3_4_SetHigh();
-                    LED_5_6_SetHigh();
-                    LED_7_8_SetHigh();
-                    LED_9_10_SetHigh();
-                    LED_11_SetHigh();
-                    LED_PM_SetLow();
-                    break;
-                default:
-                    break;
-            }
-        }
-        else {
-            // do the odd numbers, COM on low
-            switch(hour) {
-                case 1 :
-                    LED_COM_SetLow();
-                    // set the appropriate time to be opposite the COM
-                    LED_1_2_SetHigh();
-                    LED_3_4_SetLow();
-                    LED_5_6_SetLow();
-                    LED_7_8_SetLow();
-                    LED_9_10_SetLow();
-                    LED_11_SetLow();
-                    LED_PM_SetLow();
-                    break;
-                case 3 :
-                    LED_COM_SetLow();
-                    // set the appropriate time to be opposite the COM
-                    LED_1_2_SetLow();
-                    LED_3_4_SetHigh();
-                    LED_5_6_SetLow();
-                    LED_7_8_SetLow();
-                    LED_9_10_SetLow();
-                    LED_11_SetLow();
-                    LED_PM_SetLow();
-                    break;
-                case 5 :
-                    LED_COM_SetLow();
-                    // set the appropriate time to be opposite the COM
-                    LED_1_2_SetLow();
-                    LED_3_4_SetLow();
-                    LED_5_6_SetHigh();
-                    LED_7_8_SetLow();
-                    LED_9_10_SetLow();
-                    LED_11_SetLow();
-                    LED_PM_SetLow();
-                    break;
-                case 7 :
-                    LED_COM_SetLow();
-                    // set the appropriate time to be opposite the COM
-                    LED_1_2_SetLow();
-                    LED_3_4_SetLow();
-                    LED_5_6_SetLow();
-                    LED_7_8_SetHigh();
-                    LED_9_10_SetLow();
-                    LED_11_SetLow();
-                    LED_PM_SetLow();
-                    break;
-                case 9 :
-                    LED_COM_SetLow();
-                    // set the appropriate time to be opposite the COM
-                    LED_1_2_SetLow();
-                    LED_3_4_SetLow();
-                    LED_5_6_SetLow();
-                    LED_7_8_SetLow();
-                    LED_9_10_SetHigh();
-                    LED_11_SetLow();
-                    LED_PM_SetLow();
-                    // time to reset the lights off to always be true, bad for the
-                    // fish never to have lights!...
-                    FISH_State.isLightsOn = true;
-                    break;
-                case 11 :
-                    LED_COM_SetLow();
-                    // set the appropriate time to be opposite the COM
-                    LED_1_2_SetLow();
-                    LED_3_4_SetLow();
-                    LED_5_6_SetLow();
-                    LED_7_8_SetLow();
-                    LED_9_10_SetLow();
-                    LED_11_SetHigh();
-                    LED_PM_SetLow();
-                    break;
-                default:
-                    break;
-            }
+        
+        // PORTS are all on D and as follows:
+        // PM, 1-2, 3-4, 5-6 7-8, 9-10, 11, COM
+        switch(hour) {
+            case 1 :
+                // COM to LOW - 1-2 HIGH to be on and all others LOW
+                PORTD = 0b01000000;
+                break;
+            case 2 :
+                // COM to HIGH - 1-2 LOW to be on and all others HIGH
+                PORTD = 0b10111111;
+                break;
+            case 3 :
+                // COM to LOW - 3-4 HIGH to be on and all others LOW
+                PORTD = 0b00100000;
+                break;
+            case 4 :
+                // COM to HIGH - 3-4 LOW to be on and all others HIGH
+                PORTD = 0b11011111;
+                break;
+            case 5 :
+                // COM to LOW - 5-6 HIGH to be on and all others LOW
+                PORTD = 0b00010000;
+                break;
+            case 6 :
+                // COM to HIGH - 5-6 LOW to be on and all others HIGH
+                PORTD = 0b11101111;
+                break;
+            case 7 :
+                // COM to LOW - 7-8 HIGH to be on and all others LOW
+                PORTD = 0b00001000;
+                break;
+            case 8 :
+                // COM to HIGH - 7-8 LOW to be on and all others HIGH
+                PORTD = 0b11110111;
+                break;
+            case 9 :
+                // COM to LOW - 9-10 HIGH to be on and all others LOW
+                PORTD = 0b00000100;
+                break;
+            case 10 :
+                // COM to HIGH - 9-10 LOW to be on and all others HIGH
+                PORTD = 0b11111011;
+                break;
+            case 11 :
+                // COM to LOW - 11 HIGH to be on and all others LOW
+                PORTD = 0b00000010;
+                break;
+            case 12:
+                // this is mid-day, set COM to be LOW, PM to HIGH and all others LOW
+                PORTD = 0b10000000;
+                break;
+            case 0 :
+                // this is midnight, set COM to be HIGH, PM to LOW and all others HIGH
+                PORTD = 0b01111111;
+                break;
+            default:
+                break;
         }
     }
 }
