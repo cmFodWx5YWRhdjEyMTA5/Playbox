@@ -21,7 +21,7 @@ extern "C" {
     
 #define K_TEMPLOWERLIMIT                5  // when sensors report below this, assume something wrong and don't heat     
 #define K_MAX_HOTPLATETEMP              43 // when exceed this, shut down
-#define K_MIN_HOTPLATETEMPTORESTART     35 // when exceeded, don't restart until at least this
+#define K_MIN_HOTPLATETEMPTORESTART     39 // when exceeded, don't restart until at least this
 #define K_TARGETWATERTEMP               27 // the target temp for the water
 #define K_TARGETWATERTEMPTHREHOLD       00 // the temp away from the target in which the water is fine
     

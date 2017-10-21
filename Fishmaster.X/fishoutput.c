@@ -114,7 +114,7 @@ void FISHOUTPUT_setHotPlatePower(uint8_t powerPercent)
         //N.B. doing 150 to limit to 3V on the max
         uint8_t powerOutput = (uint8_t)(255.0 * (powerPercent / 100.0));
         // set this on the state
-        FISH_State.hotPlatePower = powerPercent;
+        FISH_State.hotPlatePower = powerOutput;
         // set this on the DAC to output this voltage now
         DAC1_SetOutput(powerOutput);
     }
@@ -122,14 +122,7 @@ void FISHOUTPUT_setHotPlatePower(uint8_t powerPercent)
         // disable the hot-plate and quick - it is too hot )O;
         DAC1_SetOutput(0);
         // set this on the state
-        FISH_State.hotPlatePower = powerPercent;
-    }
-    if (!IO_BTN_GetValue()) {
-        printf("@");
-        DAC1_SetOutput(255);
-    }
-    else {
-        DAC1_SetOutput(0);
+        FISH_State.hotPlatePower = 0;
     }
 }
 
