@@ -54,7 +54,7 @@ void RTC_ReadHoursMinutes(void);
 
 bool RTC_SetCurrentDate(void);
 
-void RTC_WaitForOSCRUN(uint8_t statusRequired);
+void RTC_WaitForOSCRUN(bool isRunRequired);
 
 bool RTC_IncrementHour(void);
 

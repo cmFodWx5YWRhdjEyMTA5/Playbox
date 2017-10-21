@@ -23,6 +23,7 @@ struct t_rtcstate RTC_State;
 #define MCP79410_ADDRESS_CTRL   0x7     // the RTC control reg for settings
 
 #define MCP79410_CTRL_BITS      0x0     // the state we want the RTC to be in
+#define MCP79410_WKDY_SET       0b00001000  // the mask to set the WKDY to turn batt on
 #define MCP79410_OSCRUN_MASK    0b00100000  // the mask to get the OSCRUN state
 
 void RTC_Initialise(void)
@@ -429,7 +430,7 @@ bool RTC_setDate(uint16_t year, uint16_t month, uint16_t day, uint16_t hours, ui
         //printf("ST BIT Set to zero - waiting for OSCRUN to clear... ");
         // have stopped the timer, wait for it to actually stop now then
         RTC_State.ST_BITSET = 0;
-        RTC_WaitForOSCRUN(0);
+        RTC_WaitForOSCRUN(false);
     }
     else {
         printf("Failed to stop the ST-BIT to set the time \r\n");
@@ -464,6 +465,7 @@ bool RTC_setDate(uint16_t year, uint16_t month, uint16_t day, uint16_t hours, ui
     else {
         printf("Failed to set the day \r\n");
     }
+    
     if (result) {
         // set the minutes
         result = RTC_Write(MCP79410_ADDRESS_MIN, rtcMinutes);
@@ -472,8 +474,16 @@ bool RTC_setDate(uint16_t year, uint16_t month, uint16_t day, uint16_t hours, ui
         printf("Failed to set hour -- ");
     }
     
-    if (!result)  {
+    if (result) {
+        /// set the WKDY to enable battery backup
+        RTC_Write(MCP79410_ADDRESS_WKDY, MCP79410_WKDY_SET);
+    }
+    else {
         printf("Failed to set minutes -- ");
+    }
+    
+    if (!result)  {
+        printf("Failed to set battery backup -- ");
     }
     
     // and finally the oh-so-important seconds that contains the ST bit
@@ -489,7 +499,7 @@ bool RTC_setDate(uint16_t year, uint16_t month, uint16_t day, uint16_t hours, ui
             printf("Failed to set RTC control BITS \r\n");
         }
         // have restarted the timer, wait for it to actually start now then
-        RTC_WaitForOSCRUN(MCP79410_OSCRUN_MASK);
+        RTC_WaitForOSCRUN(true);
     }
     // and finally return the result of this
     return result;
@@ -506,7 +516,7 @@ bool RTC_IncrementHour(void)
     return RTC_setDate(0, 0, 0, hours, 0, 0);
 }
 
-void RTC_WaitForOSCRUN(uint8_t statusRequired)
+void RTC_WaitForOSCRUN(bool isRunRequired)
 {
     // wait for the OSCRUN bit in the WKDY time to change to the desired state
     uint8_t weekday = MCP79410_OSCRUN_MASK;
@@ -518,14 +528,17 @@ void RTC_WaitForOSCRUN(uint8_t statusRequired)
         }
         else {
             // have the data, is the OSCRUN bit reset?
-            if ((weekday & MCP79410_OSCRUN_MASK) == statusRequired) {
-                // OSCRUN Reset
+            if ( ((isRunRequired && ((weekday & MCP79410_OSCRUN_MASK) == MCP79410_OSCRUN_MASK))) ||
+                 ((!isRunRequired && ((weekday & MCP79410_OSCRUN_MASK) == 0)) ) )   {
+                // the data retrieved is as required
                 break;
             }
         }
     }
-    if ((weekday & MCP79410_OSCRUN_MASK) != statusRequired) {
-        printf("OSCRUN is not %d, it is %d\r\n", statusRequired, weekday);
+    if ( ((isRunRequired && ((weekday & MCP79410_OSCRUN_MASK) == MCP79410_OSCRUN_MASK))) ||
+         ((!isRunRequired && ((weekday & MCP79410_OSCRUN_MASK) == 0)) ) )   {
+        // the data retrieved isn't like we wanted, exited before was changed or broken
+        printf("OSCRUN is not as expected, it is %d\r\n", weekday);
     }
 }
 
