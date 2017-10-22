@@ -44,7 +44,7 @@ void FISHSTATE_print(void)
     
 #ifdef K_DEBUG
     printf("\r\n");
-    printFloat(RTC_State.time_hours + (RTC_State.time_minutes / 60.0)); printf(",");
+    printFloat(((float)RTC_State.time_hours) + (RTC_State.time_minutes / 60.0)); printf(",");
     printFloat(FISH_State.waterTemp); printf(",");
     printFloat(FISH_State.hotPlateTemp); printf(",");
     printf("%d,", FISH_State.red);
