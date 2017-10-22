@@ -129,53 +129,59 @@ void FISHOUTPUT_setHotPlatePower(uint8_t powerPercent)
 float FISHOUTPUT_gaussianValue(float time, float peak, float std, float max)
 {
     // apply the gaussian formulae
-    float value = max - (((time-peak) * (time-peak)) / (2.0 * (std * std)));
+    float timeLessPeak = time - peak;
+    float variance = std * std;
+    float timeLessPeakSq = timeLessPeak * timeLessPeak;
+    float twoVariance = 2.0 * variance;
+    float value = max - (timeLessPeakSq / twoVariance);
     //TODO reduce the intensity % based on the developer's preset input
     
     // and return limited to the max value of 0 to stop negative values and 250
     // to prevent overflowing the PWM
-    return MAX(0.0, MIN(250.0, value));
+    if (value > 250.0) {
+        return 250.0;
+    }
+    else if (value < 0.0) {
+        return 0.0;
+    }
+    else {
+        return value;
+    }
 }
 
 void FISHOUTPUT_setLighting(void)
 {
     //http://embedded-lab.com/blog/lab-9-pulse-width-modulation-pwm/
     // now get the percentages we require
-    // CCP module uses the 8 MSBs to set the duty value so 0-255
-#ifdef K_DEBUG_LED
-    // for debugging set the LEDs based on the position of the POT
-    // which is 0-4095 
-    red = ((uint16_t)FISH_State.potPosition / 4095.0 * 250.0);
-    blue = ((uint16_t)FISH_State.potPosition / 4095.0 * 250.0);
-    white = ((uint16_t)FISH_State.potPosition / 4095.0 * 250.0);
-#endif
+    
+    // the formula is simple, we are using a gaussian curve...
+    // the value for time needs to be a decimal value of hours
+    float timeHrs = RTC_State.time_hours + (RTC_State.time_minutes / 60.0);
+    FISH_State.red = (uint8_t)FISHOUTPUT_gaussianValue(
+            timeHrs,
+            K_GAUSSIAN_RED_PEAK,
+            K_GAUSSIAN_RED_STD,
+            K_GAUSSIAN_RED_MAX);
+    // now do blue
+    FISH_State.blue = (uint8_t)FISHOUTPUT_gaussianValue(
+            timeHrs,
+            K_GAUSSIAN_BLUE_PEAK,
+            K_GAUSSIAN_BLUE_STD,
+            K_GAUSSIAN_BLUE_MAX);
+    // and white
+    FISH_State.white = (uint8_t)FISHOUTPUT_gaussianValue(
+            timeHrs,
+            K_GAUSSIAN_WHITE_PEAK,
+            K_GAUSSIAN_WHITE_STD,
+            K_GAUSSIAN_WHITE_MAX);
+
     if (FISH_State.isLightsOn) {
-        // the value for time needs to be a decimal value of hours
-        float timeHrs = RTC_State.time_hours + (RTC_State.time_minutes / 60.0);
-        // the formula is simple, we are using a gaussian curve...
-        uint16_t value =   (uint16_t)FISHOUTPUT_gaussianValue(
-                timeHrs,
-                K_GAUSSIAN_RED_PEAK,
-                K_GAUSSIAN_RED_STD,
-                K_GAUSSIAN_RED_MAX);
         // PWM on the CCP module uses only the 8 MSBs of the CCPCON so 0-255 << 2
-        PWM2_LoadDutyValue(value << 2);
-        // now do blue
-        value = (uint16_t)FISHOUTPUT_gaussianValue(
-                timeHrs,
-                K_GAUSSIAN_BLUE_PEAK,
-                K_GAUSSIAN_BLUE_STD,
-                K_GAUSSIAN_BLUE_MAX);
+        PWM2_LoadDutyValue(FISH_State.red << 2);
         // PWM on the CCP module uses only the 8 MSBs of the CCPCON so 0-255 << 2
-        PWM1_LoadDutyValue(value << 2);
-        // and white
-        value = (uint16_t)FISHOUTPUT_gaussianValue(
-                timeHrs,
-                K_GAUSSIAN_WHITE_PEAK,
-                K_GAUSSIAN_WHITE_STD,
-                K_GAUSSIAN_WHITE_MAX);
+        PWM1_LoadDutyValue(FISH_State.blue << 2);
         // PWM on the CCP module uses only the 8 MSBs of the CCPCON so 0-255 << 2
-        PWM3_LoadDutyValue(value << 2);
+        PWM3_LoadDutyValue(FISH_State.white << 2);
     }
     else {
         // turn off the lights

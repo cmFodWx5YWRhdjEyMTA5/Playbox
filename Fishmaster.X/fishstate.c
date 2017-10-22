@@ -8,34 +8,68 @@ struct t_fishstate FISH_State;
 
 #define K_TICKSPERMSECOND 100
 
-#ifdef K_DEBUG
+void printFloat(float value)
+{
+    // get the integer value
+    int32_t preDot = (int32_t) value;
+    int32_t postDot = (int32_t)((value - preDot) * 1000.0);
+    // print out the numbers and the decimal place
+    printf("%d.", preDot);
+    // not the data after the decimal
+    if (postDot < 10) {
+        printf("00");
+    }
+    else if (postDot < 100) {
+        printf("0");
+    }
+    // and the value
+    printf("%d", postDot);
+}
+
 void FISHSTATE_print(void)
 {
     // print out all the members of the global struct that stores our state
     // mostly for debugging purposes
     
-    printf("\r\n%s: %.2d:%.2d:%.2d POT: %.4d, Chip: %.3d, HotPlate: %.3d, Water: %.3d, Intensity: %.3d, HPPower: %.3d\r\n",
+    // print out the debugging / graphing data
+    // time in hours
+    // water temp
+    // hot plate temp
+    // red, white, blue
+    // hot plate power
+    // lights on
+    // button press
+    // long button press
+    // demo mode
+    
+#ifdef K_DEBUG
+    printf("\r\n");
+    printFloat(RTC_State.time_hours + (RTC_State.time_minutes / 60.0)); printf(",");
+    printFloat(FISH_State.waterTemp); printf(",");
+    printFloat(FISH_State.hotPlateTemp); printf(",");
+    printf("%d,", FISH_State.red);
+    printf("%d,", FISH_State.white);
+    printf("%d,", FISH_State.blue);
+    printf("%d,", FISH_State.hotPlatePower);
+    printf("%d,", FISH_State.isLightsOn ? 1 : 0);
+    printf("%d,", FISH_State.isButtonPress ? 1 : 0);
+    printf("%d,", FISH_State.isLongButtonPress ? 1 : 0);
+    printf("%d", FISH_State.isDemoMode ? 1 : 0);
+#else
+    printf("\r\n%s: %.2d:%.2d:%.2d Chip: %.3d, HotPlate: %.3d, Water: %.3d, Intensity: %.3d, HPPower: %.3d\r\n",
             FISH_State.isDemoMode ? "DEMO" : "TIME",
             RTC_State.time_hours,
             RTC_State.time_minutes,
             RTC_State.time_seconds,
-#if defined(K_DEBUG_WT) || defined(K_DEBUG_HPT)
-            FISH_State.potPosition, 
-#else
-            0,
-#endif
-#ifdef K_DEBUG
             FISH_State.chipTemp,
-#else
-            0,
-#endif
             ((uint16_t)FISH_State.hotPlateTemp),
             ((uint16_t)FISH_State.waterTemp),
             ((uint16_t)FISH_State.intensity),
             FISH_State.hotPlatePower);
     //TODO: printf passing %3.2f doesn't complile - grr
-}
 #endif
+}
+
 void FISHSTATE_calcTime(void)
 {
     // calculate the time elapsed from the tick_count which is stored in 1/100

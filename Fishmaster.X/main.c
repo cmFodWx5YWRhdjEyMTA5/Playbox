@@ -80,7 +80,7 @@ void main(void)
     fishInitialise();
     
     // now do the processing
-#ifdef K_DEBUG
+#ifndef K_DEBUG
     uint32_t lastPrintTime = FISH_State.milliseconds;
     uint8_t dotCounter = 0;
 #endif
@@ -112,7 +112,7 @@ void main(void)
             }
             // and reset the timer for this functionality
             lastOffsetTime = FISH_State.milliseconds;
-#ifdef K_DEBUG
+#ifndef K_DEBUG
             // print dots every ten times (once a second) to show we are working
             if (++dotCounter > 9) {
                 printf(".");
@@ -121,10 +121,12 @@ void main(void)
 #endif
         }
 #ifdef K_DEBUG
+        FISHSTATE_print();
+#else
         // and we can print out state here for debugging
         if (FISH_State.milliseconds - lastPrintTime > 5000) {
             // print the state periodically for debugging purposes
-            FISHSTATE_print();
+            //FISHSTATE_print();
             // reset the print time to print only periodically
             lastPrintTime = FISH_State.milliseconds;
         }

@@ -37,7 +37,7 @@ extern "C" {
     
 #define K_GAUSSIAN_WHITE_PEAK           14.0     // the peak value for the gaussian curve for white lighting
 #define K_GAUSSIAN_WHITE_STD            0.25     // the standard deviation for the gaussian curve for white lighting
-#define K_GAUSSIAN_WHITE_MAX            300      // the maximum value for the gaussian curve for white lighting
+#define K_GAUSSIAN_WHITE_MAX            300.0    // the maximum value for the gaussian curve for white lighting
 
 #define K_GAUSSIAN_BLUE_PEAK            7.0      // the peak value for the gaussian curve for blue lighting
 #define K_GAUSSIAN_BLUE_STD             0.15     // the standard deviation for the gaussian curve for blue lighting
@@ -45,7 +45,6 @@ extern "C" {
     
 // debugging defines 
 #define K_DEBUG
-//#define K_DEBUG_LED     // will get LED brightness from the potentiometer instead
 //#define K_DEBUG_HPT     // will get hot plate temp from to potentiometer instead
 //#define K_DEBUG_WT      // will get water temp from the potentiometer instead
 
@@ -53,15 +52,10 @@ extern "C" {
 static struct t_fishstate {
     volatile uint32_t tick_count;
     uint32_t milliseconds;
-#if defined(K_DEBUG_WT) || defined(K_DEBUG_HPT)
-    uint16_t potPosition;
-#endif
-#ifdef K_DEBUG
     uint16_t chipTemp;
-#endif
     uint8_t hotPlatePower;
     uint8_t red;
-    uint8_t green;
+    uint8_t white;
     uint8_t blue;
     float waterTemp;
     float hotPlateTemp;
@@ -73,10 +67,10 @@ static struct t_fishstate {
 };
 extern struct t_fishstate FISH_State;
 
-#ifdef K_DEBUG
 void FISHSTATE_print(void);
-#endif
 void FISHSTATE_calcTime(void);
+
+void printFloat(float value);
 
 
 #ifdef	__cplusplus
