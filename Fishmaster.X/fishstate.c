@@ -23,7 +23,7 @@ void printFloat(float value)
         printf("0");
     }
     // and the value
-    printf("%d", postDot);
+    printf("%d,", postDot);
 }
 
 void FISHSTATE_print(void)
@@ -42,32 +42,22 @@ void FISHSTATE_print(void)
     // long button press
     // demo mode
     
-#ifdef K_DEBUG
-    printf("\r\n");
-    printFloat(((float)RTC_State.time_hours) + (RTC_State.time_minutes / 60.0)); printf(",");
-    printFloat(FISH_State.waterTemp); printf(",");
-    printFloat(FISH_State.hotPlateTemp); printf(",");
-    printf("%d,", FISH_State.red);
-    printf("%d,", FISH_State.white);
-    printf("%d,", FISH_State.blue);
-    printf("%d,", FISH_State.hotPlatePower);
-    printf("%d,", FISH_State.isLightsOn ? 1 : 0);
-    printf("%d,", FISH_State.isButtonPress ? 1 : 0);
-    printf("%d,", FISH_State.isLongButtonPress ? 1 : 0);
-    printf("%d", FISH_State.isDemoMode ? 1 : 0);
-#else
-    printf("\r\n%s: %.2d:%.2d:%.2d Chip: %.3d, HotPlate: %.3d, Water: %.3d, Intensity: %.3d, HPPower: %.3d\r\n",
-            FISH_State.isDemoMode ? "DEMO" : "TIME",
-            RTC_State.time_hours,
-            RTC_State.time_minutes,
-            RTC_State.time_seconds,
-            FISH_State.chipTemp,
-            ((uint16_t)FISH_State.hotPlateTemp),
-            ((uint16_t)FISH_State.waterTemp),
-            ((uint16_t)FISH_State.intensity),
-            FISH_State.hotPlatePower);
-    //TODO: printf passing %3.2f doesn't complile - grr
+#ifndef K_DEBUG
+    // if not debugging print the heading, will do this every 5 secs so can afford it
+    printf("Hours,WT,HPT,RED,WHITE,BLUE,HPP,LO,BP,LBP,DM\r\n");
 #endif
+    printFloat(RTC_State.time_hours);
+    printFloat(FISH_State.waterTemp);
+    printFloat(FISH_State.hotPlateTemp);
+    printf("%d,%d,%d,%d,%d,%d,%d,%d,\r\n", 
+            FISH_State.red, 
+            FISH_State.white,
+            FISH_State.blue,
+            FISH_State.hotPlatePower,
+            FISH_State.isLightsOn ? 1 : 0,
+            FISH_State.isButtonPress ? 1 : 0,
+            FISH_State.isLongButtonPress ? 1 : 0,
+            FISH_State.isDemoMode ? 1 : 0);
 }
 
 void FISHSTATE_calcTime(void)

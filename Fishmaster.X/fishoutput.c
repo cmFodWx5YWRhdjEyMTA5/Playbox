@@ -49,6 +49,11 @@ void FISHOUTPUT_process(void)
         // now we want to set the temperature of the hot-plate
         float tempDifferential = K_TARGETWATERTEMP - FISH_State.waterTemp;
         if (tempDifferential > K_TARGETWATERTEMPTHREHOLD) {
+            float hotPlateTempDifferential = K_MAX_HOTPLATETEMP - FISH_State.hotPlateTemp;
+            if (hotPlateTempDifferential > 0 && hotPlateTempDifferential < tempDifferential) {
+                // the amount to the hottest we can get it less, use this
+                tempDifferential = hotPlateTempDifferential;
+            }
             // we are below temp, let's get this differential as a percentage
             // of our target temp (using 500% of the target temp to get their quicker when really cold)
             uint8_t power = (uint8_t)MIN(tempDifferential / K_TARGETWATERTEMP * 500.0, 100.0);
@@ -64,14 +69,12 @@ void FISHOUTPUT_process(void)
     if (!FISH_State.isDemoMode) {
         // we are not in demo mode, process this button press
         if (FISH_State.isButtonPress) {
-            printf("Button press\r\n");
             // handled this, reset the flag
             FISH_State.isButtonPress = false;
             // toggle the lights on/off
             FISH_State.isLightsOn = FISH_State.isLightsOn == false;
         }
         if (FISH_State.isLongButtonPress) {
-            printf("Long Button press\r\n");
             // move the time forward an hour
             RTC_IncrementHour();
             // now we have changed the hour - update it straight away
@@ -112,18 +115,14 @@ void FISHOUTPUT_setHotPlatePower(uint8_t powerPercent)
         // we are enabled, set the output on the DAC
         // the DAC goes from 0 - 255 so get the value as a percentage now
         //N.B. doing 150 to limit to 3V on the max
-        uint8_t powerOutput = (uint8_t)(255.0 * (powerPercent / 100.0));
-        // set this on the state
-        FISH_State.hotPlatePower = powerOutput;
-        // set this on the DAC to output this voltage now
-        DAC1_SetOutput(powerOutput);
+        FISH_State.hotPlatePower = (uint8_t)(255.0 * (powerPercent / 100.0));
     }
     else {
         // disable the hot-plate and quick - it is too hot )O;
-        DAC1_SetOutput(0);
-        // set this on the state
         FISH_State.hotPlatePower = 0;
     }
+    // set this on the DAC to output this voltage now
+    DAC1_SetOutput(FISH_State.hotPlatePower);
 }
 
 float FISHOUTPUT_gaussianValue(float time, float peak, float std, float max)
@@ -131,9 +130,7 @@ float FISHOUTPUT_gaussianValue(float time, float peak, float std, float max)
     // apply the gaussian formulae
     float timeLessPeak = time - peak;
     float variance = std * std;
-    float timeLessPeakSq = timeLessPeak * timeLessPeak;
-    float twoVariance = 2.0 * variance;
-    float value = max - (timeLessPeakSq / twoVariance);
+    float value = max - ((timeLessPeak * timeLessPeak) / (2.0 * variance));
     //TODO reduce the intensity % based on the developer's preset input
     
     // and return limited to the max value of 0 to stop negative values and 250
@@ -153,29 +150,26 @@ void FISHOUTPUT_setLighting(void)
 {
     //http://embedded-lab.com/blog/lab-9-pulse-width-modulation-pwm/
     // now get the percentages we require
-    
-    // the formula is simple, we are using a gaussian curve...
-    // the value for time needs to be a decimal value of hours
-    float timeHrs = RTC_State.time_hours + (RTC_State.time_minutes / 60.0);
-    FISH_State.red = (uint8_t)FISHOUTPUT_gaussianValue(
-            timeHrs,
-            K_GAUSSIAN_RED_PEAK,
-            K_GAUSSIAN_RED_STD,
-            K_GAUSSIAN_RED_MAX);
-    // now do blue
-    FISH_State.blue = (uint8_t)FISHOUTPUT_gaussianValue(
-            timeHrs,
-            K_GAUSSIAN_BLUE_PEAK,
-            K_GAUSSIAN_BLUE_STD,
-            K_GAUSSIAN_BLUE_MAX);
-    // and white
-    FISH_State.white = (uint8_t)FISHOUTPUT_gaussianValue(
-            timeHrs,
-            K_GAUSSIAN_WHITE_PEAK,
-            K_GAUSSIAN_WHITE_STD,
-            K_GAUSSIAN_WHITE_MAX);
-
     if (FISH_State.isLightsOn) {
+        // the formula is simple, we are using a gaussian curve...
+        // the value for time needs to be a decimal value of hours
+        FISH_State.red = (uint8_t)FISHOUTPUT_gaussianValue(
+                RTC_State.time_hours,
+                K_GAUSSIAN_RED_PEAK,
+                K_GAUSSIAN_RED_STD,
+                K_GAUSSIAN_RED_MAX);
+        // now do blue
+        FISH_State.blue = (uint8_t)FISHOUTPUT_gaussianValue(
+                RTC_State.time_hours,
+                K_GAUSSIAN_BLUE_PEAK,
+                K_GAUSSIAN_BLUE_STD,
+                K_GAUSSIAN_BLUE_MAX);
+        // and white
+        FISH_State.white = (uint8_t)FISHOUTPUT_gaussianValue(
+                RTC_State.time_hours,
+                K_GAUSSIAN_WHITE_PEAK,
+                K_GAUSSIAN_WHITE_STD,
+                K_GAUSSIAN_WHITE_MAX);
         // PWM on the CCP module uses only the 8 MSBs of the CCPCON so 0-255 << 2
         PWM2_LoadDutyValue(FISH_State.red << 2);
         // PWM on the CCP module uses only the 8 MSBs of the CCPCON so 0-255 << 2
@@ -196,7 +190,7 @@ void FISHOUPUT_setClock(void)
     // show the current time on the clock
     // only doing 12 rather than 24 hour clock
     bool isPm = false;
-    uint8_t hour = RTC_State.time_hours;
+    uint8_t hour = RTC_State.time_hour;
     if (hour != hourPreviousSet) {
         // this is a change in time clear the old and set the new
         hourPreviousSet = hour;
@@ -206,7 +200,6 @@ void FISHOUPUT_setClock(void)
             hour -= 12;
             isPm = true;
         }
-        
         // PORTS are all on D and as follows:
         // PM, 1-2, 3-4, 5-6 7-8, 9-10, 11, COM
         // so set the state all in one go

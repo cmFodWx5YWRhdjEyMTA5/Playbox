@@ -80,10 +80,6 @@ void main(void)
     fishInitialise();
     
     // now do the processing
-#ifndef K_DEBUG
-    uint32_t lastPrintTime = FISH_State.milliseconds;
-    uint8_t dotCounter = 0;
-#endif
     uint32_t lastOffsetTime = FISH_State.milliseconds;
     while(1) {
         // along with the RTC we have a rolling milliseconds and tick
@@ -99,12 +95,16 @@ void main(void)
                     // too many minutes, roll back to zero
                     RTC_State.time_minutes = 0;
                     // and move on the hour instead
-                    RTC_State.time_hours += 1;
-                    if (RTC_State.time_hours >= 24) {
+                    RTC_State.time_hour += 1;
+                    if (RTC_State.time_hour >= 24) {
                         // too many hours, roll back to zero
-                        RTC_State.time_hours = 0;
+                        RTC_State.time_hour = 0;
                     }
                 }
+                // have set the latest current time, calculate the hours now
+                RTC_State.time_hours = RTC_State.time_hour * 1.0;
+                RTC_State.time_hours += RTC_State.time_minutes / 60.0;
+                RTC_State.time_hours += RTC_State.time_seconds / 3600.0;
             }
             else {
                 // read the time from the clock
@@ -112,21 +112,15 @@ void main(void)
             }
             // and reset the timer for this functionality
             lastOffsetTime = FISH_State.milliseconds;
-#ifndef K_DEBUG
-            // print dots every ten times (once a second) to show we are working
-            if (++dotCounter > 9) {
-                printf(".");
-                dotCounter = 0;
-            }
-#endif
         }
 #ifdef K_DEBUG
+        // in DEBUG always print to be nice and verbose
         FISHSTATE_print();
 #else
-        // and we can print out state here for debugging
+        // print out state here for debugging
         if (FISH_State.milliseconds - lastPrintTime > 5000) {
             // print the state periodically for debugging purposes
-            //FISHSTATE_print();
+            FISHSTATE_print();
             // reset the print time to print only periodically
             lastPrintTime = FISH_State.milliseconds;
         }

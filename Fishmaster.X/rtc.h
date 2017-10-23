@@ -20,7 +20,8 @@ extern "C" {
 static struct t_rtcstate {
     uint8_t time_seconds;
     uint8_t time_minutes;
-    uint8_t time_hours;
+    float time_hours;
+    uint8_t time_hour;
     bool    ST_BITSET;
     uint8_t time_getIndex;
 };

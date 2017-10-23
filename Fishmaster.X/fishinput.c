@@ -35,101 +35,16 @@ void FISHINPUT_longButtonPressHandled(void)
     wasLongButtonPress = true;
 }
 
-float FISHINPUT_getHotPlateTemp(void)
-{
-    // get the reading from the sensor - using the created PIN ID
-#ifdef K_DEBUG_HPT
-    // if we are debugging then use the POT instead of the actual sensor
-    adc_result_t sensor = FISHINPUT_getPotPosition();
-    printf("DEBUGGING HOT PLATE\r\n");
-#else
-    // use the actual sensor
-    adc_result_t sensor = ADC_GetConversion(channel_HPT);
-#endif
-    // this is set as a 12-bit 2s-compliment number so ranges from 0 to 4095
-    // to represent +2 to +150 degrees
-    // 1.5v is 150 degrees (0 - 1228)
-    float temp = (sensor / 1228.0 * 148.0);
-    // we want a global state of everything - so set that here direct
-    FISH_State.hotPlateTemp = temp;
-    // and return the result
-    return temp;
-}
-
-float FISHINPUT_getWaterTemp(void)
-{
-    // get the reading from the sensor - using the created PIN ID
-#ifdef K_DEBUG_WT
-    // if we are debugging then use the POT instead of the actual sensor
-    adc_result_t sensor = FISHINPUT_getPotPosition();
-    printf("DEBUGGING WATER\r\n");
-#else
-    // use the actual sensor
-    adc_result_t sensor = ADC_GetConversion(channel_WT);
-#endif
-    // this is set as a 12-bit 2s-compliment number so ranges from 0 to 4095
-    // to represent +2 to +150 degrees
-    // 1.5v is 150 degrees (0 - 1228)
-    float temp = (sensor / 1228.0 * 148.0);
-    // we want a global state of everything - so set that here direct
-    FISH_State.waterTemp = temp;
-    // and return the result
-    return temp;
-}
-
-#if defined(K_DEBUG_WT) || defined(K_DEBUG_HPT)
-uint16_t FISHINPUT_getPotPosition(void)
-{
-    // get the reading
-    adc_result_t sensor = ADC_GetConversion(channel_POT);
-    // set it in the state
-    FISH_State.potPosition = sensor;
-    // and return it
-    return sensor;
-}
-#endif
-
-#ifdef K_DEBUG
-float FISHINPUT_getChipTemp(void)
-{
-    // get the reading from the internal sensor - just because we can (O:
-    adc_result_t sensor = ADC_GetConversion(channel_Temperature);
-    // this is set as a 12-bit 2s-compliment number so ranges from 0 to 4095
-    float temp = sensor / 4095.0 * 100.0;
-    // we want a global state of everything - so set that here direct
-    FISH_State.chipTemp = (uint16_t)temp;
-    // and return the result
-    return temp;
-}
-#endif
-
-float FISHINPUT_getIntensity(void)
-{
-    // get the developer-set intentisy value
-    adc_result_t sensor = ADC_GetConversion(channel_INPT);
-    // this is set as a 12-bit 2s-compliment number so ranges from 0 to 4095
-    float reading = sensor / 4095.0 * 100.0;
-    // we want a global state of everything - so set that here direct
-    FISH_State.intensity = reading;
-    // and return the result
-    return reading;
-}
-
 void FISHINPUT_process(void)
-{       
-#ifdef K_DEBUG
-    // get the chip temp for our interest
-    FISHINPUT_getChipTemp();
-#endif
-#if defined(K_DEBUG_WT) || defined(K_DEBUG_HPT)
-    // for debugging we can get the POT position too
-    FISHINPUT_getPotPosition();
-#endif
-    // we want to get our state from sensors etc
-    FISHINPUT_getHotPlateTemp();
-    FISHINPUT_getWaterTemp();
-    FISHINPUT_getIntensity();
-
+{
+    // get the reading from the sensor - using the created PIN ID
+    // this is set as a 12-bit 2s-compliment number so ranges from 0 to 4095
+    // to represent +2 to +150 degrees
+    // 1.5v is 150 degrees (0 - 1228)
+    FISH_State.hotPlateTemp = ADC_GetConversion(channel_HPT)/ 1228.0 * 148.0;
+    FISH_State.waterTemp = ADC_GetConversion(channel_WT) / 1228.0 * 148.0;
+    //FISH_State.intensity = ADC_GetConversion(channel_INPT) / 4095.0 * 100.0;
+    
     // read the state of the button to get short and long presses
     bool buttonReading = !IO_BTN_GetValue();
     if (buttonReading == true) {

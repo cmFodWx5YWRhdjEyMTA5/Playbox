@@ -26,11 +26,17 @@ struct t_rtcstate RTC_State;
 #define MCP79410_WKDY_SET       0b00001000  // the mask to set the WKDY to turn batt on
 #define MCP79410_OSCRUN_MASK    0b00100000  // the mask to get the OSCRUN state
 
+// we need an array of the hours we calculate because when we get a bad reading
+// from the clock (which is fairly often) we need to know to ignore it
+float previousHours[5] = {0.0,0.0,0.0,0.0,0.0};
+uint8_t hoursIndex = 0;
+
 void RTC_Initialise(void)
 {
     // initialise the data on this class, this will properly initialise the
     // data on the RTC chip on the first call to get the current time
-    RTC_State.time_hours = 0;
+    RTC_State.time_hour = 0;
+    RTC_State.time_hours = 0.0;
     RTC_State.time_minutes = 0;
     RTC_State.time_seconds = 0;
     // the ST bit is important as it tells us if the chip is running
@@ -51,7 +57,7 @@ void RTC_Print(void)
     // print out the current time for debugging purposes
     printf("RTC State:%d Time is %.2d:%.2d:%.2d\r\n", 
             RTC_State.ST_BITSET,
-            RTC_State.time_hours,
+            RTC_State.time_hour,
             RTC_State.time_minutes,
             RTC_State.time_seconds);
 }
@@ -88,6 +94,31 @@ bool RTC_ReadTime(void)
     if (++RTC_State.time_getIndex > 1) {
         // rolled over the number of functions, start again
         RTC_State.time_getIndex = 0;
+    }
+    // store this new hours in the next index in the array
+    // have read the latest current time, calculate the hours now
+    previousHours[hoursIndex] = RTC_State.time_hour * 1.0;
+    previousHours[hoursIndex] += RTC_State.time_minutes / 60.0;
+    previousHours[hoursIndex] += RTC_State.time_seconds / 3600.0;
+    // if the last 5 hours are the same, or close, then set the actual value
+    // for the program to use as the correct state of affairs
+    float difference = 0.0;
+    for (uint8_t i = 1; i < 5; ++i) {
+        if (previousHours[i] > previousHours[i-1]) {
+            difference += previousHours[i] - previousHours[i-1];
+        }
+        else {
+            difference += previousHours[i-1] - previousHours[i];
+        }
+    }
+    // a second is 0.0003 or an hour (ish) so allow for a nice safe second per
+    // reading, and a bit for an acceptable array of data
+    if (difference < 0.002) {
+        RTC_State.time_hours = previousHours[hoursIndex];
+    }
+    // increment the counter to the next value
+    if (++hoursIndex > 5) {
+        hoursIndex = 0;
     }
     // return the state of the ST bit after all this
     return RTC_State.ST_BITSET;
@@ -508,7 +539,7 @@ bool RTC_setDate(uint16_t year, uint16_t month, uint16_t day, uint16_t hours, ui
 bool RTC_IncrementHour(void)
 {
     // get the hours + 1 as a nice normal number
-    uint16_t hours = RTC_State.time_hours + 1;
+    uint16_t hours = RTC_State.time_hour + 1;
     while (hours > 23) {
         hours -= 24;
     }
@@ -660,7 +691,7 @@ void RTC_ReadHours(void)
             // bits 3-0 is the 'ones' digit
             uint8_t hoursOnes = hours & 0b00001111;
             // so calculate the hours from all this
-            RTC_State.time_hours = hoursOnes + ((isPm ? 12 : 0) + (hoursTens * 10));
+            RTC_State.time_hour = hoursOnes + ((isPm ? 12 : 0) + (hoursTens * 10));
         }
         else {
             // this is the 24 hour clock format, so has tens and ones again
@@ -669,7 +700,7 @@ void RTC_ReadHours(void)
             // first 4 bits are the 'ones' digit
             uint8_t hoursOnes = hours & 0b00001111;
             // and set this in the state
-            RTC_State.time_hours = hoursOnes + (hoursTens * 10);
+            RTC_State.time_hour = hoursOnes + (hoursTens * 10);
         }
     }
 }
