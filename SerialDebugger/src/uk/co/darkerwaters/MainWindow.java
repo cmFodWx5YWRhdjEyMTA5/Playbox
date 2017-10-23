@@ -1,8 +1,10 @@
 package uk.co.darkerwaters;
 
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 
 import java.util.ArrayList;
 
@@ -30,12 +32,10 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormAttachment;
 import swing2swt.layout.BorderLayout;
 import org.eclipse.swt.layout.GridData;
 
@@ -67,6 +67,8 @@ public class MainWindow {
 	private Text txtComments;
 
 	private Canvas graphCanvas;
+	
+	private final ArrayList<DataGraph> currentGraphs = new ArrayList<DataGraph>();
 
 	/**
 	 * Open the window.
@@ -229,12 +231,10 @@ public class MainWindow {
 		final Display display = shell.getDisplay();
 		this.graphCanvas.addPaintListener(new PaintListener() { 
 	        public void paintControl(PaintEvent e) { 
-	            Rectangle clientArea = graphCanvas.getClientArea();
-	            e.gc.setBackground(display.getSystemColor(SWT.COLOR_CYAN)); 
-	            e.gc.fillOval(0,0,clientArea.width,clientArea.height); 
+				// and update the graphs
+	        		MainWindow.this.updateGraphDisplays(e, display);
 	        } 
 	    });
-		
 		
 		Composite textConsoleButtonsComposite = new Composite(compositeTabArea, SWT.NONE);
 		textConsoleButtonsComposite.setLayoutData(BorderLayout.SOUTH);
@@ -268,6 +268,21 @@ public class MainWindow {
 		fillCurrentTableData("");
 	}
 
+	protected void updateGraphDisplays(PaintEvent e, Display display) {
+	Rectangle rectangle = graphCanvas.getClientArea();
+		if (currentGraphs.size() > 0) {
+			int height = rectangle.height / this.currentGraphs.size();
+			rectangle.height = height;
+			for (DataGraph graph : this.currentGraphs) {
+				graph.drawDataSeries(new Rectangle(rectangle.x, rectangle.y, rectangle.width, rectangle.height - 5), e.gc, display);
+				rectangle.y += height;
+			}
+		}
+		else {
+			e.gc.drawText("Click a column heading to graph the data...", rectangle.x - 50 + (rectangle.width / 2), rectangle.y + (rectangle.height / 2));
+		}
+	}
+
 	protected void onConsoleClear() {
 		// clear the contents of the console
 		this.txtConsoletext.setText("");
@@ -285,6 +300,29 @@ public class MainWindow {
 			// pause
 			this.btnConsolePause.setText("Resume");
 			this.isConsolePaused = true;
+		}
+	}
+
+	private void onTableColumnClicked(int seriesIndex) {
+		for (int i = 0; i < this.currentGraphs.size(); ++i) {
+			DataGraph graph = this.currentGraphs.get(i);
+			if (graph.getSeriesIndex() == seriesIndex) {
+				// this is the graph, we have one, remove it
+				this.currentGraphs.remove(i);
+				if (this.tableCurrentData.getColumnCount() > seriesIndex) {
+					// get the column heading to show we are no longer graphing it
+					TableColumn column = this.tableCurrentData.getColumn(seriesIndex);
+					column.setText(column.getText().replace(" (graphing)", ""));
+				}
+				return;
+			}
+		}
+		// if here we didn't have one
+		this.currentGraphs.add(new DataLineGraph(seriesIndex));
+		if (this.tableCurrentData.getColumnCount() > seriesIndex) {
+			// get the column heading to show we are graphing it
+			TableColumn column = this.tableCurrentData.getColumn(seriesIndex);
+			column.setText(column.getText() + " (graphing)");
 		}
 	}
 
@@ -353,8 +391,17 @@ public class MainWindow {
 				while (this.tblDataTable.getItemCount() > 50) {
 					this.tblDataTable.getItems()[this.tblDataTable.getItemCount() - 1].dispose();
 				}
+				// also add to the graph
+				DataGraph.addData(dataEntries);
+				this.graphCanvas.redraw();
 	        }
-	        else if (!string.startsWith("{H}")) {
+	        else if (string.startsWith("{H}")) {
+	        		// this is headings, update the graph with this
+		        	for (DataGraph graph : this.currentGraphs) {
+		        		graph.updateGraphHeadings(string.substring(3).split("\\|"));
+				}
+	        }
+	        else {
 	        		// show this as a comment
 	        		this.txtComments.append(string + Text.DELIMITER);
 	        }
@@ -514,7 +561,7 @@ public class MainWindow {
 		}
 	}
 
-	private void setTableColumn(Table table, int index, String title, int width) {
+	private void setTableColumn(Table table, final int index, String title, int width) {
 		TableColumn column;
 		if (table.getColumnCount() > index) {
 			// just get the existing column
@@ -523,6 +570,18 @@ public class MainWindow {
 		else {
 			// make a new column
 			column = new TableColumn(table, SWT.CENTER);
+			column.addListener(SWT.Selection, new Listener() {
+		        public void handleEvent(Event e) {
+		        		// the column is clicked, show / hide the graph for this
+		        		onTableColumnClicked(index);
+		        }
+		    });
+		}
+		for (int i = 0; i < this.currentGraphs.size(); ++i) {
+			if (this.currentGraphs.get(i).getSeriesIndex() == index) {
+				// we are graphing this
+				title += " (graphing)";
+			}
 		}
 		// set the title
 		column.setText(title);

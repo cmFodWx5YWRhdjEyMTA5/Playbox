@@ -41,7 +41,7 @@ bool RTC_Write(uint8_t bitAddress, uint8_t writeValue);
 bool RTC_WaitForRAWWriteAck(void);
 //#endif
 
-void RTC_Print(void);
+float RTC_HoursFromTime(void);
 
 bool RTC_ReadTime(void);
 

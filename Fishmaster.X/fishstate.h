@@ -67,7 +67,7 @@ static struct t_fishstate {
 };
 extern struct t_fishstate FISH_State;
 
-void FISHSTATE_print(void);
+void FISHSTATE_print(bool isPrintHeadings);
 void FISHSTATE_calcTime(void);
 
 void printFloat(float value);

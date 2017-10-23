@@ -52,14 +52,12 @@ void RTC_Initialise(void)
     SSP1CON2 = 0x00;
 }
 
-void RTC_Print(void)
+float RTC_HoursFromTime(void)
 {
-    // print out the current time for debugging purposes
-    printf("RTC State:%d Time is %.2d:%.2d:%.2d\r\n", 
-            RTC_State.ST_BITSET,
-            RTC_State.time_hour,
-            RTC_State.time_minutes,
-            RTC_State.time_seconds);
+    float hours = RTC_State.time_hour * 1.0;
+    hours += RTC_State.time_minutes / 60.0;
+    hours += RTC_State.time_seconds / 3600.0;
+    return hours;
 }
 
 bool RTC_ReadTime(void)
@@ -97,9 +95,7 @@ bool RTC_ReadTime(void)
     }
     // store this new hours in the next index in the array
     // have read the latest current time, calculate the hours now
-    previousHours[hoursIndex] = RTC_State.time_hour * 1.0;
-    previousHours[hoursIndex] += RTC_State.time_minutes / 60.0;
-    previousHours[hoursIndex] += RTC_State.time_seconds / 3600.0;
+    previousHours[hoursIndex] = RTC_HoursFromTime();
     // if the last 5 hours are the same, or close, then set the actual value
     // for the program to use as the correct state of affairs
     float difference = 0.0;

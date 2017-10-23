@@ -79,8 +79,6 @@ void FISHOUTPUT_process(void)
             RTC_IncrementHour();
             // now we have changed the hour - update it straight away
             RTC_ReadTime();
-            // and debug it
-            RTC_Print();
             // and reset the flag
             FISH_State.isLongButtonPress = false;
             // and inform the input we dealt with this

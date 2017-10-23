@@ -23,10 +23,10 @@ void printFloat(float value)
         printf("0");
     }
     // and the value
-    printf("%d,", postDot);
+    printf("%d|", postDot);
 }
 
-void FISHSTATE_print(void)
+void FISHSTATE_print(bool isPrintHeadings)
 {
     // print out all the members of the global struct that stores our state
     // mostly for debugging purposes
@@ -42,14 +42,15 @@ void FISHSTATE_print(void)
     // long button press
     // demo mode
     
-#ifndef K_DEBUG
-    // if not debugging print the heading, will do this every 5 secs so can afford it
-    printf("Hours,WT,HPT,RED,WHITE,BLUE,HPP,LO,BP,LBP,DM\r\n");
-#endif
+    if (isPrintHeadings) {
+        // print the heading, will do this periodically
+        printf("{H}Hours|WT|HPT|RED|WHITE|BLUE|HPP|LO|BP|LBP|DM\r\n");
+    }
+    printf("{D}");
     printFloat(RTC_State.time_hours);
     printFloat(FISH_State.waterTemp);
     printFloat(FISH_State.hotPlateTemp);
-    printf("%d,%d,%d,%d,%d,%d,%d,%d,\r\n", 
+    printf("%d|%d|%d|%d|%d|%d|%d|%d\r\n", 
             FISH_State.red, 
             FISH_State.white,
             FISH_State.blue,
