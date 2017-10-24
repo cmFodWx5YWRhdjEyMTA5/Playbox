@@ -1,13 +1,10 @@
 package uk.co.darkerwaters;
 
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.TabFolder;
@@ -33,7 +30,6 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.custom.SashForm;
@@ -79,6 +75,7 @@ public class MainWindow {
 	 */
 	public void open() {
 		Display display = Display.getDefault();
+		DataGraph.InitialiseColours(display);
 		createContents();
 		shell.open();
 		shell.layout();

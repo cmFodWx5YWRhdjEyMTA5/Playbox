@@ -20,9 +20,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
@@ -30,8 +27,6 @@ import uk.co.darkerwaters.DataGraph.DataGraphSeries;
 
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -63,7 +58,13 @@ public class GraphsDialog extends Dialog {
 	private TableItem tableItem_2;
 	private TableItem tableItem_3;
 	private TableItem tableItem_4;
-	private Map<TableItem, TableEditor> editors = new HashMap<TableItem, TableEditor>();
+	private TableColumn tblclmnSamples;
+	private Group groupSeries;
+	private Combo comboSeriesSeries;
+	private Combo comboSeriesColour;
+	private Combo comboSeriesLineWidth;
+	private Spinner spinnerSeriesSamples;
+	private DataGraphSeries selectedGraphSeries;
 
 	/**
 	 * Create the dialog.
@@ -99,7 +100,7 @@ public class GraphsDialog extends Dialog {
 	 */
 	private void createContents() {
 		shell = new Shell(getParent(), getStyle());
-		shell.setSize(450, 300);
+		shell.setSize(430, 500);
 		shell.setText(getText());
 		shell.setLayout(new GridLayout(1, false));
 		
@@ -238,7 +239,13 @@ public class GraphsDialog extends Dialog {
 		});
 		txtMiny.setText("MinY");
 		
-		tableSeries = new Table(grpSettings, SWT.BORDER | SWT.FULL_SELECTION);
+		tableSeries = new Table(grpSettings, SWT.BORDER);
+		tableSeries.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				onTableSeriesSelectionChanged();
+			}
+		});
 		GridData gd_tableSeries = new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1);
 		gd_tableSeries.heightHint = 100;
 		gd_tableSeries.minimumHeight = 100;
@@ -259,6 +266,10 @@ public class GraphsDialog extends Dialog {
 		tblclmnLineWidth.setWidth(70);
 		tblclmnLineWidth.setText("Line Width");
 		
+		tblclmnSamples = new TableColumn(tableSeries, SWT.NONE);
+		tblclmnSamples.setWidth(50);
+		tblclmnSamples.setText("Samples");
+		
 		tableItem = new TableItem(tableSeries, SWT.NONE);
 		tableItem.setText("New TableItem");
 		
@@ -274,7 +285,66 @@ public class GraphsDialog extends Dialog {
 		tableItem_4 = new TableItem(tableSeries, SWT.NONE);
 		tableItem_4.setText("New TableItem");
 		
-		btnSeriesAdd = new Button(grpSettings, SWT.NONE);
+		groupSeries = new Group(composite, SWT.NONE);
+		groupSeries.setLayout(new GridLayout(4, false));
+		
+		Label lblSeries = new Label(groupSeries, SWT.NONE);
+		lblSeries.setText("Series");
+		
+		Label lblColour = new Label(groupSeries, SWT.NONE);
+		lblColour.setText("Colour");
+		
+		Label lblLineWidth = new Label(groupSeries, SWT.NONE);
+		lblLineWidth.setText("Line Width");
+		
+		Label lblSamples = new Label(groupSeries, SWT.NONE);
+		lblSamples.setText("Samples");
+		
+		comboSeriesSeries = new Combo(groupSeries, SWT.READ_ONLY);
+		GridData gd_comboSeriesSeries = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
+		gd_comboSeriesSeries.minimumWidth = 100;
+		comboSeriesSeries.setLayoutData(gd_comboSeriesSeries);
+		comboSeriesSeries.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				onSeriesDataChanged();
+			}
+		});
+		
+		comboSeriesColour = new Combo(groupSeries, SWT.READ_ONLY);
+		comboSeriesColour.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		comboSeriesColour.setItems(new String[] {"red", "blue", "green", "yellow", "white"});
+		comboSeriesColour.select(2);
+		comboSeriesColour.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				onSeriesDataChanged();
+			}
+		});
+		
+		comboSeriesLineWidth = new Combo(groupSeries, SWT.READ_ONLY);
+		comboSeriesLineWidth.setItems(new String[] {"thin", "thick", "thicker", "thickest"});
+		comboSeriesLineWidth.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		comboSeriesLineWidth.select(2);
+		comboSeriesLineWidth.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				onSeriesDataChanged();
+			}
+		});
+		
+		spinnerSeriesSamples = new Spinner(groupSeries, SWT.BORDER | SWT.READ_ONLY);
+		spinnerSeriesSamples.setIncrement(50);
+		spinnerSeriesSamples.setPageIncrement(100);
+		spinnerSeriesSamples.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent event) {
+				onSeriesDataChanged();
+			}
+		});
+		spinnerSeriesSamples.setMaximum(1000);
+		spinnerSeriesSamples.setMinimum(100);
+		
+		btnSeriesAdd = new Button(groupSeries, SWT.NONE);
 		btnSeriesAdd.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -283,7 +353,7 @@ public class GraphsDialog extends Dialog {
 		});
 		btnSeriesAdd.setText("Add");
 		
-		btnSeriesDelete = new Button(grpSettings, SWT.NONE);
+		btnSeriesDelete = new Button(groupSeries, SWT.NONE);
 		btnSeriesDelete.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -291,9 +361,45 @@ public class GraphsDialog extends Dialog {
 			}
 		});
 		btnSeriesDelete.setText("Delete");
+		new Label(groupSeries, SWT.NONE);
+		new Label(groupSeries, SWT.NONE);
 		
 		populateGraphCombo();
 
+	}
+
+	protected void onSeriesDataChanged() {
+		if (this.selectedGraphSeries != null) {
+			// update the series data from the controls
+			this.selectedGraphSeries.seriesIndex = this.comboSeriesSeries.getSelectionIndex();
+			this.selectedGraphSeries.seriesTitle = this.comboSeriesSeries.getText();
+			// line colour
+			switch(this.comboSeriesColour.getSelectionIndex()) {
+			case 0 :
+				this.selectedGraphSeries.colour = DataGraph.K_RED;
+				break;
+			case 1 :
+				this.selectedGraphSeries.colour = DataGraph.K_BLUE;
+				break;
+			case 2 :
+			default:
+				this.selectedGraphSeries.colour = DataGraph.K_GREEN;
+				break;
+			case 3 :
+				this.selectedGraphSeries.colour = DataGraph.K_YELLOW;
+				break;
+			case 4 :
+				this.selectedGraphSeries.colour = DataGraph.K_WHITE;
+				break;
+			}
+			// line width
+			this.selectedGraphSeries.lineWidth = this.comboSeriesLineWidth.getSelectionIndex() + 1;
+			// and the samples
+			this.selectedGraphSeries.seriesCount = this.spinnerSeriesSamples.getSelection();
+			
+			// show this new data in the table too
+			showGraphData(this.selectedGraph);
+		}
 	}
 
 	protected void onDataChanged(ModifyEvent event) {
@@ -310,7 +416,7 @@ public class GraphsDialog extends Dialog {
 	protected void onClickSeriesAdd() {
 		// add a new series
 		if (null != this.selectedGraph) {
-			this.selectedGraph.addDataSeries(DataGraph.getAvailableSeriesHeading(0), 0, 100);
+			this.selectedGraph.addDataSeries(DataGraph.getAvailableSeriesHeading(0), 0);
 			this.showGraphData(this.selectedGraph);
 		}
 	}
@@ -324,6 +430,7 @@ public class GraphsDialog extends Dialog {
 				selectedGraph.graphSeries.remove(selectedSeries);
 			}
 		}
+		this.selectedGraphSeries = null;
 		// repopulate our data
 		showGraphData(this.selectedGraph);
 	}
@@ -368,6 +475,21 @@ public class GraphsDialog extends Dialog {
 		}
 	}
 
+	private void onTableSeriesSelectionChanged() {
+		// find the correctly selected series for the selected graph
+		if (tableSeries.getSelectionCount() == 1 && this.selectedGraph != null) {
+			// this is a good selection
+			TableItem selectedTableItem = tableSeries.getSelection()[0];
+			this.selectedGraphSeries = (DataGraphSeries) selectedTableItem.getData();
+		}
+		else {
+			// this is a bad selection
+			this.selectedGraphSeries = null;
+		}
+		// show this data now it is selected
+		showGraphSeriesData(this.selectedGraphSeries);
+	}
+
 	protected void onActiveGraphSelectionChanged() {
 		// find the correct graph and show it's data in the controls
 		String selectedTitle = this.comboActiveGraph.getText();
@@ -398,14 +520,9 @@ public class GraphsDialog extends Dialog {
 		btnSeriesDelete.setEnabled(isEnabled);
 
 		// clear the table
+		int selectedSeries = tableSeries.getSelectionIndex();
 		while (tableSeries.getItemCount() > 0) {
-			TableItem item = tableSeries.getItem(0);
-			TableEditor tableEditor = this.editors.remove(item);
-			if (null != tableEditor) {
-				tableEditor.getEditor().dispose();
-				tableEditor.dispose();
-			}
-			item.dispose();
+			tableSeries.getItem(0).dispose();
 		}
 		
 		if (null == graph) {
@@ -438,38 +555,65 @@ public class GraphsDialog extends Dialog {
 				item.setText(0, series.seriesTitle);
 				item.setText(1, series.colour == null ? "null" : series.colour.toString());
 				item.setText(2, Integer.toString(series.lineWidth));
+				item.setText(3, Integer.toString(series.seriesCount));
 				item.setData(series);
-				
-				TableEditor editor = new TableEditor (tableSeries);
-				editor.grabHorizontal = true;
-				editor.setEditor(createSeriesCombo(series, item), item, 0);
-				this.editors.put(item,  editor);
-				
+			}
+			tableSeries.setSelection(selectedSeries);
+			if (tableSeries.getSelectionCount() == 1) {
+				this.selectedGraphSeries = (DataGraphSeries) tableSeries.getSelection()[0].getData();
 			}
 		}
 		this.selectedGraph = graph;
+		
+		showGraphSeriesData(this.selectedGraphSeries);
 	}
-
-	private Control createSeriesCombo(final DataGraphSeries series, final TableItem item) {
-		Combo combo = new Combo (tableSeries, SWT.READ_ONLY);
-		int selection = -1;
-		for (int i = 0; i < DataGraph.getAvailableSeries(); ++i) {
-			combo.add(DataGraph.getAvailableSeriesHeading(i));
-			if (series.seriesIndex == i) {
-				selection = i;
+	
+	private void showGraphSeriesData(DataGraphSeries series) {
+		this.selectedGraphSeries = null;
+		
+		this.comboSeriesSeries.setEnabled(series != null);
+		this.comboSeriesColour.setEnabled(series != null);
+		this.comboSeriesLineWidth.setEnabled(series != null);
+		this.spinnerSeriesSamples.setEnabled(series != null);
+		
+		if (series != null) {
+			// show the correct data
+			this.comboSeriesSeries.removeAll();
+			int selection = -1;
+			for (int i = 0; i < DataGraph.getAvailableSeries(); ++i) {
+				this.comboSeriesSeries.add(DataGraph.getAvailableSeriesHeading(i));
+				if (series.seriesIndex == i) {
+					selection = i;
+				}
 			}
+			this.comboSeriesSeries.select(selection);
+			
+			// get the correct colour
+			selection = 2;
+			if (series.colour == DataGraph.K_RED) {
+				selection = 0;
+			}
+			else if (series.colour == DataGraph.K_BLUE) {
+				selection = 1;
+			}
+			else if (series.colour == DataGraph.K_GREEN) {
+				selection = 2;
+			}
+			else if (series.colour == DataGraph.K_YELLOW) {
+				selection = 3;
+			}
+			else if (series.colour == DataGraph.K_WHITE) {
+				selection = 4;
+			}
+			this.comboSeriesColour.select(selection);
+			
+			// and the line width
+			this.comboSeriesLineWidth.select(series.lineWidth - 1);
+			
+			// and the samples
+			this.spinnerSeriesSamples.setSelection(series.seriesCount);
 		}
-		combo.select(selection);
-		combo.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				tableSeries.setSelection(item);
-				series.seriesIndex = combo.getSelectionIndex(); 
-				series.seriesTitle = combo.getText();
-				item.setText(0, series.seriesTitle);
-			}
-		});
-		return combo;
+		this.selectedGraphSeries = series;
 	}
 
 	private void onAddGraph() {
@@ -480,6 +624,7 @@ public class GraphsDialog extends Dialog {
 		// select this
 		comboActiveGraph.select(comboActiveGraph.getItemCount() - 1);
 		this.selectedGraph = graph;
+		this.selectedGraphSeries = null;
 		showGraphData(graph);
 	}
 
@@ -492,6 +637,7 @@ public class GraphsDialog extends Dialog {
 
 	private void populateGraphCombo() {
 		comboActiveGraph.removeAll();
+		this.selectedGraphSeries = null;
 		for (DataGraph graph : this.currentGraphs) {
 			comboActiveGraph.add(graph.getId());
 		}

@@ -2,6 +2,7 @@ package uk.co.darkerwaters;
 
 import java.util.ArrayList;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
@@ -23,12 +24,27 @@ public abstract class DataGraph {
 
 	private String id;
 	
+	public static Color K_RED;
+	public static Color K_BLUE;
+	public static Color K_GREEN;
+	public static Color K_YELLOW;
+	public static Color K_WHITE;
+	
+	public static void InitialiseColours(Display display) {
+		K_RED = display.getSystemColor(SWT.COLOR_RED);
+		K_BLUE = display.getSystemColor(SWT.COLOR_BLUE);
+		K_GREEN = display.getSystemColor(SWT.COLOR_GREEN);
+		K_YELLOW = display.getSystemColor(SWT.COLOR_YELLOW);
+		K_WHITE = display.getSystemColor(SWT.COLOR_WHITE);
+	}
+	
 	public class DataGraphSeries {
-		public DataGraphSeries(String title, int index, int count) {
+		public DataGraphSeries(String title, int index) {
 			this.seriesIndex = index;
 			this.seriesTitle = title;
-			this.seriesCount = count;
+			this.seriesCount = 100;
 			this.lineWidth = 1;
+			this.colour = K_GREEN;
 		}
 		int seriesIndex;
 		int seriesCount;
@@ -94,8 +110,8 @@ public abstract class DataGraph {
 		this.max = max;
 	}
 
-	public void addDataSeries(String title, int seriesIndex, int seriesCount) {
-		this.graphSeries.add(new DataGraphSeries(title, seriesIndex, seriesCount));
+	public void addDataSeries(String title, int seriesIndex) {
+		this.graphSeries.add(new DataGraphSeries(title, seriesIndex));
 	}
 	
 	public int getNumberDataSeries() {
