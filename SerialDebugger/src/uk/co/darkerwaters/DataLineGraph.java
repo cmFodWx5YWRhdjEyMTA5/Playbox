@@ -65,9 +65,11 @@ public class DataLineGraph extends DataGraph {
 				// draw the data
 				int x = 0;
 				int y = 0;
+				boolean lastSet = false;
 				int lastX = -1;
 				int lastY = -1;
-				gc.setLineWidth(1);
+				gc.setForeground(series.colour == null ? display.getSystemColor(SWT.COLOR_GREEN) : series.colour);
+				gc.setLineWidth(series.lineWidth);
 				for (int i = 0; i < series.data.length; ++i) {
 					if (series.data[i] != Double.NaN) {
 						// get the x
@@ -82,16 +84,13 @@ public class DataLineGraph extends DataGraph {
 							y = clientArea.y;
 						}
 						else {
-							gc.setForeground(series.colour == null ? display.getSystemColor(SWT.COLOR_GREEN) : series.colour);
-							gc.setLineWidth(series.lineWidth);
-							if (lastX >= 0 && lastY >= 0 && x != lastX) {
+							if (lastSet) {
 								gc.drawLine(lastX, lastY, x, y);
 							}
-							gc.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
-							gc.drawPoint(x, y);
 						}
 						lastX = x;
 						lastY = y;
+						lastSet = true;
 					}
 				}
 			}

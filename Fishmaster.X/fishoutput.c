@@ -55,8 +55,8 @@ void FISHOUTPUT_process(void)
                 tempDifferential = hotPlateTempDifferential;
             }
             // we are below temp, let's get this differential as a percentage
-            // of our target temp (using 500% of the target temp to get their quicker when really cold)
-            uint8_t power = (uint8_t)MIN(tempDifferential / K_TARGETWATERTEMP * 500.0, 100.0);
+            // of our target temp (using ~500% of the target temp to get their quicker when really cold)
+            uint8_t power = (uint8_t)MIN(tempDifferential / K_TARGETWATERTEMP * 300.0, 100.0);
             // now this is a percentage, let's set the power level of the hot-plate
             FISHOUTPUT_setHotPlatePower(power);
         }

@@ -26,8 +26,8 @@ struct t_rtcstate RTC_State;
 #define MCP79410_WKDY_SET       0b00001000  // the mask to set the WKDY to turn batt on
 #define MCP79410_OSCRUN_MASK    0b00100000  // the mask to get the OSCRUN state
 
-#define K_PREVIOUSHOURSCOLLECTED 10
-#define K_PREVIOUSHOURSDIFFERENCE 0.002
+#define K_PREVIOUSHOURSCOLLECTED 5
+#define K_PREVIOUSHOURSDIFFERENCE 0.003
 
 // we need an array of the hours we calculate because when we get a bad reading
 // from the clock (which is fairly often) we need to know to ignore it
@@ -106,17 +106,12 @@ bool RTC_ReadTime(void)
     // if the last 5 hours are the same, or close, then set the actual value
     // for the program to use as the correct state of affairs
     float difference = 0.0;
-    for (uint16_t i = 1; i < K_PREVIOUSHOURSCOLLECTED; ++i) {
-        if (previousHours[i] > previousHours[i-1]) {
-            difference += previousHours[i] - previousHours[i-1];
-        }
-        else {
-            difference += previousHours[i-1] - previousHours[i];
-        }
+    for (uint16_t i = 0; i < K_PREVIOUSHOURSCOLLECTED; ++i) {
+        difference += previousHours[hoursIndex] - previousHours[i];
     }
     // a second is 0.0003 or an hour (ish) so allow for a nice safe second per
     // reading, and a bit for an acceptable array of data
-    if (difference < K_PREVIOUSHOURSDIFFERENCE) {
+    if (previousHours[hoursIndex] <= 24.0 && difference < K_PREVIOUSHOURSDIFFERENCE) {
         RTC_State.time_hours = previousHours[hoursIndex];
     }
     // increment the counter to the next value
