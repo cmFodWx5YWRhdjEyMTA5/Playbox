@@ -22,9 +22,14 @@ public class DataLineGraph extends DataGraph {
 		clientArea.y += K_BORDER;
 		clientArea.width -= K_BORDER * 2;
 		clientArea.height -= K_BORDER * 2;
+		
         
-		gc.setLineWidth(2);
+		
 		gc.setForeground(display.getSystemColor(SWT.COLOR_GRAY));
+		gc.setLineWidth(1);
+		gc.drawText(this.title, clientArea.x, clientArea.y);
+		
+		gc.setLineWidth(2);
 		gc.drawLine(clientArea.x, clientArea.y, clientArea.x, clientArea.y + clientArea.height);
 		gc.drawLine(clientArea.x, clientArea.y + clientArea.height, clientArea.x + clientArea.width, clientArea.y + clientArea.height);
 

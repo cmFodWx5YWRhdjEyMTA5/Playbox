@@ -451,6 +451,8 @@ public class MainWindow {
 			this.comboPort.setEnabled(true);
 		}
 		setPortControls();
+		// and save this data
+		SettingsFile.SaveSettingsFile(settingsFile, MainWindow.this);
 	}
 
 	protected void onCommsPortSelectionChanged() {
