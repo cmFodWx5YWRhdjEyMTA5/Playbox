@@ -44,7 +44,7 @@ public abstract class DataGraph {
 			this.seriesTitle = title;
 			this.seriesCount = 100;
 			this.lineWidth = 1;
-			this.colour = K_GREEN;
+			this.colour = K_GREEN; 		
 		}
 		int seriesIndex;
 		int seriesCount;

@@ -26,9 +26,12 @@ struct t_rtcstate RTC_State;
 #define MCP79410_WKDY_SET       0b00001000  // the mask to set the WKDY to turn batt on
 #define MCP79410_OSCRUN_MASK    0b00100000  // the mask to get the OSCRUN state
 
+#define K_PREVIOUSHOURSCOLLECTED 10
+#define K_PREVIOUSHOURSDIFFERENCE 0.002
+
 // we need an array of the hours we calculate because when we get a bad reading
 // from the clock (which is fairly often) we need to know to ignore it
-float previousHours[5] = {0.0,0.0,0.0,0.0,0.0};
+float previousHours[K_PREVIOUSHOURSCOLLECTED];
 uint8_t hoursIndex = 0;
 
 void RTC_Initialise(void)
@@ -50,6 +53,10 @@ void RTC_Initialise(void)
     SSP1STAT = 0x80; // slew rate dis, SMBUS disabled  
     SSP1CON1 = 0x28; // enable module, I2C master SSP1ADD=baud rate
     SSP1CON2 = 0x00;
+    
+    for (uint16_t i = 0; i < K_PREVIOUSHOURSCOLLECTED; ++i) {
+        previousHours[i] = 0.0;
+    }
 }
 
 float RTC_HoursFromTime(void)
@@ -99,7 +106,7 @@ bool RTC_ReadTime(void)
     // if the last 5 hours are the same, or close, then set the actual value
     // for the program to use as the correct state of affairs
     float difference = 0.0;
-    for (uint8_t i = 1; i < 5; ++i) {
+    for (uint16_t i = 1; i < K_PREVIOUSHOURSCOLLECTED; ++i) {
         if (previousHours[i] > previousHours[i-1]) {
             difference += previousHours[i] - previousHours[i-1];
         }
@@ -109,11 +116,11 @@ bool RTC_ReadTime(void)
     }
     // a second is 0.0003 or an hour (ish) so allow for a nice safe second per
     // reading, and a bit for an acceptable array of data
-    if (difference < 0.002) {
+    if (difference < K_PREVIOUSHOURSDIFFERENCE) {
         RTC_State.time_hours = previousHours[hoursIndex];
     }
     // increment the counter to the next value
-    if (++hoursIndex > 5) {
+    if (++hoursIndex > K_PREVIOUSHOURSCOLLECTED) {
         hoursIndex = 0;
     }
     // return the state of the ST bit after all this

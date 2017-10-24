@@ -4,7 +4,10 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Label;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.TabFolder;
@@ -17,6 +20,7 @@ import org.eclipse.swt.widgets.Text;
 import com.fazecast.jSerialComm.SerialPort;
 
 import uk.co.darkerwaters.CommsPortManager.CommsPortManagerListener;
+import uk.co.darkerwaters.DataGraph.DataGraphSeries;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.layout.FillLayout;
@@ -70,6 +74,8 @@ public class MainWindow {
 
 	private GraphsDialog dialog = null;
 
+	private File settingsFile;
+
 	/**
 	 * Open the window.
 	 */
@@ -96,6 +102,8 @@ public class MainWindow {
 		shell.setText("Serial Debugger");
 		shell.setLayout(new FillLayout(SWT.VERTICAL));
 		
+		this.settingsFile = new File(System.getProperty("user.dir") + "/lastusedconfig.cmp");
+		
 		this.portManager = CommsPortManager.getManager();
 		CommsPortManagerListener managerListener = new CommsPortManagerListener() {
 			@Override
@@ -107,6 +115,7 @@ public class MainWindow {
 		shell.addDisposeListener(new DisposeListener() {	
 			@Override
 			public void widgetDisposed(DisposeEvent event) {
+				SettingsFile.SaveSettingsFile(settingsFile, MainWindow.this);
 				// disconnect when this window is closed
 				MainWindow.this.portManager.removeListener(managerListener);
 				MainWindow.this.portManager.disconnect();
@@ -276,6 +285,10 @@ public class MainWindow {
 		
 		// fill the table
 		fillCurrentTableData("");
+		
+		if (this.settingsFile.exists()) {
+			SettingsFile.OpenSettingsFile(this.settingsFile, this);
+		}
 	}
 
 	protected void updateGraphDisplays(PaintEvent e, Display display) {
@@ -552,6 +565,225 @@ public class MainWindow {
 				// set the text on the one item in the table
 				item.setText(i, strings[i]);
 			}
+		}
+	}
+	
+	public List<String[]> getDataPairs() {
+		List<String[]> pairList = new LinkedList<String[]>();
+		// put all the data in this list
+		pairList.add(new String[] {"port", this.comboPort.getText()});
+		pairList.add(new String[] {"baud", this.comboBaud.getText()});
+		pairList.add(new String[] {"stop_bits", this.comboStopBits.getText()});
+		pairList.add(new String[] {"data_bits", this.comboDataBits.getText()});
+		pairList.add(new String[] {"parity", this.comboParity.getText()});
+		
+		// and all the graphs
+		int graphNumber = 0;
+		for (DataGraph graph : this.currentGraphs) {
+			String graphHeading = "graph" + graphNumber++ + "-line";
+			pairList.add(new String[] {graphHeading + "-title", graph.title});
+			pairList.add(new String[] {graphHeading + "-min", graph.min == null ? "null" : graph.min.toString()});
+			pairList.add(new String[] {graphHeading + "-max", graph.max == null ? "null" : graph.max.toString()});
+			pairList.add(new String[] {graphHeading + "-widthX", Integer.toString(graph.widthX)});
+			pairList.add(new String[] {graphHeading + "-widthY", Integer.toString(graph.widthY)});
+			int seriesNumber = 0;
+			for (DataGraphSeries series : graph.graphSeries) {
+				String seriesHeading = graphHeading + "-series" + seriesNumber++;
+				pairList.add(new String[] {seriesHeading + "-title", series.seriesTitle});
+				pairList.add(new String[] {seriesHeading + "-index", Integer.toString(series.seriesIndex)});
+				pairList.add(new String[] {seriesHeading + "-samples", Integer.toString(series.seriesCount)});
+				pairList.add(new String[] {seriesHeading + "-lineWidth", Integer.toString(series.lineWidth)});
+				pairList.add(new String[] {seriesHeading + "-colour", Integer.toString(GraphsDialog.ColourToIndex(series.colour))});
+			}
+		}
+		
+		// also the actual data settings we have
+		int noHeadings = DataGraph.getAvailableSeries();
+		if (noHeadings > 0) {
+			String headings = "";
+			for (int i = 0; i < noHeadings; ++i) {
+				headings += DataGraph.getAvailableSeriesHeading(i) + ",";
+			}
+			pairList.add(new String[] {"headings", headings});
+		}
+		return pairList;
+	}
+	
+	public void acceptDataPair(String first, String second) {
+		int foundIndex = -1;
+		switch(first) {
+		case "port":
+			for (int i = 0; i < this.comboPort.getItemCount(); ++i) {
+				if (this.comboPort.getItem(i).equals(second)) {
+					foundIndex = i;
+					break;
+				}
+			}
+			if (foundIndex > -1) {
+				this.comboPort.select(foundIndex);
+				onCommsPortSelectionChanged();
+			}
+			break;
+		case "baud":
+			for (int i = 0; i < this.comboBaud.getItemCount(); ++i) {
+				if (this.comboBaud.getItem(i).equals(second)) {
+					foundIndex = i;
+					break;
+				}
+			}
+			if (foundIndex > -1) {
+				this.comboBaud.select(foundIndex);
+			}
+			else {
+				this.comboBaud.setText(second);
+			}
+			break;
+		case "stop_bits":
+			for (int i = 0; i < this.comboStopBits.getItemCount(); ++i) {
+				if (this.comboStopBits.getItem(i).equals(second)) {
+					foundIndex = i;
+					break;
+				}
+			}
+			if (foundIndex > -1) {
+				this.comboStopBits.select(foundIndex);
+			}
+			else {
+				this.comboStopBits.setText(second);
+			}
+			break;
+		case "data_bits":
+			for (int i = 0; i < this.comboDataBits.getItemCount(); ++i) {
+				if (this.comboDataBits.getItem(i).equals(second)) {
+					foundIndex = i;
+					break;
+				}
+			}
+			if (foundIndex > -1) {
+				this.comboDataBits.select(foundIndex);
+			}
+			else {
+				this.comboDataBits.setText(second);
+			}
+			break;
+		case "parity":
+			for (int i = 0; i < this.comboParity.getItemCount(); ++i) {
+				if (this.comboParity.getItem(i).equals(second)) {
+					foundIndex = i;
+					break;
+				}
+			}
+			if (foundIndex > -1) {
+				this.comboParity.select(foundIndex);
+			}
+			else {
+				this.comboParity.setText(second);
+			}
+			break;
+		case "headings":
+			String[] headings = second.split(",");
+			for (DataGraph graph : this.currentGraphs) {
+				graph.updateGraphHeadings(headings);
+			}
+			break;
+		default :
+			// handle the graphs saved
+			if (first.startsWith("graph")) {
+				// this is a graph, get the index
+				int dashIndex = first.indexOf("-");
+				String graphId = first.substring(5, dashIndex);
+				int graphIndex = Integer.parseInt(graphId);
+				int dashIndex2 = first.indexOf("-", dashIndex + 1);
+				String graphType = first.substring(dashIndex + 1, dashIndex2);
+				// get the graph
+				DataGraph graph = null;
+				if (graphIndex >= this.currentGraphs.size()) {
+					// we don't have this, create it
+					switch(graphType) {
+					case "line" :
+						graph = new DataLineGraph("Graph" + graphId);
+						break;
+					default:
+						System.out.println("Graph type of " + graphType + " is unsupported");
+						break;
+					}
+					this.currentGraphs.add(graph);
+				}
+				else {
+					// get the graph
+					graph = this.currentGraphs.get(graphIndex);
+				}
+				// have the graph, set the data
+				String dataType = first.substring(dashIndex2 + 1);
+				switch(dataType) {
+				case "title" :
+					graph.title = second;
+					break;
+				case "min" :
+					if (second.equals("null")) {
+						graph.min = null;
+					}
+					else {
+						graph.min = Double.parseDouble(second);
+					}
+					break;
+				case "max" :
+					if (second.equals("null")) {
+						graph.max = null;
+					}
+					else {
+						graph.max = Double.parseDouble(second);
+					}
+					break;
+				case "widthX" :
+					graph.widthX = Integer.parseInt(second);
+					break;
+				case "widthY" :
+					graph.widthY = Integer.parseInt(second);
+					break;
+				default:
+					// handle the series here
+					if (dataType.startsWith("series")) {
+						// this is the series
+						dashIndex = first.indexOf("-", dashIndex2 + 1);
+						String seriesId = first.substring(dashIndex2 + 7, dashIndex);
+						int seriesIndex = Integer.parseInt(seriesId);
+						// get the series
+						DataGraphSeries series = null;
+						while (seriesIndex >= graph.getNumberDataSeries()) {
+							// we don't have a series, create it
+							graph.addDataSeries("Series" + seriesIndex, seriesIndex);
+						}
+						// get the series
+						series = graph.getDataSeries(seriesIndex);
+						// have the series, set the data
+						dataType = first.substring(dashIndex + 1);
+						switch(dataType) {
+						case "title" :
+							series.seriesTitle = second;
+							break;
+						case "index" :
+							series.seriesIndex = Integer.parseInt(second);
+							break;
+						case "samples" :
+							series.seriesCount = Integer.parseInt(second);
+							break;
+						case "lineWidth" :
+							series.lineWidth = Integer.parseInt(second);
+							break;
+						case "colour" :
+							int index = Integer.parseInt(second);
+							series.colour = GraphsDialog.IndexToColour(index);
+							break;
+						default:
+							System.out.println("Series data type of " + dataType + " is unsupported");
+							break;		
+						}
+					}
+					break;
+				}
+			}
+			break;
 		}
 	}
 

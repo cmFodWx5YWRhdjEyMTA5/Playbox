@@ -19,6 +19,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
@@ -367,6 +368,49 @@ public class GraphsDialog extends Dialog {
 		populateGraphCombo();
 
 	}
+	
+	public static Color IndexToColour(int index) {
+		Color color;
+		switch(index) {
+		case 0 :
+			color = DataGraph.K_RED;
+			break;
+		case 1 :
+			color = DataGraph.K_BLUE;
+			break;
+		case 2 :
+		default:
+			color = DataGraph.K_GREEN;
+			break;
+		case 3 :
+			color = DataGraph.K_YELLOW;
+			break;
+		case 4 :
+			color = DataGraph.K_WHITE;
+			break;
+		}
+		return color;
+	}
+	
+	public static int ColourToIndex (Color colour) {
+		int selection = 2;
+		if (colour == DataGraph.K_RED) {
+			selection = 0;
+		}
+		else if (colour == DataGraph.K_BLUE) {
+			selection = 1;
+		}
+		else if (colour == DataGraph.K_GREEN) {
+			selection = 2;
+		}
+		else if (colour == DataGraph.K_YELLOW) {
+			selection = 3;
+		}
+		else if (colour == DataGraph.K_WHITE) {
+			selection = 4;
+		}
+		return selection;
+	}
 
 	protected void onSeriesDataChanged() {
 		if (this.selectedGraphSeries != null) {
@@ -374,24 +418,7 @@ public class GraphsDialog extends Dialog {
 			this.selectedGraphSeries.seriesIndex = this.comboSeriesSeries.getSelectionIndex();
 			this.selectedGraphSeries.seriesTitle = this.comboSeriesSeries.getText();
 			// line colour
-			switch(this.comboSeriesColour.getSelectionIndex()) {
-			case 0 :
-				this.selectedGraphSeries.colour = DataGraph.K_RED;
-				break;
-			case 1 :
-				this.selectedGraphSeries.colour = DataGraph.K_BLUE;
-				break;
-			case 2 :
-			default:
-				this.selectedGraphSeries.colour = DataGraph.K_GREEN;
-				break;
-			case 3 :
-				this.selectedGraphSeries.colour = DataGraph.K_YELLOW;
-				break;
-			case 4 :
-				this.selectedGraphSeries.colour = DataGraph.K_WHITE;
-				break;
-			}
+			this.selectedGraphSeries.colour = IndexToColour(this.comboSeriesColour.getSelectionIndex());
 			// line width
 			this.selectedGraphSeries.lineWidth = this.comboSeriesLineWidth.getSelectionIndex() + 1;
 			// and the samples
@@ -589,23 +616,7 @@ public class GraphsDialog extends Dialog {
 			this.comboSeriesSeries.select(selection);
 			
 			// get the correct colour
-			selection = 2;
-			if (series.colour == DataGraph.K_RED) {
-				selection = 0;
-			}
-			else if (series.colour == DataGraph.K_BLUE) {
-				selection = 1;
-			}
-			else if (series.colour == DataGraph.K_GREEN) {
-				selection = 2;
-			}
-			else if (series.colour == DataGraph.K_YELLOW) {
-				selection = 3;
-			}
-			else if (series.colour == DataGraph.K_WHITE) {
-				selection = 4;
-			}
-			this.comboSeriesColour.select(selection);
+			this.comboSeriesColour.select(ColourToIndex(series.colour));
 			
 			// and the line width
 			this.comboSeriesLineWidth.select(series.lineWidth - 1);
