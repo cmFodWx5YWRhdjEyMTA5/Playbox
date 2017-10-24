@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.TabFolder;
@@ -33,6 +34,7 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.GridLayout;
@@ -69,6 +71,8 @@ public class MainWindow {
 	private Canvas graphCanvas;
 	
 	private final ArrayList<DataGraph> currentGraphs = new ArrayList<DataGraph>();
+
+	private GraphsDialog dialog = null;
 
 	/**
 	 * Open the window.
@@ -258,6 +262,15 @@ public class MainWindow {
 		});
 		btnConsoleClear.setText("Clear");
 		
+		Button btnGraphs = new Button(textConsoleButtonsComposite, SWT.NONE);
+		btnGraphs.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				MainWindow.this.onGraphsButton();
+			}
+		});
+		btnGraphs.setText("Graphs");
+		
 		sashForm.setWeights(new int[] {1, 3});
 		fillComboPort();
 		
@@ -269,17 +282,31 @@ public class MainWindow {
 	}
 
 	protected void updateGraphDisplays(PaintEvent e, Display display) {
-	Rectangle rectangle = graphCanvas.getClientArea();
+		Rectangle rectangle = graphCanvas.getClientArea();
+		// fill the graph area a nice black...
+		GC gc = e.gc;
+		gc.setBackground(display.getSystemColor(SWT.COLOR_BLACK)); 
+        gc.fillRectangle(rectangle);
+        Rectangle canvasRect = new Rectangle(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+        // and all the graphs now
+        int cellHeight = rectangle.height / 8;
+        int cellWidth = rectangle.width / 8;
 		if (currentGraphs.size() > 0) {
-			int height = rectangle.height / this.currentGraphs.size();
-			rectangle.height = height;
 			for (DataGraph graph : this.currentGraphs) {
-				graph.drawDataSeries(new Rectangle(rectangle.x, rectangle.y, rectangle.width, rectangle.height - 5), e.gc, display);
-				rectangle.y += height;
+				// get the rect for this graph to draw in
+				rectangle.width = graph.widthX * cellWidth;
+				rectangle.height = graph.widthY * cellHeight;
+				graph.drawDataSeries(new Rectangle(rectangle.x, rectangle.y, rectangle.width - 5, rectangle.height - 5), gc, display);
+				// if this rect is at the edge of our rect then move the next one below it
+				if (rectangle.width + rectangle.x > canvasRect.width - (cellWidth / 2)) {
+					rectangle.y += rectangle.height;
+					rectangle.x = canvasRect.x;
+				}
+				else {
+					// move it across
+					rectangle.x += rectangle.width;
+				}
 			}
-		}
-		else {
-			e.gc.drawText("Click a column heading to graph the data...", rectangle.x - 50 + (rectangle.width / 2), rectangle.y + (rectangle.height / 2));
 		}
 	}
 
@@ -300,29 +327,6 @@ public class MainWindow {
 			// pause
 			this.btnConsolePause.setText("Resume");
 			this.isConsolePaused = true;
-		}
-	}
-
-	private void onTableColumnClicked(int seriesIndex) {
-		for (int i = 0; i < this.currentGraphs.size(); ++i) {
-			DataGraph graph = this.currentGraphs.get(i);
-			if (graph.getSeriesIndex() == seriesIndex) {
-				// this is the graph, we have one, remove it
-				this.currentGraphs.remove(i);
-				if (this.tableCurrentData.getColumnCount() > seriesIndex) {
-					// get the column heading to show we are no longer graphing it
-					TableColumn column = this.tableCurrentData.getColumn(seriesIndex);
-					column.setText(column.getText().replace(" (graphing)", ""));
-				}
-				return;
-			}
-		}
-		// if here we didn't have one
-		this.currentGraphs.add(new DataLineGraph(seriesIndex));
-		if (this.tableCurrentData.getColumnCount() > seriesIndex) {
-			// get the column heading to show we are graphing it
-			TableColumn column = this.tableCurrentData.getColumn(seriesIndex);
-			column.setText(column.getText() + " (graphing)");
 		}
 	}
 
@@ -396,7 +400,7 @@ public class MainWindow {
 				this.graphCanvas.redraw();
 	        }
 	        else if (string.startsWith("{H}")) {
-	        		// this is headings, update the graph with this
+	        		// this is headings, update the graphs with this
 		        	for (DataGraph graph : this.currentGraphs) {
 		        		graph.updateGraphHeadings(string.substring(3).split("\\|"));
 				}
@@ -570,22 +574,19 @@ public class MainWindow {
 		else {
 			// make a new column
 			column = new TableColumn(table, SWT.CENTER);
-			column.addListener(SWT.Selection, new Listener() {
-		        public void handleEvent(Event e) {
-		        		// the column is clicked, show / hide the graph for this
-		        		onTableColumnClicked(index);
-		        }
-		    });
-		}
-		for (int i = 0; i < this.currentGraphs.size(); ++i) {
-			if (this.currentGraphs.get(i).getSeriesIndex() == index) {
-				// we are graphing this
-				title += " (graphing)";
-			}
 		}
 		// set the title
 		column.setText(title);
 		// and the width
 		column.setWidth(width);
+	}
+
+	protected void onGraphsButton() {
+		// TODO Auto-generated method stub
+		if (dialog != null) {
+			dialog.dispose();
+		}
+		dialog = new GraphsDialog(shell, this.currentGraphs);
+		dialog.open();
 	}
 }
