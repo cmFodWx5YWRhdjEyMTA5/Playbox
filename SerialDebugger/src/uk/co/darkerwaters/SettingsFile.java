@@ -14,6 +14,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Shell;
+
 public class SettingsFile {
 	
 	public static void OpenSettingsFile(File sourceFile, MainWindow window) {
@@ -42,6 +46,26 @@ public class SettingsFile {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public static File chooseSaveFile(Shell shell) {
+		FileDialog fd = new FileDialog(shell, SWT.SAVE);
+        fd.setText("Save");
+        //fd.setFilterPath("C:/");
+        String[] filterExt = { "*.cmp", "*.*" };
+        fd.setFilterExtensions(filterExt);
+        String selected = fd.open();
+        return selected == null ? null : new File(selected);
+	}
+	
+	public static File chooseOpenFile(Shell shell) {
+		FileDialog fd = new FileDialog(shell, SWT.OPEN);
+        fd.setText("Open");
+        //fd.setFilterPath("C:/");
+        String[] filterExt = { "*.cmp", "*.*" };
+        fd.setFilterExtensions(filterExt);
+        String selected = fd.open();
+        return selected == null ? null : new File(selected);
 	}
 	
 	public static void SaveSettingsFile(File sourceFile, MainWindow window) {

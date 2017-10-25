@@ -277,6 +277,30 @@ public class MainWindow {
 		});
 		btnGraphs.setText("Graphs");
 		
+		Button btnSave = new Button(textConsoleButtonsComposite, SWT.NONE);
+		btnSave.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				File file = SettingsFile.chooseSaveFile(shell);
+				if (null != file) {
+					SettingsFile.SaveSettingsFile(file, MainWindow.this);
+				}
+			}
+		});
+		btnSave.setText("Save");
+		
+		Button btnLoad = new Button(textConsoleButtonsComposite, SWT.NONE);
+		btnLoad.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				File file = SettingsFile.chooseOpenFile(shell);
+				if (null != file) {
+					SettingsFile.OpenSettingsFile(file, MainWindow.this);
+				}
+			}
+		});
+		btnLoad.setText("Load");
+		
 		sashForm.setWeights(new int[] {1, 3});
 		fillComboPort();
 		
