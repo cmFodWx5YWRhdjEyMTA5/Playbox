@@ -4,8 +4,14 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Label;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -23,6 +29,7 @@ import uk.co.darkerwaters.CommsPortManager.CommsPortManagerListener;
 import uk.co.darkerwaters.DataGraph.DataGraphSeries;
 
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Combo;
@@ -40,6 +47,7 @@ import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.GridLayout;
 import swing2swt.layout.BorderLayout;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Spinner;
 
 public class MainWindow {
 
@@ -75,6 +83,21 @@ public class MainWindow {
 	private GraphsDialog dialog = null;
 
 	private File settingsFile;
+
+	private Label lblDatavelocity;
+
+	private Spinner spinnerRecordFrequency;
+
+	private File recordingFolder = null;
+	private File recordingFile = null;
+	private long recordingLineNumber = 0;
+	private long recordingFileNumber = 0;
+
+	private Button btnRecord;
+
+	private BufferedOutputStream recordingStream;
+
+	private PrintWriter recordingWriter;
 
 	/**
 	 * Open the window.
@@ -116,6 +139,7 @@ public class MainWindow {
 			@Override
 			public void widgetDisposed(DisposeEvent event) {
 				SettingsFile.SaveSettingsFile(settingsFile, MainWindow.this);
+				closeRecordingFile();
 				// disconnect when this window is closed
 				MainWindow.this.portManager.removeListener(managerListener);
 				MainWindow.this.portManager.disconnect();
@@ -301,6 +325,26 @@ public class MainWindow {
 		});
 		btnLoad.setText("Load");
 		
+		this.lblDatavelocity = new Label(textConsoleButtonsComposite, SWT.NONE);
+		lblDatavelocity.setText("DataVelocity: 0/s");
+		
+		btnRecord = new Button(textConsoleButtonsComposite, SWT.NONE);
+		btnRecord.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				onRecordPressed();
+			}
+		});
+		btnRecord.setText("Record Data");
+		
+		Label lblEvery = new Label(textConsoleButtonsComposite, SWT.NONE);
+		lblEvery.setText("every");
+		
+		this.spinnerRecordFrequency = new Spinner(textConsoleButtonsComposite, SWT.BORDER | SWT.READ_ONLY);
+		spinnerRecordFrequency.setMaximum(1000);
+		spinnerRecordFrequency.setMinimum(1);
+		spinnerRecordFrequency.setSelection(10);
+		
 		sashForm.setWeights(new int[] {1, 3});
 		fillComboPort();
 		
@@ -348,6 +392,7 @@ public class MainWindow {
 		// clear the contents of the console
 		this.txtConsoletext.setText("");
 		this.tblDataTable.removeAll();
+		DataGraph.clearData();
 	}
 
 	protected void onConsolePause() {
@@ -406,6 +451,34 @@ public class MainWindow {
 			// we have all the strings now, we will need a new exec command for any more
 			this.isStringExecRequired = true;
 		}
+		// are we saving data?
+		if (null != this.recordingFolder) {
+			// we are recording, get the latest file
+			if (null == this.recordingFile || this.recordingLineNumber > 10000) {
+				if (null != this.recordingFile) {
+					closeRecordingFile();
+					this.recordingLineNumber = 0;
+				}
+				String filename;
+				do {
+					filename = this.recordingFolder.toString() + File.separator + String.format("%04d.csv", ++recordingFileNumber);
+					this.recordingFile = new File(filename);
+				}
+				while (this.recordingFile.exists());
+					
+				try {
+					this.recordingStream = new BufferedOutputStream(new FileOutputStream(this.recordingFile));
+					this.recordingWriter = new PrintWriter(this.recordingStream);
+					// put the headings in
+					for (int i = 0; i < DataGraph.getAvailableSeries(); ++i) {
+						this.recordingWriter.write(DataGraph.getAvailableSeriesHeading(i) + ",");
+					}
+					this.recordingWriter.println("");
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 		// append the text to the console
 		for (String string : strings) {
 			// and append the new string
@@ -432,6 +505,11 @@ public class MainWindow {
 				// also add to the graph
 				DataGraph.addData(dataEntries);
 				this.graphCanvas.redraw();
+
+				if (this.recordingWriter != null) {
+					this.recordingWriter.println(string.substring(3).replaceAll("\\|", ","));
+					++this.recordingLineNumber;
+				}
 	        }
 	        else if (string.startsWith("{H}")) {
 	        		// this is headings, update the graphs with this
@@ -448,6 +526,7 @@ public class MainWindow {
 			// and show the latest data
 			fillCurrentTableData(strings[strings.length - 1]);
 		}
+		this.lblDatavelocity.setText("Velocity: " + DataGraph.getDataVelocity() + "/s");
 	}
 
 	protected void onConnectPort() {
@@ -843,5 +922,41 @@ public class MainWindow {
 		}
 		dialog = new GraphsDialog(shell, this.currentGraphs);
 		dialog.open();
+	}
+	
+	protected void onRecordPressed() {
+		if (null == this.recordingFolder ) {
+			DirectoryDialog dialog = new DirectoryDialog(shell);
+		    String folder = dialog.open();
+		    if (folder != null) {
+		    		this.recordingFolder = new File(folder);
+				this.btnRecord.setText("Stop Rec");
+		    }
+		}
+		else {
+			// close the recording
+			closeRecordingFile();
+			this.recordingFolder = null;
+    			this.btnRecord.setText("Record Data");
+		}
+	}
+	
+	private void closeRecordingFile() {
+		try {
+			if (null != this.recordingWriter) {
+				this.recordingWriter.flush();
+				this.recordingWriter.close();
+			}
+		} finally {
+			if (null != this.recordingStream) {
+				try {
+					this.recordingStream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			this.recordingWriter = null;
+			this.recordingStream = null;
+		}
 	}
 }

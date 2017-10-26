@@ -1,4 +1,4 @@
-port|Bluetooth-Incoming-Port
+port|TTL232RG-VSW3V3
 baud|9600
 stop_bits|1
 data_bits|8

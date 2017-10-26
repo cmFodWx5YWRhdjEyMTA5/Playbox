@@ -49,14 +49,15 @@ void FISHOUTPUT_process(void)
         // now we want to set the temperature of the hot-plate
         float tempDifferential = K_TARGETWATERTEMP - FISH_State.waterTemp;
         if (tempDifferential > K_TARGETWATERTEMPTHREHOLD) {
+            // we are below temp, let's get this differential as a percentage
+            // of our target temp (using ~500% of the target temp to get their quicker when really cold)
+            uint8_t power = (uint8_t)MIN(tempDifferential / K_TARGETWATERTEMP * 500.0, 100.0);
+            // but also we want to control our rise to the max hot-plate temp
             float hotPlateTempDifferential = K_MAX_HOTPLATETEMP - FISH_State.hotPlateTemp;
             if (hotPlateTempDifferential > 0 && hotPlateTempDifferential < tempDifferential) {
                 // the amount to the hottest we can get it less, use this
-                tempDifferential = hotPlateTempDifferential;
+                power = (uint8_t)MIN(hotPlateTempDifferential / K_TARGETWATERTEMP * 750.0, 100.0);
             }
-            // we are below temp, let's get this differential as a percentage
-            // of our target temp (using ~500% of the target temp to get their quicker when really cold)
-            uint8_t power = (uint8_t)MIN(tempDifferential / K_TARGETWATERTEMP * 300.0, 100.0);
             // now this is a percentage, let's set the power level of the hot-plate
             FISHOUTPUT_setHotPlatePower(power);
         }
