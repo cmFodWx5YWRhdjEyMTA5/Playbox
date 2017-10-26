@@ -506,9 +506,9 @@ public class MainWindow {
 				DataGraph.addData(dataEntries);
 				this.graphCanvas.redraw();
 
-				if (this.recordingWriter != null) {
+				if (this.recordingWriter != null && ++this.recordingLineNumber % this.spinnerRecordFrequency.getSelection() == 0) {
+					// this is a line to record, record it
 					this.recordingWriter.println(string.substring(3).replaceAll("\\|", ","));
-					++this.recordingLineNumber;
 				}
 	        }
 	        else if (string.startsWith("{H}")) {
@@ -955,6 +955,9 @@ public class MainWindow {
 					e.printStackTrace();
 				}
 			}
+			this.recordingLineNumber = 0;
+			this.recordingFileNumber = 0;
+			this.recordingFile = null;
 			this.recordingWriter = null;
 			this.recordingStream = null;
 		}
