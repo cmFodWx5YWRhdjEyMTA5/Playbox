@@ -3,22 +3,24 @@ baud|9600
 stop_bits|1
 data_bits|8
 parity|none
+sample_freq|4
+record_freq|16
 graph0-line-title|LEDs
 graph0-line-min|null
 graph0-line-max|null
 graph0-line-widthX|4
 graph0-line-widthY|4
-graph0-line-series0-title|RED
+graph0-line-series0-title|Series 4
 graph0-line-series0-index|3
 graph0-line-series0-samples|1000
 graph0-line-series0-lineWidth|3
 graph0-line-series0-colour|0
-graph0-line-series1-title|WHITE
+graph0-line-series1-title|Series 5
 graph0-line-series1-index|4
 graph0-line-series1-samples|1000
 graph0-line-series1-lineWidth|3
 graph0-line-series1-colour|4
-graph0-line-series2-title|BLUE
+graph0-line-series2-title|Series 6
 graph0-line-series2-index|5
 graph0-line-series2-samples|1000
 graph0-line-series2-lineWidth|3
@@ -28,12 +30,12 @@ graph1-line-min|0.0
 graph1-line-max|45.0
 graph1-line-widthX|4
 graph1-line-widthY|4
-graph1-line-series0-title|WT
+graph1-line-series0-title|Series 2
 graph1-line-series0-index|1
 graph1-line-series0-samples|1000
 graph1-line-series0-lineWidth|4
 graph1-line-series0-colour|1
-graph1-line-series1-title|HPT
+graph1-line-series1-title|Series 3
 graph1-line-series1-index|2
 graph1-line-series1-samples|1000
 graph1-line-series1-lineWidth|4
@@ -43,7 +45,7 @@ graph2-line-min|null
 graph2-line-max|null
 graph2-line-widthX|4
 graph2-line-widthY|4
-graph2-line-series0-title|Hours
+graph2-line-series0-title|Series 1
 graph2-line-series0-index|0
 graph2-line-series0-samples|1000
 graph2-line-series0-lineWidth|3
@@ -53,9 +55,8 @@ graph3-line-min|0.0
 graph3-line-max|255.0
 graph3-line-widthX|4
 graph3-line-widthY|4
-graph3-line-series0-title|HPP
+graph3-line-series0-title|Series 7
 graph3-line-series0-index|6
 graph3-line-series0-samples|1000
 graph3-line-series0-lineWidth|2
 graph3-line-series0-colour|3
-headings|Hours,WT,HPT,RED,WHITE,BLUE,HPP,LO,BP,LBP,DM,

@@ -718,6 +718,8 @@ public class MainWindow {
 		pairList.add(new String[] {"stop_bits", this.comboStopBits.getText()});
 		pairList.add(new String[] {"data_bits", this.comboDataBits.getText()});
 		pairList.add(new String[] {"parity", this.comboParity.getText()});
+		pairList.add(new String[] {"sample_freq", Integer.toString(this.spinnerSampleFrequency.getSelection())});
+		pairList.add(new String[] {"record_freq", Integer.toString(this.spinnerRecordFrequency.getSelection())});
 		
 		// and all the graphs
 		int graphNumber = 0;
@@ -821,6 +823,12 @@ public class MainWindow {
 			else {
 				this.comboParity.setText(second);
 			}
+			break;
+		case "sample_freq":
+			this.spinnerSampleFrequency.setSelection(Integer.parseInt(second));
+			break;
+		case "record_freq":
+			this.spinnerRecordFrequency.setSelection(Integer.parseInt(second));
 			break;
 		case "headings":
 			String[] headings = second.split(",");

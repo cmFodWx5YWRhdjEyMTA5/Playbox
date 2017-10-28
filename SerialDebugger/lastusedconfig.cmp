@@ -3,6 +3,8 @@ baud|9600
 stop_bits|1
 data_bits|8
 parity|none
+sample_freq|1
+record_freq|10
 graph0-line-title|LEDs
 graph0-line-min|null
 graph0-line-max|null
@@ -58,4 +60,3 @@ graph3-line-series0-index|6
 graph3-line-series0-samples|1000
 graph3-line-series0-lineWidth|2
 graph3-line-series0-colour|3
-headings|Hours,WT,HPT,RED,WHITE,BLUE,HPP,LO,BP,LBP,DM,
