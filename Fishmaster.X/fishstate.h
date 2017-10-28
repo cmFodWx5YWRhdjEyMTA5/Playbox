@@ -43,6 +43,11 @@ extern "C" {
 #define K_GAUSSIAN_BLUE_STD             0.15     // the standard deviation for the gaussian curve for blue lighting
 #define K_GAUSSIAN_BLUE_MAX             250.0    // the maximum value for the gaussian curve for blue lighting
     
+#define K_RED_LIGHT_FACTOR              1.0      // a factor by which the output of this LED will be multiplied (to reduce brightness)    
+#define K_WHITE_LIGHT_FACTOR            1.0      // a factor by which the output of this LED will be multiplied (to reduce brightness)    
+#define K_BLUE_LIGHT_FACTOR             1.0      // a factor by which the output of this LED will be multiplied (to reduce brightness)    
+    
+    
 // debugging defines 
 #define K_DEBUG
 //#define K_DEBUG_HPT     // will get hot plate temp from to potentiometer instead

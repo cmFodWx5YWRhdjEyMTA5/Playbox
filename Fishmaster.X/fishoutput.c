@@ -152,23 +152,23 @@ void FISHOUTPUT_setLighting(void)
     if (FISH_State.isLightsOn) {
         // the formula is simple, we are using a gaussian curve...
         // the value for time needs to be a decimal value of hours
-        FISH_State.red = (uint8_t)FISHOUTPUT_gaussianValue(
+        FISH_State.red = (uint8_t)(FISHOUTPUT_gaussianValue(
                 RTC_State.time_hours,
                 K_GAUSSIAN_RED_PEAK,
                 K_GAUSSIAN_RED_STD,
-                K_GAUSSIAN_RED_MAX);
+                K_GAUSSIAN_RED_MAX) * K_RED_LIGHT_FACTOR);
         // now do blue
-        FISH_State.blue = (uint8_t)FISHOUTPUT_gaussianValue(
+        FISH_State.blue = (uint8_t)(FISHOUTPUT_gaussianValue(
                 RTC_State.time_hours,
                 K_GAUSSIAN_BLUE_PEAK,
                 K_GAUSSIAN_BLUE_STD,
-                K_GAUSSIAN_BLUE_MAX);
+                K_GAUSSIAN_BLUE_MAX) * K_BLUE_LIGHT_FACTOR);
         // and white
-        FISH_State.white = (uint8_t)FISHOUTPUT_gaussianValue(
+        FISH_State.white = (uint8_t)(FISHOUTPUT_gaussianValue(
                 RTC_State.time_hours,
                 K_GAUSSIAN_WHITE_PEAK,
                 K_GAUSSIAN_WHITE_STD,
-                K_GAUSSIAN_WHITE_MAX);
+                K_GAUSSIAN_WHITE_MAX) * K_WHITE_LIGHT_FACTOR);
         // PWM on the CCP module uses only the 8 MSBs of the CCPCON so 0-255 << 2
         PWM2_LoadDutyValue(FISH_State.red << 2);
         // PWM on the CCP module uses only the 8 MSBs of the CCPCON so 0-255 << 2
