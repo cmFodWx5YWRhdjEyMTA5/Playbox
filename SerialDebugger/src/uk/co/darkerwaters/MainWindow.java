@@ -99,6 +99,13 @@ public class MainWindow {
 
 	private PrintWriter recordingWriter;
 
+	private Spinner spinnerSampleFrequency;
+
+	private int sampleCounter = 0;
+	private long lastDataTime = System.currentTimeMillis();
+	private long dataVelocity = 0;
+	private long dpsCounter = 0;
+
 	/**
 	 * Open the window.
 	 */
@@ -328,6 +335,17 @@ public class MainWindow {
 		this.lblDatavelocity = new Label(textConsoleButtonsComposite, SWT.NONE);
 		lblDatavelocity.setText("DataVelocity: 0/s");
 		
+		Label lblSample = new Label(textConsoleButtonsComposite, SWT.NONE);
+		lblSample.setText("Sample Every: ");
+		
+		this.spinnerSampleFrequency = new Spinner(textConsoleButtonsComposite, SWT.BORDER | SWT.READ_ONLY);
+		spinnerSampleFrequency.setMaximum(1000);
+		spinnerSampleFrequency.setMinimum(1);
+		spinnerSampleFrequency.setSelection(1);
+		
+		Label lblSampleSamples = new Label(textConsoleButtonsComposite, SWT.NONE);
+		lblSampleSamples.setText(" data entries");
+		
 		btnRecord = new Button(textConsoleButtonsComposite, SWT.NONE);
 		btnRecord.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -344,6 +362,9 @@ public class MainWindow {
 		spinnerRecordFrequency.setMaximum(1000);
 		spinnerRecordFrequency.setMinimum(1);
 		spinnerRecordFrequency.setSelection(10);
+		
+		Label lblDataSamples = new Label(textConsoleButtonsComposite, SWT.NONE);
+		lblDataSamples.setText(" samples");
 		
 		sashForm.setWeights(new int[] {1, 3});
 		fillComboPort();
@@ -480,53 +501,69 @@ public class MainWindow {
 			}
 		}
 		// append the text to the console
+		int sampleFrequency = spinnerSampleFrequency.getSelection();
 		for (String string : strings) {
-			// and append the new string
-	        this.txtConsoletext.append(string + Text.DELIMITER);
 	        if (string.startsWith("{D}")) {
-	        		// this is data, put in the data table
-	        		TableItem item = new TableItem(this.tblDataTable, SWT.NONE, 0);
-				String[] dataEntries = string.substring(3).split("\\|");
-				if (dataEntries.length > 0) {
-					// ensure we have enough columns in the list...
-					int colWidth = this.tblDataTable.getClientArea().width / dataEntries.length;
-					while (this.tblDataTable.getColumnCount() < dataEntries.length) {
-						setTableColumn(this.tblDataTable, this.tblDataTable.getColumnCount(), "Column", colWidth);
+	        		// calculate the velocity on this data received
+	        		++dpsCounter;
+		        	if (System.currentTimeMillis() - this.lastDataTime >= 1000) {
+		        		// per second
+		        		this.dataVelocity = this.dpsCounter;
+		        		this.lastDataTime = System.currentTimeMillis();
+		        		this.dpsCounter = 0;
+		        	}
+		        	if (++this.sampleCounter % sampleFrequency == 0) {
+		        		this.sampleCounter = 0;
+					// this is divisible by the frequency - deal with this data
+					TableItem item = new TableItem(this.tblDataTable, SWT.NONE, 0);
+					String[] dataEntries = string.substring(3).split("\\|");
+					if (dataEntries.length > 0) {
+						// ensure we have enough columns in the list...
+						int colWidth = this.tblDataTable.getClientArea().width / dataEntries.length;
+						while (this.tblDataTable.getColumnCount() < dataEntries.length) {
+							setTableColumn(this.tblDataTable, this.tblDataTable.getColumnCount(), "Column", colWidth);
+						}
 					}
-				}
-				for (int i = 0; i < dataEntries.length; ++i) {
-					// set the text on the one item in the table
-					item.setText(i, dataEntries[i]);
-				}
-				// and keep to a sensible number
-				while (this.tblDataTable.getItemCount() > 50) {
-					this.tblDataTable.getItems()[this.tblDataTable.getItemCount() - 1].dispose();
-				}
-				// also add to the graph
-				DataGraph.addData(dataEntries);
-				this.graphCanvas.redraw();
-
-				if (this.recordingWriter != null && ++this.recordingLineNumber % this.spinnerRecordFrequency.getSelection() == 0) {
-					// this is a line to record, record it
-					this.recordingWriter.println(string.substring(3).replaceAll("\\|", ","));
-				}
+					for (int i = 0; i < dataEntries.length; ++i) {
+						// set the text on the one item in the table
+						item.setText(i, dataEntries[i]);
+					}
+					// and keep to a sensible number
+					while (this.tblDataTable.getItemCount() > 50) {
+						this.tblDataTable.getItems()[this.tblDataTable.getItemCount() - 1].dispose();
+					}
+					// also add to the graph
+					DataGraph.addData(dataEntries);
+					this.graphCanvas.redraw();
+	
+					if (this.recordingWriter != null && ++this.recordingLineNumber % this.spinnerRecordFrequency.getSelection() == 0) {
+						// this is a line to record, record it
+						this.recordingWriter.println(string.substring(3).replaceAll("\\|", ","));
+					}
+					// append the data string to the console
+			        this.txtConsoletext.append(string + Text.DELIMITER);
+		        	}
 	        }
 	        else if (string.startsWith("{H}")) {
 	        		// this is headings, update the graphs with this
 		        	for (DataGraph graph : this.currentGraphs) {
 		        		graph.updateGraphHeadings(string.substring(3).split("\\|"));
 				}
+		        	// append the data string to the console
+			    this.txtConsoletext.append(string + Text.DELIMITER);
 	        }
 	        else {
 	        		// show this as a comment
 	        		this.txtComments.append(string + Text.DELIMITER);
+	        		// append the data string to the console
+			    this.txtConsoletext.append(string + Text.DELIMITER);
 	        }
 		}
 		if (strings.length > 0) {
 			// and show the latest data
 			fillCurrentTableData(strings[strings.length - 1]);
 		}
-		this.lblDatavelocity.setText("Velocity: " + DataGraph.getDataVelocity() + "/s");
+		this.lblDatavelocity.setText("Velocity: " + this.dataVelocity + "/s");
 	}
 
 	protected void onConnectPort() {

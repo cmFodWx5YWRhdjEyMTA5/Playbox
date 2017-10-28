@@ -12,9 +12,6 @@ public abstract class DataGraph {
 	
 	private static ArrayList<ArrayList<String>> DATA_SERIES = new ArrayList<ArrayList<String>>();
 	private static String[] DATA_SERIES_HEADINGS = new String[0];
-	private static long lastDataTime = System.currentTimeMillis();
-	private static long dataCount = 0;
-	private static long dataVelocity = 0;
 	
 	protected ArrayList<DataGraphSeries> graphSeries = new ArrayList<DataGraphSeries>();
 	
@@ -164,22 +161,11 @@ public abstract class DataGraph {
 			}
 		}
 	}
-	
-	public static long getDataVelocity() {
-		return dataVelocity;
-	}
 
 	public static void addData(String[] dataEntries) {
 		// add the data for this graph, store the series the data could be
 		synchronized (DATA_SERIES) {
-			if (System.currentTimeMillis() - lastDataTime > 1000) {
-				// per second
-				dataVelocity = dataCount;
-				dataCount = 0;
-				lastDataTime = 0;
-			}
 			for (int i = 0; i < dataEntries.length; ++i) {
-				++dataCount;
 				if (DATA_SERIES.size() < i + 1) {
 					// there is no series for this, add one
 					DATA_SERIES.add(new ArrayList<String>(1000));
