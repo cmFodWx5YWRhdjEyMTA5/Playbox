@@ -62,6 +62,8 @@ void FISHINPUT_process(void)
                 // came on, this is a request to put this in demo mode, do that
                 // instead of registering the long button press
                 FISH_State.isDemoMode = true;
+                // and increment the hour to show this
+                RTC_IncrementHour();
             }
             else {
                 // this is just a long press of the button
