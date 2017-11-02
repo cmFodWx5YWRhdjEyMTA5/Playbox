@@ -32,6 +32,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
@@ -48,6 +49,7 @@ import org.eclipse.swt.layout.GridLayout;
 import swing2swt.layout.BorderLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Link;
 
 public class MainWindow {
 
@@ -110,6 +112,7 @@ public class MainWindow {
 	 * Open the window.
 	 */
 	public void open() {
+		Display.setAppName("DarComm");
 		Display display = Display.getDefault();
 		DataGraph.InitialiseColours(display);
 		createContents();
@@ -129,8 +132,9 @@ public class MainWindow {
 	protected void createContents() {
 		shell = new Shell();
 		shell.setSize(1020, 800);
-		shell.setText("Serial Debugger");
+		shell.setText("DarComm");
 		shell.setLayout(new FillLayout(SWT.VERTICAL));
+		final Display display = shell.getDisplay();
 		
 		this.settingsFile = new File(System.getProperty("user.dir") + "/lastusedconfig.cmp");
 		
@@ -156,10 +160,14 @@ public class MainWindow {
 		SashForm sashForm = new SashForm(shell, SWT.VERTICAL);
 		
 		Composite compositeTop = new Composite(sashForm, SWT.NONE);
-		compositeTop.setLayout(new GridLayout(1, false));
+		BorderLayout rl_compositeTop = new BorderLayout(0, 0);
+		compositeTop.setLayout(rl_compositeTop);
 		
 		Composite topCompositeCommsRow = new Composite(compositeTop, SWT.NONE);
-		topCompositeCommsRow.setLayout(new RowLayout(SWT.HORIZONTAL));
+		topCompositeCommsRow.setLayoutData(BorderLayout.NORTH);
+		RowLayout rl_topCompositeCommsRow = new RowLayout(SWT.HORIZONTAL);
+		rl_topCompositeCommsRow.center = true;
+		topCompositeCommsRow.setLayout(rl_topCompositeCommsRow);
 		
 		this.btnConnect = new Button(topCompositeCommsRow, SWT.NONE);
 		btnConnect.addSelectionListener(new SelectionAdapter() {
@@ -214,13 +222,16 @@ public class MainWindow {
 		comboParity.setItems(new String[] {"none", "odd", "even", "mark", "space"});
 		comboParity.select(0);
 		
-		Composite topCompositeDataRow = new Composite(compositeTop, SWT.NONE);
-		topCompositeDataRow.setLayout(new FillLayout(SWT.HORIZONTAL));
-		topCompositeDataRow.setLayoutData(new GridData(SWT.FILL, SWT.BEGINNING, true, false));
+		Link link = new Link(topCompositeCommsRow, SWT.NONE);
+		link.setText("<a href=\"http://www.darkerwaters.co.uk/1_20\">Darker Waters LTD</a>");
+		// Event handling when users click on links.
+		link.addSelectionListener(new SelectionAdapter()  {
+		    @Override
+		    public void widgetSelected(SelectionEvent e) {
+		        Program.launch("http://www.darkerwaters.co.uk/1_20");
+		    }
+		});
 		
-		tableCurrentData = new Table(topCompositeDataRow, SWT.BORDER);
-		tableCurrentData.setHeaderVisible(true);
-		tableCurrentData.setLinesVisible(true);
 		comboPort.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -229,11 +240,19 @@ public class MainWindow {
 		});
 		
 		Composite topCompositeCommentsRow = new Composite(compositeTop, SWT.NONE);
-		topCompositeCommentsRow.setLayout(new FillLayout(SWT.HORIZONTAL | SWT.VERTICAL));
-		topCompositeCommentsRow.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		topCompositeCommentsRow.setLayoutData(BorderLayout.CENTER);
+		topCompositeCommentsRow.setLayout(new FillLayout(SWT.HORIZONTAL));
 		
-		txtComments = new Text(topCompositeCommentsRow, SWT.BORDER);
+		txtComments = new Text(topCompositeCommentsRow, SWT.BORDER | SWT.V_SCROLL);
 		txtComments.setText("");
+		
+		Composite topCompositeDataRow = new Composite(compositeTop, SWT.NONE);
+		topCompositeDataRow.setLayoutData(BorderLayout.SOUTH);
+		topCompositeDataRow.setLayout(new FillLayout(SWT.HORIZONTAL));
+		
+		tableCurrentData = new Table(topCompositeDataRow, SWT.BORDER);
+		tableCurrentData.setHeaderVisible(true);
+		tableCurrentData.setLinesVisible(true);
 		
 		Composite compositeBottom = new Composite(sashForm, SWT.BORDER);
 		compositeBottom.setLayout(new FillLayout(SWT.HORIZONTAL));
@@ -250,8 +269,8 @@ public class MainWindow {
 		tbtmTextConsole.setControl(textConsoleComposite);
 		textConsoleComposite.setLayout(new BorderLayout(0, 0));
 		
-		txtConsoletext = new Text(textConsoleComposite, SWT.BORDER);
-		txtConsoletext.setText("consoleText");
+		txtConsoletext = new Text(textConsoleComposite, SWT.BORDER | SWT.V_SCROLL);
+		txtConsoletext.setText("");
 		
 		TabItem tbtmDataTable = new TabItem(tabFolder, SWT.NONE);
 		tbtmDataTable.setText("Data Table");
@@ -269,7 +288,6 @@ public class MainWindow {
 		graphComposite.setLayout(new BorderLayout(0, 0));
 		
 		this.graphCanvas = new Canvas(graphComposite, SWT.NO_REDRAW_RESIZE);
-		final Display display = shell.getDisplay();
 		this.graphCanvas.addPaintListener(new PaintListener() { 
 	        public void paintControl(PaintEvent e) { 
 				// and update the graphs
@@ -279,7 +297,9 @@ public class MainWindow {
 		
 		Composite textConsoleButtonsComposite = new Composite(compositeTabArea, SWT.NONE);
 		textConsoleButtonsComposite.setLayoutData(BorderLayout.SOUTH);
-		textConsoleButtonsComposite.setLayout(new RowLayout(SWT.HORIZONTAL));
+		RowLayout textConsoleButtonsLayout = new RowLayout(SWT.HORIZONTAL);
+		textConsoleButtonsLayout.center = true;
+		textConsoleButtonsComposite.setLayout(textConsoleButtonsLayout);
 		
 		this.btnConsolePause = new Button(textConsoleButtonsComposite, SWT.NONE);
 		btnConsolePause.addSelectionListener(new SelectionAdapter() {
@@ -332,7 +352,7 @@ public class MainWindow {
 		});
 		btnLoad.setText("Load");
 		
-		this.lblDatavelocity = new Label(textConsoleButtonsComposite, SWT.NONE);
+		this.lblDatavelocity = new Label(textConsoleButtonsComposite, SWT.HORIZONTAL | SWT.SHADOW_NONE | SWT.CENTER);
 		lblDatavelocity.setText("DataVelocity: 0/s");
 		
 		Label lblSample = new Label(textConsoleButtonsComposite, SWT.NONE);
@@ -615,7 +635,7 @@ public class MainWindow {
 		boolean enableControls = null != port && !this.portManager.isConnected();
 			
 		this.btnConnect.setEnabled(null != port);
-		this.btnRefresh.setEnabled(enableControls);
+		this.btnRefresh.setEnabled(!this.portManager.isConnected());
 		this.comboBaud.setEnabled(enableControls);
 		this.comboDataBits.setEnabled(enableControls);
 		this.comboStopBits.setEnabled(enableControls);

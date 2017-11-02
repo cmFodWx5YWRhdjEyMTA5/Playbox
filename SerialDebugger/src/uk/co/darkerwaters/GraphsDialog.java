@@ -114,7 +114,7 @@ public class GraphsDialog extends Dialog {
 		lblGraph.setText("Graph");
 		
 		this.comboActiveGraph = new Combo(composite, SWT.READ_ONLY);
-		comboActiveGraph.setLayoutData(new RowData(100, SWT.DEFAULT));
+		comboActiveGraph.setLayoutData(new RowData(300, SWT.DEFAULT));
 		comboActiveGraph.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -522,8 +522,9 @@ public class GraphsDialog extends Dialog {
 		String selectedTitle = this.comboActiveGraph.getText();
 		this.selectedGraph = null;
 		for (DataGraph graph : this.currentGraphs) {
-			if (graph.getId().equals(selectedTitle)) {
-				// select this data
+			if ( (selectedTitle.contains(":") && selectedTitle.startsWith(graph.getId() + ":")) ||
+				 (!selectedTitle.contains(":") && selectedTitle.equals(graph.getId())) ){
+				// the selected title has the name of the graph too, check for this
 				selectedGraph = graph;
 				break;
 			}
@@ -580,7 +581,11 @@ public class GraphsDialog extends Dialog {
 				DataGraphSeries series = graph.getDataSeries(i);
 				TableItem item = new TableItem(tableSeries, SWT.NONE);
 				item.setText(0, series.seriesTitle);
-				item.setText(1, series.colour == null ? "null" : series.colour.toString());
+				String colourString = "null";
+				if (series.colour != null) {
+					colourString = String.format("#%02x%02x%02x", series.colour.getRed(), series.colour.getGreen(), series.colour.getBlue());
+				}
+				item.setText(1, colourString);
 				item.setText(2, Integer.toString(series.lineWidth));
 				item.setText(3, Integer.toString(series.seriesCount));
 				item.setData(series);
@@ -631,7 +636,12 @@ public class GraphsDialog extends Dialog {
 		DataGraph graph = new DataLineGraph("Graph " + (this.currentGraphs.size() + 1));
 		this.currentGraphs.add(graph);
 		// add to the combo
-		comboActiveGraph.add(graph.getId());
+		String graphTitle = graph.getId();
+		if (graph.getTitle() != null && !graph.getTitle().isEmpty()) {
+			// there is a title
+			graphTitle += ": " + graph.getTitle();
+		}
+		comboActiveGraph.add(graphTitle);
 		// select this
 		comboActiveGraph.select(comboActiveGraph.getItemCount() - 1);
 		this.selectedGraph = graph;
@@ -650,7 +660,12 @@ public class GraphsDialog extends Dialog {
 		comboActiveGraph.removeAll();
 		this.selectedGraphSeries = null;
 		for (DataGraph graph : this.currentGraphs) {
-			comboActiveGraph.add(graph.getId());
+			String graphTitle = graph.getId();
+			if (graph.getTitle() != null && !graph.getTitle().isEmpty()) {
+				// there is a title
+				graphTitle += ": " + graph.getTitle();
+			}
+			comboActiveGraph.add(graphTitle);
 		}
 		// remove from the combo
 		comboActiveGraph.select(comboActiveGraph.getItemCount() - 1);
