@@ -1,7 +1,8 @@
-package uk.co.darkerwaters.noteinvaders;
+package uk.co.darkerwaters.noteinvaders.state;
 
-import android.app.Activity;
 import android.content.Context;
+
+import uk.co.darkerwaters.noteinvaders.R;
 
 public class Notes {
 

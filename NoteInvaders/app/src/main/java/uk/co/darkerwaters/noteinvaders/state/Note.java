@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.noteinvaders;
+package uk.co.darkerwaters.noteinvaders.state;
 
 public class Note {
 

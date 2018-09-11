@@ -2,7 +2,6 @@ package uk.co.darkerwaters.noteinvaders;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.media.MediaRecorder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -13,10 +12,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
-import java.util.Timer;
-import java.util.TimerTask;
+import uk.co.darkerwaters.noteinvaders.state.Note;
+import uk.co.darkerwaters.noteinvaders.state.input.InputConnectionInterface;
+import uk.co.darkerwaters.noteinvaders.state.input.InputMicrophone;
 
 public class MicrophoneSetupActivity extends AppCompatActivity implements PianoView.IPianoViewListener {
 
@@ -27,7 +25,7 @@ public class MicrophoneSetupActivity extends AppCompatActivity implements PianoV
     private TextView pianoRangeText = null;
     private ProgressBar microphoneLevel = null;
     private MicrophoneLevelMonitor microphoneLevelMonitor = null;
-    private MicrophoneNotesDetector microphoneNotesDetector = null;
+    private InputMicrophone inputMicrophone = null;
 
     private final static float K_NOTE_DETECTION_PROBABIILITY_THRESHOLD = 0.8f;
     private final static int K_NOTE_DETECTION_FREQUENCY_THRESHOLD = 3;
@@ -84,10 +82,10 @@ public class MicrophoneSetupActivity extends AppCompatActivity implements PianoV
             this.microphoneLevelMonitor.stop();
             this.microphoneLevelMonitor = null;
         }
-        if (null != this.microphoneNotesDetector) {
+        if (null != this.inputMicrophone) {
             // and detecting the notes
-            this.microphoneNotesDetector.stop();
-            this.microphoneNotesDetector = null;
+            this.inputMicrophone.stopConnection();
+            this.inputMicrophone = null;
         }
         this.piano.removeListener(this);
 
@@ -115,11 +113,12 @@ public class MicrophoneSetupActivity extends AppCompatActivity implements PianoV
             }
         });
         // also start detecting the notes
-        microphoneNotesDetector = new MicrophoneNotesDetector(MicrophoneSetupActivity.this);
+        inputMicrophone = new InputMicrophone(MicrophoneSetupActivity.this);
+        inputMicrophone.initialiseConnection();
         // add a listener
-        microphoneNotesDetector.addListener(new MicrophoneNotesDetector.NoteDetectionInterface() {
+        inputMicrophone.addListener(new InputConnectionInterface() {
             @Override
-            public void onNoteDetected(final String name, float pitch, final float probability, int frequency, boolean isPitched) {
+            public void onNoteDetected(final Note note, final float probability, int frequency, boolean isPitched) {
                 // show that the microphone is working
                 MicrophoneSetupActivity.this.runOnUiThread(new Runnable() {
                     @Override
@@ -127,7 +126,7 @@ public class MicrophoneSetupActivity extends AppCompatActivity implements PianoV
                         MicrophoneSetupActivity.this.microphoneLevel.setProgress((int)(probability * 100.0));
                         MicrophoneSetupActivity.this.microphoneResponseText.setVisibility(View.VISIBLE);
                         if (probability > 0.4) {
-                            MicrophoneSetupActivity.this.microphoneResponseText.setText(name);
+                            MicrophoneSetupActivity.this.microphoneResponseText.setText(note.getName());
                         }
                         else {
                             MicrophoneSetupActivity.this.microphoneResponseText.setText("--");
@@ -136,7 +135,7 @@ public class MicrophoneSetupActivity extends AppCompatActivity implements PianoV
                 });
                 if (probability > K_NOTE_DETECTION_PROBABIILITY_THRESHOLD && frequency > K_NOTE_DETECTION_FREQUENCY_THRESHOLD) {
                     // exceeded thresholds for detection, add to our range of notes we can detect
-                    addDetectedPitch(pitch);
+                    addDetectedPitch(note);
                 }
                 runOnUiThread(new Runnable() {
                     @Override
@@ -149,7 +148,7 @@ public class MicrophoneSetupActivity extends AppCompatActivity implements PianoV
                     });
             }
         });
-        if (false == microphoneNotesDetector.start()) {
+        if (false == inputMicrophone.startConnection()) {
             // failed to start the note detector, start the microphone detector instead
             if (false == this.microphoneLevelMonitor.start()) {
                 // failed to start that too
@@ -214,7 +213,8 @@ public class MicrophoneSetupActivity extends AppCompatActivity implements PianoV
         }
     }
 
-    private void addDetectedPitch(float pitch) {
+    private void addDetectedPitch(Note note) {
+        float pitch = note.getFrequency();
         // add to the range of pitch we can detect
         if (minPitchDetected < 0 || pitch < minPitchDetected) {
             minPitchDetected = pitch;
@@ -223,7 +223,7 @@ public class MicrophoneSetupActivity extends AppCompatActivity implements PianoV
             maxPitchDetected = pitch;
         }
         // depress this note
-        this.piano.depressNote(Notes.instance().getNote(pitch));
+        this.piano.depressNote(note);
         // set the detected pitch on the piano we are showing
         this.piano.setNoteRange(minPitchDetected, maxPitchDetected);
     }

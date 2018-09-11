@@ -1,0 +1,31 @@
+{
+  "name": "Scales",
+  "image": "piano.jpg",
+  "levels": [
+    {
+      "name": "C",
+      "image": "piano.jpg",
+      "notes" : [ "C4", "D4", "E4", "F4", "G4" ]
+    },
+    {
+      "name": "D",
+      "image": "piano.jpg",
+      "notes" : [ "C4", "D4", "E4", "F4", "G4", "A5", "B5" ]
+    },
+    {
+      "name": "E",
+      "image": "piano.jpg",
+      "notes" : [ "C4", "D4", "E4", "F4", "G4", "A5", "B5" ]
+    },
+    {
+      "name": "F",
+      "image": "piano.jpg",
+      "notes" : [ "C4", "D4", "E4", "F4", "G4", "A5", "B5" ]
+    },
+    {
+      "name": "G",
+      "image": "piano.jpg",
+      "notes" : [ "C4", "D4", "E4", "F4", "G4", "A5", "B5" ]
+    }
+  ]
+}

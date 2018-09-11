@@ -3,17 +3,12 @@ package uk.co.darkerwaters.noteinvaders;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.co.darkerwaters.noteinvaders.instruments.Instrument;
-import uk.co.darkerwaters.noteinvaders.instruments.InstrumentList;
+import uk.co.darkerwaters.noteinvaders.selectables.Instrument;
+import uk.co.darkerwaters.noteinvaders.state.State;
 
 public class InputActivity extends SelectableItemActivity {
 
@@ -26,7 +21,14 @@ public class InputActivity extends SelectableItemActivity {
         if(null != bundle) {
             String instrumentName = bundle.getString("instrument");
             // get the actual instrument for this
-            this.parentInstrument = InstrumentList.GET().getInstrument(instrumentName);
+            for (int i = 0; i < State.getInstance().getAvailableInstrumentCount(); ++i) {
+                Instrument instrument = State.getInstance().getAvailableInstrument(i);
+                if (instrument.getName().equals(instrumentName)) {
+                    // this is it
+                    this.parentInstrument = instrument;
+                    break;
+                }
+            }
         }
         // and create the view now
         super.onCreate(savedInstanceState);
@@ -51,9 +53,9 @@ public class InputActivity extends SelectableItemActivity {
     protected List<Instrument> getItemList() {
 
         this.inputList = new ArrayList<Instrument>();
-        this.inputList.add(new Instrument(getString(R.string.microphone), R.drawable.microphone));
-        this.inputList.add(new Instrument(getString(R.string.usb_midi), R.drawable.usb));
-        this.inputList.add(new Instrument(getString(R.string.bt_midi), R.drawable.bt_usb));
+        this.inputList.add(new Instrument(this, getString(R.string.microphone), R.drawable.microphone));
+        this.inputList.add(new Instrument(this, getString(R.string.usb_midi), R.drawable.usb));
+        this.inputList.add(new Instrument(this, getString(R.string.bt_midi), R.drawable.bt_usb));
 
         return this.inputList;
     }

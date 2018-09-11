@@ -9,17 +9,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import uk.co.darkerwaters.noteinvaders.instruments.Instrument;
 
 public abstract class SelectableItemActivity extends AppCompatActivity {
 
@@ -36,10 +32,10 @@ public abstract class SelectableItemActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(this.getContentViewRes());
 
-        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        /*getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(toolbar);*/
 
         initCollapsingToolbar();
 
@@ -66,7 +62,13 @@ public abstract class SelectableItemActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
 
+        // update all our cards, the data may have changed
+        this.adapter.notifyDataSetChanged();
+    }
 
     /**
      * Initializing collapsing toolbar
