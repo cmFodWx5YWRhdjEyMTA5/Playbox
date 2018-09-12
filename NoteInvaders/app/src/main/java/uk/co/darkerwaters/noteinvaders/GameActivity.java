@@ -7,10 +7,7 @@ import android.os.Bundle;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.co.darkerwaters.noteinvaders.selectables.GameCard;
 import uk.co.darkerwaters.noteinvaders.selectables.GameLevelCard;
-import uk.co.darkerwaters.noteinvaders.selectables.Instrument;
-import uk.co.darkerwaters.noteinvaders.selectables.Profile;
 import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.State;
 
