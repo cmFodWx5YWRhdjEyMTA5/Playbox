@@ -10,7 +10,7 @@
     {
       "name": "1st 7",
       "image": "piano.jpg",
-      "notes" : [ "C4", "D4", "E4", "F4", "G4", "A5", "B5" ]
+      "notes" : [ "A3", "B3", "C4", "D4", "E4", "F4", "G4" ]
     }
   ]
 }

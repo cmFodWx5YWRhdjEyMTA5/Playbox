@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Build;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -30,21 +31,38 @@ public class MusicView extends View {
     private final static String K_TREBLENOTEBOTTOM = "A3";
     private final static String K_TREBLENOTETOP = "C6";
 
-    private Paint whitePaint;
+    public interface MusicViewListener {
+        void onNotePopped(Note note);
+    }
+
     private Paint blackPaint;
+    private Paint notePaint;
     private Paint redPaint;
     private VectorDrawableCompat trebleDrawable;
     private VectorDrawableCompat bassDrawable;
-    private VectorDrawableCompat noteDrawable;
 
     private boolean isDrawTreble = true;
     private boolean isDrawBass = true;
 
-    private boolean isDrawNoteName = true;
+    private boolean isDrawNoteName = false;
 
     // store an array of notes that the treble and bass clefs represent
     private Note[] notesTreble;
     private Note[] notesBass;
+    private float noteRadius = 1f;
+    private float lineHeight = 1f;
+
+    private final List<PlayNote> notesToDraw = new ArrayList<PlayNote>();
+    private final List<MusicViewListener> listeners = new ArrayList<MusicViewListener>();
+
+    private class PlayNote {
+        float xPosition;
+        final Note note;
+        PlayNote(float xPosition, Note note) {
+            this.xPosition = xPosition;
+            this.note = note;
+        }
+    }
 
     public MusicView(Context context) {
         super(context);
@@ -66,17 +84,18 @@ public class MusicView extends View {
     }
 
     private void init(final Context context) {
-        // Initialize new paints to draw the keys
-        this.whitePaint = new Paint();
-        this.whitePaint.setStyle(Paint.Style.STROKE);
-        this.whitePaint.setStrokeWidth(2);
-        this.whitePaint.setColor(Color.BLACK);
-        this.whitePaint.setAntiAlias(true);
-        // and for the black keys
+        // Initialize new paints
         this.blackPaint = new Paint();
-        this.blackPaint.setStyle(Paint.Style.FILL);
+        this.blackPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        this.blackPaint.setStrokeWidth(2f);
         this.blackPaint.setColor(Color.BLACK);
         this.blackPaint.setAntiAlias(true);
+        // and for the notes
+        this.notePaint = new Paint();
+        this.notePaint.setStyle(Paint.Style.STROKE);
+        this.notePaint.setStrokeWidth(2f);
+        this.notePaint.setColor(Color.BLACK);
+        this.notePaint.setAntiAlias(true);
         // and for the pressed keys
         this.redPaint = new Paint();
         this.redPaint.setStyle(Paint.Style.FILL);
@@ -85,7 +104,6 @@ public class MusicView extends View {
 
         this.trebleDrawable = VectorDrawableCompat.create(getContext().getResources(), R.drawable.ic_treble, null);
         this.bassDrawable = VectorDrawableCompat.create(getContext().getResources(), R.drawable.ic_bass, null);
-        this.noteDrawable = VectorDrawableCompat.create(getContext().getResources(), R.drawable.ic_note, null);
 
         // and initialise the notes we are going to show on the piano, do the whole range...
         if (null == Notes.instance()) {
@@ -125,6 +143,70 @@ public class MusicView extends View {
                 }
                 break;
             }
+        }
+    }
+
+    public boolean addListener(MusicViewListener listener) {
+        synchronized (this.listeners) {
+            return this.listeners.add(listener);
+        }
+    }
+
+    public boolean removeListener(MusicViewListener listener) {
+        synchronized (this.listeners) {
+            return this.listeners.remove(listener);
+        }
+    }
+
+    public boolean pushNote(Note note) {
+        // put this note on the end of the view
+        float startX = getWidth();
+        synchronized (this.notesToDraw) {
+            if (this.notesToDraw.size() > 0) {
+                // get the last x used
+                startX = this.notesToDraw.get(this.notesToDraw.size() - 1).xPosition + (this.lineHeight * 2f);
+            }
+        }
+        return pushNote(note, startX);
+    }
+
+    public boolean pushNote(Note note, float xPosition) {
+        synchronized (this.notesToDraw) {
+            return this.notesToDraw.add(new PlayNote(xPosition, note));
+        }
+    }
+
+    public int getNoteCount() {
+        synchronized (this.notesToDraw) {
+            return this.notesToDraw.size();
+        }
+    }
+
+    public void shiftNotesLeft(int pixels) {
+        synchronized (this.notesToDraw) {
+            for (PlayNote note : this.notesToDraw) {
+                note.xPosition -= pixels;
+            }
+        }
+    }
+
+    public Note popNote() {
+        PlayNote removed = null;
+        synchronized (this.notesToDraw) {
+            if (this.notesToDraw.size() > 0) {
+                removed = this.notesToDraw.remove(0);
+            }
+        }
+        if (null != removed) {
+            synchronized (this.listeners) {
+                for (MusicViewListener listener : this.listeners) {
+                    listener.onNotePopped(removed.note);
+                }
+            }
+            return removed.note;
+        }
+        else {
+            return null;
         }
     }
 
@@ -191,7 +273,7 @@ public class MusicView extends View {
         --linesToDraw;
         if (linesToDraw > 0) {
             // do the drawing then
-            float lineHeight = contentHeight / linesToDraw;
+            this.lineHeight = contentHeight / linesToDraw;
             float clefHeight = lineHeight * K_LINESINCLEF;
             float clefWidth = clefHeight * 0.5f;
             this.blackPaint.setTextSize(lineHeight);
@@ -240,63 +322,80 @@ public class MusicView extends View {
             }
 
             // setup the note to draw
-            float noteHeight = lineHeight * 2.5f;
-            this.noteDrawable.setBounds(0, 0, (int)noteHeight, (int)noteHeight);
-            // the offset is the height less a little to draw the bottom of the ball on the line
-            float noteOffset = noteHeight * 0.85f;
+            this.noteRadius = lineHeight * 0.3f;
+            this.notePaint.setStrokeWidth(noteRadius * 0.5f);
             float noteSeparation = lineHeight / 2.0f;
 
             // draw in any notes we want to draw
-            Notes notes = Notes.instance();
+            PlayNote[] toDraw;
+            synchronized (this.notesToDraw) {
+                toDraw = this.notesToDraw.toArray(new PlayNote[this.notesToDraw.size()]);
+            }
 
-            float xPosition = clefWidth;
-            float xSeparation = noteHeight;
-            for (int i = 0; i < notes.getNoteCount(); ++i) {
+            for (int i = 0; i < toDraw.length; ++i) {
                 // for each note, draw it on each clef
-                Note note = notes.getNote(i);
-                int position = -1;
-                if (this.isDrawTreble) {
-                    position = getNotePosition(this.notesTreble, note);
-                    yPosition = paddingTop + (position * noteSeparation);
+                PlayNote note = toDraw[i];
+                if (note.xPosition < clefWidth * 1.5f) {
+                    // this note has passed beyond where we draw it, pop this
+                    popNote();
                 }
-                if (position == -1 && this.isDrawBass) {
-                    // can't draw this on treble, but we have bass, try this
-                    position = getNotePosition(this.notesBass, note);
-                    yPosition = bassClefYOffset + (position * noteSeparation);
-                }
-                if (position != -1) {
-                    // we have a note, yPosition set for bass or treble, draw it now then
-                    drawNote(canvas, (int) xPosition, (int) (yPosition - noteOffset));
-                    if (isDrawLine(position)) {
-                        canvas.drawLine(
-                                xPosition + (noteHeight * 0.1f),
-                                yPosition,
-                                xPosition + (noteHeight * 0.9f),
-                                yPosition,
-                                blackPaint);
+                else if (note.xPosition <= contentWidth) {
+                    // draw this note in
+                    int position = -1;
+                    if (this.isDrawTreble) {
+                        position = getNotePosition(this.notesTreble, note.note);
+                        yPosition = paddingTop + (position * noteSeparation);
                     }
-                    if (isDrawNoteName) {
-                        canvas.drawText(getBasicNoteName(note), xPosition, yPosition, blackPaint);
+                    if (position == -1 && this.isDrawBass) {
+                        // can't draw this on treble, but we have bass, try this
+                        position = getNotePosition(this.notesBass, note.note);
+                        yPosition = bassClefYOffset + (position * noteSeparation);
                     }
-                    xPosition += xSeparation;
-                    // move on the x position accordingly
-                    if (xPosition > contentWidth - noteHeight) {
-                        xPosition = clefWidth;
+                    if (position != -1) {
+                        // draw the note in the correct position
+                        drawNoteOnClef(canvas, note.xPosition, yPosition, getBasicNoteName(note.note));
+                        // draw the line over this note if we didn't have a long one in already
+                        if (isDrawLine(position)) {
+                            canvas.drawLine(
+                                    note.xPosition - lineHeight * 0.8f,
+                                    yPosition,
+                                    note.xPosition + lineHeight * 0.8f,
+                                    yPosition,
+                                    notePaint);
+                        }
                     }
                 }
             }
         }
     }
 
+    private void drawNoteOnClef(Canvas canvas, float xPosition, float yPosition, String noteTitle) {
+        // we have a note, yPosition set for bass or treble, draw it now then
+        float stickX;
+        if (Build.VERSION.SDK_INT >= 21) {
+            // there is a function to draw it a little oval-like, do this
+            canvas.drawOval(xPosition - noteRadius * 1.2f,
+                    yPosition - noteRadius,
+                    xPosition + noteRadius * 1.2f,
+                    yPosition + noteRadius,
+                    notePaint);
+            stickX = xPosition + noteRadius * 1.2f;
+        }
+        else {
+            // fall back to drawing a circle then
+            canvas.drawCircle(xPosition, yPosition, noteRadius, notePaint);
+            stickX = xPosition + noteRadius;
+        }
+        // draw the stick up from the note
+        canvas.drawLine(stickX, yPosition, stickX, yPosition - lineHeight * 1.5f, notePaint);
+        // and the title if we are showing this helpful thing
+        if (isDrawNoteName) {
+            canvas.drawText(noteTitle, xPosition - noteRadius, yPosition - noteRadius * 2f, blackPaint);
+        }
+    }
+
     private boolean isDrawLine(int notePosition) {
         // draw a line when we are supposed to be on a line but are not drawing it
         return notePosition % 2 == 0 && (notePosition < K_LINESABOVEANDBELOW * 2 || notePosition >= (K_LINESABOVEANDBELOW + K_LINESINCLEF) * 2);
-    }
-
-    private void drawNote(Canvas canvas, int xPosition, int yPosition) {
-        canvas.save();
-        canvas.translate(xPosition, yPosition);
-        this.noteDrawable.draw(canvas);
-        canvas.restore();
     }
 }
