@@ -57,10 +57,21 @@ public class StartActivity extends SelectableItemActivity {
             this.startActivity(myIntent);
         }
         else if (item instanceof GameCard) {
-            // show the levels for this game. remember we selected this game in our state
-            State.getInstance().setGame(((GameCard)item).getGame());
-            // and show the activity for this
-            Intent myIntent = new Intent(this, GameActivity.class);
+            // get the game this card represents
+            Game selectedGame = ((GameCard)item).getGame();
+            // set this on our state
+            State.getInstance().selectGame(selectedGame);
+            // show the card for this game
+            Intent myIntent;
+            if (selectedGame.isPlayable()) {
+                // this is a playable (final) game, show the play activity
+                myIntent = new Intent(this, PlayActivity.class);
+
+            }
+            else {
+                // show the game card for the further options available to the user
+                myIntent = new Intent(this, GameActivity.class);
+            }
             myIntent.putExtra("game", item.getName()); //Optional parameters
             this.startActivity(myIntent);
         }

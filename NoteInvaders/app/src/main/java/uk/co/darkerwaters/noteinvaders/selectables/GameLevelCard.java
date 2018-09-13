@@ -10,14 +10,14 @@ import uk.co.darkerwaters.noteinvaders.state.Game;
 
 public class GameLevelCard extends SelectableItem {
 
-    private final Game.GameLevel level;
+    private final Game level;
 
-    public GameLevelCard(Activity context, Game.GameLevel level) {
+    public GameLevelCard(Activity context, Game level) {
         super(context, level.name, R.drawable.piano);
         this.level = level;
     }
 
-    public Game.GameLevel getLevel() {
+    public Game getLevel() {
         return this.level;
     }
 

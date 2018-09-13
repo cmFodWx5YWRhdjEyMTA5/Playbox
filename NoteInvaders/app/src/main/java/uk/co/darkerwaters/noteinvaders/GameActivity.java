@@ -7,6 +7,7 @@ import android.os.Bundle;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.co.darkerwaters.noteinvaders.selectables.GameCard;
 import uk.co.darkerwaters.noteinvaders.selectables.GameLevelCard;
 import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.State;
@@ -18,7 +19,7 @@ public class GameActivity extends SelectableItemActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // load in the game that this card is showing the data for
-        this.game = State.getInstance().getGame();
+        this.game = State.getInstance().getGameSelectedLast();
         // and create this activity
         super.onCreate(savedInstanceState);
     }
@@ -29,13 +30,13 @@ public class GameActivity extends SelectableItemActivity {
     }
 
     @Override
-    protected List<GameLevelCard> getItemList() {
-        List<GameLevelCard> cardList = new ArrayList<GameLevelCard>(this.game.levels.length);
+    protected List<GameCard> getItemList() {
+        List<GameCard> cardList = new ArrayList<GameCard>(this.game.children.length);
 
         // load in all the levels for the game this card represents
-        for (int i = 0; i < this.game.levels.length; ++i) {
-            Game.GameLevel level = this.game.levels[i];
-            cardList.add(new GameLevelCard(this, level));
+        for (int i = 0; i < this.game.children.length; ++i) {
+            Game child = this.game.children[i];
+            cardList.add(new GameCard(this, child));
         }
 
         return cardList;
@@ -49,12 +50,23 @@ public class GameActivity extends SelectableItemActivity {
     @Override
     public void onSelectableItemClicked(SelectableItem item) {
         // this is the level selected to play the game for, play this level now
-        if (item instanceof GameLevelCard) {
-            // play this level, set this in the state for later
-            State.getInstance().setGameLevel(((GameLevelCard)item).getLevel());
-            // and show the activity for this
-            Intent myIntent = new Intent(this, PlayActivity.class);
-            myIntent.putExtra("level", item.getName()); //Optional parameters
+        if (item instanceof GameCard) {
+            // get the game this card represents
+            Game selectedGame = ((GameCard)item).getGame();
+            // set this on our state
+            State.getInstance().selectGame(selectedGame);
+            // show the card for this game
+            Intent myIntent;
+            if (selectedGame.isPlayable()) {
+                // this is a playable (final) game, show the play activity
+                myIntent = new Intent(this, PlayActivity.class);
+
+            }
+            else {
+                // show the game card for the further options available to the user
+                myIntent = new Intent(this, GameActivity.class);
+            }
+            myIntent.putExtra("game", item.getName()); //Optional parameters
             this.startActivity(myIntent);
         }
     }

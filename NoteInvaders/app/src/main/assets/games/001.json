@@ -1,16 +1,113 @@
 {
   "name": "Random Attack",
   "image": "piano.jpg",
-  "levels": [
+  "class": "uk.co.darkerwaters.noteinvaders.games.RandomAttack",
+  "children": [
     {
-      "name": "1st 5",
+      "name": "Treble",
       "image": "piano.jpg",
-      "notes" : [ "C4", "D4", "E4", "F4", "G4" ]
+      "children" : [
+        {
+          "name": "1st 5",
+          "image": "piano.jpg",
+          "treble_clef": [
+            "C4",
+            "D4",
+            "E4",
+            "F4",
+            "G4"
+          ]
+        },
+        {
+          "name": "1st 7",
+          "image": "piano.jpg",
+          "treble_clef": [
+            "A3",
+            "B3",
+            "C4",
+            "D4",
+            "E4",
+            "F4",
+            "G4"
+          ]
+        }
+      ]
     },
     {
-      "name": "1st 7",
+      "name": "Bass",
       "image": "piano.jpg",
-      "notes" : [ "A3", "B3", "C4", "D4", "E4", "F4", "G4" ]
+      "children": [
+        {
+          "name": "1st 5",
+          "image": "piano.jpg",
+          "bass_clef": [
+            "G4",
+            "F3",
+            "E3",
+            "D3",
+            "C3"
+          ]
+        },
+        {
+          "name": "1st 7",
+          "image": "piano.jpg",
+          "bass_clef": [
+            "G3",
+            "F3",
+            "E3",
+            "D3",
+            "C3",
+            "B3",
+            "A3"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Hands Together",
+      "image": "piano.jpg",
+      "children": [
+        {
+          "name": "5 each",
+          "image": "piano.jpg",
+          "treble_clef": [
+            "C4",
+            "D4",
+            "E4",
+            "F4",
+            "G4"
+          ],
+          "bass_clef": [
+            "G4",
+            "F3",
+            "E3",
+            "D3",
+            "C3"
+          ]
+        },
+        {
+          "name": "7 each",
+          "image": "piano.jpg",
+          "treble_clef": [
+            "A3",
+            "B3",
+            "C4",
+            "D4",
+            "E4",
+            "F4",
+            "G4"
+          ],
+          "bass_clef": [
+            "G3",
+            "F3",
+            "E3",
+            "D3",
+            "C3",
+            "B3",
+            "A3"
+          ]
+        }
+      ]
     }
   ]
 }

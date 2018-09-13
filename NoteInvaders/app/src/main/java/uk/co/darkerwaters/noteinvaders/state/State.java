@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.darkerwaters.noteinvaders.R;
-import uk.co.darkerwaters.noteinvaders.selectables.GameCard;
 import uk.co.darkerwaters.noteinvaders.selectables.Instrument;
 
 public class State {
@@ -17,10 +16,8 @@ public class State {
     private Instrument instrument = null;
     private List<Instrument> instrumentList = null;
 
-    private Game game = null;
     private List<Game> games = null;
-
-    private Game.GameLevel gameLevel = null;
+    private List<Game> gameSelected = new ArrayList<Game>();
 
     public static State getInstance() {
         return INSTANCE;
@@ -68,20 +65,30 @@ public class State {
         return false;
     }
 
-    public Game getGame() {
-        return this.game;
+    public int getGameSelectedCount() { return this.gameSelected.size(); }
+
+    public Game getGameSelected(int index) {
+        return this.gameSelected.get(index);
     }
 
-    public void setGame(Game game) {
-        this.game = game;
+    public boolean selectGame(Game game) {
+        return this.gameSelected.add(game);
     }
 
-    public Game.GameLevel getGameLevel() {
-        return this.gameLevel;
+    public Game deselectGame() {
+        Game selected = null;
+        if (this.gameSelected.size() > 0) {
+            selected = this.gameSelected.remove(this.gameSelected.size() - 1);
+        }
+        return selected;
     }
 
-    public void setGameLevel(Game.GameLevel gameLevel) {
-        this.gameLevel = gameLevel;
+    public Game getGameSelectedLast() {
+        Game selected = null;
+        if (this.gameSelected.size() > 0) {
+            selected = this.gameSelected.get(this.gameSelected.size() - 1);
+        }
+        return selected;
     }
 
     public int getAvailableGameCount() { return this.games.size(); }

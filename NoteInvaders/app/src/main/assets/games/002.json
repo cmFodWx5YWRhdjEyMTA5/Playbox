@@ -1,6 +1,7 @@
 {
   "name": "Scales",
   "image": "piano.jpg",
+  "class": "uk.co.darkerwaters.noteinvaders.games.Scales",
   "levels": [
     {
       "name": "C",

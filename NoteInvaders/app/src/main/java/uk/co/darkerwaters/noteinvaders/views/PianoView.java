@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.noteinvaders;
+package uk.co.darkerwaters.noteinvaders.views;
 
 import android.content.Context;
 import android.graphics.Canvas;

@@ -1,18 +1,20 @@
 package uk.co.darkerwaters.noteinvaders;
 
 import android.os.Bundle;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
+import uk.co.darkerwaters.noteinvaders.games.GamePlayer;
 import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
-import uk.co.darkerwaters.noteinvaders.state.Notes;
 import uk.co.darkerwaters.noteinvaders.state.State;
+import uk.co.darkerwaters.noteinvaders.views.MusicView;
+import uk.co.darkerwaters.noteinvaders.views.MusicViewNoteProviderTempo;
 
 public class PlayActivity extends HidingFullscreenActivity implements MusicView.MusicViewListener {
 
@@ -22,20 +24,75 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
 
     private MusicView musicView;
     private TextView totalMissedCount;
+    private TextView textTempo;
+    private SeekBar seekBarTempo;
 
-    private Game.GameLevel level;
+    private Game level;
+    private GamePlayer levelPlayer;
     private Map<Note, Integer> notesMissed = new HashMap<Note, Integer>();
     private volatile int totalNotesMissed = 0;
+
+    private MusicViewNoteProviderTempo noteProvider;
+
+    private final int[] availableTempos = new int[] {
+            20,40,50,60,80,100,120,150,180
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        this.noteProvider = new MusicViewNoteProviderTempo();
+
         this.musicView = (MusicView) findViewById(R.id.music_view);
+        this.musicView.setViewProvider(this.noteProvider);
         this.totalMissedCount = (TextView) findViewById(R.id.total_missed_count);
+        this.textTempo = (TextView) findViewById(R.id.text_tempo);
+        this.seekBarTempo = (SeekBar) findViewById(R.id.seek_bar_tempo);
+        setupTempSeekBar();
 
         // get the notes we want to play from on this level
-        this.level = State.getInstance().getGameLevel();
+        this.level = State.getInstance().getGameSelectedLast();
+        this.levelPlayer = this.level.getGamePlayer();
+
+        // setup the view for this level
+        this.musicView.showTreble(this.level.isTreble());
+        this.musicView.showBass(this.level.isBass());
+    }
+
+    private void setupTempSeekBar() {
+        this.seekBarTempo.setMax(this.availableTempos.length - 1);
+        this.seekBarTempo.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
+                    final int beats = availableTempos[progress];
+                    PlayActivity.this.noteProvider.setBeats(beats);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            textTempo.setText(beats + " " + getResources().getString(R.string.bps));
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        for (int i = 0; i < availableTempos.length; ++i) {
+            if (availableTempos[i] == this.noteProvider.getBeats()) {
+                this.seekBarTempo.setProgress(i);
+                break;
+            }
+        }
     }
 
     @Override
@@ -45,6 +102,8 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         synchronized (this.waitObject) {
             this.waitObject.notifyAll();
         }
+        // close the music view too
+        this.musicView.closeView();
         super.onPause();
     }
 
@@ -76,7 +135,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     }
 
     private void moveNotes() {
-        this.musicView.shiftNotesLeft(1);
+        this.musicView.updateViewProvider();
         // and invalidate the view
         this.runOnUiThread(new Runnable() {
             @Override
@@ -85,15 +144,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
                 PlayActivity.this.musicView.invalidate();
             }
         });
-        Random random = new Random(System.currentTimeMillis());
-        while (this.musicView.getNoteCount() < 20) {
-            // add another note
-            Note note = this.level.notesApplicable[random.nextInt(this.level.notesApplicable.length)];
-            if (null != note) {
-                // add to the view
-                this.musicView.pushNote(note);
-            }
-        }
+        this.levelPlayer.addNewNotes(this.musicView, this.level);
     }
 
     @Override

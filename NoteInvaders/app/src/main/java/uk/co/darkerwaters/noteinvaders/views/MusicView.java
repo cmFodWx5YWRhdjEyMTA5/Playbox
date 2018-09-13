@@ -1,9 +1,11 @@
-package uk.co.darkerwaters.noteinvaders;
+package uk.co.darkerwaters.noteinvaders.views;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.Build;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.util.AttributeSet;
@@ -15,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import uk.co.darkerwaters.noteinvaders.R;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.Notes;
 import uk.co.darkerwaters.noteinvaders.state.State;
@@ -34,6 +37,7 @@ public class MusicView extends View {
     public interface MusicViewListener {
         void onNotePopped(Note note);
     }
+    private final List<MusicViewListener> listeners = new ArrayList<MusicViewListener>();
 
     private Paint blackPaint;
     private Paint notePaint;
@@ -52,17 +56,7 @@ public class MusicView extends View {
     private float noteRadius = 1f;
     private float lineHeight = 1f;
 
-    private final List<PlayNote> notesToDraw = new ArrayList<PlayNote>();
-    private final List<MusicViewListener> listeners = new ArrayList<MusicViewListener>();
-
-    private class PlayNote {
-        float xPosition;
-        final Note note;
-        PlayNote(float xPosition, Note note) {
-            this.xPosition = xPosition;
-            this.note = note;
-        }
-    }
+    private MusicViewNoteProvider noteProvider;
 
     public MusicView(Context context) {
         super(context);
@@ -80,10 +74,23 @@ public class MusicView extends View {
     }
 
     public void closeView() {
-
+        // clear all the notes when we close out the view
+        this.noteProvider.clearNotes();
     }
 
-    private void init(final Context context) {
+    public void setViewProvider(MusicViewNoteProvider provider) {
+        this.noteProvider = provider;
+    }
+
+    public void updateViewProvider() {
+        this.noteProvider.updateNotes(this);
+    }
+
+    public MusicViewNoteProvider getNoteProvider() {
+        return this.noteProvider;
+    }
+
+    protected void init(final Context context) {
         // Initialize new paints
         this.blackPaint = new Paint();
         this.blackPaint.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -118,6 +125,18 @@ public class MusicView extends View {
         initialiseNoteRange(this.notesBass, K_BASSNOTETOP, K_BASSNOTEBOTTOM);
     }
 
+    public boolean addListener(MusicViewListener listener) {
+        synchronized (this.listeners) {
+            return this.listeners.add(listener);
+        }
+    }
+
+    public boolean removeListener(MusicViewListener listener) {
+        synchronized (this.listeners) {
+            return this.listeners.remove(listener);
+        }
+    }
+
     private void initialiseNoteRange(Note[] noteArray, String topNoteName, String bottomNoteName) {
         int noteIndex = -1;
         Notes notes = Notes.instance();
@@ -146,68 +165,12 @@ public class MusicView extends View {
         }
     }
 
-    public boolean addListener(MusicViewListener listener) {
-        synchronized (this.listeners) {
-            return this.listeners.add(listener);
-        }
+    public void showBass(boolean isShow) {
+        this.isDrawBass = isShow;
     }
 
-    public boolean removeListener(MusicViewListener listener) {
-        synchronized (this.listeners) {
-            return this.listeners.remove(listener);
-        }
-    }
-
-    public boolean pushNote(Note note) {
-        // put this note on the end of the view
-        float startX = getWidth();
-        synchronized (this.notesToDraw) {
-            if (this.notesToDraw.size() > 0) {
-                // get the last x used
-                startX = this.notesToDraw.get(this.notesToDraw.size() - 1).xPosition + (this.lineHeight * 2f);
-            }
-        }
-        return pushNote(note, startX);
-    }
-
-    public boolean pushNote(Note note, float xPosition) {
-        synchronized (this.notesToDraw) {
-            return this.notesToDraw.add(new PlayNote(xPosition, note));
-        }
-    }
-
-    public int getNoteCount() {
-        synchronized (this.notesToDraw) {
-            return this.notesToDraw.size();
-        }
-    }
-
-    public void shiftNotesLeft(int pixels) {
-        synchronized (this.notesToDraw) {
-            for (PlayNote note : this.notesToDraw) {
-                note.xPosition -= pixels;
-            }
-        }
-    }
-
-    public Note popNote() {
-        PlayNote removed = null;
-        synchronized (this.notesToDraw) {
-            if (this.notesToDraw.size() > 0) {
-                removed = this.notesToDraw.remove(0);
-            }
-        }
-        if (null != removed) {
-            synchronized (this.listeners) {
-                for (MusicViewListener listener : this.listeners) {
-                    listener.onNotePopped(removed.note);
-                }
-            }
-            return removed.note;
-        }
-        else {
-            return null;
-        }
+    public void showTreble(boolean isShow) {
+        this.isDrawTreble = isShow;
     }
 
     private String getBasicNoteName(Note note) {
@@ -235,6 +198,15 @@ public class MusicView extends View {
         return position;
     }
 
+    protected float getNoteStartX() {
+        return this.lineHeight * K_LINESINCLEF * 0.5f;
+    }
+
+    protected Rect getCanvasPadding() {
+        // adding a little to the top to draw the top note and bottom notes
+        return new Rect(getPaddingLeft(), getPaddingTop() + 24, getPaddingRight(), getPaddingBottom() + 8);
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -243,17 +215,9 @@ public class MusicView extends View {
         canvas.drawColor(Color.WHITE);
 
          // allocations per draw cycle.
-        int paddingLeft = getPaddingLeft();
-        int paddingTop = getPaddingTop();
-        int paddingRight = getPaddingRight();
-        int paddingBottom = getPaddingBottom();
-
-        // add a little to the top to draw the top note
-        paddingTop += 24;
-        paddingBottom += 8;
-
-        float contentWidth = getWidth() - (paddingLeft + paddingRight);
-        float contentHeight = getHeight() - (paddingTop + paddingBottom);
+        Rect padding = getCanvasPadding();
+        int contentWidth = getWidth() - (padding.left + padding.right);
+        int contentHeight = getHeight() - (padding.top + padding.bottom);
 
         int linesToDraw = 0;
         if (this.isDrawTreble) {
@@ -279,19 +243,19 @@ public class MusicView extends View {
             this.blackPaint.setTextSize(lineHeight);
 
             // draw the treble clef
-            float yPosition = paddingTop;
+            float yPosition = padding.top;
             float bassClefYOffset = 0;
             if (this.isDrawTreble) {
                 yPosition += K_LINESABOVEANDBELOW * lineHeight;
                 // and then the lines
                 for (int i = 0; i < K_LINESINCLEF; ++i) {
                     // draw each line in then
-                    canvas.drawLine(paddingLeft, yPosition, contentWidth - paddingRight, yPosition, blackPaint);
+                    canvas.drawLine(padding.left, yPosition, contentWidth - padding.right, yPosition, blackPaint);
                     yPosition += lineHeight;
                 }
                 // yPosition is on the bottom line of the stave - put in the clef
                 canvas.save();
-                canvas.translate(paddingLeft, yPosition - clefHeight);
+                canvas.translate(padding.left, yPosition - clefHeight);
                 this.trebleDrawable.setBounds(0, 0, (int) clefWidth, (int) clefHeight);
                 this.trebleDrawable.draw(canvas);
                 canvas.restore();
@@ -308,12 +272,12 @@ public class MusicView extends View {
                 // and then the lines
                 for (int i = 0; i < K_LINESINCLEF; ++i) {
                     // draw each line in then
-                    canvas.drawLine(paddingLeft, yPosition, contentWidth - paddingRight, yPosition, blackPaint);
+                    canvas.drawLine(padding.left, yPosition, contentWidth - padding.right, yPosition, blackPaint);
                     yPosition += lineHeight;
                 }
                 // yPosition is on the bottom line of the stave - put in the clef
                 canvas.save();
-                canvas.translate(paddingLeft + 24, yPosition - clefHeight);
+                canvas.translate(padding.left + 24, yPosition - clefHeight);
                 this.bassDrawable.setBounds(0, 0, (int) (clefWidth * 0.6f), (int) (clefHeight * 0.6f));
                 this.bassDrawable.draw(canvas);
                 canvas.restore();
@@ -324,42 +288,60 @@ public class MusicView extends View {
             // setup the note to draw
             this.noteRadius = lineHeight * 0.3f;
             this.notePaint.setStrokeWidth(noteRadius * 0.5f);
-            float noteSeparation = lineHeight / 2.0f;
+            float noteOffset = lineHeight / 2.0f;
 
             // draw in any notes we want to draw
-            PlayNote[] toDraw;
-            synchronized (this.notesToDraw) {
-                toDraw = this.notesToDraw.toArray(new PlayNote[this.notesToDraw.size()]);
-            }
+            MusicViewNote[] toDrawTreble = this.noteProvider.getNotesToDrawTreble();
+            MusicViewNote[] toDrawBass = this.noteProvider.getNotesToDrawBass();
 
-            for (int i = 0; i < toDraw.length; ++i) {
+            for (int i = 0; i < toDrawTreble.length + toDrawBass.length; ++i) {
                 // for each note, draw it on each clef
-                PlayNote note = toDraw[i];
-                if (note.xPosition < clefWidth * 1.5f) {
-                    // this note has passed beyond where we draw it, pop this
-                    popNote();
+                MusicViewNote note = null;
+                boolean isFromTrebleList = i < toDrawTreble.length;
+                if (isFromTrebleList) {
+                    // this is a treble note, get it
+                    note = toDrawTreble[i];
                 }
-                else if (note.xPosition <= contentWidth) {
-                    // draw this note in
-                    int position = -1;
-                    if (this.isDrawTreble) {
-                        position = getNotePosition(this.notesTreble, note.note);
-                        yPosition = paddingTop + (position * noteSeparation);
+                else {
+                    // done with the trebles - get bass
+                    note = toDrawBass[i - toDrawTreble.length];
+                }
+                float xPosition = note.getXPosition();
+                if (xPosition < getNoteStartX()) {
+                    // this is gone from the view
+                    if (isFromTrebleList) {
+                        this.noteProvider.removeNoteTreble(note);
                     }
-                    if (position == -1 && this.isDrawBass) {
+                    else {
+                        this.noteProvider.removeNoteBass(note);
+                    }
+                    synchronized (this.listeners) {
+                        for (MusicViewListener listener : this.listeners) {
+                            listener.onNotePopped(note.note);
+                        }
+                    }
+                }
+                if (xPosition <= contentWidth + 24) {
+                    // draw this note in as it is in range of the view
+                    int position = -1;
+                    if (this.isDrawTreble && isFromTrebleList) {
+                        position = getNotePosition(this.notesTreble, note.note);
+                        yPosition = padding.top + (position * noteOffset);
+                    }
+                    if (this.isDrawBass && false == isFromTrebleList) {
                         // can't draw this on treble, but we have bass, try this
                         position = getNotePosition(this.notesBass, note.note);
-                        yPosition = bassClefYOffset + (position * noteSeparation);
+                        yPosition = bassClefYOffset + (position * noteOffset);
                     }
                     if (position != -1) {
                         // draw the note in the correct position
-                        drawNoteOnClef(canvas, note.xPosition, yPosition, getBasicNoteName(note.note));
+                        drawNoteOnClef(canvas, xPosition, yPosition, getBasicNoteName(note.note));
                         // draw the line over this note if we didn't have a long one in already
                         if (isDrawLine(position)) {
                             canvas.drawLine(
-                                    note.xPosition - lineHeight * 0.8f,
+                                    xPosition - lineHeight * 0.8f,
                                     yPosition,
-                                    note.xPosition + lineHeight * 0.8f,
+                                    xPosition + lineHeight * 0.8f,
                                     yPosition,
                                     notePaint);
                         }

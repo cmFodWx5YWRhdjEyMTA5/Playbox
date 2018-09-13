@@ -1,53 +1,86 @@
 package uk.co.darkerwaters.noteinvaders.state;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.co.darkerwaters.noteinvaders.games.GamePlayer;
+
 public class Game {
 
+    public final Game parent;
     public final String name;
     public final String image;
-    public final GameLevel[] levels;
+    public final String gameClass;
+    public final Note[] treble_clef;
+    public final Note[] bass_clef;
 
-    Game(JSONObject fileSource) throws JSONException {
+    public final Game[] children;
+
+    Game(Game parent, JSONObject fileSource) throws JSONException {
+        // setup the parent of this game (if there is one)
+        this.parent = parent;
         // create the game object from the JSON object passed in
         this.name = fileSource.getString("name");
         this.image = fileSource.getString("image");
-        JSONArray jsonLevels = fileSource.getJSONArray("levels");
-        this.levels = new GameLevel[jsonLevels.length()];
-        for (int i = 0; i < jsonLevels.length(); ++i) {
+        this.gameClass = getJsonStringOptional(fileSource, "class");
+
+        Notes notes = Notes.instance();
+        // notes for the treble clef
+        JSONArray jsonNotes = getJsonArrayOptional(fileSource,"treble_clef");
+        this.treble_clef = new Note[jsonNotes == null ? 0 : jsonNotes.length()];
+        for (int i = 0; i < this.treble_clef.length; ++i) {
+            // for each note, find the right one and put it in our array
+            String noteName = jsonNotes.getString(i);
+            this.treble_clef[i] = notes.getNote(noteName);
+        }
+        // and the bass clef
+        jsonNotes = getJsonArrayOptional(fileSource,"bass_clef");
+        this.bass_clef = new Note[jsonNotes == null ? 0 : jsonNotes.length()];
+        for (int i = 0; i < this.bass_clef.length; ++i) {
+            // for each note, find the right one and put it in our array
+            String noteName = jsonNotes.getString(i);
+            this.bass_clef[i] = notes.getNote(noteName);
+        }
+
+        // and the children of this game
+        JSONArray jsonChildren = getJsonArrayOptional(fileSource,"children");
+        this.children = new Game[jsonChildren == null? 0 : jsonChildren.length()];
+        for (int i = 0; i < this.children.length; ++i) {
             // for each level, load them in
-            this.levels[i] = new GameLevel(this, jsonLevels.getJSONObject(i));
+            this.children[i] = new Game(this, jsonChildren.getJSONObject(i));
         }
     }
 
-    public static class GameLevel {
-        public final Game game;
-        public final String name;
-        public final String image;
-        public final Note[] notesApplicable;
-
-        GameLevel(Game parent, JSONObject fileSource) throws JSONException {
-            this.game = parent;
-            this.name = fileSource.getString("name");
-            this.image = fileSource.getString("image");
-            JSONArray jsonNotes = fileSource.getJSONArray("notes");
-            this.notesApplicable = new Note[jsonNotes.length()];
-            Notes notes = Notes.instance();
-            for (int i = 0; i < jsonNotes.length(); ++i) {
-                // for each note, find the right one and put it in our array
-                String noteName = jsonNotes.getString(i);
-                this.notesApplicable[i] = notes.getNote(noteName);
-            }
+    private String getJsonStringOptional(JSONObject source, String name) {
+        String result = null;
+        try {
+            result =  source.getString(name);
         }
+        catch (JSONException e) {
+            // fine, it doesn't have to be there
+        }
+        return result;
+    }
+
+    private JSONArray getJsonArrayOptional(JSONObject source, String name) {
+        JSONArray result = null;
+        try {
+            result =  source.getJSONArray(name);
+        }
+        catch (JSONException e) {
+            // fine, it doesn't have to be there
+        }
+        return result;
     }
 
     public static List<Game> loadGamesFromAssets(Context context) {
@@ -66,7 +99,7 @@ public class Game {
                 is.read(buffer);
                 is.close();
                 // and try to create the Game from this JSON data
-                games.add(new Game(new JSONObject(new String(buffer, "UTF-8"))));
+                games.add(new Game(null, new JSONObject(new String(buffer, "UTF-8"))));
 
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -79,6 +112,65 @@ public class Game {
         while (true);
         // return the games we managed to load
         return games;
+    }
 
+    public boolean isTreble() {
+        return null != this.treble_clef && this.treble_clef.length > 0;
+    }
+
+    public boolean isBass() {
+        return null != this.bass_clef && this.bass_clef.length > 0;
+    }
+
+    public boolean isPlayable() {
+        // return if this game can be played
+        return (isBass() || isTreble());
+    }
+
+    public GamePlayer getGamePlayer() {
+        String className = getGameClass();
+        if (className != null && className.isEmpty() == false) {
+            Class<?> loadedClass = null;
+            try {
+                loadedClass = Class.forName(className);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+            Object classCreated = null;
+            if (null != loadedClass) {
+                try {
+                    classCreated = loadedClass.newInstance();
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (null != classCreated && classCreated instanceof GamePlayer) {
+                return (GamePlayer) classCreated;
+            }
+            else {
+                Log.e(State.K_APPTAG, "Loaded class of " + className + " is not a GamePlayer");
+            }
+        }
+        return null;
+    }
+
+    public String getGameClass() {
+        if (null == this.gameClass || this.gameClass.isEmpty()) {
+            // there is no game class
+            if (null == this.parent) {
+                // and no parent
+                return null;
+            }
+            else {
+                // use the class from the parent
+                return this.parent.getGameClass();
+            }
+        }
+        else {
+            // this is the game class
+            return this.gameClass;
+        }
     }
 }

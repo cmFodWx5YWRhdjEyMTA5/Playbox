@@ -73,8 +73,6 @@ public class HidingFullscreenActivity extends AppCompatActivity {
             hide();
         }
     };
-
-    private Game.GameLevel level = null;
     /**
      * Touch listener to use for in-layout UI controls to delay hiding the
      * system UI. This is to prevent the jarring behavior of controls going away
@@ -92,9 +90,6 @@ public class HidingFullscreenActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // load in the level that this is playing
-        this.level = State.getInstance().getGameLevel();
-
         // and create this activity
         super.onCreate(savedInstanceState);
 
@@ -119,7 +114,7 @@ public class HidingFullscreenActivity extends AppCompatActivity {
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
-        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+        //findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
     }
 
     @Override

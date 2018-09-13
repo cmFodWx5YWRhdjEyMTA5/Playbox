@@ -15,6 +15,7 @@ import android.widget.Toast;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.input.InputConnectionInterface;
 import uk.co.darkerwaters.noteinvaders.state.input.InputMicrophone;
+import uk.co.darkerwaters.noteinvaders.views.PianoView;
 
 public class MicrophoneSetupActivity extends AppCompatActivity implements PianoView.IPianoViewListener {
 
