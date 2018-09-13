@@ -75,12 +75,17 @@ public class State {
         return this.gameSelected.add(game);
     }
 
-    public Game deselectGame() {
-        Game selected = null;
-        if (this.gameSelected.size() > 0) {
-            selected = this.gameSelected.remove(this.gameSelected.size() - 1);
+    public int deselectGame(Game toDeselect) {
+        int noRemoved = 0;
+        while (this.gameSelected.size() > 0) {
+            Game removed = this.gameSelected.remove(this.gameSelected.size() - 1);
+            ++noRemoved;
+            if (removed == toDeselect) {
+                // this is the right one removed
+                break;
+            }
         }
-        return selected;
+        return noRemoved;
     }
 
     public Game getGameSelectedLast() {

@@ -1,11 +1,11 @@
 {
   "name": "Scales",
-  "image": "piano.jpg",
+  "image": "temp.png",
   "class": "uk.co.darkerwaters.noteinvaders.games.Scales",
   "levels": [
     {
       "name": "C",
-      "image": "piano.jpg",
+      "image": "temp.png",
       "notes" : [ "C4", "D4", "E4", "F4", "G4" ]
     },
     {

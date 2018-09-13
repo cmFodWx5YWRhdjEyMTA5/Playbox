@@ -1,15 +1,15 @@
 {
   "name": "Random Attack",
-  "image": "piano.jpg",
+  "image": "temp.png",
   "class": "uk.co.darkerwaters.noteinvaders.games.RandomAttack",
   "children": [
     {
       "name": "Treble",
-      "image": "piano.jpg",
+      "image": "temp.png",
       "children" : [
         {
           "name": "1st 5",
-          "image": "piano.jpg",
+          "image": "temp.png",
           "treble_clef": [
             "C4",
             "D4",
@@ -20,7 +20,7 @@
         },
         {
           "name": "1st 7",
-          "image": "piano.jpg",
+          "image": "temp.png",
           "treble_clef": [
             "A3",
             "B3",
@@ -35,11 +35,11 @@
     },
     {
       "name": "Bass",
-      "image": "piano.jpg",
+      "image": "temp.png",
       "children": [
         {
           "name": "1st 5",
-          "image": "piano.jpg",
+          "image": "temp.png",
           "bass_clef": [
             "G4",
             "F3",
@@ -50,7 +50,7 @@
         },
         {
           "name": "1st 7",
-          "image": "piano.jpg",
+          "image": "temp.png",
           "bass_clef": [
             "G3",
             "F3",
@@ -65,11 +65,11 @@
     },
     {
       "name": "Hands Together",
-      "image": "piano.jpg",
+      "image": "temp.png",
       "children": [
         {
           "name": "5 each",
-          "image": "piano.jpg",
+          "image": "temp.png",
           "treble_clef": [
             "C4",
             "D4",
@@ -87,7 +87,7 @@
         },
         {
           "name": "7 each",
-          "image": "piano.jpg",
+          "image": "temp.png",
           "treble_clef": [
             "A3",
             "B3",

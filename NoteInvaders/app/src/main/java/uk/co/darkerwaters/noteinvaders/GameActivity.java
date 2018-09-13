@@ -2,19 +2,25 @@ package uk.co.darkerwaters.noteinvaders;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.darkerwaters.noteinvaders.selectables.GameCard;
-import uk.co.darkerwaters.noteinvaders.selectables.GameLevelCard;
 import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.State;
 
 public class GameActivity extends SelectableItemActivity {
 
     private Game game = null;
+    private TextView textSubtitle;
+    private TextView textTitle;
+    private ImageView titleImageView;
+    private Bitmap titleImage = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +28,34 @@ public class GameActivity extends SelectableItemActivity {
         this.game = State.getInstance().getGameSelectedLast();
         // and create this activity
         super.onCreate(savedInstanceState);
+        // set the title for this
+        this.titleImageView = (ImageView) findViewById(R.id.backdrop);
+        this.textTitle = (TextView) findViewById(R.id.instrument_title);
+        this.textSubtitle = (TextView) findViewById(R.id.instrument_subtitle);
+
+        String subtitle = new String(this.game.name);
+        Game gameParent = this.game.parent;
+        while (null != gameParent) {
+            subtitle = gameParent.name + " -- " + subtitle;
+            gameParent = gameParent.parent;
+        }
+        this.textSubtitle.setText(subtitle);
+        this.titleImage = SelectableItem.getBitmapFromAssets(game.image, GameActivity.this);
+
+        this.titleImageView.post(new Runnable() {
+            @Override
+            public void run() {
+                // set the image to be the image for the selected game
+                titleImageView.setImageBitmap(titleImage);
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // this is killed, remove our selection from the state
+        State.getInstance().deselectGame(this.game);
     }
 
     @Override
@@ -31,7 +65,7 @@ public class GameActivity extends SelectableItemActivity {
 
     @Override
     protected List<GameCard> getItemList() {
-        List<GameCard> cardList = new ArrayList<GameCard>(this.game.children.length);
+        List<GameCard> cardList = new ArrayList<GameCard>(this.game.children == null ? 0 : this.game.children.length);
 
         // load in all the levels for the game this card represents
         for (int i = 0; i < this.game.children.length; ++i) {

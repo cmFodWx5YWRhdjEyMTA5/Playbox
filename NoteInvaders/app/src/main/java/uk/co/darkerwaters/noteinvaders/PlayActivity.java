@@ -60,6 +60,13 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.musicView.showBass(this.level.isBass());
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // this is killed, remove our selection from the state
+        State.getInstance().deselectGame(this.level);
+    }
+
     private void setupTempSeekBar() {
         this.seekBarTempo.setMax(this.availableTempos.length - 1);
         this.seekBarTempo.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {

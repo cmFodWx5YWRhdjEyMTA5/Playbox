@@ -53,9 +53,6 @@ public class SelectableItemAdapter extends RecyclerView.Adapter<SelectableItemAd
         holder.title.setText(item.getName());
         holder.count.setText(item.getSubtitle());
 
-        // loading album cover using Glide library
-        Glide.with(mContext).load(item.getThumbnail()).into(holder.thumbnail);
-
         holder.thumbnail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -66,6 +63,14 @@ public class SelectableItemAdapter extends RecyclerView.Adapter<SelectableItemAd
 
         // and have the card add it's things as it wants
         item.onBindViewHolder(mContext, holder);
+    }
+
+    @Override
+    public void onViewRecycled(MyViewHolder holder) {
+        super.onViewRecycled(holder);
+        for (SelectableItem item : this.itemList) {
+            item.onDestroy(holder);
+        }
     }
 
     @Override
