@@ -1,18 +1,27 @@
 package uk.co.darkerwaters.noteinvaders.views;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.darkerwaters.noteinvaders.state.Note;
+import uk.co.darkerwaters.noteinvaders.state.State;
 
 public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
 
-    public final static float K_SECONDSINVIEW = 10f;
+    //public final static float K_SECONDSINVIEW = 10f;
+    public final static int K_BEATSINVIEW = 10;
 
-    private int notesOnView = 0;
+    private final float K_MAXSECONDSTOREPRESENT = 65535f; /*the number of secs before we reset our timer*/
+
+    private int notesOnView = K_BEATSINVIEW;
+    private float secondsInView = 10f;
     private long lastTimeDrawn = 0l;
+    private float startSeconds = 0f;
 
     private float beatsPerSec;
+    private volatile boolean isPaused = false;
 
     private class TimedNote extends MusicViewNote {
         float timeOffset;
@@ -32,6 +41,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
     private final List<TimedNote> notesToDrawBass = new ArrayList<TimedNote>();
 
     public MusicViewNoteProviderTempo() {
+        // initialise the view
         setBeats(60);
     }
 
@@ -50,14 +60,23 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
         this.beatsPerSec = bpm / 60f;
         // update all the notes on the view to this new beat
         // set the number of notes this will fit on the view
-        this.notesOnView = (int)(this.beatsPerSec * K_SECONDSINVIEW);
-        //TODO go through all our notes in order now and adjust the spacing to the new beat selected
-        //for now we can just clear all the old ones
-        clearNotes();
+        this.notesOnView = K_BEATSINVIEW;// old was was seconds in view(int)(this.beatsPerSec * K_SECONDSINVIEW);
+        // seconds on teh view is the notes * the time they represent in seconds
+        this.secondsInView = this.notesOnView / this.beatsPerSec;
+        // doing this while paused means that the offsets will be recalculated from the pixels
+        // so we don't have to do anything with the notes already in the view
     }
 
     public int getBeats() {
         return (int)(this.beatsPerSec * 60f);
+    }
+
+    public void setPaused(boolean isPaused) {
+        this.isPaused = isPaused;
+    }
+
+    public boolean isPaused() {
+        return this.isPaused;
     }
 
     private float getXStart(MusicView musicView) {
@@ -71,7 +90,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
     private float getXSeconds(float xStart, float xEnd) {
         float width = xEnd - xStart;
         // calculate the number of pixels that we want to repesent a second of time
-        return width / K_SECONDSINVIEW;
+        return width / this.secondsInView;// old way was via the seconds on view K_SECONDSINVIEW;
     }
 
     @Override
@@ -89,26 +108,48 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
         }
         // if we are here then some time has elapsed, need to move all the notes to their correct
         // locations on the view for the times the are to represent
+        this.startSeconds += elapsedTime / 1000f;
+        // update the positions of all our notes on this view for this time
         float xStart = getXStart(musicView);
         float xEnd = getXEnd(musicView);
         // calculate the number of pixels that we want to repesent a second of time
         float xSeconds = getXSeconds(xStart, xEnd);
-
-        // let's reduce al the time offsets by the according number of milliseconds
-        float secondsElapsed = elapsedTime / 1000f;
-        synchronized (this.notesToDrawTreble) {
-            for (TimedNote note : this.notesToDrawTreble) {
-                // offset the time
-                note.timeOffset -= secondsElapsed;
-                // update the position
-                note.xPosition = xStart + (xSeconds * note.timeOffset);
+        if (false == this.isPaused && this.startSeconds < K_MAXSECONDSTOREPRESENT) {
+            // if we are here then some time has elapsed, need to move all the notes to their correct
+            // locations on the view for the times the are to represent
+            float secondsTillPlay;
+            synchronized (this.notesToDrawTreble) {
+                for (TimedNote note : this.notesToDrawTreble) {
+                    // get the time this is from the start
+                    secondsTillPlay = note.timeOffset - this.startSeconds;
+                    // update the position
+                    note.xPosition = xStart + (xSeconds * secondsTillPlay);
+                }
+            }
+            synchronized (this.notesToDrawBass) {
+                for (TimedNote note : this.notesToDrawBass) {
+                    // get the time this is from the start
+                    secondsTillPlay = note.timeOffset - this.startSeconds;
+                    // update the position
+                    note.xPosition = xStart + (xSeconds * secondsTillPlay);
+                }
             }
         }
-        synchronized (this.notesToDrawBass) {
-            for (TimedNote note : this.notesToDrawBass) {
-                note.timeOffset -= secondsElapsed;
-                // update the position
-                note.xPosition = xStart + (xSeconds * note.timeOffset);
+        else {
+            // we are paused, but time continues to march on, adjust the start time and the times
+            // of all our notes in the list accordingly
+            this.startSeconds = 0f;
+            synchronized (this.notesToDrawTreble) {
+                for (TimedNote note : this.notesToDrawTreble) {
+                    // the time to play is the xPosition * the seconds per pixel they represent
+                    note.timeOffset = (note.xPosition - xStart) / xSeconds;
+                }
+            }
+            synchronized (this.notesToDrawBass) {
+                for (TimedNote note : this.notesToDrawBass) {
+                    // the time to play is the xPosition * the seconds per pixel they represent
+                    note.timeOffset = (note.xPosition - xStart) / xSeconds;
+                }
             }
         }
 
@@ -118,7 +159,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
 
     @Override
     public int getNotesFitOnView() {
-        return (int)(this.beatsPerSec * K_SECONDSINVIEW);
+        return (int)(this.beatsPerSec * this.secondsInView); // old way was seconds K_SECONDSINVIEW);
     }
 
     @Override
@@ -174,7 +215,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
     @Override
     public boolean pushNoteBassToEnd(Note note, MusicView musicView) {
         // get the last note we have in our lists, will be the last time we added
-        float lastTimeX = K_SECONDSINVIEW;
+        float lastTimeX = this.secondsInView + this.startSeconds;// old was was defined K_SECONDSINVIEW;
         // but we might have later notes on the view already (waiting to appear)
         TimedNote lastNote = getLastNote();
         if (null != lastNote) {
@@ -190,7 +231,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
     @Override
     public boolean pushNoteTrebleToEnd(Note note, MusicView musicView) {
         // get the last note we have in our lists, will be the last time we added
-        float lastTimeX = K_SECONDSINVIEW;
+        float lastTimeX = this.secondsInView + this.startSeconds;// old was was defined K_SECONDSINVIEW;
         // but we might have later notes on the view already (waiting to appear)
         TimedNote lastNote = getLastNote();
         if (null != lastNote) {

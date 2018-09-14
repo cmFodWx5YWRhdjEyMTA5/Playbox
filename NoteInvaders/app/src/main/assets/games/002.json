@@ -1,6 +1,6 @@
 {
   "name": "Scales",
-  "image": "temp.png",
+  "image": "games/scales.jpg",
   "class": "uk.co.darkerwaters.noteinvaders.games.Scales",
   "levels": [
     {

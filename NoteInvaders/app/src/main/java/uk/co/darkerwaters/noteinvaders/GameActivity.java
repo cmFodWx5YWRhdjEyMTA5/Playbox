@@ -65,10 +65,14 @@ public class GameActivity extends SelectableItemActivity {
 
     @Override
     protected List<GameCard> getItemList() {
-        List<GameCard> cardList = new ArrayList<GameCard>(this.game.children == null ? 0 : this.game.children.length);
+        int noChildren = 0;
+        if (null != this.game && null != this.game.children) {
+            noChildren = this.game.children.length;
+        }
+        List<GameCard> cardList = new ArrayList<GameCard>(noChildren);
 
         // load in all the levels for the game this card represents
-        for (int i = 0; i < this.game.children.length; ++i) {
+        for (int i = 0; i < noChildren; ++i) {
             Game child = this.game.children[i];
             cardList.add(new GameCard(this, child));
         }
@@ -107,10 +111,10 @@ public class GameActivity extends SelectableItemActivity {
 
     @Override
     protected int getSpan() {
-        int span = 1;
+        int span = 2;
         if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
             // if we are landscape then we can show 2
-            span = 2;
+            span = 3;
         }
         return span;
     }

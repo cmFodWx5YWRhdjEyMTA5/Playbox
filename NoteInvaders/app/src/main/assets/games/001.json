@@ -1,11 +1,11 @@
 {
   "name": "Random Attack",
-  "image": "temp.png",
+  "image": "games/space_invaders.jpg",
   "class": "uk.co.darkerwaters.noteinvaders.games.RandomAttack",
   "children": [
     {
       "name": "Treble",
-      "image": "temp.png",
+      "image": "games/treble.jpg",
       "children" : [
         {
           "name": "1st 5",
@@ -35,7 +35,7 @@
     },
     {
       "name": "Bass",
-      "image": "temp.png",
+      "image": "games/bass.jpg",
       "children": [
         {
           "name": "1st 5",
@@ -65,7 +65,7 @@
     },
     {
       "name": "Hands Together",
-      "image": "temp.png",
+      "image": "games/two_hands.jpg",
       "children": [
         {
           "name": "5 each",

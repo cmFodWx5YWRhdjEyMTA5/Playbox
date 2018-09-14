@@ -1,6 +1,9 @@
 package uk.co.darkerwaters.noteinvaders;
 
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -26,6 +29,8 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     private TextView totalMissedCount;
     private TextView textTempo;
     private SeekBar seekBarTempo;
+    private FloatingActionButton floatingPauseButton;
+    private View mControlsView;
 
     private Game level;
     private GamePlayer levelPlayer;
@@ -49,6 +54,9 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.totalMissedCount = (TextView) findViewById(R.id.total_missed_count);
         this.textTempo = (TextView) findViewById(R.id.text_tempo);
         this.seekBarTempo = (SeekBar) findViewById(R.id.seek_bar_tempo);
+        this.floatingPauseButton = (FloatingActionButton) findViewById(R.id.floatingPauseButton);
+        this.mControlsView = findViewById(R.id.fullscreen_content_controls);
+
         setupTempSeekBar();
 
         // get the notes we want to play from on this level
@@ -58,6 +66,26 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         // setup the view for this level
         this.musicView.showTreble(this.level.isTreble());
         this.musicView.showBass(this.level.isBass());
+
+        if (false == this.level.isTreble() || false == this.level.isBass()) {
+            // we are only drawing one set of lines, shrink the height of the view
+            this.musicView.post(new Runnable() {
+                @Override
+                public void run() {
+                    ViewGroup.LayoutParams params = musicView.getLayoutParams();
+                    params.height = (int) (musicView.getWidth() * 0.5f);
+                    musicView.setLayoutParams(params);
+                }
+            });
+        }
+
+        this.floatingPauseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggle();
+            }
+        });
+        updateControls();
     }
 
     @Override
@@ -65,6 +93,52 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         super.onDestroy();
         // this is killed, remove our selection from the state
         State.getInstance().deselectGame(this.level);
+    }
+
+    @Override
+    protected void toggle() {
+        super.toggle();
+        if (mVisible) {
+            // controls are visible, we are paused, pause the music view
+            noteProvider.setPaused(true);
+        }
+        else {
+            // controls are hidden, we are playing again
+            noteProvider.setPaused(false);
+        }
+        updateControls();
+    }
+
+    private void updateControls() {
+        if (noteProvider.isPaused()) {
+            // show the play icon
+            floatingPauseButton.setImageResource(android.R.drawable.ic_media_play);
+            if (!mVisible) {
+                // we are hidden, show things
+                toggle();
+            }
+        }
+        else {
+            // show the pause icon
+            floatingPauseButton.setImageResource(android.R.drawable.ic_media_pause);
+            if (mVisible) {
+                // we are showing, hide things
+                toggle();
+            }
+        }
+    }
+
+    @Override
+    protected void hide() {
+        super.hide();
+
+        mControlsView.setVisibility(View.GONE);
+    }
+
+    @Override
+    protected void showAction() {
+        super.showAction();
+        mControlsView.setVisibility(View.VISIBLE);
     }
 
     private void setupTempSeekBar() {
