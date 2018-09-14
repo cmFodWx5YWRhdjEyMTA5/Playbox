@@ -36,7 +36,7 @@ public class HidingFullscreenActivity extends AppCompatActivity {
      */
     private static final int UI_ANIMATION_DELAY = 300;
     private final Handler mHideHandler = new Handler();
-    private View mContentView;
+    protected View mContentView;
     private final Runnable mHidePart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
         @Override
@@ -138,6 +138,7 @@ public class HidingFullscreenActivity extends AppCompatActivity {
         } else {
             show();
         }
+        mContentView.invalidate();
     }
 
     protected void hide() {
@@ -156,8 +157,7 @@ public class HidingFullscreenActivity extends AppCompatActivity {
     @SuppressLint("InlinedApi")
     protected void show() {
         // Show the system bar
-        mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+        //mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
         mVisible = true;
 
         // Schedule a runnable to display UI elements after a delay

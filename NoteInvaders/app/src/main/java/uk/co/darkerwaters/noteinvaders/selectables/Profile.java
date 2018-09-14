@@ -52,7 +52,7 @@ public class Profile extends SelectableItem {
         // setup the microphone button
         this.btnMicrophone.setVisibility(View.VISIBLE);
         this.btnMicrophone.setImageResource(R.drawable.ic_baseline_mic_24px);
-        if (false == State.getInstance().isMicAvailable()) {
+        if (false == State.getInstance().isInputAvailable(State.InputType.microphone)) {
             this.btnUsbMidi.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
         }
         this.btnMicrophone.setOnClickListener(new View.OnClickListener() {
@@ -70,7 +70,7 @@ public class Profile extends SelectableItem {
         this.btnUsbMidi.setImageResource(R.drawable.ic_baseline_usb_24px);
         // set background colour to show it isn't USB connected
         this.btnUsbMidi.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context,R.color.colorPrimaryDark)));
-        if (false == State.getInstance().isUsbAvailable()) {
+        if (false == State.getInstance().isInputAvailable(State.InputType.usb)) {
             this.btnUsbMidi.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
         }
         this.btnUsbMidi.setOnClickListener(new View.OnClickListener() {
@@ -86,7 +86,7 @@ public class Profile extends SelectableItem {
         this.btnBtMidi.setImageResource(R.drawable.ic_baseline_bluetooth_audio_24px);
         // set background colour to show it isn't BT connected
         this.btnBtMidi.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context,R.color.colorPrimaryDark)));
-        if (false == State.getInstance().isBtAvailable()) {
+        if (false == State.getInstance().isInputAvailable(State.InputType.bt)) {
             this.btnBtMidi.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
         }
         this.btnBtMidi.setOnClickListener(new View.OnClickListener() {

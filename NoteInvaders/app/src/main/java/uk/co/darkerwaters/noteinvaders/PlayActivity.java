@@ -36,6 +36,14 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     private Map<Note, Integer> notesMissed = new HashMap<Note, Integer>();
     private volatile int totalNotesMissed = 0;
 
+    private FloatingActionButton inputFab;
+    private FloatingActionButton manualFab;
+    private FloatingActionButton micFab;
+    private FloatingActionButton usbFab;
+    private FloatingActionButton btFab;
+
+    private boolean isFabsShown = false;
+
     private MusicViewNoteProviderTempo noteProvider;
 
     private final int[] availableTempos = new int[] {
@@ -93,6 +101,58 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
             }
         });
         updateControls();
+
+        setupFabs();
+    }
+
+    private void setupFabs() {
+        this.inputFab = (FloatingActionButton) findViewById(R.id.input_action_button);
+        this.manualFab = (FloatingActionButton) findViewById(R.id.input_action_1);
+        this.micFab = (FloatingActionButton) findViewById(R.id.input_action_2);
+        this.usbFab = (FloatingActionButton) findViewById(R.id.input_action_3);
+        this.btFab = (FloatingActionButton) findViewById(R.id.input_action_4);
+
+        // set the correct current icon
+        setInputIcon();
+
+        // set the icons on these buttons
+        this.manualFab.setImageResource(R.drawable.ic_baseline_keyboard_24px);
+        this.micFab.setImageResource(R.drawable.ic_baseline_mic_24px);
+        this.usbFab.setImageResource(R.drawable.ic_baseline_usb_24px);
+        this.btFab.setImageResource(R.drawable.ic_baseline_bluetooth_audio_24px);
+
+        this.inputFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // clicked the input FAB, expand or hide the selection
+                toggleInputFabs();
+            }
+        });
+
+        this.manualFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeInputType(State.InputType.keyboard);
+            }
+        });
+        this.micFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeInputType(State.InputType.microphone);
+            }
+        });
+        this.usbFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeInputType(State.InputType.usb);
+            }
+        });
+        this.btFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeInputType(State.InputType.bt);
+            }
+        });
     }
 
     @Override
@@ -114,6 +174,49 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
             noteProvider.setPaused(false);
         }
         updateControls();
+    }
+
+    private void changeInputType(State.InputType input) {
+        // set the input to manual
+        State.getInstance().setSelectedInput(input);
+        // and shrink the selection
+        toggleInputFabs();
+        // and update the icon
+        setInputIcon();
+    }
+
+    private void setInputIcon() {
+        switch (State.getInstance().getSelectedInput()) {
+            case keyboard:
+                this.inputFab.setImageResource(R.drawable.ic_baseline_keyboard_24px);
+                break;
+            case microphone:
+                this.inputFab.setImageResource(R.drawable.ic_baseline_mic_24px);
+                break;
+            case usb:
+                this.inputFab.setImageResource(R.drawable.ic_baseline_usb_24px);
+                break;
+            case bt:
+                this.inputFab.setImageResource(R.drawable.ic_baseline_bluetooth_audio_24px);
+                break;
+        }
+    }
+
+    private void toggleInputFabs() {
+        if (this.isFabsShown) {
+            manualFab.animate().translationY(0);
+            micFab.animate().translationY(0);
+            usbFab.animate().translationY(0);
+            btFab.animate().translationY(0);
+            this.isFabsShown = false;
+        }
+        else {
+            manualFab.animate().translationY(-getResources().getDimension(R.dimen.standard_55));
+            micFab.animate().translationY(-getResources().getDimension(R.dimen.standard_105));
+            usbFab.animate().translationY(-getResources().getDimension(R.dimen.standard_155));
+            btFab.animate().translationY(-getResources().getDimension(R.dimen.standard_205));
+            this.isFabsShown = true;
+        }
     }
 
     private void updateControls() {
@@ -140,12 +243,15 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         super.hide();
 
         mControlsView.setVisibility(View.GONE);
+        mContentView.invalidate();
     }
 
     @Override
     protected void showAction() {
         super.showAction();
+
         mControlsView.setVisibility(View.VISIBLE);
+        mContentView.invalidate();
     }
 
     private void setupTempoSeekBar() {

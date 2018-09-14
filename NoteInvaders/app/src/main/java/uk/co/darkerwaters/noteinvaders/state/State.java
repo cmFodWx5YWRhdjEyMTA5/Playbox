@@ -19,6 +19,15 @@ public class State {
     private List<Game> games = null;
     private List<Game> gameSelected = new ArrayList<Game>();
 
+    private InputType selectedInput = InputType.keyboard;
+
+    public enum InputType {
+        keyboard,
+        microphone,
+        usb,
+        bt
+    }
+
     public static State getInstance() {
         return INSTANCE;
     }
@@ -53,17 +62,24 @@ public class State {
         return this.instrumentList.size();
     }
 
-    public boolean isMicAvailable() {
-        return true;
+    public boolean isInputAvailable(InputType inputState) {
+        switch (inputState) {
+            case keyboard:
+                return true;
+            case microphone:
+                return true;
+            case usb:
+                return false;
+            case bt:
+                return false;
+            default:
+                return false;
+        }
     }
 
-    public boolean isUsbAvailable() {
-        return false;
-    }
+    public InputType getSelectedInput() { return this.selectedInput; }
 
-    public boolean isBtAvailable() {
-        return false;
-    }
+    public void setSelectedInput(InputType type) { this.selectedInput = type;}
 
     public int getGameSelectedCount() { return this.gameSelected.size(); }
 
