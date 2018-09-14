@@ -212,6 +212,10 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
         return isRemoved;
     }
 
+    private boolean isValid(TimedNote note) {
+        return null != note && note.xPosition > 0 && note.timeOffset > this.startSeconds;
+    }
+
     @Override
     public boolean pushNoteBassToEnd(Note note, MusicView musicView) {
         // get the last note we have in our lists, will be the last time we added
@@ -223,9 +227,14 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
             lastTimeX = lastNote.timeOffset + (1f / this.beatsPerSec);
         }
         // create a note for this time
+        boolean isAdded = false;
         synchronized (this.notesToDrawBass) {
-            return this.notesToDrawBass.add(new TimedNote(lastTimeX, calculateXPosition(musicView, lastTimeX), note));
+            TimedNote newNote = new TimedNote(lastTimeX, calculateXPosition(musicView, lastTimeX), note);
+            if (null != newNote && isValid(newNote)) {
+                isAdded =  this.notesToDrawBass.add(newNote);
+            }
         }
+        return isAdded;
     }
 
     @Override
@@ -239,9 +248,14 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
             lastTimeX = lastNote.timeOffset + (1f / this.beatsPerSec);
         }
         // create a note for this time
+        boolean isAdded = false;
         synchronized (this.notesToDrawTreble) {
-            return this.notesToDrawTreble.add(new TimedNote(lastTimeX, calculateXPosition(musicView, lastTimeX), note));
+            TimedNote newNote = new TimedNote(lastTimeX, calculateXPosition(musicView, lastTimeX), note);
+            if (null != newNote && isValid(newNote)) {
+                isAdded = this.notesToDrawTreble.add(newNote);
+            }
         }
+        return isAdded;
     }
 
     private float calculateXPosition(MusicView musicView, float timeX) {

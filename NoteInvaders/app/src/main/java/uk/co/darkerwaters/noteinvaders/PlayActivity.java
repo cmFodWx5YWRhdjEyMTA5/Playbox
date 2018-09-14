@@ -7,8 +7,6 @@ import android.view.ViewGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +28,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     private TextView textTempo;
     private SeekBar seekBarTempo;
     private FloatingActionButton floatingPauseButton;
+    private FloatingActionButton floatingStopButton;
     private View mControlsView;
 
     private Game level;
@@ -55,9 +54,10 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.textTempo = (TextView) findViewById(R.id.text_tempo);
         this.seekBarTempo = (SeekBar) findViewById(R.id.seek_bar_tempo);
         this.floatingPauseButton = (FloatingActionButton) findViewById(R.id.floatingPauseButton);
+        this.floatingStopButton = (FloatingActionButton) findViewById(R.id.floatingStopButton);
         this.mControlsView = findViewById(R.id.fullscreen_content_controls);
-
-        setupTempSeekBar();
+        // setup the seek bar controls
+        setupTempoSeekBar();
 
         // get the notes we want to play from on this level
         this.level = State.getInstance().getGameSelectedLast();
@@ -83,6 +83,13 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
             @Override
             public void onClick(View v) {
                 toggle();
+            }
+        });
+
+        this.floatingStopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
             }
         });
         updateControls();
@@ -141,7 +148,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         mControlsView.setVisibility(View.VISIBLE);
     }
 
-    private void setupTempSeekBar() {
+    private void setupTempoSeekBar() {
         this.seekBarTempo.setMax(this.availableTempos.length - 1);
         this.seekBarTempo.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -179,6 +186,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     @Override
     protected void onPause() {
         this.musicView.removeListener(this);
+        this.noteProvider.setPaused(true);
         this.isRunNotes = false;
         synchronized (this.waitObject) {
             this.waitObject.notifyAll();
@@ -192,13 +200,18 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     protected void onResume() {
         super.onResume();
 
+        // reset all of our data
+        this.musicView.closeView();
+        this.noteProvider.clearNotes();
+        this.totalNotesMissed = 0;
+        this.notesMissed.clear();
+
         this.noteThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 while (isRunNotes) {
                     // while we want to run, process the notes
                     moveNotes();
-
                     synchronized (PlayActivity.this.waitObject) {
                         try {
                             PlayActivity.this.waitObject.wait(10);
@@ -213,6 +226,9 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.musicView.addListener(this);
         // and start scrolling notes
         this.noteThread.start();
+        // pause the player ready for the user to start
+        this.noteProvider.setPaused(false);
+        updateControls();
     }
 
     private void moveNotes() {
