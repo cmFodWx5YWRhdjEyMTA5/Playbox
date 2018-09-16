@@ -13,17 +13,20 @@ import java.util.Map;
 import uk.co.darkerwaters.noteinvaders.games.GamePlayer;
 import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
+import uk.co.darkerwaters.noteinvaders.state.Notes;
 import uk.co.darkerwaters.noteinvaders.state.State;
 import uk.co.darkerwaters.noteinvaders.views.MusicView;
 import uk.co.darkerwaters.noteinvaders.views.MusicViewNoteProviderTempo;
+import uk.co.darkerwaters.noteinvaders.views.PianoView;
 
-public class PlayActivity extends HidingFullscreenActivity implements MusicView.MusicViewListener {
+public class PlayActivity extends HidingFullscreenActivity implements MusicView.MusicViewListener, PianoView.IPianoViewListener {
 
     private Thread noteThread = null;
     private volatile boolean isRunNotes = true;
     private final Object waitObject = new Object();
 
     private MusicView musicView;
+    private PianoView pianoView;
     private TextView totalMissedCount;
     private TextView textTempo;
     private SeekBar seekBarTempo;
@@ -58,6 +61,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
 
         this.musicView = (MusicView) findViewById(R.id.music_view);
         this.musicView.setViewProvider(this.noteProvider);
+        this.pianoView = (PianoView) findViewById(R.id.pianoView);
         this.totalMissedCount = (TextView) findViewById(R.id.total_missed_count);
         this.textTempo = (TextView) findViewById(R.id.text_tempo);
         this.seekBarTempo = (SeekBar) findViewById(R.id.seek_bar_tempo);
@@ -66,6 +70,8 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.mControlsView = findViewById(R.id.fullscreen_content_controls);
         // setup the seek bar controls
         setupTempoSeekBar();
+
+        this.pianoView.addListener(this);
 
         // get the notes we want to play from on this level
         this.level = State.getInstance().getGameSelectedLast();
@@ -158,6 +164,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        this.pianoView.removeListener(this);
         // this is killed, remove our selection from the state
         State.getInstance().deselectGame(this.level);
     }
@@ -185,19 +192,71 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         setInputIcon();
     }
 
+    private void setupKeyboardEntry() {
+        // just show a nice selection of notes
+        Notes notes = Notes.instance();
+        this.pianoView.setNoteRange(notes.getNote("C3"), notes.getNote("E4"));
+        this.pianoView.setIsPlayable(true);
+        // and make it larger so they can press those keys
+        this.pianoView.post(new Runnable() {
+            @Override
+            public void run() {
+                ViewGroup.LayoutParams params = pianoView.getLayoutParams();
+                params.height = (int) (pianoView.getWidth() * 0.4f);
+                pianoView.setLayoutParams(params);
+            }
+        });
+        this.pianoView.invalidate();
+    }
+
+    private void setFullPianoView() {
+        Notes notes = Notes.instance();
+        this.pianoView.setNoteRange(notes.getNote(0), notes.getNote(notes.getNoteCount() - 1));
+        this.pianoView.setIsPlayable(false);
+        // and make it larger so they can press those keys
+        this.pianoView.post(new Runnable() {
+            @Override
+            public void run() {
+                ViewGroup.LayoutParams params = pianoView.getLayoutParams();
+                params.height = (int) (pianoView.getWidth() * 0.15f);
+                pianoView.setLayoutParams(params);
+            }
+        });
+        this.pianoView.invalidate();
+    }
+
+    private void setupMicrophoneEntry() {
+        // show the keyboard full range to show what the microphone detects
+        setFullPianoView();
+    }
+
+    private void setupUsbEntry() {
+        // show the keyboard
+        setFullPianoView();
+    }
+
+    private void setupBtEntry() {
+        // show the keyboard
+        setFullPianoView();
+    }
+
     private void setInputIcon() {
         switch (State.getInstance().getSelectedInput()) {
             case keyboard:
                 this.inputFab.setImageResource(R.drawable.ic_baseline_keyboard_24px);
+                setupKeyboardEntry();
                 break;
             case microphone:
                 this.inputFab.setImageResource(R.drawable.ic_baseline_mic_24px);
+                setupMicrophoneEntry();
                 break;
             case usb:
                 this.inputFab.setImageResource(R.drawable.ic_baseline_usb_24px);
+                setupUsbEntry();
                 break;
             case bt:
                 this.inputFab.setImageResource(R.drawable.ic_baseline_bluetooth_audio_24px);
+                setupBtEntry();
                 break;
         }
     }
@@ -367,6 +426,17 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
             public void run() {
                 // update the current score
                 totalMissedCount.setText(Integer.toString(totalNotesMissed));
+            }
+        });
+    }
+
+    @Override
+    public void noteReleased(Note note) {
+        // when the note is released from the piano it needs to be invalidated
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                PlayActivity.this.pianoView.invalidate();
             }
         });
     }
