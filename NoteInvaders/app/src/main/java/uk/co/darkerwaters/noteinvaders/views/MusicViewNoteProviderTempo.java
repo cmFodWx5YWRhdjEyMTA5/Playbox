@@ -84,7 +84,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
     }
 
     private float getXEnd(MusicView musicView) {
-        return musicView.getWidth() - musicView.getCanvasPadding().right;
+        return Math.max(100, musicView.getWidth() - musicView.getCanvasPadding().right);
     }
 
     private float getXSeconds(float xStart, float xEnd) {

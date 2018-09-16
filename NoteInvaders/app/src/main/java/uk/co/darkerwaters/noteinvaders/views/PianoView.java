@@ -26,7 +26,8 @@ public class PianoView extends View {
     private GestureDetector gestureLetector = null;
 
     public interface IPianoViewListener {
-        public void noteReleased(Note note);
+        void noteReleased(Note note);
+        void pianoViewSizeChanged(int w, int h, int oldw, int oldh);
     }
 
     private Paint whitePaint;
@@ -176,6 +177,11 @@ public class PianoView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         // clear all our keys because it has changed size
         this.playableKeys = null;
+        synchronized (this.listeners) {
+            for (IPianoViewListener listener : this.listeners) {
+                listener.pianoViewSizeChanged(w, h, oldw, oldh);
+            }
+        }
     }
 
     public boolean addListener(IPianoViewListener listener) {

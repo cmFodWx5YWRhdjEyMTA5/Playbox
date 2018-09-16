@@ -18,6 +18,7 @@ public class RandomAttack extends GamePlayer {
     public void addNewNotes(MusicView musicView, Game game) {
         //ensure the view is always full of notes to show
         MusicViewNoteProvider provider = musicView.getNoteProvider();
+        int iNoAttempts = 0;
         while (provider.getNoteCountTreble() + provider.getNoteCountBass() < provider.getNotesFitOnView() + 5) {
             // add another note
             Note note = null;
@@ -31,6 +32,10 @@ public class RandomAttack extends GamePlayer {
                 // didn't do treble, so do bass
                 note = game.bass_clef[random.nextInt(game.bass_clef.length)];
                 provider.pushNoteBassToEnd(note, musicView);
+            }
+            if (++iNoAttempts > provider.getNotesFitOnView() * 10) {
+                // stop already
+                break;
             }
         }
     }

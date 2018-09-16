@@ -1,13 +1,22 @@
 package uk.co.darkerwaters.noteinvaders;
 
+import android.content.res.Configuration;
+import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.SeekBar;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import uk.co.darkerwaters.noteinvaders.games.GamePlayer;
@@ -28,8 +37,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     private MusicView musicView;
     private PianoView pianoView;
     private TextView totalMissedCount;
-    private TextView textTempo;
-    private SeekBar seekBarTempo;
+    private Spinner tempoSpinner;
     private FloatingActionButton floatingPauseButton;
     private FloatingActionButton floatingStopButton;
     private View mControlsView;
@@ -63,13 +71,15 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.musicView.setViewProvider(this.noteProvider);
         this.pianoView = (PianoView) findViewById(R.id.pianoView);
         this.totalMissedCount = (TextView) findViewById(R.id.total_missed_count);
-        this.textTempo = (TextView) findViewById(R.id.text_tempo);
-        this.seekBarTempo = (SeekBar) findViewById(R.id.seek_bar_tempo);
+        this.tempoSpinner = (Spinner) findViewById(R.id.tempo_spinner);
         this.floatingPauseButton = (FloatingActionButton) findViewById(R.id.floatingPauseButton);
         this.floatingStopButton = (FloatingActionButton) findViewById(R.id.floatingStopButton);
         this.mControlsView = findViewById(R.id.fullscreen_content_controls);
         // setup the seek bar controls
         setupTempoSeekBar();
+
+        // any controls that make android show the title/back we need to add the delay listener
+        tempoSpinner.setOnTouchListener(mDelayHideTouchListener);
 
         this.pianoView.addListener(this);
 
@@ -109,6 +119,14 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         updateControls();
 
         setupFabs();
+    }
+
+    @Override
+    public void pianoViewSizeChanged(int w, int h, int oldw, int oldh) {
+        // if the config has changed, then so maybe has the size of the piano view
+        if (null != this.pianoView) {
+            setInputIcon();
+        }
     }
 
     private void setupFabs() {
@@ -172,8 +190,8 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     @Override
     protected void toggle() {
         super.toggle();
-        if (mVisible) {
-            // controls are visible, we are paused, pause the music view
+        if (false == noteProvider.isPaused()) {
+            // we are running, pause the provider
             noteProvider.setPaused(true);
         }
         else {
@@ -241,39 +259,41 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     }
 
     private void setInputIcon() {
-        switch (State.getInstance().getSelectedInput()) {
-            case keyboard:
-                this.inputFab.setImageResource(R.drawable.ic_baseline_keyboard_24px);
-                setupKeyboardEntry();
-                break;
-            case microphone:
-                this.inputFab.setImageResource(R.drawable.ic_baseline_mic_24px);
-                setupMicrophoneEntry();
-                break;
-            case usb:
-                this.inputFab.setImageResource(R.drawable.ic_baseline_usb_24px);
-                setupUsbEntry();
-                break;
-            case bt:
-                this.inputFab.setImageResource(R.drawable.ic_baseline_bluetooth_audio_24px);
-                setupBtEntry();
-                break;
+        if (null != this.inputFab) {
+            switch (State.getInstance().getSelectedInput()) {
+                case keyboard:
+                    this.inputFab.setImageResource(R.drawable.ic_baseline_keyboard_24px);
+                    setupKeyboardEntry();
+                    break;
+                case microphone:
+                    this.inputFab.setImageResource(R.drawable.ic_baseline_mic_24px);
+                    setupMicrophoneEntry();
+                    break;
+                case usb:
+                    this.inputFab.setImageResource(R.drawable.ic_baseline_usb_24px);
+                    setupUsbEntry();
+                    break;
+                case bt:
+                    this.inputFab.setImageResource(R.drawable.ic_baseline_bluetooth_audio_24px);
+                    setupBtEntry();
+                    break;
+            }
         }
     }
 
     private void toggleInputFabs() {
         if (this.isFabsShown) {
-            manualFab.animate().translationY(0);
-            micFab.animate().translationY(0);
-            usbFab.animate().translationY(0);
-            btFab.animate().translationY(0);
+            manualFab.animate().translationX(0);
+            micFab.animate().translationX(0);
+            usbFab.animate().translationX(0);
+            btFab.animate().translationX(0);
             this.isFabsShown = false;
         }
         else {
-            manualFab.animate().translationY(-getResources().getDimension(R.dimen.standard_55));
-            micFab.animate().translationY(-getResources().getDimension(R.dimen.standard_105));
-            usbFab.animate().translationY(-getResources().getDimension(R.dimen.standard_155));
-            btFab.animate().translationY(-getResources().getDimension(R.dimen.standard_205));
+            manualFab.animate().translationX(getResources().getDimension(R.dimen.standard_55));
+            micFab.animate().translationX(getResources().getDimension(R.dimen.standard_105));
+            usbFab.animate().translationX(getResources().getDimension(R.dimen.standard_155));
+            btFab.animate().translationX(getResources().getDimension(R.dimen.standard_205));
             this.isFabsShown = true;
         }
     }
@@ -281,19 +301,13 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     private void updateControls() {
         if (noteProvider.isPaused()) {
             // show the play icon
+            floatingStopButton.animate().translationX(-getResources().getDimension(R.dimen.standard_63));
             floatingPauseButton.setImageResource(android.R.drawable.ic_media_play);
-            if (!mVisible) {
-                // we are hidden, show things
-                toggle();
-            }
         }
         else {
             // show the pause icon
+            floatingStopButton.animate().translationX(0);
             floatingPauseButton.setImageResource(android.R.drawable.ic_media_pause);
-            if (mVisible) {
-                // we are showing, hide things
-                toggle();
-            }
         }
     }
 
@@ -314,35 +328,28 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     }
 
     private void setupTempoSeekBar() {
-        this.seekBarTempo.setMax(this.availableTempos.length - 1);
-        this.seekBarTempo.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        List<String> spinnerOptions = new ArrayList<String>();
+        for (int value : availableTempos) {
+            spinnerOptions.add(Integer.toString(value));
+        }
+        // create the default adapter for these strings
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spinnerOptions);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        this.tempoSpinner.setAdapter(adapter);
+        this.tempoSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser) {
-                    final int beats = availableTempos[progress];
-                    PlayActivity.this.noteProvider.setBeats(beats);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            textTempo.setText(beats + " " + getResources().getString(R.string.bps));
-                        }
-                    });
-                }
+            public void onItemSelected(AdapterView<?> parent, View view, final int position, long id) {
+                final int beats = availableTempos[position];
+                PlayActivity.this.noteProvider.setBeats(beats);
             }
-
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
+            public void onNothingSelected(AdapterView<?> parent) {
             }
         });
+        // set the correct tempo
         for (int i = 0; i < availableTempos.length; ++i) {
             if (availableTempos[i] == this.noteProvider.getBeats()) {
-                this.seekBarTempo.setProgress(i);
+                this.tempoSpinner.setSelection(i);
                 break;
             }
         }
@@ -369,6 +376,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.musicView.closeView();
         this.noteProvider.clearNotes();
         this.totalNotesMissed = 0;
+        this.isRunNotes = true;
         this.notesMissed.clear();
 
         this.noteThread = new Thread(new Runnable() {
