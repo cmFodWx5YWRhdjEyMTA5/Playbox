@@ -10,6 +10,8 @@ import uk.co.darkerwaters.noteinvaders.views.MusicViewNoteProvider;
 public class Scales extends GamePlayer  {
     private final Random random;
 
+    private static final int K_NUMBERTRIESWITHOUTSUCCESS = 10;
+
     public Scales() {
         this.random = new Random(System.currentTimeMillis());
     }
@@ -18,7 +20,9 @@ public class Scales extends GamePlayer  {
     public void addNewNotes(MusicView musicView, Game game) {
         //ensure the view is always full of notes to show
         MusicViewNoteProvider provider = musicView.getNoteProvider();
-        while (provider.getNoteCountTreble() + provider.getNoteCountBass() < provider.getNotesFitOnView() + 5) {
+        int iNoAttempts = 0;
+        int targetNotes = provider.getNotesFitOnView() + 5;
+        while (provider.getNoteCountTreble() + provider.getNoteCountBass() < targetNotes) {
             // add another note
             Note note = null;
             // first decide treble or bass
@@ -31,6 +35,10 @@ public class Scales extends GamePlayer  {
                 // didn't do treble, so do bass
                 note = game.bass_clef[random.nextInt(game.bass_clef.length)];
                 provider.pushNoteBassToEnd(note, musicView);
+            }
+            if (++iNoAttempts > provider.getNotesFitOnView() + K_NUMBERTRIESWITHOUTSUCCESS) {
+                // stop already
+                break;
             }
         }
     }
