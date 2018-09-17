@@ -27,6 +27,7 @@ public class PianoView extends View {
 
     public interface IPianoViewListener {
         void noteReleased(Note note);
+        void noteDepressed(Note note);
         void pianoViewSizeChanged(int w, int h, int oldw, int oldh);
     }
 
@@ -42,6 +43,8 @@ public class PianoView extends View {
     private Note endNote = null;
 
     private Map<Note, Integer> noteDepressionCount;
+
+    private boolean isDrawNoteNames = true;
 
     private Thread reductionThread = null;
     private boolean isThreadStarted = false;
@@ -306,9 +309,7 @@ public class PianoView extends View {
             float keyWidth = getKeyWidth();
             float sharpWidth = keyWidth * 0.4f;
 
-            int blackIndex = this.initialWhiteKey;
-            float blackLeft = 0f;
-            int noteIndex = this.startNoteIndex;
+
             Notes notes = Notes.instance();
             boolean isCreateKey = false;
             if (this.isPlayable && null == this.playableKeys) {
@@ -317,27 +318,14 @@ public class PianoView extends View {
                 isCreateKey = true;
             }
             // draw all the keys, go through twice, drawing white then black over the top of them
-            boolean isDrawSharps = false;
-            int keyIndex;
-            for (int i = 0; i < this.whiteKeyCount * 2; i++) {
-                // get the note that we are about to draw
+            // first let's go through the keys and draw in all the white ones
+            int keyIndex = 0;
+            int noteIndex = this.startNoteIndex;
+            while (keyIndex < this.whiteKeyCount && noteIndex < notes.getNoteCount()) {
+                // loop through the notes finding all the white ones
                 Note currentNote = notes.getNote(noteIndex++);
-
-                if (i >= this.whiteKeyCount) {
-                    // we are on our second time through this loop, draw sharps only
-                    if (i == this.whiteKeyCount) {
-                        // this is the change over to loop again
-                        noteIndex = 0;
-                        isDrawSharps = true;
-                    }
-                    // the key index
-                    keyIndex = i - this.whiteKeyCount;
-                }
-                else {
-                    keyIndex = i;
-                }
-                // draw the white note
-                if (false == isDrawSharps) {
+                if (false == currentNote.isSharp()) {
+                    // this is a white key, draw this
                     RectF keyRect = new RectF(paddingLeft + (keyIndex * keyWidth),
                             paddingTop,
                             paddingLeft + ((keyIndex + 1) * keyWidth),
@@ -356,35 +344,53 @@ public class PianoView extends View {
                                 keyRect.bottom - 2,
                                 redPaint);
                     }
-                }
-                // do the sharp for this white note
-                if (isDrawSharps && false == Float.isNaN(sharpOffsets[blackIndex]) && keyIndex < this.whiteKeyCount - 1) {
-                    // get the note that we are about to draw
-                    currentNote = notes.getNote(noteIndex++);
-                    // draw in the sharp for this key now as not a NaN and not the last key
-                    blackLeft = paddingLeft + ((keyIndex + 1) * keyWidth) - (sharpWidth * sharpOffsets[blackIndex]);
-                    // create the rect for this
-                    RectF keyRect = new RectF(blackLeft,
-                            paddingTop,
-                            blackLeft + sharpWidth,
-                            (contentHeight * 0.7f) - paddingBottom);
-                    // draw it
-                    canvas.drawRect(keyRect, blackPaint);
-                    // is it pressed?
-                    if (isNoteDepressed(currentNote)) {
-                        // highlight this pressed note
-                        canvas.drawRect(keyRect.left + 2,
-                                keyRect.top + 2,
-                                keyRect.right - 2,
-                                keyRect.bottom - 2,
-                                redPaint);
+                    if (isDrawNoteNames) {
+                        canvas.drawText(currentNote.getName(), keyRect.left, keyRect.bottom - 16, blackPaint);
                     }
-                    if (isCreateKey) {
-                        this.playableKeys.add(new PlayableKey(keyRect, currentNote));
-                    }
+                    // move on our white key counter
+                    ++keyIndex;
                 }
-                if (++blackIndex > sharpOffsets.length - 1) {
-                    blackIndex = 0;
+            }
+            // now we need to go through again for the sharps and flats
+            int blackIndex = this.initialWhiteKey;
+            float blackLeft = 0f;
+            keyIndex = 0;
+            noteIndex = this.startNoteIndex;
+            while (keyIndex < this.whiteKeyCount && noteIndex < notes.getNoteCount()) {
+                // we will go through with reference to the white notes to offset the blacks better
+                Note currentNote = notes.getNote(noteIndex++);
+                if (false == currentNote.isSharp() && noteIndex < notes.getNoteCount()) {
+                    // this is a white key, is there a sharp to draw?
+                    Note blackNote = notes.getNote(noteIndex);
+                    if (blackNote.isSharp() && false == Float.isNaN(sharpOffsets[blackIndex])) {
+                        // this is a sharp, draw this note now
+                        blackLeft = paddingLeft + ((keyIndex + 1) * keyWidth) - (sharpWidth * sharpOffsets[blackIndex]);
+                        // create the rect for this
+                        RectF keyRect = new RectF(blackLeft,
+                                paddingTop,
+                                blackLeft + sharpWidth,
+                                (contentHeight * 0.7f) - paddingBottom);
+                        // draw it
+                        canvas.drawRect(keyRect, blackPaint);
+                        // is it pressed?
+                        if (isNoteDepressed(blackNote)) {
+                            // highlight this pressed note
+                            canvas.drawRect(keyRect.left + 2,
+                                    keyRect.top + 2,
+                                    keyRect.right - 2,
+                                    keyRect.bottom - 2,
+                                    redPaint);
+                        }
+                        if (isCreateKey) {
+                            this.playableKeys.add(new PlayableKey(keyRect, blackNote));
+                        }
+                    }
+                    // move on the index for the white key
+                    ++keyIndex;
+                    // move on the black index to get the offset for this key properly next time
+                    if (++blackIndex > sharpOffsets.length - 1) {
+                        blackIndex = 0;
+                    }
                 }
             }
         }
@@ -431,6 +437,11 @@ public class PianoView extends View {
         // set the depression count
         synchronized (this.noteDepressionCount) {
             this.noteDepressionCount.put(note, K_INITIAL_NOTE_DEPRESSION_COUNT);
+        }
+        synchronized (this.listeners) {
+            for (IPianoViewListener listener : this.listeners) {
+                listener.noteDepressed(note);
+            }
         }
     }
 

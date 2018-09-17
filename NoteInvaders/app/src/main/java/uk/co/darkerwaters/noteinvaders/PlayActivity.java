@@ -88,6 +88,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.levelPlayer = this.level.getGamePlayer();
 
         // setup the view for this level
+        this.musicView.setIsDrawLaser(true);
         this.musicView.showTreble(this.level.isTreble());
         this.musicView.showBass(this.level.isBass());
 
@@ -213,7 +214,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     private void setupKeyboardEntry() {
         // just show a nice selection of notes
         Notes notes = Notes.instance();
-        this.pianoView.setNoteRange(notes.getNote("C3"), notes.getNote("E4"));
+        this.pianoView.setNoteRange(notes.getNote("C4"), notes.getNote("E5"));
         this.pianoView.setIsPlayable(true);
         // and make it larger so they can press those keys
         this.pianoView.post(new Runnable() {
@@ -329,8 +330,9 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
 
     private void setupTempoSeekBar() {
         List<String> spinnerOptions = new ArrayList<String>();
+        String bpmString = getResources().getString(R.string.bpm);
         for (int value : availableTempos) {
-            spinnerOptions.add(Integer.toString(value));
+            spinnerOptions.add(Integer.toString(value) + " " + bpmString);
         }
         // create the default adapter for these strings
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spinnerOptions);
@@ -439,6 +441,18 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     }
 
     @Override
+    public void onNoteDestroyed(Note note) {
+        //TODO add to the notes that we hit
+
+    }
+
+    @Override
+    public void onNoteMisfire(Note note) {
+        //TODO add to the notes that we shot at but were not there
+
+    }
+
+    @Override
     public void noteReleased(Note note) {
         // when the note is released from the piano it needs to be invalidated
         runOnUiThread(new Runnable() {
@@ -447,5 +461,12 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
                 PlayActivity.this.pianoView.invalidate();
             }
         });
+    }
+
+    @Override
+    public void noteDepressed(Note note) {
+        // when the note is pressed, fire the laser
+        this.musicView.fireTrebleLaser(note);
+        this.musicView.fireBassLaser(note);
     }
 }

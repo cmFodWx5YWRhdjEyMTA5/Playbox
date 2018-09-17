@@ -241,6 +241,11 @@ public class MicrophoneSetupActivity extends AppCompatActivity implements PianoV
     }
 
     @Override
+    public void noteDepressed(Note note) {
+        // interesting
+    }
+
+    @Override
     public void pianoViewSizeChanged(int w, int h, int oldw, int oldh) {
         // interesting
     }

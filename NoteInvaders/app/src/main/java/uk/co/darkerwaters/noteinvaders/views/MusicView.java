@@ -34,21 +34,28 @@ public class MusicView extends View {
     private final static String K_TREBLENOTEBOTTOM = "A3";
     private final static String K_TREBLENOTETOP = "C6";
 
+    private final static float K_LASERSPEEDSEC = 0.5f;   // seconds to traverse the entire range
+    private final static float K_LASERDURATIONSEC = 0.2f;   // seconds to fire the laser for
+
     public interface MusicViewListener {
         void onNotePopped(Note note);
+        void onNoteDestroyed(Note note);
+        void onNoteMisfire(Note trebleLaserTarget);
     }
     private final List<MusicViewListener> listeners = new ArrayList<MusicViewListener>();
 
     private Paint blackPaint;
     private Paint notePaint;
     private Paint redPaint;
+    private Paint railPaint;
+    private Paint laserPaint;
     private VectorDrawableCompat trebleDrawable;
     private VectorDrawableCompat bassDrawable;
 
     private boolean isDrawTreble = true;
     private boolean isDrawBass = true;
-
-    private boolean isDrawNoteName = false;
+    private boolean isDrawLaser = false;
+    private boolean isDrawNoteName = true;
 
     // store an array of notes that the treble and bass clefs represent
     private Note[] notesTreble;
@@ -57,6 +64,55 @@ public class MusicView extends View {
     private float lineHeight = 1f;
 
     private MusicViewNoteProvider noteProvider;
+
+    private MusicViewLaser trebleLaser = null;
+    private MusicViewLaser bassLaser = null;
+
+    private Note trebleLaserTarget = null;
+    private Note bassLaserTarget = null;
+
+    private final Object laserTargetLock = new Object();
+
+    private long lastTimeDrawn = 0l;
+
+    private class MusicViewLaser {
+        final float yTop;
+        final float yBottom;
+        float yPosition;
+        final float xPosition;
+        final float ySpeed;     /* pixels per second */
+        float tLaserFire;
+        float targetY;
+        public MusicViewNote target;
+
+        MusicViewLaser(float yTop, float yBottom, float xPosition) {
+            this.yTop = yTop;
+            this.yBottom = yBottom;
+            this.xPosition = xPosition;
+            float height = yBottom - yTop;
+            this.yPosition = (height * 0.5f) + yTop;
+            this.targetY = yPosition;
+
+            // calculate the speed of Y to be a constant number of seconds to move the entire range
+            this.ySpeed = height / K_LASERSPEEDSEC;
+        }
+
+        boolean moveTargetPos(float timeElapsedSec) {
+            float oldPos = this.yPosition;
+            if (this.targetY != this.yPosition) {
+                float movement = timeElapsedSec * this.ySpeed;
+                if (yPosition < targetY) {
+                    // move down the Y axis
+                    yPosition = Math.min(targetY, yPosition + movement);
+                } else {
+                    // move up the Y axis
+                    yPosition = Math.max(targetY, yPosition - movement);
+                }
+            }
+            // return if we moved or not
+            return oldPos != this.yPosition;
+        }
+    }
 
     public MusicView(Context context) {
         super(context);
@@ -108,6 +164,18 @@ public class MusicView extends View {
         this.redPaint.setStyle(Paint.Style.FILL);
         this.redPaint.setColor(Color.RED);
         this.redPaint.setAntiAlias(true);
+        // and for the laser rail
+        this.railPaint = new Paint();
+        this.railPaint.setStyle(Paint.Style.STROKE);
+        this.railPaint.setStrokeWidth(2f);
+        this.railPaint.setColor(Color.DKGRAY);
+        this.railPaint.setAntiAlias(true);
+        // and for the laser
+        this.laserPaint = new Paint();
+        this.laserPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        this.laserPaint.setStrokeWidth(3f);
+        this.laserPaint.setColor(Color.BLUE);
+        this.laserPaint.setAntiAlias(true);
 
         this.trebleDrawable = VectorDrawableCompat.create(getContext().getResources(), R.drawable.ic_treble, null);
         this.bassDrawable = VectorDrawableCompat.create(getContext().getResources(), R.drawable.ic_bass, null);
@@ -173,6 +241,48 @@ public class MusicView extends View {
         this.isDrawTreble = isShow;
     }
 
+    public void setIsDrawLaser(boolean isDrawLaser) { this.isDrawLaser = isDrawLaser; }
+
+    public void fireTrebleLaser(Note target) {
+        synchronized (this.laserTargetLock) {
+            if (null != this.trebleLaser && null != this.trebleLaser.target) {
+                // there is already a target we shot at, better signal this as a hit as the user
+                // is just being super quick and hitting another before we popped it
+                this.noteProvider.removeNoteTreble(this.trebleLaser.target);
+                // inform listeners of this
+                synchronized (this.listeners) {
+                    for (MusicViewListener listener : this.listeners) {
+                        listener.onNoteDestroyed(this.trebleLaser.target.note);
+                    }
+                }
+                // this is popped, stop shooting at it
+                this.trebleLaser.target = null;
+            }
+            // set the new target to shoot at
+            this.trebleLaserTarget = target;
+        }
+    }
+
+    public void fireBassLaser(Note target) {
+        synchronized (this.laserTargetLock) {
+            if (null != this.bassLaser && null != this.bassLaser.target) {
+                // there is already a target we shot at, better signal this as a hit as the user
+                // is just being super quick and hitting another before we popped it
+                this.noteProvider.removeNoteBass(this.bassLaser.target);
+                // inform listeners of this
+                synchronized (this.listeners) {
+                    for (MusicViewListener listener : this.listeners) {
+                        listener.onNoteDestroyed(this.bassLaser.target.note);
+                    }
+                }
+                // this is popped, stop shooting at it
+                this.bassLaser.target = null;
+            }
+            // set the new target to shoot at
+            this.bassLaserTarget = target;
+        }
+    }
+
     private String getBasicNoteName(Note note) {
         String noteName = note.getName(0);
         return noteName.substring(0, noteName.length() - 1).toLowerCase();
@@ -214,7 +324,25 @@ public class MusicView extends View {
         // Draw a solid color on the canvas as background
         canvas.drawColor(Color.WHITE);
 
-         // allocations per draw cycle.
+        // calculate the time between each draw to help our animations
+        if (this.lastTimeDrawn == 0) {
+            this.lastTimeDrawn = System.currentTimeMillis();
+        }
+        // calculate the elapsed time since we last drew the data
+        long elapsedTime = System.currentTimeMillis() - this.lastTimeDrawn;
+        float secondsElapsed;
+        if (elapsedTime < 0) {
+            // the elapsed time since 1970 just overran, ignore this, first start the time again
+            this.lastTimeDrawn = System.currentTimeMillis();
+            secondsElapsed = 0f;
+        }
+        else {
+            // if we are here then some time has elapsed, need to move all the notes to their correct
+            // locations on the view for the times the are to represent
+            secondsElapsed = elapsedTime / 1000f;
+        }
+
+        // allocations per draw cycle.
         Rect padding = getCanvasPadding();
         int contentWidth = getWidth() - (padding.left + padding.right);
         int contentHeight = getHeight() - (padding.top + padding.bottom);
@@ -223,6 +351,9 @@ public class MusicView extends View {
         if (this.isDrawTreble) {
             // this is five lines, but we want to leave room at the top and bottom too
             linesToDraw += K_LINESINCLEF + (K_LINESABOVEANDBELOW * 2);
+
+            // the last line is the bottom of the view, don't actually draw that one
+            --linesToDraw;
         }
         if (this.isDrawBass) {
             // this is five lines, but we want to leave room at the top and bottom too
@@ -231,10 +362,9 @@ public class MusicView extends View {
                 // we are drawing both, leave one between them too
                 linesToDraw += K_LINESBETWEENCLEFS;
             }
+            // the last line is the bottom of the view, don't actually draw that one
+            --linesToDraw;
         }
-
-        // the last line is the bottom of the view, don't actually draw that one
-        --linesToDraw;
         if (linesToDraw > 0) {
             // do the drawing then
             this.lineHeight = contentHeight / linesToDraw;
@@ -246,6 +376,7 @@ public class MusicView extends View {
             float yPosition = padding.top;
             float bassClefYOffset = 0;
             if (this.isDrawTreble) {
+                float yTop = yPosition;
                 yPosition += K_LINESABOVEANDBELOW * lineHeight;
                 // and then the lines
                 for (int i = 0; i < K_LINESINCLEF; ++i) {
@@ -260,14 +391,18 @@ public class MusicView extends View {
                 this.trebleDrawable.draw(canvas);
                 canvas.restore();
                 // move down the empty lines before we draw any more
-                yPosition += K_LINESABOVEANDBELOW * lineHeight;
+                yPosition += (K_LINESABOVEANDBELOW - 1) * lineHeight;
+                if (this.isDrawLaser && this.trebleLaser == null) {
+                    // we want a laser but we don't have one, create it here
+                    this.trebleLaser = new MusicViewLaser(yTop, yPosition, padding.left + (clefWidth * 1.1f));
+                }
             }
             if (this.isDrawBass) {
                 if (this.isDrawTreble) {
                     // doing both, leave the required gap
                     yPosition += K_LINESBETWEENCLEFS * lineHeight;
                 }
-                bassClefYOffset = (int)yPosition;
+                bassClefYOffset = (int) yPosition;
                 yPosition += K_LINESABOVEANDBELOW * lineHeight;
                 // and then the lines
                 for (int i = 0; i < K_LINESINCLEF; ++i) {
@@ -282,7 +417,11 @@ public class MusicView extends View {
                 this.bassDrawable.draw(canvas);
                 canvas.restore();
                 // move down the empty lines before we draw any more
-                yPosition += K_LINESABOVEANDBELOW * lineHeight;
+                yPosition += (K_LINESABOVEANDBELOW - 1) * lineHeight;
+                if (this.isDrawLaser && this.bassLaser == null) {
+                    // we want a laser but we don't have one, create it here
+                    this.bassLaser = new MusicViewLaser(bassClefYOffset, yPosition, padding.left + (clefWidth * 1.1f));
+                }
             }
 
             // setup the note to draw
@@ -294,6 +433,19 @@ public class MusicView extends View {
             MusicViewNote[] toDrawTreble = this.noteProvider.getNotesToDrawTreble();
             MusicViewNote[] toDrawBass = this.noteProvider.getNotesToDrawBass();
 
+            float laserXPosition = 0f;
+            if (this.isDrawLaser) {
+                // get the X position of the laser if there is one (to know if notes have made it past)
+                synchronized (this.laserTargetLock) {
+                    if (null != this.trebleLaser) {
+                        laserXPosition = this.trebleLaser.xPosition;
+                    }
+                    else if (null != this.bassLaser) {
+                        laserXPosition = this.bassLaser.xPosition;
+                    }
+                }
+            }
+
             for (int i = 0; i < toDrawTreble.length + toDrawBass.length; ++i) {
                 // for each note, draw it on each clef
                 MusicViewNote note = null;
@@ -301,8 +453,7 @@ public class MusicView extends View {
                 if (isFromTrebleList) {
                     // this is a treble note, get it
                     note = toDrawTreble[i];
-                }
-                else {
+                } else {
                     // done with the trebles - get bass
                     note = toDrawBass[i - toDrawTreble.length];
                 }
@@ -311,8 +462,7 @@ public class MusicView extends View {
                     // this is gone from the view
                     if (isFromTrebleList) {
                         this.noteProvider.removeNoteTreble(note);
-                    }
-                    else {
+                    } else {
                         this.noteProvider.removeNoteBass(note);
                     }
                     synchronized (this.listeners) {
@@ -345,10 +495,150 @@ public class MusicView extends View {
                                     yPosition,
                                     notePaint);
                         }
+                        if (isDrawLaser) {
+                            // did we shoot this note down at all?
+                            if (xPosition < laserXPosition) {
+                                // the note made it past us
+                                canvas.drawCircle(xPosition, yPosition, noteRadius, redPaint);
+                            }
+                            else if (isFromTrebleList) {
+                                // test the treble target
+                                synchronized (this.laserTargetLock) {
+                                    if (null != this.trebleLaser && null != this.trebleLaserTarget && note.note.equals(this.trebleLaserTarget)) {
+                                        // this is a hit for the treble target, draw in this laser
+                                        this.trebleLaser.targetY = yPosition;
+                                        this.trebleLaser.target = note;
+                                        this.trebleLaser.tLaserFire = K_LASERDURATIONSEC;
+                                        // and don't fire at another
+                                        this.trebleLaserTarget = null;
+                                    }
+                                }
+                            } else {
+                                // test the bass target
+                                synchronized (this.laserTargetLock) {
+                                    if (null != this.bassLaser && null != this.bassLaserTarget && note.note.equals(this.bassLaserTarget)) {
+                                        // this is a hit for the bass target, draw in this laser
+                                        this.bassLaser.targetY = yPosition;
+                                        this.bassLaser.target = note;
+                                        this.bassLaser.tLaserFire = K_LASERDURATIONSEC;
+                                        // and don't fire at another
+                                        this.bassLaserTarget = null;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // if we didn't fire yet, there was nothing to fire at
+            synchronized (this.laserTargetLock) {
+                if (null != this.trebleLaserTarget && null != this.trebleLaser) {
+                    // this was fired at but was not on the view, this is a misfire
+                    int position = getNotePosition(this.notesTreble, this.trebleLaserTarget);
+                    if (position != -1) {
+                        // move the laser to the miss position
+                        this.trebleLaser.targetY = padding.top + (position * noteOffset);
+                    }
+                    synchronized (this.listeners) {
+                        for (MusicViewListener listener : this.listeners) {
+                            listener.onNoteMisfire(this.trebleLaserTarget);
+                        }
+                    }
+                }
+                // reset the target to be null
+                this.trebleLaserTarget = null;
+            }
+            synchronized (this.laserTargetLock) {
+                if (null != this.bassLaserTarget && null != this.bassLaser) {
+                    // this was fired at but was not on the view, this is a misfire
+                    int position = getNotePosition(this.notesBass, this.bassLaserTarget);
+                    if (position != -1) {
+                        // move the laser to the miss position
+                        this.bassLaser.targetY = padding.top + (position * noteOffset);
+                    }
+                    synchronized (this.listeners) {
+                        for (MusicViewListener listener : this.listeners) {
+                            listener.onNoteMisfire(this.bassLaserTarget);
+                        }
+                    }
+                }
+                // reset the target to be null
+                this.bassLaserTarget = null;
+            }
+        }
+        // draw in the lasers on top of this
+        drawLaserOnClef(canvas, secondsElapsed);
+
+        // reset the time calc so we can animate the correct amount on each draw cycle
+        this.lastTimeDrawn = System.currentTimeMillis();
+    }
+
+    private void drawLaserOnClef(Canvas canvas, float secondsElapsed) {
+        if (this.isDrawLaser) {
+            // first move the lasers accordingly, then draw them in their place
+            synchronized (this.laserTargetLock) {
+                if (null != this.trebleLaser) {
+                    // move this laser
+                    this.trebleLaser.moveTargetPos(secondsElapsed);
+                    // draw in our lasers, first the rail on which they will be moving
+                    drawLaser(canvas, this.trebleLaser, secondsElapsed);
+                    if (null != this.trebleLaser.target && this.trebleLaser.tLaserFire <= 0f) {
+                        // there is a target but no firing, remove the target (we shot it down)
+                        this.noteProvider.removeNoteTreble(this.trebleLaser.target);
+                        // inform listeners of this
+                        synchronized (this.listeners) {
+                            for (MusicViewListener listener : this.listeners) {
+                                listener.onNoteDestroyed(this.trebleLaser.target.note);
+                            }
+                        }
+                        this.trebleLaser.target = null;
+                    }
+                }
+                if (null != this.bassLaser) {
+                    // move this laser
+                    this.bassLaser.moveTargetPos(secondsElapsed);
+                    // draw in our lasers, first the rail on which they will be moving
+                    drawLaser(canvas, this.bassLaser, secondsElapsed);
+                    if (null != this.bassLaser.target && this.bassLaser.tLaserFire <= 0f) {
+                        // there is a target but no firing, remove the target (we shot it down)
+                        this.noteProvider.removeNoteBass(this.bassLaser.target);
+                        // inform listeners of this
+                        synchronized (this.listeners) {
+                            for (MusicViewListener listener : this.listeners) {
+                                listener.onNoteDestroyed(this.bassLaser.target.note);
+                            }
+                        }
+                        this.bassLaser.target = null;
                     }
                 }
             }
         }
+    }
+
+    private void drawLaser(Canvas canvas, MusicViewLaser laser, float secondsElapsed) {
+        // draw in the laser
+        canvas.drawLine(laser.xPosition, laser.yTop, laser.xPosition, laser.yBottom, railPaint);
+        // and now the actual laser
+        canvas.drawCircle(laser.xPosition, laser.yPosition, this.lineHeight * 0.3f, laserPaint);
+        canvas.drawLine(laser.xPosition, laser.yPosition - this.lineHeight * 0.15f, laser.xPosition + this.lineHeight * 0.5f, laser.yPosition, laserPaint);
+        canvas.drawLine(laser.xPosition, laser.yPosition + this.lineHeight * 0.15f, laser.xPosition + this.lineHeight * 0.5f, laser.yPosition, laserPaint);
+        if (laser.tLaserFire > 0f && laser.yPosition == laser.targetY) {
+            // there is laser to fire and we are at the location to fire, fire it
+            float xTargetPosition = -1;
+            if (null != laser.target) {
+                xTargetPosition = laser.target.getXPosition();
+            }
+            if (xTargetPosition != -1) {
+                // draw the line to this hit target
+                canvas.drawLine(laser.xPosition, laser.yPosition, xTargetPosition, laser.yPosition, laserPaint);
+                // and the circle we hit
+                canvas.drawCircle(xTargetPosition, laser.yPosition, noteRadius, laserPaint);
+            }
+            // and reduce the time fired by the correct amount
+            laser.tLaserFire = Math.max(0f, laser.tLaserFire -= secondsElapsed);
+
+        }
+
     }
 
     private void drawNoteOnClef(Canvas canvas, float xPosition, float yPosition, String noteTitle) {
