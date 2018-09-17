@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">Note Invaders</string>
+    <string name="start">Start</string>
+    <string name="title_activity_instrument">Instrument Selection</string>
+    <string name="action_settings">Settings</string>
+    <string name="choose_instrument">Choose your instrument</string>
+    <string name="instrument">Instrument</string>
+    <string name="title_activity_input">InputActivity</string>
+    <string name="input">Select Input</string>
+    <string name="choose_input">Choose how to listen</string>
+    <string name="config_microphone">Configure Microphone Range</string>
+    <string name="config_microphone_step1">1: Play a nice smooth middle note</string>
+    <string name="config_microphone_step2">2: Descend to the lowest note you can play</string>
+    <string name="config_microphone_step3">3: Ascend to the highest note you can play</string>
+    <string name="microphone">Microphone</string>
+    <string name="usb_midi">USB MIDI</string>
+    <string name="bt_midi">BT MIDI</string>
+    <string name="microphone_no_permission">Cannot use microphone without permission</string>
+    <string name="note_invaders">Note Invaders</string>
+    <string name="note_invaders_subtitle">Choose your mission</string>
+    <string name="random_attack">Random Attack</string>
+    <string name="piano_keyboard">Piano / Keyboard</string>
+    <string name="violin">Violin</string>
+    <string name="title_activity_play">PlayActivity</string>
+    <string name="tempo">Tempo</string>
+    <string name="bpm">bpm</string>
+</resources>

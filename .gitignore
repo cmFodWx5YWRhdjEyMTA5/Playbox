@@ -21,14 +21,12 @@ PicSync/.settings/com.google.appengine.eclipse.core.prefs
 
 *.prefs
 
-*.xml
-
 PicSync/gwt-unitCache/gwt-unitCache-b43fe07841b100c5f8cde7d5e855fc294f6a56f4-0000014CFB505A87
 
 traindataserver/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
 
 *.lst
-
+*/.idea
 *.txt
 
 *.stn
