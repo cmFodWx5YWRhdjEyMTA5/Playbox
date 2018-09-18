@@ -24,4 +24,5 @@
     <string name="title_activity_play">PlayActivity</string>
     <string name="tempo">Tempo</string>
     <string name="bpm">bpm</string>
+    <string name="allow">Allow</string>
 </resources>

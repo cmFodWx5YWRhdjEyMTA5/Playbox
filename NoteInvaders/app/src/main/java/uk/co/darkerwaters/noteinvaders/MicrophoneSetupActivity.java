@@ -34,6 +34,8 @@ public class MicrophoneSetupActivity extends AppCompatActivity implements PianoV
     private float minPitchDetected = -1f;
     private float maxPitchDetected = -1f;
 
+    private boolean isMicrophoneLevel = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,17 +64,18 @@ public class MicrophoneSetupActivity extends AppCompatActivity implements PianoV
     @Override
     protected void onResume() {
         super.onResume();
+        // add the listener back to the piano
+        this.piano.addListener(this);
         // start the monitoring on the UI thread else the note pitch detection doesn't work
-        runOnUiThread(new Runnable() {
+        this.piano.post(new Runnable() {
             @Override
             public void run() {
                 // start monitoring audio
-                startAudioMonitoring();
+                requestAudioPermissions();
                 // show the range of the piano
                 MicrophoneSetupActivity.this.pianoRangeText.setText(piano.getRangeText());
             }
         });
-        this.piano.addListener(this);
     }
 
     @Override
@@ -100,19 +103,26 @@ public class MicrophoneSetupActivity extends AppCompatActivity implements PianoV
     }
 
     private void startAudioMonitoring() {
-        // monitor the level for a nice display of the microphone working
-        microphoneLevelMonitor = new MicrophoneLevelMonitor(new MicrophoneLevelMonitor.IMicrophoneLevelListener() {
-            @Override
-            public void onMicrophoneLevel(final int maxAplitudePercent) {
-                MicrophoneSetupActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        MicrophoneSetupActivity.this.microphoneResponseText.setVisibility(View.GONE);
-                        MicrophoneSetupActivity.this.microphoneLevel.setProgress(maxAplitudePercent);
-                    }
-                });
-            }
-        });
+        if (this.isMicrophoneLevel) {
+            // monitor the level for a nice display of the microphone working
+            microphoneLevelMonitor = new MicrophoneLevelMonitor(new MicrophoneLevelMonitor.IMicrophoneLevelListener() {
+                @Override
+                public void onMicrophoneLevel(final int maxAplitudePercent) {
+                    MicrophoneSetupActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            MicrophoneSetupActivity.this.microphoneResponseText.setVisibility(View.GONE);
+                            MicrophoneSetupActivity.this.microphoneLevel.setProgress(maxAplitudePercent);
+                        }
+                    });
+                }
+            });
+        }
+        else {
+            // don't do the microphone level, we will use the inputMicrophone class instead
+            // can't do both as they interferre with each other
+            this.microphoneLevelMonitor = null;
+        }
         // also start detecting the notes
         inputMicrophone = new InputMicrophone(MicrophoneSetupActivity.this);
         inputMicrophone.initialiseConnection();
@@ -151,7 +161,7 @@ public class MicrophoneSetupActivity extends AppCompatActivity implements PianoV
         });
         if (false == inputMicrophone.startConnection()) {
             // failed to start the note detector, start the microphone detector instead
-            if (false == this.microphoneLevelMonitor.start()) {
+            if (null == this.microphoneLevelMonitor || false == this.microphoneLevelMonitor.start()) {
                 // failed to start that too
                 this.microphonePermissionPanel.setVisibility(View.VISIBLE);
             } else {

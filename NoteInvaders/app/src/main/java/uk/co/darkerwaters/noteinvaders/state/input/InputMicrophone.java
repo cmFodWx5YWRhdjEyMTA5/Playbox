@@ -25,6 +25,9 @@ public class InputMicrophone extends InputConnection {
         super(context);
     }
 
+    public final static float K_NOTE_DETECTION_PROBABIILITY_THRESHOLD = 0.9f;
+    public final static int K_NOTE_DETECTION_FREQUENCY_THRESHOLD = 3;
+
     @Override
     public void initialiseConnection() {
         super.initialiseConnection();

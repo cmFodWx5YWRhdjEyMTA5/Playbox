@@ -19,6 +19,10 @@ public class State {
     private List<Game> games = null;
     private List<Game> gameSelected = new ArrayList<Game>();
 
+    public interface InputChangeListener {
+        void onInputTypeChanged(InputType type);
+    }
+
     private InputType selectedInput = InputType.keyboard;
 
     public enum InputType {
@@ -27,6 +31,8 @@ public class State {
         usb,
         bt
     }
+
+    private List<InputChangeListener> inputChangeListeners;
 
     public static State getInstance() {
         return INSTANCE;
@@ -44,6 +50,20 @@ public class State {
 
         // load in all the games available too
         this.games = Game.loadGamesFromAssets(context);
+
+        this.inputChangeListeners = new ArrayList<InputChangeListener>();
+    }
+
+    public boolean addListener(InputChangeListener listener) {
+        synchronized (this.inputChangeListeners) {
+            return this.inputChangeListeners.add(listener);
+        }
+    }
+
+    public boolean removeListener(InputChangeListener listener) {
+        synchronized (this.inputChangeListeners) {
+            return this.inputChangeListeners.remove(listener);
+        }
     }
 
     public Instrument getInstrument() {
@@ -79,7 +99,14 @@ public class State {
 
     public InputType getSelectedInput() { return this.selectedInput; }
 
-    public void setSelectedInput(InputType type) { this.selectedInput = type;}
+    public void setSelectedInput(InputType type) {
+        this.selectedInput = type;
+        synchronized (this.inputChangeListeners) {
+            for (InputChangeListener listener : this.inputChangeListeners) {
+                listener.onInputTypeChanged(type);
+            }
+        }
+    }
 
     public int getGameSelectedCount() { return this.gameSelected.size(); }
 

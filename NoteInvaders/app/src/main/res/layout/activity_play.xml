@@ -173,6 +173,32 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/music_view"
                 app:srcCompat="@android:drawable/ic_media_pause" />
+
+            <TextView
+                android:id="@+id/text_microphone_permission"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:background="?android:attr/colorBackground"
+                android:gravity="center_vertical|center_horizontal"
+                android:singleLine="false"
+                android:text="@string/microphone_no_permission"
+                android:textColor="?attr/colorPrimaryDark"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/pianoView"
+                app:layout_constraintLeft_toLeftOf="@+id/pianoView"
+                app:layout_constraintRight_toLeftOf="@+id/button_mic_permission"
+                app:layout_constraintTop_toTopOf="@+id/pianoView" />
+
+            <Button
+                android:id="@+id/button_mic_permission"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/allow"
+                app:layout_constraintBottom_toBottomOf="@+id/pianoView"
+                app:layout_constraintRight_toRightOf="@+id/pianoView"
+                app:layout_constraintTop_toTopOf="@+id/pianoView" />
         </android.support.constraint.ConstraintLayout>
 
         <LinearLayout

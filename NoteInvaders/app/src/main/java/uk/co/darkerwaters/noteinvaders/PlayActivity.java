@@ -1,18 +1,18 @@
 package uk.co.darkerwaters.noteinvaders;
 
-import android.content.res.Configuration;
-import android.database.DataSetObserver;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.SeekBar;
+import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,11 +24,13 @@ import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.Notes;
 import uk.co.darkerwaters.noteinvaders.state.State;
+import uk.co.darkerwaters.noteinvaders.state.input.InputConnectionInterface;
+import uk.co.darkerwaters.noteinvaders.state.input.InputMicrophone;
 import uk.co.darkerwaters.noteinvaders.views.MusicView;
 import uk.co.darkerwaters.noteinvaders.views.MusicViewNoteProviderTempo;
 import uk.co.darkerwaters.noteinvaders.views.PianoView;
 
-public class PlayActivity extends HidingFullscreenActivity implements MusicView.MusicViewListener, PianoView.IPianoViewListener {
+public class PlayActivity extends HidingFullscreenActivity implements MusicView.MusicViewListener, PianoView.IPianoViewListener, MicrophonePermissionHandler.MicrophonePermissionListener {
 
     private Thread noteThread = null;
     private volatile boolean isRunNotes = true;
@@ -41,21 +43,18 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     private FloatingActionButton floatingPauseButton;
     private FloatingActionButton floatingStopButton;
     private View mControlsView;
+    private TextView microphonePermissionText;
+    private Button microphonePermissionButton;
 
     private Game level;
     private GamePlayer levelPlayer;
     private Map<Note, Integer> notesMissed = new HashMap<Note, Integer>();
     private volatile int totalNotesMissed = 0;
 
-    private FloatingActionButton inputFab;
-    private FloatingActionButton manualFab;
-    private FloatingActionButton micFab;
-    private FloatingActionButton usbFab;
-    private FloatingActionButton btFab;
-
-    private boolean isFabsShown = false;
-
     private MusicViewNoteProviderTempo noteProvider;
+    private MicrophonePermissionHandler micPermissionsHandler;
+    private PlayFabsHandler fabsHandler = null;
+    private InputMicrophone inputMicrophone = null;
 
     private final int[] availableTempos = new int[] {
             20,40,50,60,80,100,120,150,180
@@ -75,6 +74,8 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.floatingPauseButton = (FloatingActionButton) findViewById(R.id.floatingPauseButton);
         this.floatingStopButton = (FloatingActionButton) findViewById(R.id.floatingStopButton);
         this.mControlsView = findViewById(R.id.fullscreen_content_controls);
+        this.microphonePermissionText = (TextView) findViewById(R.id.text_microphone_permission);
+        this.microphonePermissionButton = (Button) findViewById(R.id.button_mic_permission);
         // setup the seek bar controls
         setupTempoSeekBar();
 
@@ -87,6 +88,41 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.level = State.getInstance().getGameSelectedLast();
         this.levelPlayer = this.level.getGamePlayer();
 
+        this.floatingPauseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggle();
+            }
+        });
+        this.floatingStopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        updateControls();
+
+        // create the fabs for this view
+        this.fabsHandler = new PlayFabsHandler(this, new State.InputChangeListener() {
+            @Override
+            public void onInputTypeChanged(State.InputType type) {
+                // change our display to represent the new input type
+                PlayActivity.this.setupPianoView();
+            }
+        });
+        this.microphonePermissionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.parse("package:" + BuildConfig.APPLICATION_ID)));
+            }
+        });
+
+        //setup our music view
+        setupMusicView();
+    }
+
+    private void setupMusicView() {
         // setup the view for this level
         this.musicView.setIsDrawLaser(true);
         this.musicView.showTreble(this.level.isTreble());
@@ -103,87 +139,26 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
                 }
             });
         }
-
-        this.floatingPauseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggle();
-            }
-        });
-
-        this.floatingStopButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
-        updateControls();
-
-        setupFabs();
     }
 
     @Override
-    public void pianoViewSizeChanged(int w, int h, int oldw, int oldh) {
-        // if the config has changed, then so maybe has the size of the piano view
-        if (null != this.pianoView) {
-            setInputIcon();
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (null != this.micPermissionsHandler) {
+            micPermissionsHandler.handlePermissionsRequest(requestCode, permissions, grantResults);
+
         }
-    }
-
-    private void setupFabs() {
-        this.inputFab = (FloatingActionButton) findViewById(R.id.input_action_button);
-        this.manualFab = (FloatingActionButton) findViewById(R.id.input_action_1);
-        this.micFab = (FloatingActionButton) findViewById(R.id.input_action_2);
-        this.usbFab = (FloatingActionButton) findViewById(R.id.input_action_3);
-        this.btFab = (FloatingActionButton) findViewById(R.id.input_action_4);
-
-        // set the correct current icon
-        setInputIcon();
-
-        // set the icons on these buttons
-        this.manualFab.setImageResource(R.drawable.ic_baseline_keyboard_24px);
-        this.micFab.setImageResource(R.drawable.ic_baseline_mic_24px);
-        this.usbFab.setImageResource(R.drawable.ic_baseline_usb_24px);
-        this.btFab.setImageResource(R.drawable.ic_baseline_bluetooth_audio_24px);
-
-        this.inputFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // clicked the input FAB, expand or hide the selection
-                toggleInputFabs();
-            }
-        });
-
-        this.manualFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                changeInputType(State.InputType.keyboard);
-            }
-        });
-        this.micFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                changeInputType(State.InputType.microphone);
-            }
-        });
-        this.usbFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                changeInputType(State.InputType.usb);
-            }
-        });
-        this.btFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                changeInputType(State.InputType.bt);
-            }
-        });
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         this.pianoView.removeListener(this);
+        this.fabsHandler.close();
+        if (null != this.micPermissionsHandler) {
+            this.micPermissionsHandler.close();
+            this.micPermissionsHandler = null;
+        }
         // this is killed, remove our selection from the state
         State.getInstance().deselectGame(this.level);
     }
@@ -202,14 +177,46 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         updateControls();
     }
 
-    private void changeInputType(State.InputType input) {
-        // set the input to manual
-        State.getInstance().setSelectedInput(input);
-        // and shrink the selection
-        toggleInputFabs();
-        // and update the icon
-        setInputIcon();
+    @Override
+    public void pianoViewSizeChanged(int w, int h, int oldw, int oldh) {
+        // if the config has changed, then so maybe has the size of the piano view
+        if (null != this.pianoView) {
+            setupPianoView();
+        }
     }
+
+    private void setupPianoView() {
+        switch (State.getInstance().getSelectedInput()) {
+            case keyboard:
+                if (null != this.micPermissionsHandler) {
+                    this.micPermissionsHandler.close();
+                    this.micPermissionsHandler = null;
+                }
+                setupKeyboardEntry();
+                // hide the audio permissions labels
+                onAudioPermissionChange(false);
+                break;
+            case microphone:
+                // if we want to use the microphone then we need to ask permission
+                if (null == this.micPermissionsHandler) {
+                    this.micPermissionsHandler = new MicrophonePermissionHandler(this, this);
+                    this.micPermissionsHandler.initialiseAudioPermissions(this);
+                }
+                setFullPianoView();
+                break;
+            case usb:
+            case bt:
+                if (null != this.micPermissionsHandler) {
+                    this.micPermissionsHandler.close();
+                    this.micPermissionsHandler = null;
+                }
+                setFullPianoView();
+                // hide the audio permissions labels
+                onAudioPermissionChange(false);
+                break;
+        }
+    }
+
 
     private void setupKeyboardEntry() {
         // just show a nice selection of notes
@@ -242,61 +249,6 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
             }
         });
         this.pianoView.invalidate();
-    }
-
-    private void setupMicrophoneEntry() {
-        // show the keyboard full range to show what the microphone detects
-        setFullPianoView();
-    }
-
-    private void setupUsbEntry() {
-        // show the keyboard
-        setFullPianoView();
-    }
-
-    private void setupBtEntry() {
-        // show the keyboard
-        setFullPianoView();
-    }
-
-    private void setInputIcon() {
-        if (null != this.inputFab) {
-            switch (State.getInstance().getSelectedInput()) {
-                case keyboard:
-                    this.inputFab.setImageResource(R.drawable.ic_baseline_keyboard_24px);
-                    setupKeyboardEntry();
-                    break;
-                case microphone:
-                    this.inputFab.setImageResource(R.drawable.ic_baseline_mic_24px);
-                    setupMicrophoneEntry();
-                    break;
-                case usb:
-                    this.inputFab.setImageResource(R.drawable.ic_baseline_usb_24px);
-                    setupUsbEntry();
-                    break;
-                case bt:
-                    this.inputFab.setImageResource(R.drawable.ic_baseline_bluetooth_audio_24px);
-                    setupBtEntry();
-                    break;
-            }
-        }
-    }
-
-    private void toggleInputFabs() {
-        if (this.isFabsShown) {
-            manualFab.animate().translationX(0);
-            micFab.animate().translationX(0);
-            usbFab.animate().translationX(0);
-            btFab.animate().translationX(0);
-            this.isFabsShown = false;
-        }
-        else {
-            manualFab.animate().translationX(getResources().getDimension(R.dimen.standard_55));
-            micFab.animate().translationX(getResources().getDimension(R.dimen.standard_105));
-            usbFab.animate().translationX(getResources().getDimension(R.dimen.standard_155));
-            btFab.animate().translationX(getResources().getDimension(R.dimen.standard_205));
-            this.isFabsShown = true;
-        }
     }
 
     private void updateControls() {
@@ -358,7 +310,31 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     }
 
     @Override
+    public void onAudioPermissionChange(boolean isPermissionGranted) {
+        if (isPermissionGranted || State.getInstance().getSelectedInput() != State.InputType.microphone) {
+            // hide the allow buttons
+            this.microphonePermissionText.setVisibility(View.GONE);
+            this.microphonePermissionButton.setVisibility(View.GONE);
+            if (isPermissionGranted) {
+                // start up the audio detection system
+                startAudioMonitoring();
+            }
+        }
+        else {
+            // don't monitor for any audio
+            stopAudioMonitoring();
+            if (State.getInstance().getSelectedInput() == State.InputType.microphone) {
+                // we don't have permission but we want it
+                this.microphonePermissionText.setVisibility(View.VISIBLE);
+                this.microphonePermissionButton.setVisibility(View.VISIBLE);
+
+            }
+        }
+    }
+
+    @Override
     protected void onPause() {
+        stopAudioMonitoring();
         this.musicView.removeListener(this);
         this.noteProvider.setPaused(true);
         this.isRunNotes = false;
@@ -380,6 +356,10 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.totalNotesMissed = 0;
         this.isRunNotes = true;
         this.notesMissed.clear();
+
+        if (null != this.micPermissionsHandler) {
+            this.micPermissionsHandler.initialiseAudioPermissions(this);
+        }
 
         this.noteThread = new Thread(new Runnable() {
             @Override
@@ -404,6 +384,41 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         // pause the player ready for the user to start
         this.noteProvider.setPaused(false);
         updateControls();
+    }
+
+    private void stopAudioMonitoring() {
+        if (null != this.inputMicrophone) {
+            // and detecting the notes
+            this.inputMicrophone.stopConnection();
+            this.inputMicrophone = null;
+        }
+    }
+
+    private void startAudioMonitoring() {
+        // also start detecting the notes
+        inputMicrophone = new InputMicrophone(this);
+        inputMicrophone.initialiseConnection();
+        // add a listener
+        inputMicrophone.addListener(new InputConnectionInterface() {
+            @Override
+            public void onNoteDetected(final Note note, final float probability, int frequency, boolean isPitched) {
+                if (probability > InputMicrophone.K_NOTE_DETECTION_PROBABIILITY_THRESHOLD && frequency > InputMicrophone.K_NOTE_DETECTION_FREQUENCY_THRESHOLD) {
+                    // exceeded thresholds for detection, inform the music view we detected this
+                    noteDepressed(note);
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // invalidate the view to display it okay
+                        pianoView.invalidate();
+                    }
+                });
+            }
+        });
+        if (false == inputMicrophone.startConnection()) {
+            //TODO failed to start the note detector, do something about this
+
+        }
     }
 
     private void moveNotes() {
