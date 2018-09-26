@@ -51,7 +51,6 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
 
     private Game level;
     private GamePlayer levelPlayer;
-    private Map<Note, Integer> notesMissed = new HashMap<Note, Integer>();
     private ActiveScore score = new ActiveScore();
 
     private MusicViewNoteProviderTempo noteProvider;
@@ -361,7 +360,6 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.musicView.closeView();
         this.noteProvider.clearNotes();
         this.isRunNotes = true;
-        this.notesMissed.clear();
 
         if (null != this.micPermissionsHandler) {
             this.micPermissionsHandler.initialiseAudioPermissions(this);
@@ -442,35 +440,22 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
 
     @Override
     public void onNotePopped(Note note) {
-        // add to the notes that we missed
-        Integer value = this.notesMissed.get(note);
-        if (value != null) {
-            value = value + 1;
-        }
-        else {
-            value = 1;
-        }
         // this is a miss
-        this.score.incMisses();
-        this.notesMissed.put(note, value);
+        this.score.incMisses(note);
         showScore();
     }
 
     @Override
     public void onNoteDestroyed(Note note) {
-        //TODO add to the notes that we hit
-
         // this is a hit
-        this.score.incHits();
+        this.score.incHits(note);
         showScore();
     }
 
     @Override
     public void onNoteMisfire(Note note) {
-        //TODO add to the notes that we shot at but were not there
-
         // this is a false shot
-        this.score.incFalseShots();
+        this.score.incFalseShots(note);
         showScore();
     }
 
