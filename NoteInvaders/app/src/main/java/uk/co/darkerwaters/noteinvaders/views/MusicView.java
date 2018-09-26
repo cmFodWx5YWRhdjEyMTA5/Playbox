@@ -244,42 +244,62 @@ public class MusicView extends View {
     public void setIsDrawLaser(boolean isDrawLaser) { this.isDrawLaser = isDrawLaser; }
 
     public void fireTrebleLaser(Note target) {
-        synchronized (this.laserTargetLock) {
-            if (null != this.trebleLaser && null != this.trebleLaser.target) {
-                // there is already a target we shot at, better signal this as a hit as the user
-                // is just being super quick and hitting another before we popped it
-                this.noteProvider.removeNoteTreble(this.trebleLaser.target);
-                // inform listeners of this
-                synchronized (this.listeners) {
-                    for (MusicViewListener listener : this.listeners) {
-                        listener.onNoteDestroyed(this.trebleLaser.target.note);
-                    }
-                }
-                // this is popped, stop shooting at it
-                this.trebleLaser.target = null;
+        boolean isValidShoot = false;
+        for (Note trebleNote : this.notesTreble) {
+            if (trebleNote.equals(target)) {
+                // this is a note that is in the treble list, can hit this so shoot at it
+                isValidShoot = true;
+                break;
             }
-            // set the new target to shoot at
-            this.trebleLaserTarget = target;
+        }
+        if (isValidShoot) {
+            synchronized (this.laserTargetLock) {
+                if (null != this.trebleLaser && null != this.trebleLaser.target) {
+                    // there is already a target we shot at, better signal this as a hit as the user
+                    // is just being super quick and hitting another before we popped it
+                    this.noteProvider.removeNoteTreble(this.trebleLaser.target);
+                    // inform listeners of this
+                    synchronized (this.listeners) {
+                        for (MusicViewListener listener : this.listeners) {
+                            listener.onNoteDestroyed(this.trebleLaser.target.note);
+                        }
+                    }
+                    // this is popped, stop shooting at it
+                    this.trebleLaser.target = null;
+                }
+                // set the new target to shoot at
+                this.trebleLaserTarget = target;
+            }
         }
     }
 
     public void fireBassLaser(Note target) {
-        synchronized (this.laserTargetLock) {
-            if (null != this.bassLaser && null != this.bassLaser.target) {
-                // there is already a target we shot at, better signal this as a hit as the user
-                // is just being super quick and hitting another before we popped it
-                this.noteProvider.removeNoteBass(this.bassLaser.target);
-                // inform listeners of this
-                synchronized (this.listeners) {
-                    for (MusicViewListener listener : this.listeners) {
-                        listener.onNoteDestroyed(this.bassLaser.target.note);
-                    }
-                }
-                // this is popped, stop shooting at it
-                this.bassLaser.target = null;
+        boolean isValidShoot = false;
+        for (Note bassNote : this.notesBass) {
+            if (bassNote.equals(target)) {
+                // this is a note that is in the bass list, can hit this so shoot at it
+                isValidShoot = true;
+                break;
             }
-            // set the new target to shoot at
-            this.bassLaserTarget = target;
+        }
+        if (isValidShoot) {
+            synchronized (this.laserTargetLock) {
+                if (null != this.bassLaser && null != this.bassLaser.target) {
+                    // there is already a target we shot at, better signal this as a hit as the user
+                    // is just being super quick and hitting another before we popped it
+                    this.noteProvider.removeNoteBass(this.bassLaser.target);
+                    // inform listeners of this
+                    synchronized (this.listeners) {
+                        for (MusicViewListener listener : this.listeners) {
+                            listener.onNoteDestroyed(this.bassLaser.target.note);
+                        }
+                    }
+                    // this is popped, stop shooting at it
+                    this.bassLaser.target = null;
+                }
+                // set the new target to shoot at
+                this.bassLaserTarget = target;
+            }
         }
     }
 
@@ -554,7 +574,7 @@ public class MusicView extends View {
                     int position = getNotePosition(this.notesBass, this.bassLaserTarget);
                     if (position != -1) {
                         // move the laser to the miss position
-                        this.bassLaser.targetY = padding.top + (position * noteOffset);
+                        this.bassLaser.targetY = padding.top + (position * noteOffset) + bassClefYOffset;
                     }
                     synchronized (this.listeners) {
                         for (MusicViewListener listener : this.listeners) {

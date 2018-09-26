@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import uk.co.darkerwaters.noteinvaders.state.Note;
+import uk.co.darkerwaters.noteinvaders.state.NoteRange;
 import uk.co.darkerwaters.noteinvaders.state.Notes;
 
 public class PianoView extends View {
@@ -39,8 +40,7 @@ public class PianoView extends View {
     private int initialWhiteKey = 0;
 
     private int startNoteIndex = 0;
-    private Note startNote = null;
-    private Note endNote = null;
+    private NoteRange noteRange = null;
 
     private Map<Note, Integer> noteDepressionCount;
 
@@ -210,46 +210,60 @@ public class PianoView extends View {
     public void setNoteRange(float minPitchDetected, float maxPitchDetected) {
         // set the notes that are to be shown on this piano
         Notes notes = Notes.instance();
+        if (null == this.noteRange) {
+            this.noteRange = new NoteRange(null, null);
+        }
         // count the white keys from the min pitch
         this.startNoteIndex = notes.getNoteIndex(minPitchDetected);
-        this.startNote = notes.getNote(this.startNoteIndex);
+        this.noteRange.setStart(notes.getNote(this.startNoteIndex));
         // set the end note
         int endNoteIndex = notes.getNoteIndex(maxPitchDetected);
-        this.endNote = notes.getNote(endNoteIndex);
-        if (startNote.equals(endNote)) {
+        this.noteRange.setEnd(notes.getNote(endNoteIndex));
+        if (this.noteRange.getStart().equals(this.noteRange.getEnd())) {
             // there is no range, make one
             int index = 0;
             for (index = 0; index < notes.getNoteCount(); ++index) {
-                if (notes.getNote(index).equals(startNote)) {
+                if (notes.getNote(index).equals(this.noteRange.getStart())) {
                     // this is our note index
                     this.startNoteIndex = Math.max(index - 7, 0);
-                    this.startNote = notes.getNote(startNoteIndex);
-                    this.endNote = notes.getNote(Math.min(index + 7, notes.getNoteCount() - 1));
+                    this.noteRange.setStart(notes.getNote(startNoteIndex));
+                    this.noteRange.setEnd(notes.getNote(Math.min(index + 7, notes.getNoteCount() - 1)));
                     break;
                 }
             }
         }
         // set this range now
-        setNoteRange(this.startNote, this.endNote);
+        setNoteRange(this.noteRange);
     }
 
-    public void setNoteRange(Note start, Note end) {
+    public void setNoteRange(NoteRange newRange) {
         // set the members to remember this range to display
         Notes notes = Notes.instance();
-        this.startNote = start;
-        this.startNoteIndex = notes.getNoteIndex(start.getFrequency());
+        this.noteRange = newRange;
 
-        // if the starting key is a sharp - move up from this
-        while (this.startNote.isSharp()) {
-            this.startNote = notes.getNote(++this.startNoteIndex);
+        // set the starting key, we don't want to start on a sharp or just after one
+        // as we won't draw it and it will look and behave weird, go down until we get to
+        // a normal kind of note (a white key without a flat, which is a sharp before it)
+        // basically this is an F or a C then
+        this.startNoteIndex = notes.getNoteIndex(this.noteRange.getStart().getFrequency());
+
+        // if the starting key is a sharp or has a flat, move down away from it
+        while (this.startNoteIndex > 0 &&
+                (this.noteRange.getStart().isSharp() ||
+                 notes.getNote(this.startNoteIndex - 1).isSharp())) {
+            // while there are notes before the start and the start is a sharp or there is a sharp
+            // before it, keep looking further down the scale
+            this.noteRange.setStart(notes.getNote(--this.startNoteIndex));
         }
 
         // do the end note too
-        this.endNote = end;
-        int endNoteIndex = notes.getNoteIndex(end.getFrequency());
-        // if the end note is a sharp - move down from this
-        while (this.endNote.isSharp()) {
-            this.endNote = notes.getNote(--endNoteIndex);
+        int endNoteIndex = notes.getNoteIndex(this.noteRange.getEnd().getFrequency());
+        // while the end note is a sharp, or has a sharp - move up from it
+        while (endNoteIndex < notes.getNoteCount() - 1 &&
+                (this.noteRange.getEnd().isSharp() ||
+                notes.getNote(endNoteIndex + 1).isSharp())) {
+            // while there are notes after and the end is a sharp or has one, keep looking
+            this.noteRange.setEnd(notes.getNote(++endNoteIndex));
         }
 
         // and setup the white keys accordingly
@@ -262,11 +276,11 @@ public class PianoView extends View {
                     ++this.whiteKeyCount;
                 }
             }
-            else if (notes.getNote(i).equals(startNote)) {
+            else if (notes.getNote(i).equals(this.noteRange.getStart())) {
                 this.whiteKeyCount = 1;
             }
             // check to see if we have all our notes
-            if (notes.getNote(i).equals(endNote)) {
+            if (notes.getNote(i).equals(this.noteRange.getEnd())) {
                 // last one...
                 break;
             }
@@ -456,8 +470,8 @@ public class PianoView extends View {
 
     public String getRangeText() {
         String range = "--";
-        if (null != startNote && null != endNote) {
-            range = startNote.getName(0) + " -- " + endNote.getName(0);
+        if (null != this.noteRange) {
+            range = this.noteRange.toString();
         }
         return range;
     }

@@ -87,4 +87,8 @@ public class Notes {
         }
         return -1;
     }
+
+    public NoteRange getFullRange() {
+        return new NoteRange(getNote(0), getNote(getNoteCount() - 1));
+    }
 }

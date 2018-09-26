@@ -221,7 +221,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     private void setupKeyboardEntry() {
         // just show a nice selection of notes
         Notes notes = Notes.instance();
-        this.pianoView.setNoteRange(notes.getNote("C4"), notes.getNote("E5"));
+        this.pianoView.setNoteRange(this.level.getNoteRange());
         this.pianoView.setIsPlayable(true);
         // and make it larger so they can press those keys
         this.pianoView.post(new Runnable() {
@@ -237,7 +237,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
 
     private void setFullPianoView() {
         Notes notes = Notes.instance();
-        this.pianoView.setNoteRange(notes.getNote(0), notes.getNote(notes.getNoteCount() - 1));
+        this.pianoView.setNoteRange(notes.getFullRange());
         this.pianoView.setIsPlayable(false);
         // and make it larger so they can press those keys
         this.pianoView.post(new Runnable() {

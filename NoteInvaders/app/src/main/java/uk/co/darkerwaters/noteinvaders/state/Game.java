@@ -127,6 +127,31 @@ public class Game {
         return (isBass() || isTreble());
     }
 
+    public NoteRange getNoteRange() {
+        // go through all the notes to find the lowest and highest of them all
+        NoteRange range = new NoteRange(null, null);
+        for (int i = 0; i < this.treble_clef.length + this.bass_clef.length; ++i) {
+            Note note;
+            if (i >= this.treble_clef.length) {
+                // get the note from the bass clef
+                note = this.bass_clef[i - this.treble_clef.length];
+            }
+            else {
+                // get the note from the treble clef
+                note = this.treble_clef[i];
+            }
+            if (range.getStart() == null || note.frequency < range.getStart().getFrequency()) {
+                // this is before the current start
+                range.setStart(note);
+            }
+            if (range.getEnd() == null || note.frequency > range.getEnd().getFrequency()) {
+                // this is after the current end
+                range.setEnd(note);
+            }
+        }
+        return range;
+    }
+
     public GamePlayer getGamePlayer() {
         String className = getGameClass();
         if (className != null && className.isEmpty() == false) {
