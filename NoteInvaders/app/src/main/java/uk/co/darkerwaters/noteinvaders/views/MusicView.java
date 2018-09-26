@@ -2,6 +2,7 @@ package uk.co.darkerwaters.noteinvaders.views;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -150,31 +151,31 @@ public class MusicView extends View {
         // Initialize new paints
         this.blackPaint = new Paint();
         this.blackPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        this.blackPaint.setStrokeWidth(2f);
+        this.blackPaint.setStrokeWidth(getResources().getDimension(R.dimen.music_line_stroke));
         this.blackPaint.setColor(Color.BLACK);
         this.blackPaint.setAntiAlias(true);
         // and for the notes
         this.notePaint = new Paint();
         this.notePaint.setStyle(Paint.Style.STROKE);
-        this.notePaint.setStrokeWidth(2f);
+        this.notePaint.setStrokeWidth(getResources().getDimension(R.dimen.note_stroke));
         this.notePaint.setColor(Color.BLACK);
         this.notePaint.setAntiAlias(true);
-        // and for the pressed keys
+        // and for the missed keys
         this.redPaint = new Paint();
         this.redPaint.setStyle(Paint.Style.FILL);
-        this.redPaint.setColor(Color.RED);
+        this.redPaint.setColor(getResources().getColor(R.color.colorMiss));
         this.redPaint.setAntiAlias(true);
         // and for the laser rail
         this.railPaint = new Paint();
         this.railPaint.setStyle(Paint.Style.STROKE);
-        this.railPaint.setStrokeWidth(2f);
-        this.railPaint.setColor(Color.DKGRAY);
+        this.railPaint.setStrokeWidth(getResources().getDimension(R.dimen.laser_rail_stroke));
+        this.railPaint.setColor(getResources().getColor(R.color.colorLaserRail));
         this.railPaint.setAntiAlias(true);
         // and for the laser
         this.laserPaint = new Paint();
         this.laserPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        this.laserPaint.setStrokeWidth(3f);
-        this.laserPaint.setColor(Color.BLUE);
+        this.laserPaint.setStrokeWidth(getResources().getDimension(R.dimen.laser_stroke));
+        this.laserPaint.setColor(getResources().getColor(R.color.colorLaser));
         this.laserPaint.setAntiAlias(true);
 
         this.trebleDrawable = VectorDrawableCompat.create(getContext().getResources(), R.drawable.ic_treble, null);

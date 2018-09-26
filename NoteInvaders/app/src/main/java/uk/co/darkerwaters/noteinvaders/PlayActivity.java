@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import uk.co.darkerwaters.noteinvaders.games.GamePlayer;
+import uk.co.darkerwaters.noteinvaders.state.ActiveScore;
 import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.Notes;
@@ -29,6 +30,7 @@ import uk.co.darkerwaters.noteinvaders.state.input.InputMicrophone;
 import uk.co.darkerwaters.noteinvaders.views.MusicView;
 import uk.co.darkerwaters.noteinvaders.views.MusicViewNoteProviderTempo;
 import uk.co.darkerwaters.noteinvaders.views.PianoView;
+import uk.co.darkerwaters.noteinvaders.views.ScoreActiveView;
 
 public class PlayActivity extends HidingFullscreenActivity implements MusicView.MusicViewListener, PianoView.IPianoViewListener, MicrophonePermissionHandler.MicrophonePermissionListener {
 
@@ -38,6 +40,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
 
     private MusicView musicView;
     private PianoView pianoView;
+    private ScoreActiveView scoreView;
     private TextView totalMissedCount;
     private Spinner tempoSpinner;
     private FloatingActionButton floatingPauseButton;
@@ -49,7 +52,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     private Game level;
     private GamePlayer levelPlayer;
     private Map<Note, Integer> notesMissed = new HashMap<Note, Integer>();
-    private volatile int totalNotesMissed = 0;
+    private ActiveScore score = new ActiveScore();
 
     private MusicViewNoteProviderTempo noteProvider;
     private MicrophonePermissionHandler micPermissionsHandler;
@@ -66,6 +69,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
 
         this.noteProvider = new MusicViewNoteProviderTempo();
 
+        this.scoreView = (ScoreActiveView) findViewById(R.id.score_view);
         this.musicView = (MusicView) findViewById(R.id.music_view);
         this.musicView.setViewProvider(this.noteProvider);
         this.pianoView = (PianoView) findViewById(R.id.pianoView);
@@ -120,6 +124,9 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
 
         //setup our music view
         setupMusicView();
+
+        // setup the display of this active score
+        this.scoreView.setScore(this.score);
     }
 
     private void setupMusicView() {
@@ -353,7 +360,6 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         // reset all of our data
         this.musicView.closeView();
         this.noteProvider.clearNotes();
-        this.totalNotesMissed = 0;
         this.isRunNotes = true;
         this.notesMissed.clear();
 
@@ -444,27 +450,38 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         else {
             value = 1;
         }
-        ++totalNotesMissed;
+        // this is a miss
+        this.score.incMisses();
         this.notesMissed.put(note, value);
-        this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                // update the current score
-                totalMissedCount.setText(Integer.toString(totalNotesMissed));
-            }
-        });
+        showScore();
     }
 
     @Override
     public void onNoteDestroyed(Note note) {
         //TODO add to the notes that we hit
 
+        // this is a hit
+        this.score.incHits();
+        showScore();
     }
 
     @Override
     public void onNoteMisfire(Note note) {
         //TODO add to the notes that we shot at but were not there
 
+        // this is a false shot
+        this.score.incFalseShots();
+        showScore();
+    }
+
+    private void showScore() {
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // update the current score
+                PlayActivity.this.scoreView.invalidate();
+            }
+        });
     }
 
     @Override

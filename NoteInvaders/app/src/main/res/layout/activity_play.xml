@@ -199,6 +199,21 @@
                 app:layout_constraintBottom_toBottomOf="@+id/pianoView"
                 app:layout_constraintRight_toRightOf="@+id/pianoView"
                 app:layout_constraintTop_toTopOf="@+id/pianoView" />
+
+            <view
+                android:id="@+id/score_view"
+                class="uk.co.darkerwaters.noteinvaders.views.ScoreActiveView"
+                id="@+id/view"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:padding="5dp"
+                app:layout_constraintBottom_toTopOf="@+id/pianoView"
+                app:layout_constraintStart_toEndOf="@+id/tempo_spinner"
+                app:layout_constraintTop_toBottomOf="@+id/music_view" />
         </android.support.constraint.ConstraintLayout>
 
         <LinearLayout

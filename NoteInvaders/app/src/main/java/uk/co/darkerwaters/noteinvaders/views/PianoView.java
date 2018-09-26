@@ -1,6 +1,7 @@
 package uk.co.darkerwaters.noteinvaders.views;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -16,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import uk.co.darkerwaters.noteinvaders.R;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.NoteRange;
 import uk.co.darkerwaters.noteinvaders.state.Notes;
@@ -116,7 +118,7 @@ public class PianoView extends View {
         // and for the pressed keys
         this.redPaint = new Paint();
         this.redPaint.setStyle(Paint.Style.FILL);
-        this.redPaint.setColor(Color.RED);
+        this.redPaint.setColor(getResources().getColor(R.color.colorKeyPress));
         this.redPaint.setAntiAlias(true);
 
         this.listeners = new ArrayList<IPianoViewListener>();
@@ -239,54 +241,55 @@ public class PianoView extends View {
     public void setNoteRange(NoteRange newRange) {
         // set the members to remember this range to display
         Notes notes = Notes.instance();
-        this.noteRange = newRange;
+        if (null != newRange && null != newRange.getStart() && null != newRange.getEnd()) {
+            this.noteRange = newRange;
 
-        // set the starting key, we don't want to start on a sharp or just after one
-        // as we won't draw it and it will look and behave weird, go down until we get to
-        // a normal kind of note (a white key without a flat, which is a sharp before it)
-        // basically this is an F or a C then
-        this.startNoteIndex = notes.getNoteIndex(this.noteRange.getStart().getFrequency());
+            // set the starting key, we don't want to start on a sharp or just after one
+            // as we won't draw it and it will look and behave weird, go down until we get to
+            // a normal kind of note (a white key without a flat, which is a sharp before it)
+            // basically this is an F or a C then
+            this.startNoteIndex = notes.getNoteIndex(this.noteRange.getStart().getFrequency());
 
-        // if the starting key is a sharp or has a flat, move down away from it
-        while (this.startNoteIndex > 0 &&
-                (this.noteRange.getStart().isSharp() ||
-                 notes.getNote(this.startNoteIndex - 1).isSharp())) {
-            // while there are notes before the start and the start is a sharp or there is a sharp
-            // before it, keep looking further down the scale
-            this.noteRange.setStart(notes.getNote(--this.startNoteIndex));
-        }
+            // if the starting key is a sharp or has a flat, move down away from it
+            while (this.startNoteIndex > 0 &&
+                    (this.noteRange.getStart().isSharp() ||
+                            notes.getNote(this.startNoteIndex - 1).isSharp())) {
+                // while there are notes before the start and the start is a sharp or there is a sharp
+                // before it, keep looking further down the scale
+                this.noteRange.setStart(notes.getNote(--this.startNoteIndex));
+            }
 
-        // do the end note too
-        int endNoteIndex = notes.getNoteIndex(this.noteRange.getEnd().getFrequency());
-        // while the end note is a sharp, or has a sharp - move up from it
-        while (endNoteIndex < notes.getNoteCount() - 1 &&
-                (this.noteRange.getEnd().isSharp() ||
-                notes.getNote(endNoteIndex + 1).isSharp())) {
-            // while there are notes after and the end is a sharp or has one, keep looking
-            this.noteRange.setEnd(notes.getNote(++endNoteIndex));
-        }
+            // do the end note too
+            int endNoteIndex = notes.getNoteIndex(this.noteRange.getEnd().getFrequency());
+            // while the end note is a sharp, or has a sharp - move up from it
+            while (endNoteIndex < notes.getNoteCount() - 1 &&
+                    (this.noteRange.getEnd().isSharp() ||
+                            notes.getNote(endNoteIndex + 1).isSharp())) {
+                // while there are notes after and the end is a sharp or has one, keep looking
+                this.noteRange.setEnd(notes.getNote(++endNoteIndex));
+            }
 
-        // and setup the white keys accordingly
-        this.whiteKeyCount = 0;
-        for (int i = 0; i < notes.getNoteCount(); ++i) {
-            if (this.whiteKeyCount > 0) {
-                // started counting, count this one
-                if (false == notes.getNote(i).isSharp()) {
-                    // this is a normal note, count these
-                    ++this.whiteKeyCount;
+            // and setup the white keys accordingly
+            this.whiteKeyCount = 0;
+            for (int i = 0; i < notes.getNoteCount(); ++i) {
+                if (this.whiteKeyCount > 0) {
+                    // started counting, count this one
+                    if (false == notes.getNote(i).isSharp()) {
+                        // this is a normal note, count these
+                        ++this.whiteKeyCount;
+                    }
+                } else if (notes.getNote(i).equals(this.noteRange.getStart())) {
+                    this.whiteKeyCount = 1;
+                }
+                // check to see if we have all our notes
+                if (notes.getNote(i).equals(this.noteRange.getEnd())) {
+                    // last one...
+                    break;
                 }
             }
-            else if (notes.getNote(i).equals(this.noteRange.getStart())) {
-                this.whiteKeyCount = 1;
-            }
-            // check to see if we have all our notes
-            if (notes.getNote(i).equals(this.noteRange.getEnd())) {
-                // last one...
-                break;
-            }
+            // and remember where to start
+            this.initialWhiteKey = notes.getNote(this.startNoteIndex).getNotePrimativeIndex();
         }
-        // and remember where to start
-        this.initialWhiteKey = notes.getNote(this.startNoteIndex).getNotePrimativeIndex();
     }
 
     private int getContentWidth() {
