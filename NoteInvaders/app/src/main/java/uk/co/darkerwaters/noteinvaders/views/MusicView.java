@@ -47,6 +47,7 @@ public class MusicView extends View {
 
     private Paint blackPaint;
     private Paint notePaint;
+    private Paint letterPaint;
     private Paint redPaint;
     private Paint railPaint;
     private Paint laserPaint;
@@ -160,6 +161,12 @@ public class MusicView extends View {
         this.notePaint.setStrokeWidth(getResources().getDimension(R.dimen.note_stroke));
         this.notePaint.setColor(Color.BLACK);
         this.notePaint.setAntiAlias(true);
+        // and for the notes
+        this.letterPaint = new Paint();
+        this.letterPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        this.letterPaint.setStrokeWidth(getResources().getDimension(R.dimen.letter_stroke));
+        this.letterPaint.setColor(getResources().getColor(R.color.colorLaser));
+        this.letterPaint.setAntiAlias(true);
         // and for the missed keys
         this.redPaint = new Paint();
         this.redPaint.setStyle(Paint.Style.FILL);
@@ -391,7 +398,6 @@ public class MusicView extends View {
             this.lineHeight = contentHeight / linesToDraw;
             float clefHeight = lineHeight * K_LINESINCLEF;
             float clefWidth = clefHeight * 0.5f;
-            this.blackPaint.setTextSize(lineHeight);
 
             // draw the treble clef
             float yPosition = padding.top;
@@ -683,7 +689,8 @@ public class MusicView extends View {
         canvas.drawLine(stickX, yPosition, stickX, yPosition - lineHeight * 1.5f, notePaint);
         // and the title if we are showing this helpful thing
         if (isDrawNoteName) {
-            canvas.drawText(noteTitle, xPosition - noteRadius, yPosition - noteRadius * 2f, blackPaint);
+            this.letterPaint.setTextSize(lineHeight);
+            canvas.drawText(noteTitle, xPosition - noteRadius, yPosition - noteRadius * 2f, letterPaint);
         }
     }
 

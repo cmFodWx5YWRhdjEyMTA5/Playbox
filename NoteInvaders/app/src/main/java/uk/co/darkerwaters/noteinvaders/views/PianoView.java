@@ -36,6 +36,7 @@ public class PianoView extends View {
 
     private Paint whitePaint;
     private Paint blackPaint;
+    private Paint letterPaint;
     private Paint redPaint;
 
     private int whiteKeyCount = 0;
@@ -115,6 +116,12 @@ public class PianoView extends View {
         this.blackPaint.setStyle(Paint.Style.FILL);
         this.blackPaint.setColor(Color.BLACK);
         this.blackPaint.setAntiAlias(true);
+        // and to draw the letters
+        this.letterPaint = new Paint();
+        this.letterPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        this.letterPaint.setStrokeWidth(getResources().getDimension(R.dimen.letter_stroke));
+        this.letterPaint.setColor(getResources().getColor(R.color.colorLaser));
+        this.letterPaint.setAntiAlias(true);
         // and for the pressed keys
         this.redPaint = new Paint();
         this.redPaint.setStyle(Paint.Style.FILL);
@@ -338,6 +345,7 @@ public class PianoView extends View {
             // first let's go through the keys and draw in all the white ones
             int keyIndex = 0;
             int noteIndex = this.startNoteIndex;
+            letterPaint.setTextSize(keyWidth * 0.6f);
             while (keyIndex < this.whiteKeyCount && noteIndex < notes.getNoteCount()) {
                 // loop through the notes finding all the white ones
                 Note currentNote = notes.getNote(noteIndex++);
@@ -362,7 +370,10 @@ public class PianoView extends View {
                                 redPaint);
                     }
                     if (isDrawNoteNames) {
-                        canvas.drawText(currentNote.getName(), keyRect.left, keyRect.bottom - 16, blackPaint);
+                        canvas.drawText(currentNote.getName(),
+                                keyRect.left + (keyWidth * 0.175f),
+                                keyRect.bottom - (keyWidth * 0.5f),
+                                letterPaint);
                     }
                     // move on our white key counter
                     ++keyIndex;
