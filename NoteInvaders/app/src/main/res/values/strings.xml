@@ -25,4 +25,6 @@
     <string name="tempo">Tempo</string>
     <string name="bpm">bpm</string>
     <string name="allow">Allow</string>
+    <string name="menu_instrument">Instrument</string>
+    <string name="menu_microphone">Setup Microphone</string>
 </resources>

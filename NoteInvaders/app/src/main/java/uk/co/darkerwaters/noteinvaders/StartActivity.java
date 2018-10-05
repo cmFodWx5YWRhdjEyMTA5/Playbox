@@ -3,6 +3,9 @@ package uk.co.darkerwaters.noteinvaders;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +24,13 @@ public class StartActivity extends SelectableItemActivity {
         State.getInstance().initialise(this);
         // and create this activity
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.settings_menu, menu);
+        return true;
     }
 
     @Override
@@ -53,6 +63,28 @@ public class StartActivity extends SelectableItemActivity {
         }
         else {
             return R.drawable.instruments;
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent newIntent = null;
+        switch (item.getItemId()) {
+            case R.id.menu_item_instrument :
+                newIntent = new Intent(this, InstrumentActivity.class);
+                break;
+            case R.id.menu_item_setupmicrophone :
+                newIntent = new Intent(this, MicrophoneSetupActivity.class);
+                break;
+
+        }
+        if (null == newIntent) {
+            return super.onOptionsItemSelected(item);
+        }
+        else {
+            this.startActivity(newIntent);
+            // handled this okay
+            return true;
         }
     }
 

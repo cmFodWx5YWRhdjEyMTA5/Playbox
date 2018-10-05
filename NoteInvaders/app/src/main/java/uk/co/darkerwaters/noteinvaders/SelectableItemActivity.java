@@ -15,6 +15,7 @@ import android.support.v7.graphics.Palette;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
@@ -46,10 +47,10 @@ public abstract class SelectableItemActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(this.getContentViewRes());
 
-        /*getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);*/
+        setSupportActionBar(toolbar);
 
         initCollapsingToolbar();
 
