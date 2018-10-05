@@ -1,25 +1,39 @@
 package uk.co.darkerwaters.noteinvaders;
 
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.ColorUtils;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.target.ImageViewTarget;
 
 import java.util.List;
+
+import uk.co.darkerwaters.noteinvaders.drawing.PaletteBitmap;
+import uk.co.darkerwaters.noteinvaders.drawing.PaletteBitmapTranscoder;
 
 public abstract class SelectableItemActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
+    private TextView title;
+    private TextView subtitle;
     private SelectableItemAdapter adapter;
 
     protected abstract List<? extends SelectableItem> getItemList();
@@ -40,6 +54,8 @@ public abstract class SelectableItemActivity extends AppCompatActivity {
         initCollapsingToolbar();
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        title = (TextView) findViewById(R.id.instrument_title);
+        subtitle = (TextView) findViewById(R.id.instrument_subtitle);
 
         // create the list of things to select
         adapter = new SelectableItemAdapter(this, this.getItemList());
@@ -51,20 +67,44 @@ public abstract class SelectableItemActivity extends AppCompatActivity {
         recyclerView.addItemDecoration(new GridSpacingItemDecoration(span, dpToPx(10), true));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
-
-        // list contents have changed to include all the ones in our list
-        adapter.notifyDataSetChanged();
-
-        try {
-            Glide.with(this).load(getTitleImageRes()).into((ImageView) findViewById(R.id.backdrop));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        // load in the image to the view and set the text to show up over this
+        final int titleImageId = getTitleImageRes();
+        PaletteBitmap.loadImageIntoView(this,
+                (ImageView) findViewById(R.id.backdrop),
+                titleImageId,
+                new PaletteBitmap.PaletteBitmapImageLoader() {
+                    @Override
+                    public void onImageLoaded(PaletteBitmap resource) {
+                        // Load default colors
+                        int backgroundColor = ContextCompat.getColor(SelectableItemActivity.this,
+                                android.R.color.background_dark);
+                        int titleColor = title.getCurrentTextColor();
+                        int subtitleColor = title.getCurrentTextColor();
+
+                        Palette.Swatch swatch = PaletteBitmap.getBestSwatch(resource.palette);
+                        if (null != swatch) {
+                            backgroundColor = ColorUtils.setAlphaComponent(swatch.getRgb(), 180);
+                            titleColor = swatch.getTitleTextColor();
+                            subtitleColor = swatch.getBodyTextColor();
+                        }
+
+                        // Set the title background and text colors
+                        if (null != title) {
+                            title.setBackgroundColor(backgroundColor);
+                            title.setTextColor(titleColor);
+                        }
+                        if (null != subtitle) {
+                            subtitle.setBackgroundColor(backgroundColor);
+                            subtitle.setTextColor(subtitleColor);
+                        }
+                    }
+                });
 
         // update all our cards, the data may have changed
         this.adapter.notifyDataSetChanged();

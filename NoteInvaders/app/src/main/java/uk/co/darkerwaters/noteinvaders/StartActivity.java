@@ -7,6 +7,7 @@ import android.os.Bundle;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.co.darkerwaters.noteinvaders.selectables.Instrument;
 import uk.co.darkerwaters.noteinvaders.selectables.Profile;
 import uk.co.darkerwaters.noteinvaders.selectables.GameCard;
 import uk.co.darkerwaters.noteinvaders.state.Game;
@@ -31,7 +32,7 @@ public class StartActivity extends SelectableItemActivity {
     protected List<SelectableItem> getItemList() {
         List<SelectableItem> cardList = new ArrayList<SelectableItem>();
         // add the cards to the list the view will display
-        cardList.add(new Profile(this));
+        //cardList.add(new Profile(this));
 
         // load in all our games
         int gameCount = State.getInstance().getAvailableGameCount();
@@ -45,7 +46,14 @@ public class StartActivity extends SelectableItemActivity {
 
     @Override
     protected int getTitleImageRes() {
-        return R.drawable.instruments;
+
+        Instrument instrument = State.getInstance().getInstrument();
+        if (null != instrument) {
+            return instrument.getThumbnail();
+        }
+        else {
+            return R.drawable.instruments;
+        }
     }
 
     @Override
