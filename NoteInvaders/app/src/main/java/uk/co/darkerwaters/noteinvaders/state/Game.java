@@ -23,6 +23,18 @@ public class Game {
     public final String gameClass;
     public final Note[] treble_clef;
     public final Note[] bass_clef;
+    public final String[] treble_names;
+    public final String[] bass_names;
+    public final Annotation[] annotations;
+
+    public class Annotation {
+        final String name;
+        final String[] values;
+        Annotation(String name, String[] values) {
+            this.name = name;
+            this.values = values;
+        }
+    }
 
     public final Game[] children;
 
@@ -36,21 +48,66 @@ public class Game {
 
         Notes notes = Notes.instance();
         // notes for the treble clef
-        JSONArray jsonNotes = getJsonArrayOptional(fileSource,"treble_clef");
-        this.treble_clef = new Note[jsonNotes == null ? 0 : jsonNotes.length()];
+        JSONArray jsonData = getJsonArrayOptional(fileSource,"treble_clef");
+        this.treble_clef = new Note[jsonData == null ? 0 : jsonData.length()];
         for (int i = 0; i < this.treble_clef.length; ++i) {
             // for each note, find the right one and put it in our array
-            String noteName = jsonNotes.getString(i);
+            String noteName = jsonData.getString(i);
             this.treble_clef[i] = notes.getNote(noteName);
         }
+        // any names?
+        jsonData = getJsonArrayOptional(fileSource,"treble_names");
+        this.treble_names = new String[jsonData == null ? 0 : jsonData.length()];
+        for (int i = 0; i < this.treble_names.length; ++i) {
+            // for each name, put in in the array
+            this.treble_names[i] = jsonData.getString(i);
+        }
+
         // and the bass clef
-        jsonNotes = getJsonArrayOptional(fileSource,"bass_clef");
-        this.bass_clef = new Note[jsonNotes == null ? 0 : jsonNotes.length()];
+        jsonData = getJsonArrayOptional(fileSource,"bass_clef");
+        this.bass_clef = new Note[jsonData == null ? 0 : jsonData.length()];
         for (int i = 0; i < this.bass_clef.length; ++i) {
             // for each note, find the right one and put it in our array
-            String noteName = jsonNotes.getString(i);
+            String noteName = jsonData.getString(i);
             this.bass_clef[i] = notes.getNote(noteName);
         }
+        // any names?
+        jsonData = getJsonArrayOptional(fileSource,"bass_names");
+        this.bass_names = new String[jsonData == null ? 0 : jsonData.length()];
+        for (int i = 0; i < this.bass_names.length; ++i) {
+            // for each name, put in in the array
+            this.bass_names[i] = jsonData.getString(i);
+        }
+
+        // what about annotations
+        int annotationNumber = 1;
+        ArrayList<Annotation> annotationList = new ArrayList<Annotation>();
+        while(true) {
+            String annotationTitle = "annotation" + Integer.toString(annotationNumber);
+            JSONObject annotation = getJsonObjectOptional(fileSource, annotationTitle);
+            if (null != annotation) {
+                // there is an annotation, get the data for it
+                String annotationName = annotation.getString("name");
+                JSONArray values = annotation.getJSONArray("values");
+                // put the values in a string array
+                String[] annotationValues = new String[values.length()];
+                for (int i = 0; i < annotationValues.length; ++i) {
+                    annotationValues[i] = values.getString(i);
+                }
+                // add to the list we are compiling
+                annotationList.add(new Annotation(annotationName, annotationValues));
+            }
+            else {
+                // stop looking
+                break;
+            }
+        }
+        // set the list of retrieved annotations
+        this.annotations = new Annotation[annotationList.size()];
+        for (int i = 0; i < this.annotations.length; ++i) {
+            this.annotations[i] = annotationList.get(i);
+        }
+
 
         // and the children of this game
         JSONArray jsonChildren = getJsonArrayOptional(fileSource,"children");
@@ -59,6 +116,17 @@ public class Game {
             // for each level, load them in
             this.children[i] = new Game(this, jsonChildren.getJSONObject(i));
         }
+    }
+
+    private JSONObject getJsonObjectOptional(JSONObject source, String name) {
+        JSONObject result = null;
+        try {
+            result =  source.getJSONObject(name);
+        }
+        catch (JSONException e) {
+            // fine, it doesn't have to be there
+        }
+        return result;
     }
 
     private String getJsonStringOptional(JSONObject source, String name) {

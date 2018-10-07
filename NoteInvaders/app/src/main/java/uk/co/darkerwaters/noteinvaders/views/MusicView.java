@@ -251,7 +251,7 @@ public class MusicView extends View {
 
     public void setIsDrawLaser(boolean isDrawLaser) { this.isDrawLaser = isDrawLaser; }
 
-    public void fireTrebleLaser(Note target) {
+    public boolean fireTrebleLaser(Note target) {
         boolean isValidShoot = false;
         for (Note trebleNote : this.notesTreble) {
             if (trebleNote.equals(target)) {
@@ -265,23 +265,25 @@ public class MusicView extends View {
                 if (null != this.trebleLaser && null != this.trebleLaser.target) {
                     // there is already a target we shot at, better signal this as a hit as the user
                     // is just being super quick and hitting another before we popped it
-                    this.noteProvider.removeNoteTreble(this.trebleLaser.target);
-                    // inform listeners of this
-                    synchronized (this.listeners) {
-                        for (MusicViewListener listener : this.listeners) {
-                            listener.onNoteDestroyed(this.trebleLaser.target.note);
+                    if (this.noteProvider.removeNoteTreble(this.trebleLaser.target)) {
+                        // inform listeners of this
+                        synchronized (this.listeners) {
+                            for (MusicViewListener listener : this.listeners) {
+                                listener.onNoteDestroyed(this.trebleLaser.target.note);
+                            }
                         }
+                        // this is popped, stop shooting at it
+                        this.trebleLaser.target = null;
                     }
-                    // this is popped, stop shooting at it
-                    this.trebleLaser.target = null;
                 }
                 // set the new target to shoot at
                 this.trebleLaserTarget = target;
             }
         }
+        return isValidShoot;
     }
 
-    public void fireBassLaser(Note target) {
+    public boolean fireBassLaser(Note target) {
         boolean isValidShoot = false;
         for (Note bassNote : this.notesBass) {
             if (bassNote.equals(target)) {
@@ -295,25 +297,31 @@ public class MusicView extends View {
                 if (null != this.bassLaser && null != this.bassLaser.target) {
                     // there is already a target we shot at, better signal this as a hit as the user
                     // is just being super quick and hitting another before we popped it
-                    this.noteProvider.removeNoteBass(this.bassLaser.target);
-                    // inform listeners of this
-                    synchronized (this.listeners) {
-                        for (MusicViewListener listener : this.listeners) {
-                            listener.onNoteDestroyed(this.bassLaser.target.note);
+                    if (this.noteProvider.removeNoteBass(this.bassLaser.target)) {
+                        // inform listeners of this
+                        synchronized (this.listeners) {
+                            for (MusicViewListener listener : this.listeners) {
+                                listener.onNoteDestroyed(this.bassLaser.target.note);
+                            }
                         }
+                        // this is popped, stop shooting at it
+                        this.bassLaser.target = null;
                     }
-                    // this is popped, stop shooting at it
-                    this.bassLaser.target = null;
                 }
                 // set the new target to shoot at
                 this.bassLaserTarget = target;
             }
         }
+        return isValidShoot;
     }
 
-    private String getBasicNoteName(Note note) {
-        String noteName = note.getName(0);
-        return noteName.substring(0, noteName.length() - 1).toLowerCase();
+    private String getBasicNoteName(MusicViewNote note) {
+        String noteName = note.noteName;
+        if (noteName == null || noteName.isEmpty()) {
+            noteName = note.note.getName(0);
+            noteName = noteName.substring(0, noteName.length() - 1).toLowerCase();
+        }
+        return noteName;
     }
 
     private int getNotePosition(Note[] noteArray, Note note) {
@@ -332,6 +340,10 @@ public class MusicView extends View {
                     break;
                 }
             }
+        }
+        if (position == -1) {
+            // this is a problem!
+            System.out.println("Asking for a note that isn't in the list...");
         }
         return position;
     }
@@ -487,18 +499,25 @@ public class MusicView extends View {
                 float xPosition = note.getXPosition();
                 if (xPosition < getNoteStartX()) {
                     // this is gone from the view
+                    boolean isNoteRemoved = false;
                     if (isFromTrebleList) {
-                        this.noteProvider.removeNoteTreble(note);
+                        isNoteRemoved = this.noteProvider.removeNoteTreble(note);
                     } else {
-                        this.noteProvider.removeNoteBass(note);
+                        isNoteRemoved = this.noteProvider.removeNoteBass(note);
                     }
-                    synchronized (this.listeners) {
-                        for (MusicViewListener listener : this.listeners) {
-                            listener.onNotePopped(note.note);
+                    if (isNoteRemoved) {
+                        synchronized (this.listeners) {
+                            for (MusicViewListener listener : this.listeners) {
+                                listener.onNotePopped(note.note);
+                            }
                         }
                     }
+                    else {
+                        System.out.println("Error, failed to remove the note: " + note.note.getName());
+                    }
+
                 }
-                if (xPosition <= contentWidth + 24) {
+                else if (xPosition <= contentWidth + 24) {
                     // draw this note in as it is in range of the view
                     int position = -1;
                     if (this.isDrawTreble && isFromTrebleList) {
@@ -512,7 +531,7 @@ public class MusicView extends View {
                     }
                     if (position != -1) {
                         // draw the note in the correct position
-                        drawNoteOnClef(canvas, xPosition, yPosition, getBasicNoteName(note.note));
+                        drawNoteOnClef(canvas, xPosition, yPosition, getBasicNoteName(note));
                         // draw the line over this note if we didn't have a long one in already
                         if (isDrawLine(position)) {
                             canvas.drawLine(
@@ -553,6 +572,18 @@ public class MusicView extends View {
                                     }
                                 }
                             }
+                        }
+                    }
+                    else {
+                        // an invisible note?
+                        if (isFromTrebleList) {
+                            Log.e(State.K_APPTAG, "Added a note that cannot be drawn on treble: " + note.note.getName());
+                            // fix for the player by removing it
+                            this.noteProvider.removeNoteTreble(note);
+                        } else {
+                            Log.e(State.K_APPTAG, "Added a note that cannot be drawn on bass: " + note.note.getName());
+                            // fix for the player by removing it
+                            this.noteProvider.removeNoteBass(note);
                         }
                     }
                 }
@@ -611,14 +642,15 @@ public class MusicView extends View {
                     drawLaser(canvas, this.trebleLaser, secondsElapsed);
                     if (null != this.trebleLaser.target && this.trebleLaser.tLaserFire <= 0f) {
                         // there is a target but no firing, remove the target (we shot it down)
-                        this.noteProvider.removeNoteTreble(this.trebleLaser.target);
-                        // inform listeners of this
-                        synchronized (this.listeners) {
-                            for (MusicViewListener listener : this.listeners) {
-                                listener.onNoteDestroyed(this.trebleLaser.target.note);
+                        if (this.noteProvider.removeNoteTreble(this.trebleLaser.target)) {
+                            // inform listeners of this
+                            synchronized (this.listeners) {
+                                for (MusicViewListener listener : this.listeners) {
+                                    listener.onNoteDestroyed(this.trebleLaser.target.note);
+                                }
                             }
+                            this.trebleLaser.target = null;
                         }
-                        this.trebleLaser.target = null;
                     }
                 }
                 if (null != this.bassLaser) {
@@ -628,14 +660,15 @@ public class MusicView extends View {
                     drawLaser(canvas, this.bassLaser, secondsElapsed);
                     if (null != this.bassLaser.target && this.bassLaser.tLaserFire <= 0f) {
                         // there is a target but no firing, remove the target (we shot it down)
-                        this.noteProvider.removeNoteBass(this.bassLaser.target);
-                        // inform listeners of this
-                        synchronized (this.listeners) {
-                            for (MusicViewListener listener : this.listeners) {
-                                listener.onNoteDestroyed(this.bassLaser.target.note);
+                        if (this.noteProvider.removeNoteBass(this.bassLaser.target)) {
+                            // inform listeners of this
+                            synchronized (this.listeners) {
+                                for (MusicViewListener listener : this.listeners) {
+                                    listener.onNoteDestroyed(this.bassLaser.target.note);
+                                }
                             }
+                            this.bassLaser.target = null;
                         }
-                        this.bassLaser.target = null;
                     }
                 }
             }

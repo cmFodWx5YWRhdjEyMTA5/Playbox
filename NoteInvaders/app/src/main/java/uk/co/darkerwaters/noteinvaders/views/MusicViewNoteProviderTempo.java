@@ -26,8 +26,8 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
     private class TimedNote extends MusicViewNote {
         float timeOffset;
         float xPosition;
-        TimedNote(float timeOffset, float xPosition, Note note) {
-            super(note);
+        TimedNote(float timeOffset, float xPosition, Note note, String noteName) {
+            super(note, noteName);
             this.timeOffset = timeOffset;
             this.xPosition = xPosition;
         }
@@ -217,7 +217,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
     }
 
     @Override
-    public boolean pushNoteBassToEnd(Note note, MusicView musicView) {
+    public boolean pushNoteBassToEnd(Note note, String noteName, MusicView musicView) {
         // get the last note we have in our lists, will be the last time we added
         float lastTimeX = this.secondsInView + this.startSeconds;// old was was defined K_SECONDSINVIEW;
         // but we might have later notes on the view already (waiting to appear)
@@ -229,7 +229,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
         // create a note for this time
         boolean isAdded = false;
         synchronized (this.notesToDrawBass) {
-            TimedNote newNote = new TimedNote(lastTimeX, calculateXPosition(musicView, lastTimeX), note);
+            TimedNote newNote = new TimedNote(lastTimeX, calculateXPosition(musicView, lastTimeX), note, noteName);
             if (null != newNote && isValid(newNote)) {
                 isAdded =  this.notesToDrawBass.add(newNote);
             }
@@ -238,7 +238,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
     }
 
     @Override
-    public boolean pushNoteTrebleToEnd(Note note, MusicView musicView) {
+    public boolean pushNoteTrebleToEnd(Note note, String noteName, MusicView musicView) {
         // get the last note we have in our lists, will be the last time we added
         float lastTimeX = this.secondsInView + this.startSeconds;// old was was defined K_SECONDSINVIEW;
         // but we might have later notes on the view already (waiting to appear)
@@ -250,7 +250,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
         // create a note for this time
         boolean isAdded = false;
         synchronized (this.notesToDrawTreble) {
-            TimedNote newNote = new TimedNote(lastTimeX, calculateXPosition(musicView, lastTimeX), note);
+            TimedNote newNote = new TimedNote(lastTimeX, calculateXPosition(musicView, lastTimeX), note, noteName);
             if (null != newNote && isValid(newNote)) {
                 isAdded = this.notesToDrawTreble.add(newNote);
             }

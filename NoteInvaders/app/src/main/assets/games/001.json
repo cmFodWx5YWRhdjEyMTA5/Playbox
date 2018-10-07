@@ -16,20 +16,22 @@
             "E4",
             "F4",
             "G4"
-          ]
+          ],
+          "treble_names": ["c","d","e","f","g"]
         },
         {
           "name": "1st 7",
           "image": "temp.png",
           "treble_clef": [
-            "A3",
-            "B3",
             "C4",
             "D4",
             "E4",
             "F4",
-            "G4"
-          ]
+            "G4",
+            "A4",
+            "B4"
+          ],
+          "treble_names": ["c","d","e","f","g","a","b"]
         }
       ]
     },
@@ -41,25 +43,27 @@
           "name": "1st 5",
           "image": "temp.png",
           "bass_clef": [
-            "G4",
             "F3",
-            "E3",
-            "D3",
-            "C3"
-          ]
+            "G3",
+            "A3",
+            "B3",
+            "C4"
+          ],
+          "bass_names": ["f","g","a","b","c"]
         },
         {
           "name": "1st 7",
           "image": "temp.png",
           "bass_clef": [
-            "G3",
-            "F3",
-            "E3",
             "D3",
-            "C3",
-            "B2",
-            "A2"
-          ]
+            "E3",
+            "F3",
+            "G3",
+            "A3",
+            "B3",
+            "C4"
+          ],
+          "bass_names": ["d","e","f","g","a","b","c"]
         }
       ]
     },
@@ -77,35 +81,39 @@
             "F4",
             "G4"
           ],
+          "treble_names": ["c","d","e","f","g"],
           "bass_clef": [
-            "G4",
             "F3",
-            "E3",
-            "D3",
-            "C3"
-          ]
+            "G3",
+            "A3",
+            "B3",
+            "C4"
+          ],
+          "bass_names": ["f","g","a","b","c"]
         },
         {
           "name": "7 each",
           "image": "temp.png",
           "treble_clef": [
-            "A3",
-            "B3",
             "C4",
             "D4",
             "E4",
             "F4",
-            "G4"
+            "G4",
+            "A4",
+            "B4"
           ],
+          "treble_names": ["c","d","e","f","g","a","b"],
           "bass_clef": [
-            "G3",
-            "F3",
-            "E3",
             "D3",
-            "C3",
+            "E3",
+            "F3",
+            "G3",
+            "A3",
             "B3",
-            "A3"
-          ]
+            "C4"
+          ],
+          "bass_names": ["d","e","f","g","a","b","c"]
         }
       ]
     }

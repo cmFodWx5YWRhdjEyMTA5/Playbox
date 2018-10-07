@@ -10,8 +10,8 @@ public class MusicViewNoteProviderPositional extends MusicViewNoteProvider {
 
     private class PositionedNote extends MusicViewNote {
         float xPosition;
-        PositionedNote(float xPosition, Note note) {
-            super(note);
+        PositionedNote(float xPosition, Note note, String noteName) {
+            super(note, noteName);
             this.xPosition = xPosition;
         }
         @Override
@@ -69,9 +69,9 @@ public class MusicViewNoteProviderPositional extends MusicViewNoteProvider {
         return toDraw;
     }
 
-    public boolean pushNoteTreble(Note note, float xPosition) {
+    public boolean pushNoteTreble(Note note, String noteName, float xPosition) {
         synchronized (this.notesToDrawTreble) {
-            return this.notesToDrawTreble.add(new PositionedNote(xPosition, note));
+            return this.notesToDrawTreble.add(new PositionedNote(xPosition, note, noteName));
         }
     }
 
@@ -81,9 +81,9 @@ public class MusicViewNoteProviderPositional extends MusicViewNoteProvider {
         }
     }
 
-    public boolean pushNoteBass(Note note, float xPosition) {
+    public boolean pushNoteBass(Note note, String noteName, float xPosition) {
         synchronized (this.notesToDrawBass) {
-            return this.notesToDrawBass.add(new PositionedNote(xPosition, note));
+            return this.notesToDrawBass.add(new PositionedNote(xPosition, note, noteName));
         }
     }
 
@@ -109,9 +109,9 @@ public class MusicViewNoteProviderPositional extends MusicViewNoteProvider {
     }
 
     @Override
-    public boolean pushNoteTrebleToEnd(Note note, MusicView musicView) {
+    public boolean pushNoteTrebleToEnd(Note note, String noteName, MusicView musicView) {
         // put this note on the end of the view
-        return pushNoteTreble(note, getLastNotePosition(musicView.getWidth()) + noteSeparation);
+        return pushNoteTreble(note, noteName, getLastNotePosition(musicView.getWidth()) + noteSeparation);
     }
 
     public float getLastBassPosition(float defaultX) {
@@ -126,9 +126,9 @@ public class MusicViewNoteProviderPositional extends MusicViewNoteProvider {
     }
 
     @Override
-    public boolean pushNoteBassToEnd(Note note, MusicView musicView) {
+    public boolean pushNoteBassToEnd(Note note, String noteName, MusicView musicView) {
         // put this note on the end of the view
-        return pushNoteBass(note, getLastNotePosition(musicView.getWidth()) + noteSeparation);
+        return pushNoteBass(note, noteName, getLastNotePosition(musicView.getWidth()) + noteSeparation);
     }
 
     public void shiftNotesLeft(int pixels) {
