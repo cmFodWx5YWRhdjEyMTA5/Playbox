@@ -31,7 +31,7 @@ public class Note {
 
     @Override
     public boolean equals(Object obj) {
-        if (false == obj instanceof Note) {
+        if (obj == null || false == obj instanceof Note) {
             // comparison is not a note
             return false;
         }

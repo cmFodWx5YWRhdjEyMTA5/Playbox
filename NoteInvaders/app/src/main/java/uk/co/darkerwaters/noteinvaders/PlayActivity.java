@@ -32,6 +32,7 @@ import uk.co.darkerwaters.noteinvaders.state.State;
 import uk.co.darkerwaters.noteinvaders.state.input.InputConnectionInterface;
 import uk.co.darkerwaters.noteinvaders.state.input.InputMicrophone;
 import uk.co.darkerwaters.noteinvaders.views.MusicView;
+import uk.co.darkerwaters.noteinvaders.views.MusicViewNote;
 import uk.co.darkerwaters.noteinvaders.views.MusicViewNoteProviderTempo;
 import uk.co.darkerwaters.noteinvaders.views.PianoView;
 import uk.co.darkerwaters.noteinvaders.views.ScoreActiveView;
@@ -518,7 +519,6 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     @Override
     public void noteDepressed(Note note) {
         // when the note is pressed, fire the laser
-        this.musicView.fireTrebleLaser(note);
-        this.musicView.fireBassLaser(note);
+        this.musicView.fireLaser(note);
     }
 }

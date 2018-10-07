@@ -32,7 +32,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
             this.xPosition = xPosition;
         }
         @Override
-        float getXPosition() {
+        public float getXPosition() {
             return xPosition;
         }
     }
