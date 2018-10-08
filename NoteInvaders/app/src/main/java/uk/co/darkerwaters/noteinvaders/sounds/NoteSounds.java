@@ -1,14 +1,10 @@
-package uk.co.darkerwaters.noteinvaders;
+package uk.co.darkerwaters.noteinvaders.sounds;
 
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
-import android.os.Bundle;
-import android.os.Handler;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import uk.co.darkerwaters.noteinvaders.state.Note;
@@ -25,13 +21,7 @@ public class NoteSounds {
     private final AudioTrack audioTrack;
     private boolean isAudioInitialised = false;
 
-    private final static NoteSounds INSTANCE = new NoteSounds();
-
-    public static NoteSounds getINSTANCE() {
-        return INSTANCE;
-    }
-
-    private NoteSounds() {
+    NoteSounds() {
         this.generatedSounds = new HashMap<Note, byte[]>();
         this.audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
                 sampleRate, AudioFormat.CHANNEL_OUT_MONO,
@@ -73,7 +63,7 @@ public class NoteSounds {
         return generatedSnd;
     }
 
-    public void playSound(Note note){
+    void playSound(Note note) {
         // get the sound
         byte[] generatedSnd = getGeneratedSnd(note);
         // and play this

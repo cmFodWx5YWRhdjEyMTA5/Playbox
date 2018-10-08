@@ -43,8 +43,8 @@ public class State {
         Notes.CreateNotes(context);
         // initialise the members of this state
         this.instrumentList = new ArrayList<Instrument>();
-        this.instrumentList.add(new Instrument(context, context.getString(R.string.piano_keyboard), R.drawable.piano));
-        this.instrumentList.add(new Instrument(context, context.getString(R.string.violin), R.drawable.violin));
+        this.instrumentList.add(new Instrument(context, context.getString(R.string.piano_keyboard), new NoteRange("A0", "C8"), R.drawable.piano));
+        this.instrumentList.add(new Instrument(context, context.getString(R.string.violin), new NoteRange("G3", "E7"), R.drawable.violin));
         // first default everything to something sensible
         this.instrument = instrumentList.get(0);
 

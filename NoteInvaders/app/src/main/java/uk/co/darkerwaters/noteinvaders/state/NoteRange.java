@@ -4,6 +4,11 @@ public class NoteRange {
     private Note start;
     private Note end;
 
+    public NoteRange(String start, String end) {
+        this.start = Notes.instance().getNote(start);
+        this.end = Notes.instance().getNote(end);
+    }
+
     public NoteRange(Note start, Note end) {
         this.start = start;
         this.end = end;

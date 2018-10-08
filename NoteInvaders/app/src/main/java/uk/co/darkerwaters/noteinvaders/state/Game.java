@@ -197,7 +197,7 @@ public class Game {
 
     public NoteRange getNoteRange() {
         // go through all the notes to find the lowest and highest of them all
-        NoteRange range = new NoteRange(null, null);
+        NoteRange range = new NoteRange((Note)null, (Note)null);
         for (int i = 0; i < this.treble_clef.length + this.bass_clef.length; ++i) {
             Note note;
             if (i >= this.treble_clef.length) {

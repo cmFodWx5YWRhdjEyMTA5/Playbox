@@ -9,21 +9,14 @@ import uk.co.darkerwaters.noteinvaders.SelectableItemActivity;
 import uk.co.darkerwaters.noteinvaders.SelectableItemAdapter;
 import uk.co.darkerwaters.noteinvaders.state.NoteRange;
 
-public class Instrument extends SelectableItem {
+public class InputSource extends SelectableItem {
 
-    private final NoteRange noteRange;
-
-    public Instrument(Activity context, String name, NoteRange noteRange, int thumbnail) {
+    public InputSource(Activity context, String name, int thumbnail) {
         super(context, name, thumbnail);
-        this.noteRange = noteRange;
-    }
-
-    public NoteRange getNoteRange() {
-        return this.noteRange;
     }
 
     public String getSubtitle() {
-        return "Some progress";
+        return "Some input";
     }
 
     @Override

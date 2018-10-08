@@ -220,7 +220,7 @@ public class PianoView extends View {
         // set the notes that are to be shown on this piano
         Notes notes = Notes.instance();
         if (null == this.noteRange) {
-            this.noteRange = new NoteRange(null, null);
+            this.noteRange = new NoteRange((Note)null, (Note)null);
         }
         // count the white keys from the min pitch
         this.startNoteIndex = notes.getNoteIndex(minPitchDetected);

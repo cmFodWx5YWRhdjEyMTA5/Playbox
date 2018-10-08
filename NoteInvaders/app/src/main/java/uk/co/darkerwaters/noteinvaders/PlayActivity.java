@@ -1,12 +1,7 @@
 package uk.co.darkerwaters.noteinvaders;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.media.SoundPool;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.view.View;
@@ -16,14 +11,13 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import uk.co.darkerwaters.noteinvaders.games.GamePlayer;
+import uk.co.darkerwaters.noteinvaders.sounds.NoteSounds;
+import uk.co.darkerwaters.noteinvaders.sounds.SoundPlayer;
 import uk.co.darkerwaters.noteinvaders.state.ActiveScore;
 import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
@@ -32,7 +26,6 @@ import uk.co.darkerwaters.noteinvaders.state.State;
 import uk.co.darkerwaters.noteinvaders.state.input.InputConnectionInterface;
 import uk.co.darkerwaters.noteinvaders.state.input.InputMicrophone;
 import uk.co.darkerwaters.noteinvaders.views.MusicView;
-import uk.co.darkerwaters.noteinvaders.views.MusicViewNote;
 import uk.co.darkerwaters.noteinvaders.views.MusicViewNoteProviderTempo;
 import uk.co.darkerwaters.noteinvaders.views.PianoView;
 import uk.co.darkerwaters.noteinvaders.views.ScoreActiveView;
@@ -63,10 +56,6 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     private PlayFabsHandler fabsHandler = null;
     private InputMicrophone inputMicrophone = null;
 
-    private SoundPool soundPool = null;
-    private int falseFireSound = -1;
-    private int missedSound = -1;
-
     private final int[] availableTempos = new int[] {
             20,40,50,60,80,100,120,150,180
     };
@@ -91,7 +80,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         // setup the seek bar controls
         setupTempoSeekBar();
         // setup the sounds
-        initSounds();
+        SoundPlayer.initialise(this);
 
         // any controls that make android show the title/back we need to add the delay listener
         tempoSpinner.setOnTouchListener(mDelayHideTouchListener);
@@ -139,22 +128,6 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.scoreView.setScore(this.score);
     }
 
-    private void initSounds() {
-        int maxStreams = 9;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            soundPool = new SoundPool.Builder()
-                    .setMaxStreams(maxStreams)
-                    .build();
-        } else {
-            soundPool = new SoundPool(maxStreams, AudioManager.STREAM_MUSIC, 0);
-        }
-
-        // fill your sounds
-        this.falseFireSound = soundPool.load(this, R.raw.false_fire, 1);
-        this.missedSound = soundPool.load(this, R.raw.missed, 1);
-
-    }
-
     private void setupMusicView() {
         // setup the view for this level
         this.musicView.setIsDrawLaser(true);
@@ -188,7 +161,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         super.onDestroy();
         this.pianoView.removeListener(this);
         this.fabsHandler.close();
-        this.soundPool.release();
+        SoundPlayer.close();
         if (null != this.micPermissionsHandler) {
             this.micPermissionsHandler.close();
             this.micPermissionsHandler = null;
@@ -471,7 +444,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         // this is a miss
         this.score.incMisses(note);
         showScore();
-        soundPool.play(missedSound, 0.7f, 0.3f, 1, 0, 1f);
+        SoundPlayer.getINSTANCE().missed();
     }
 
     @Override
@@ -482,7 +455,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                NoteSounds.getINSTANCE().playSound(note);
+                SoundPlayer.getINSTANCE().playSound(note);
             }
         });
     }
@@ -492,7 +465,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         // this is a false shot
         this.score.incFalseShots(note);
         showScore();
-        soundPool.play(falseFireSound, 0.3f, 0.7f, 1, 0, 1f);
+        SoundPlayer.getINSTANCE().falseFire();
     }
 
     private void showScore() {

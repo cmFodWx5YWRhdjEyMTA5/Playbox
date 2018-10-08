@@ -7,12 +7,13 @@ import android.os.Bundle;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.co.darkerwaters.noteinvaders.selectables.InputSource;
 import uk.co.darkerwaters.noteinvaders.selectables.Instrument;
 import uk.co.darkerwaters.noteinvaders.state.State;
 
 public class InputActivity extends SelectableItemActivity {
 
-    private List<Instrument> inputList;
+    private List<InputSource> inputList;
     private Instrument parentInstrument = null;
 
     @Override
@@ -50,12 +51,12 @@ public class InputActivity extends SelectableItemActivity {
     }
 
     @Override
-    protected List<Instrument> getItemList() {
+    protected List<InputSource> getItemList() {
 
-        this.inputList = new ArrayList<Instrument>();
-        this.inputList.add(new Instrument(this, getString(R.string.microphone), R.drawable.microphone));
-        this.inputList.add(new Instrument(this, getString(R.string.usb_midi), R.drawable.usb));
-        this.inputList.add(new Instrument(this, getString(R.string.bt_midi), R.drawable.bt_usb));
+        this.inputList = new ArrayList<InputSource>();
+        this.inputList.add(new InputSource(this, getString(R.string.microphone), R.drawable.microphone));
+        this.inputList.add(new InputSource(this, getString(R.string.usb_midi), R.drawable.usb));
+        this.inputList.add(new InputSource(this, getString(R.string.bt_midi), R.drawable.bt_usb));
 
         return this.inputList;
     }
