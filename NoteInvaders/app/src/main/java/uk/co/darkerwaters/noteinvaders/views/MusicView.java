@@ -407,6 +407,11 @@ public class MusicView extends View {
         return position;
     }
 
+    public void setIsDrawNoteName(boolean isDrawNoteName) {
+        this.isDrawNoteName = isDrawNoteName;
+        this.invalidate();
+    }
+
     protected float getNoteStartX() {
         return this.lineHeight * K_LINESINCLEF * 0.5f;
     }

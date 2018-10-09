@@ -51,6 +51,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="uk.co.darkerwaters.noteinvaders.GameActivity" />
         </activity>
+        <activity
+            android:name=".ScoreCardActivity"
+            android:label="@string/current_score"
+            android:parentActivityName=".PlayActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="uk.co.darkerwaters.noteinvaders.ScoreCardActivity" />
+        </activity>
     </application>
 
 </manifest>

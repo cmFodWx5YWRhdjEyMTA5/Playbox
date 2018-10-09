@@ -97,14 +97,19 @@ public class ScoreActiveView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        // set the oval to fill the view (square normally)
-        mOval = new RectF(getPaddingLeft(), getPaddingTop(),
+        RectF canvasRect = new RectF(getPaddingLeft(), getPaddingTop(),
                 getWidth() - getPaddingRight(),
                 getHeight() - getPaddingTop());
 
         // the arc is a fraction of the width of the oval...
-        float scoreStroke = Math.min(mOval.width(), mOval.height()) * 0.2f;
-        // set this on the paints
+        float scoreStroke = Math.min(canvasRect.width(), canvasRect.height()) * 0.2f;
+        // set the oval to fill the view (square normally)
+        mOval = new RectF(
+                canvasRect.left + (scoreStroke * 0.5f),
+                canvasRect.top + (scoreStroke * 0.5f),
+                canvasRect.right - (scoreStroke * 0.5f),
+                canvasRect.bottom - (scoreStroke * 0.5f));
+                // set this on the paints
         missedPaint.setStrokeWidth(scoreStroke);
         falsePaint.setStrokeWidth(scoreStroke);
         backPaint.setStrokeWidth(scoreStroke);

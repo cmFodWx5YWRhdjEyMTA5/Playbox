@@ -299,6 +299,11 @@ public class PianoView extends View {
         }
     }
 
+    public void setIsDrawNoteName(boolean isDrawNoteName) {
+        this.isDrawNoteNames = isDrawNoteName;
+        this.invalidate();
+    }
+
     private int getContentWidth() {
         return getWidth() - getPaddingLeft() - getPaddingRight();
     }

@@ -19,6 +19,8 @@ public class State {
     private List<Game> games = null;
     private List<Game> gameSelected = new ArrayList<Game>();
 
+    private ActiveScore currentActiveScore = null;
+
     public interface InputChangeListener {
         void onInputTypeChanged(InputType type);
     }
@@ -50,6 +52,7 @@ public class State {
 
         // load in all the games available too
         this.games = Game.loadGamesFromAssets(context);
+        this.currentActiveScore = new ActiveScore();
 
         this.inputChangeListeners = new ArrayList<InputChangeListener>();
     }
@@ -106,6 +109,10 @@ public class State {
                 listener.onInputTypeChanged(type);
             }
         }
+    }
+
+    public ActiveScore getCurrentActiveScore() {
+        return this.currentActiveScore;
     }
 
     public int getGameSelectedCount() { return this.gameSelected.size(); }
