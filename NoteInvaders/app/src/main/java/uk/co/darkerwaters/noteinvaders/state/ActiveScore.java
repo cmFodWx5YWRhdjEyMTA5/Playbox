@@ -11,6 +11,12 @@ public class ActiveScore {
     public static final int K_PERMITTED_FALSE_SHOT_COUNT = 10;
     public static final int K_PERMITTED_ERRORS = K_PERMITTED_MISS_COUNT + K_PERMITTED_FALSE_SHOT_COUNT;
 
+    public static final int[] K_AVAILABLE_TEMPOS = new int[] {
+            20,40,50,60,80,100,120,150,180
+    };
+
+    public static final int K_MAX_TEMPO_WITH_HELP = 60;
+
     private int hits;
     private int misses;
     private int falseShots;
@@ -51,6 +57,10 @@ public class ActiveScore {
 
     public int setBpm(int newBpm) {
         this.topBpm = Math.max(this.topBpm, newBpm);
+        if (this.topBpm > K_MAX_TEMPO_WITH_HELP) {
+            // turn off help for this
+            setIsHelpOn(false);
+        }
         return this.topBpm;
     }
 

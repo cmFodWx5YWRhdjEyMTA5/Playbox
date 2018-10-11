@@ -72,6 +72,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
     }
 
     public void setPaused(boolean isPaused) {
+        // pause / resume
         this.isPaused = isPaused;
     }
 
@@ -156,6 +157,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
         // reset the time calc so we can move the notes along the next time
         this.lastTimeDrawn = System.currentTimeMillis();
     }
+
 
     @Override
     public int getNotesFitOnView() {
