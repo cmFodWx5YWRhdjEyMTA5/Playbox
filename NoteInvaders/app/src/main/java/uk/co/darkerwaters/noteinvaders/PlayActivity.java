@@ -125,6 +125,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
             @Override
             public void onClick(View view) {
                 increaseTempo();
+                noteProvider.clearNotes();
             }
         });
 

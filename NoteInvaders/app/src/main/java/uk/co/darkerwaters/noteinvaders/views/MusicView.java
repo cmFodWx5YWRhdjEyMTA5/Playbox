@@ -416,7 +416,7 @@ public class MusicView extends View {
         this.invalidate();
     }
 
-    protected float getNoteStartX() {
+    public float getNoteStartX() {
         return this.lineHeight * K_LINESINCLEF * 0.5f;
     }
 
