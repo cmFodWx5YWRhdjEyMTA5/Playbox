@@ -20,10 +20,10 @@ public class RandomAttack extends GamePlayer {
     public void addNewNotes(MusicView musicView, Game game) {
         //ensure the view is always full of notes to show
         MusicViewNoteProvider provider = musicView.getNoteProvider();
+        int maxX = musicView.getWidth();
         int iNoAttempts = 0;
-        int targetNotes = provider.getNotesFitOnView() + 5;
-        int noteIndex = 0;
-        while (provider.getNoteCountTreble() + provider.getNoteCountBass() < targetNotes) {
+        int noteIndex;
+        while (provider.getLastNotePosition(-1f) < maxX) {
             // add another note
             Note note = null;
             String noteName = "";

@@ -13,6 +13,8 @@ public abstract class MusicViewNoteProvider {
 
     public abstract int getNotesFitOnView();
 
+    public abstract float getLastNotePosition(float defaultX);
+
     public abstract void updateNotes(MusicView musicView);
 
     public abstract boolean pushNoteTrebleToEnd(Note note, String noteName, MusicView musicView);

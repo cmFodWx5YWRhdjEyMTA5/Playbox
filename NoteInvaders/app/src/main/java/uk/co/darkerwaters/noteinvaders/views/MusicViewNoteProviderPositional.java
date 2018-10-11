@@ -93,6 +93,7 @@ public class MusicViewNoteProviderPositional extends MusicViewNoteProvider {
         }
     }
 
+    @Override
     public float getLastNotePosition(float defaultX) {
         return Math.max(getLastBassPosition(defaultX), getLastTreblePosition(defaultX));
     }

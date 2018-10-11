@@ -61,7 +61,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
         // update all the notes on the view to this new beat
         // set the number of notes this will fit on the view
         this.notesOnView = K_BEATSINVIEW;// old was was seconds in view(int)(this.beatsPerSec * K_SECONDSINVIEW);
-        // seconds on teh view is the notes * the time they represent in seconds
+        // seconds on the view is the notes * the time they represent in seconds
         this.secondsInView = this.notesOnView / this.beatsPerSec;
         // doing this while paused means that the offsets will be recalculated from the pixels
         // so we don't have to do anything with the notes already in the view
@@ -269,7 +269,20 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
         return xStart + (xSeconds * timeX);
     }
 
-    private TimedNote getLastNote() {
+    @Override
+    public float getLastNotePosition(float defaultX) {
+        TimedNote lastNote = getLastNote();
+        if (null == lastNote) {
+            // return error
+            return defaultX;
+        }
+        else {
+            // return the right position
+            return lastNote.getXPosition();
+        }
+    }
+
+    public TimedNote getLastNote() {
         TimedNote treble = getLastTrebleNote();
         TimedNote bass = getLastBassNote();
         if (treble == null && bass != null) {
