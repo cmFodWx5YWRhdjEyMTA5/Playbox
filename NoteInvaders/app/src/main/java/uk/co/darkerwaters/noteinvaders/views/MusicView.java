@@ -65,6 +65,8 @@ public class MusicView extends View {
     private float noteRadius = 1f;
     private float lineHeight = 1f;
 
+    private int showTempo = 0;
+
     private MusicViewNoteProvider noteProvider;
 
     private MusicViewLaser trebleLaser = null;
@@ -242,6 +244,8 @@ public class MusicView extends View {
             }
         }
     }
+
+    public void setShowTempo(int newTempo) { this.showTempo = newTempo; }
 
     public void showBass(boolean isShow) {
         this.isDrawBass = isShow;
@@ -530,7 +534,14 @@ public class MusicView extends View {
             // setup the note to draw
             this.noteRadius = lineHeight * 0.3f;
             this.notePaint.setStrokeWidth(noteRadius * 0.5f);
+            this.letterPaint.setTextSize(lineHeight);
             float noteOffset = lineHeight / 2.0f;
+
+            // draw the note that represents the tempo if we want to
+            if (this.showTempo > 0) {
+                drawNoteOnClef(canvas, padding.left + lineHeight, padding.top + (lineHeight * 1f), "");
+                canvas.drawText("=" + Integer.toString(this.showTempo), padding.left + (lineHeight * 1.5f), padding.top + lineHeight, letterPaint);
+            }
 
             // draw in any notes we want to draw
             MusicViewNote[] toDrawTreble = this.noteProvider.getNotesToDrawTreble();
@@ -788,7 +799,6 @@ public class MusicView extends View {
         canvas.drawLine(stickX, yPosition, stickX, yPosition - lineHeight * 1.5f, notePaint);
         // and the title if we are showing this helpful thing
         if (isDrawNoteName) {
-            this.letterPaint.setTextSize(lineHeight);
             canvas.drawText(noteTitle, xPosition - noteRadius, yPosition - noteRadius * 2f, letterPaint);
         }
     }

@@ -1,9 +1,11 @@
 package uk.co.darkerwaters.noteinvaders;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -44,9 +46,15 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     private Spinner tempoSpinner;
     private FloatingActionButton floatingPauseButton;
     private FloatingActionButton floatingStopButton;
+    private FloatingActionButton floatingTempoButton;
+
     private View mControlsView;
     private TextView microphonePermissionText;
     private Button microphonePermissionButton;
+
+    private Button[] levelButtons = new Button[3];
+    private View settingsLayout;
+    private View levelButtonsLayout;
 
     private Switch showNoteNamesSwitch;
 
@@ -66,6 +74,9 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // this is a new game
+        State.getInstance().getCurrentActiveScore().reset();
+
         this.noteProvider = new MusicViewNoteProviderTempo();
 
         this.scoreView = (ScoreActiveView) findViewById(R.id.score_view);
@@ -75,10 +86,18 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.tempoSpinner = (Spinner) findViewById(R.id.tempo_spinner);
         this.floatingPauseButton = (FloatingActionButton) findViewById(R.id.floatingPauseButton);
         this.floatingStopButton = (FloatingActionButton) findViewById(R.id.floatingStopButton);
+        this.floatingTempoButton = (FloatingActionButton) findViewById(R.id.floatingTempoButton);
+
         this.mControlsView = findViewById(R.id.fullscreen_content_controls);
         this.microphonePermissionText = (TextView) findViewById(R.id.text_microphone_permission);
         this.microphonePermissionButton = (Button) findViewById(R.id.button_mic_permission);
         this.showNoteNamesSwitch = (Switch) findViewById(R.id.help_switch);
+        // level buttons
+        this.levelButtons[0] = (Button) findViewById(R.id.button_easy);
+        this.levelButtons[1] = (Button) findViewById(R.id.button_medium);
+        this.levelButtons[2] = (Button) findViewById(R.id.button_hard);
+        this.settingsLayout = findViewById(R.id.settings_layout);
+        this.levelButtonsLayout = findViewById(R.id.level_buttons_layout);
 
         // setup the seek bar controls
         setupTempoSeekBar();
@@ -106,7 +125,12 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
                 onBackPressed();
             }
         });
-        updateControls();
+        this.floatingTempoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                increaseTempo();
+            }
+        });
 
         // create the fabs for this view
         this.fabsHandler = new PlayFabsHandler(this, new State.InputChangeListener() {
@@ -140,9 +164,64 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.showNoteNamesSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                State.getInstance().getCurrentActiveScore().setIsHelpOn(b);
                 PlayActivity.this.pianoView.setIsDrawNoteName(b);
                 PlayActivity.this.musicView.setIsDrawNoteName(b);
+            }
+        });
+
+        // setup the level buttons
+        setupLevelButtons();
+
+        // update from our game state
+        updateControlsFromState();
+    }
+
+    private void updateControlsFromState() {
+        // get the score and set our controls accordingly
+        ActiveScore score = State.getInstance().getCurrentActiveScore();
+
+        // set the help switch in the proper state
+        showNoteNamesSwitch.setChecked(score.isHelpOn());
+        int beats = score.getTopBpm();
+        if (beats == 0) {
+            // set the default nicer than this
+            beats = 60;
+        }
+        // the tempo too
+        for (int i = 0; i < availableTempos.length; ++i) {
+            if (availableTempos[i] == beats) {
+                // set the selection on the spinner, this will update our views also
+                this.tempoSpinner.setSelection(i);
+                break;
+            }
+        }
+
+        // show / hide the controls properly
+        showHideControls();
+    }
+
+    private void setupLevelButtons() {
+        this.levelButtons[0].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                PlayActivity.this.showNoteNamesSwitch.setChecked(true);
+                PlayActivity.this.tempoSpinner.setSelection(1);
+            }
+        });
+
+        this.levelButtons[1].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                PlayActivity.this.showNoteNamesSwitch.setChecked(false);
+                PlayActivity.this.tempoSpinner.setSelection(3);
+            }
+        });
+
+        this.levelButtons[2].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                PlayActivity.this.showNoteNamesSwitch.setChecked(false);
+                PlayActivity.this.tempoSpinner.setSelection(5);
             }
         });
     }
@@ -152,7 +231,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.musicView.setIsDrawLaser(true);
         this.musicView.showTreble(this.level.isTreble());
         this.musicView.showBass(this.level.isBass());
-        this.musicView.setIsDrawNoteName(State.getInstance().getCurrentActiveScore().isHelpOn());
+        this.musicView.setIsDrawNoteName(this.showNoteNamesSwitch.isChecked());
 
         if (false == this.level.isTreble() || false == this.level.isBass()) {
             // we are only drawing one set of lines, shrink the height of the view
@@ -196,12 +275,62 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         if (false == noteProvider.isPaused()) {
             // we are running, pause the provider
             noteProvider.setPaused(true);
+            updateControlsFromState();
         }
         else {
-            // controls are hidden, we are playing again
-            noteProvider.setPaused(false);
+            // we want to start the game, ensure everything is set on the state before we start
+            ActiveScore score = State.getInstance().getCurrentActiveScore();
+            boolean isHelp = this.showNoteNamesSwitch.isChecked();
+            int tempo = this.availableTempos[this.tempoSpinner.getSelectedItemPosition()];
+
+            if (score.isInProgress() &&
+                    (isHelp != score.isHelpOn() || tempo != score.getTopBpm())) {
+                // change in difficulty - need to reset the score
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.dialog_reset_title)
+                        .setMessage(R.string.dialog_reset_contents)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton(R.string.dialog_reset_start_new, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                // reset everything as this is a new game
+                                State.getInstance().getCurrentActiveScore().reset();
+                                noteProvider.clearNotes();
+                                // set the score settings and resume
+                                updateScoreFromControls();
+                                // all the data is now accepted the new stuff, continue this new game
+                                resumePlaying();
+                            }})
+                        .setNegativeButton(R.string.dialog_reset_continue_old, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                // just resume playing, will reset to what we were doing
+                                resumePlaying();
+                            }}).show();
+            }
+            else {
+                // no change, update the score (will not change but will update the views)
+                updateScoreFromControls();
+                // and resume playing
+                resumePlaying();
+            }
         }
-        updateControls();
+    }
+
+    private void updateScoreFromControls() {
+        ActiveScore score = State.getInstance().getCurrentActiveScore();
+        boolean isHelp = this.showNoteNamesSwitch.isChecked();
+        int tempo = this.availableTempos[this.tempoSpinner.getSelectedItemPosition()];
+        // set this data on the score
+        score.setIsHelpOn(isHelp);
+        score.setBpm(tempo);
+        // this changes our score so update the views
+        this.scoreView.invalidate();
+        this.musicView.invalidate();
+    }
+
+    private void resumePlaying() {
+        // resume playing the game, restart the provider and update the controls
+        noteProvider.setPaused(false);
+        updateControlsFromState();
     }
 
     @Override
@@ -243,7 +372,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
                 break;
         }
         // set the showing of letters etc
-        this.pianoView.setIsDrawNoteName(State.getInstance().getCurrentActiveScore().isHelpOn());
+        this.pianoView.setIsDrawNoteName(this.showNoteNamesSwitch.isChecked());
     }
 
 
@@ -280,23 +409,23 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.pianoView.invalidate();
     }
 
-    private void updateControls() {
+    private void showHideControls() {
         if (noteProvider.isPaused()) {
             // show the play icon
             floatingStopButton.animate().translationX(-getResources().getDimension(R.dimen.standard_63));
             floatingPauseButton.setImageResource(android.R.drawable.ic_media_play);
-            // show the help switch
-            showNoteNamesSwitch.setVisibility(View.VISIBLE);
+            // show the settings
+            levelButtonsLayout.setVisibility(View.VISIBLE);
+            settingsLayout.setVisibility(View.VISIBLE);
         }
         else {
             // show the pause icon
             floatingStopButton.animate().translationX(0);
             floatingPauseButton.setImageResource(android.R.drawable.ic_media_pause);
-            // hide the help switch
-            showNoteNamesSwitch.setVisibility(View.INVISIBLE);
+            // hide the settings
+            levelButtonsLayout.setVisibility(View.INVISIBLE);
+            settingsLayout.setVisibility(View.INVISIBLE);
         }
-        // set the help switch in the proper state
-        showNoteNamesSwitch.setChecked(State.getInstance().getCurrentActiveScore().isHelpOn());
     }
 
     @Override
@@ -331,19 +460,19 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
                 final int beats = availableTempos[position];
                 // set this on the note provider to provide at the correct tempo
                 PlayActivity.this.noteProvider.setBeats(beats);
-                // and record in the score
-                State.getInstance().getCurrentActiveScore().setBpm(beats);
+                PlayActivity.this.musicView.setShowTempo(beats);
+                PlayActivity.this.musicView.invalidate();
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-        // set the correct tempo
-        for (int i = 0; i < availableTempos.length; ++i) {
-            if (availableTempos[i] == this.noteProvider.getBeats()) {
-                this.tempoSpinner.setSelection(i);
-                break;
-            }
+    }
+
+    private void increaseTempo() {
+        int currentSelection = this.tempoSpinner.getSelectedItemPosition();
+        if (currentSelection <= this.availableTempos.length - 2) {
+            this.tempoSpinner.setSelection(currentSelection + 1);
         }
     }
 
@@ -388,6 +517,9 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     protected void onResume() {
         super.onResume();
 
+        // pause the player
+        this.noteProvider.setPaused(true);
+
         // reset all of our data
         this.musicView.closeView();
         this.noteProvider.clearNotes();
@@ -417,9 +549,10 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.musicView.addListener(this);
         // and start scrolling notes
         this.noteThread.start();
-        // pause the player ready for the user to start
-        this.noteProvider.setPaused(false);
-        updateControls();
+
+        // update all the data on this view
+        showHideControls();
+        updateControlsFromState();
     }
 
     private void stopAudioMonitoring() {
@@ -458,16 +591,18 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     }
 
     private void moveNotes() {
-        this.musicView.updateViewProvider();
-        // and invalidate the view
-        this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                // invalidate the changed view
-                PlayActivity.this.musicView.invalidate();
-            }
-        });
-        this.levelPlayer.addNewNotes(this.musicView, this.level);
+        if (false == noteProvider.isPaused()) {
+            this.musicView.updateViewProvider();
+            // and invalidate the view
+            this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    // invalidate the changed view
+                    PlayActivity.this.musicView.invalidate();
+                }
+            });
+            this.levelPlayer.addNewNotes(this.musicView, this.level);
+        }
     }
 
     @Override
@@ -532,7 +667,9 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
 
     @Override
     public void noteDepressed(Note note) {
-        // when the note is pressed, fire the laser
-        this.musicView.fireLaser(note);
+        if (false == this.noteProvider.isPaused()) {
+            // when the note is pressed, fire the laser
+            this.musicView.fireLaser(note);
+        }
     }
 }

@@ -23,13 +23,17 @@ public class ActiveScore {
     private final Map<Note, Integer> notesMissed;
 
     public ActiveScore() {
+        reset();
+        this.isHelpOn = false;
+        // keep a map of our misses
+        this.notesMissed = new HashMap<Note, Integer>();
+    }
+
+    public void reset() {
         this.hits = 0;
         this.misses = 0;
         this.falseShots = 0;
         this.topBpm = 0;
-        this.isHelpOn = false;
-        // keep a map of our misses
-        this.notesMissed = new HashMap<Note, Integer>();
     }
 
     public boolean isGameOver() {
@@ -92,5 +96,11 @@ public class ActiveScore {
     public int incFalseShots(Note note) {
         // increment the counter and return it
         return ++this.falseShots;
+    }
+
+    public boolean isInProgress() {
+        return this.misses > 0 ||
+                this.falseShots > 0 ||
+                this.hits > 0;
     }
 }
