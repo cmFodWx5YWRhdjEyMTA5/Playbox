@@ -37,6 +37,7 @@ public class MusicView extends View {
 
     private final static float K_LASERSPEEDSEC = 0.5f;   // seconds to traverse the entire range
     private final static float K_LASERDURATIONSEC = 0.2f;   // seconds to fire the laser for
+    private float noteFreeDangerZoneTime = 0f;
 
     public interface MusicViewListener {
         void onNotePopped(Note note);
@@ -256,6 +257,10 @@ public class MusicView extends View {
     }
 
     public void setIsDrawLaser(boolean isDrawLaser) { this.isDrawLaser = isDrawLaser; }
+
+    public float getNoteFreeDangerZoneTime() { return this.noteFreeDangerZoneTime; }
+
+    public void resetNoteFreeDangerZoneTime() { this.noteFreeDangerZoneTime = 0f; }
 
     private boolean killTarget() {
         boolean isRemoved = false;
@@ -560,6 +565,11 @@ public class MusicView extends View {
                 }
             }
 
+            float dangerZoneX = contentWidth * 0.5f;
+            //canvas.drawLine(dangerZoneX, 0, dangerZoneX, contentHeight, redPaint);
+            int notesFoundInDangerZone = 0;
+
+            // draw all the notes in now
             for (int i = 0; i < toDrawTreble.length + toDrawBass.length; ++i) {
                 // for each note, draw it on each clef
                 MusicViewNote note = null;
@@ -607,6 +617,10 @@ public class MusicView extends View {
                     if (position != -1) {
                         // draw the note in the correct position
                         drawNoteOnClef(canvas, xPosition, yPosition, getBasicNoteName(note));
+                        if (xPosition < dangerZoneX) {
+                            // this note is in danger of being missed, reset the timer
+                            ++notesFoundInDangerZone;
+                        }
                         // draw the line over this note if we didn't have a long one in already
                         if (isDrawLine(position)) {
                             canvas.drawLine(
@@ -711,6 +725,14 @@ public class MusicView extends View {
                     // reset the target to be null, shot and missed
                     this.laserTarget.target = null;
                 }
+            }
+            if (notesFoundInDangerZone == 0) {
+                // there are no notes in the danger zone, increase the time
+                this.noteFreeDangerZoneTime += elapsedTime / 1000f;
+            }
+            else {
+                // reset the time, there is one in there
+                resetNoteFreeDangerZoneTime();
             }
         }
         // draw in the lasers on top of this

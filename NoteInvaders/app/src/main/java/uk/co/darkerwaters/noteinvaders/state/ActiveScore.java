@@ -11,6 +11,8 @@ public class ActiveScore {
     public static final int K_PERMITTED_FALSE_SHOT_COUNT = 10;
     public static final int K_PERMITTED_ERRORS = K_PERMITTED_MISS_COUNT + K_PERMITTED_FALSE_SHOT_COUNT;
 
+    public static final float K_SECBEFORESPEEDINCREASE = 60f;
+
     public static final int[] K_AVAILABLE_TEMPOS = new int[] {
             20,40,50,60,80,100,120,150,180
     };

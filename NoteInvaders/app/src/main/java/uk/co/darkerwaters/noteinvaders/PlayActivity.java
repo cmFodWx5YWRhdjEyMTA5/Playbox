@@ -333,6 +333,8 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         // resume playing the game, restart the provider and update the controls
         noteProvider.setPaused(false);
         updateControlsFromState();
+        // this resets the time the danger zone was clean
+        this.musicView.resetNoteFreeDangerZoneTime();
     }
 
     @Override
@@ -482,6 +484,9 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
 
         // animate this icon in and out again
         this.tempoIncreaseIcon.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade));
+
+        // this changes the speed, reset the time the danger zone is clean of notes
+        this.musicView.resetNoteFreeDangerZoneTime();
     }
 
     @Override
@@ -607,6 +612,12 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
             public void run() {
                 // invalidate the changed view
                 PlayActivity.this.musicView.invalidate();
+                if (false == PlayActivity.this.noteProvider.isPaused()) {
+                    if (PlayActivity.this.musicView.getNoteFreeDangerZoneTime() >= ActiveScore.K_SECBEFORESPEEDINCREASE) {
+                        // this is good, increase our tempo as they are doing so well
+                        increaseTempo();
+                    }
+                }
             }
         });
         if (false == this.noteProvider.isPaused()) {
