@@ -265,6 +265,18 @@
                     android:minWidth="80dp" />
             </LinearLayout>
 
+            <ImageView
+                android:id="@+id/tempo_increase_image"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                app:layout_constraintBottom_toBottomOf="@+id/music_view"
+                app:layout_constraintEnd_toEndOf="@+id/music_view"
+                app:layout_constraintStart_toStartOf="@+id/music_view"
+                app:layout_constraintTop_toTopOf="@+id/music_view"
+                app:srcCompat="@android:drawable/ic_media_ff" />
+
         </android.support.constraint.ConstraintLayout>
 
         <LinearLayout

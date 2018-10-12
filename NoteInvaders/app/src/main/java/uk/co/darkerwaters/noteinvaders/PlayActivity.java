@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -48,6 +49,8 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     private FloatingActionButton floatingStopButton;
     private FloatingActionButton floatingTempoButton;
 
+    private View tempoIncreaseIcon;
+
     private View mControlsView;
     private TextView microphonePermissionText;
     private Button microphonePermissionButton;
@@ -83,6 +86,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.floatingPauseButton = (FloatingActionButton) findViewById(R.id.floatingPauseButton);
         this.floatingStopButton = (FloatingActionButton) findViewById(R.id.floatingStopButton);
         this.floatingTempoButton = (FloatingActionButton) findViewById(R.id.floatingTempoButton);
+        this.tempoIncreaseIcon = findViewById(R.id.tempo_increase_image);
 
         this.mControlsView = findViewById(R.id.fullscreen_content_controls);
         this.microphonePermissionText = (TextView) findViewById(R.id.text_microphone_permission);
@@ -128,6 +132,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
                 noteProvider.clearNotes();
             }
         });
+        this.tempoIncreaseIcon.startAnimation(AnimationUtils.loadAnimation(this, R.anim.dissapear));
 
         // create the fabs for this view
         this.fabsHandler = new PlayFabsHandler(this, new State.InputChangeListener() {
@@ -474,6 +479,9 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         }
         // and update our controls to reflect this
         updateControlsFromState();
+
+        // animate this icon in and out again
+        this.tempoIncreaseIcon.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade));
     }
 
     @Override
