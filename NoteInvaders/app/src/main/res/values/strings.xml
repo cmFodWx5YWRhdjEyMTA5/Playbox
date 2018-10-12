@@ -38,6 +38,7 @@
     <string name="easy">easy</string>
     <string name="medium">medium</string>
     <string name="hard">hard</string>
+    <string name="game_over">Game Over</string>
     <string name="dialog_reset_title">Reset score</string>
     <string name="dialog_reset_contents">Changing difficulty will reset the score, do you want to accept the changes?</string>
     <string name="dialog_reset_start_new">Start new</string>

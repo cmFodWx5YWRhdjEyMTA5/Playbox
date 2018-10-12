@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -50,6 +51,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     private FloatingActionButton floatingTempoButton;
 
     private View tempoIncreaseIcon;
+    private View gameOverDisplay;
 
     private View mControlsView;
     private TextView microphonePermissionText;
@@ -87,6 +89,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.floatingStopButton = (FloatingActionButton) findViewById(R.id.floatingStopButton);
         this.floatingTempoButton = (FloatingActionButton) findViewById(R.id.floatingTempoButton);
         this.tempoIncreaseIcon = findViewById(R.id.tempo_increase_image);
+        this.gameOverDisplay = findViewById(R.id.game_over_text);
 
         this.mControlsView = findViewById(R.id.fullscreen_content_controls);
         this.microphonePermissionText = (TextView) findViewById(R.id.text_microphone_permission);
@@ -116,6 +119,14 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.floatingPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // start playing
+                if (State.getInstance().getCurrentActiveScore().isGameOver()) {
+                    // reset the old game
+                    resetGame();
+                    // update all our controls
+                    updateControlsFromState();
+                }
+                // set the score settings and resume
                 toggle();
             }
         });
@@ -128,11 +139,14 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.floatingTempoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                increaseTempo();
-                noteProvider.clearNotes();
+                if (increaseTempo()) {
+                    // tempo changed, clear the notes
+                    noteProvider.clearNotes();
+                }
             }
         });
         this.tempoIncreaseIcon.startAnimation(AnimationUtils.loadAnimation(this, R.anim.dissapear));
+        this.gameOverDisplay.startAnimation(AnimationUtils.loadAnimation(this, R.anim.dissapear));
 
         // create the fabs for this view
         this.fabsHandler = new PlayFabsHandler(this, new State.InputChangeListener() {
@@ -274,8 +288,8 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     @Override
     protected void toggle() {
         super.toggle();
-        if (false == noteProvider.isPaused()) {
-            // we are running, pause the provider
+        if (false == noteProvider.isPaused() || State.getInstance().getCurrentActiveScore().isGameOver()) {
+            // we are running or the game is over, pause the provider
             noteProvider.setPaused(true);
             updateControlsFromState();
         }
@@ -294,9 +308,8 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setPositiveButton(R.string.dialog_reset_start_new, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                // reset everything as this is a new game
-                                State.getInstance().getCurrentActiveScore().reset();
-                                noteProvider.clearNotes();
+                                // reset the game
+                                resetGame();
                                 // set the score settings and resume
                                 updateScoreFromControls();
                                 // all the data is now accepted the new stuff, continue this new game
@@ -317,6 +330,13 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         }
     }
 
+    private void resetGame() {
+        // reset everything as this is a new game
+        State.getInstance().getCurrentActiveScore().reset();
+        // clear the notes on the view
+        this.noteProvider.clearNotes();
+    }
+
     private void updateScoreFromControls() {
         ActiveScore score = State.getInstance().getCurrentActiveScore();
         boolean isHelp = this.showNoteNamesSwitch.isChecked();
@@ -331,7 +351,12 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
 
     private void resumePlaying() {
         // resume playing the game, restart the provider and update the controls
-        noteProvider.setPaused(false);
+        if (false == State.getInstance().getCurrentActiveScore().isGameOver()) {
+            // game isn't over - start it up again
+            gameOverDisplay.startAnimation(AnimationUtils.loadAnimation(PlayActivity.this, R.anim.dissapear));
+            // and start running again
+            noteProvider.setPaused(false);
+        }
         updateControlsFromState();
         // this resets the time the danger zone was clean
         this.musicView.resetNoteFreeDangerZoneTime();
@@ -473,20 +498,48 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         });
     }
 
-    private void increaseTempo() {
+    private void gameOver() {
+        // show the game - over display
+        Animation animation = AnimationUtils.loadAnimation(PlayActivity.this, R.anim.fade_in);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                // fine, make sure we pause though
+                toggle();
+            }
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                //more interesting, ended so show the score card now
+                showScoreCard();
+            }
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        gameOverDisplay.startAnimation(animation);
+
+    }
+
+    private boolean increaseTempo() {
         int currentSelection = this.tempoSpinner.getSelectedItemPosition();
+        boolean isIncreased = false;
         if (++currentSelection <= ActiveScore.K_AVAILABLE_TEMPOS.length - 1) {
             // set this on the active score to immediately accept this new pace of notes
             State.getInstance().getCurrentActiveScore().setBpm(ActiveScore.K_AVAILABLE_TEMPOS[currentSelection]);
+
+            // animate this icon in and out again
+            this.tempoIncreaseIcon.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade));
+
+            // and update our controls to reflect this
+            updateControlsFromState();
+
+            // this changes the speed, reset the time the danger zone is clean of notes
+            this.musicView.resetNoteFreeDangerZoneTime();
+
+            isIncreased = true;
         }
-        // and update our controls to reflect this
-        updateControlsFromState();
-
-        // animate this icon in and out again
-        this.tempoIncreaseIcon.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade));
-
-        // this changes the speed, reset the time the danger zone is clean of notes
-        this.musicView.resetNoteFreeDangerZoneTime();
+        return isIncreased;
     }
 
     @Override
@@ -613,7 +666,11 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
                 // invalidate the changed view
                 PlayActivity.this.musicView.invalidate();
                 if (false == PlayActivity.this.noteProvider.isPaused()) {
-                    if (PlayActivity.this.musicView.getNoteFreeDangerZoneTime() >= ActiveScore.K_SECBEFORESPEEDINCREASE) {
+                    if (State.getInstance().getCurrentActiveScore().isGameOver()) {
+                        // this game is over!
+                        gameOver();
+                    }
+                    else if (PlayActivity.this.musicView.getNoteFreeDangerZoneTime() >= ActiveScore.K_SECBEFORESPEEDINCREASE) {
                         // this is good, increase our tempo as they are doing so well
                         increaseTempo();
                     }
