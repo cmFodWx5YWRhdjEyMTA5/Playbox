@@ -18,6 +18,7 @@ public class ActiveScore {
     };
 
     public static final int K_MAX_TEMPO_WITH_HELP = 60;
+    public static final int K_NONOTESINDANGERZONEISDEATH = 3;   // the number of notes in the danger zone that means that we are close to death
 
     private int hits;
     private int misses;
@@ -26,6 +27,10 @@ public class ActiveScore {
     private int topBpm;
 
     private boolean isHelpOn;
+
+    private boolean isStartingTempo;
+
+    private boolean isLevelCompleted;
 
     // a map of the notes they missed for review
     private final Map<Note, Integer> notesMissed;
@@ -42,11 +47,22 @@ public class ActiveScore {
         this.misses = 0;
         this.falseShots = 0;
         this.topBpm = 0;
+        this.isStartingTempo = true;
+        this.isLevelCompleted = false;
     }
 
     public boolean isGameOver() {
         // return if we died (used all our permitted hits)
-        return this.falseShots + this.misses >= K_PERMITTED_ERRORS;
+        return this.isLevelCompleted || this.falseShots + this.misses >= K_PERMITTED_ERRORS;
+    }
+
+    public void gameWon() {
+        // we won!
+        this.isLevelCompleted = true;
+    }
+
+    public boolean isLevelCompleted() {
+        return isLevelCompleted;
     }
 
     public boolean isHelpOn() {
@@ -58,10 +74,26 @@ public class ActiveScore {
     }
 
     public int setBpm(int newBpm) {
-        this.topBpm = Math.max(this.topBpm, newBpm);
+        if (isStartingTempo) {
+            // this is the starting tempo, just accept this
+            if (this.topBpm > 0 && newBpm > this.topBpm) {
+                // this is an increase, this is no longer the start
+                this.isStartingTempo = false;
+            }
+            // and set the new BPM
+            this.topBpm = newBpm;
+        }
+        else if (newBpm > this.topBpm) {
+            // this is an increase, accept this
+            this.topBpm = newBpm;
+        }
         if (this.topBpm > K_MAX_TEMPO_WITH_HELP) {
             // turn off help for this
             setIsHelpOn(false);
+        }
+        else if (this.topBpm == K_AVAILABLE_TEMPOS[0]) {
+            // you are at the start, you need help
+            setIsHelpOn(true);
         }
         return this.topBpm;
     }

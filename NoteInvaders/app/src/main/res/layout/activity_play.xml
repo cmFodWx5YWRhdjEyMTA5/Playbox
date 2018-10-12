@@ -275,6 +275,16 @@
                 app:layout_constraintTop_toTopOf="@+id/music_view"
                 app:srcCompat="@android:drawable/ic_media_ff" />
 
+            <ImageView
+                android:id="@+id/tempo_decrease_image"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                app:layout_constraintBottom_toBottomOf="@+id/music_view"
+                app:layout_constraintEnd_toEndOf="@+id/music_view"
+                app:layout_constraintStart_toStartOf="@+id/music_view"
+                app:layout_constraintTop_toTopOf="@+id/music_view"
+                app:srcCompat="@android:drawable/ic_media_rew" />
+
             <TextView
                 android:id="@+id/game_over_text"
                 android:text="@string/game_over"
