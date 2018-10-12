@@ -1,9 +1,11 @@
 package uk.co.darkerwaters.noteinvaders.state;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ActiveScore {
 
@@ -11,7 +13,7 @@ public class ActiveScore {
     public static final int K_PERMITTED_FALSE_SHOT_COUNT = 10;
     public static final int K_PERMITTED_ERRORS = K_PERMITTED_MISS_COUNT + K_PERMITTED_FALSE_SHOT_COUNT;
 
-    public static final float K_SECBEFORESPEEDINCREASE = 60f;
+    public static final float K_SECBEFORESPEEDINCREASE = 20f;
 
     public static final int[] K_AVAILABLE_TEMPOS = new int[] {
             20,40,50,60,80,100,120,150,180
@@ -26,6 +28,8 @@ public class ActiveScore {
 
     private int topBpm;
 
+    private int topBpmCompleted;
+
     private boolean isHelpOn;
 
     private boolean isStartingTempo;
@@ -34,12 +38,15 @@ public class ActiveScore {
 
     // a map of the notes they missed for review
     private final Map<Note, Integer> notesMissed;
+    private final Map<Note, Integer> notesFalselyShot;
 
     public ActiveScore() {
-        reset();
         this.isHelpOn = false;
         // keep a map of our misses
         this.notesMissed = new HashMap<Note, Integer>();
+        this.notesFalselyShot = new HashMap<Note, Integer>();
+        // reset the score to start nice
+        reset();
     }
 
     public void reset() {
@@ -47,8 +54,15 @@ public class ActiveScore {
         this.misses = 0;
         this.falseShots = 0;
         this.topBpm = 0;
+        this.topBpmCompleted = 0;
         this.isStartingTempo = true;
         this.isLevelCompleted = false;
+        synchronized (this.notesMissed) {
+            this.notesMissed.clear();
+        }
+        synchronized (this.notesFalselyShot) {
+            this.notesFalselyShot.clear();
+        }
     }
 
     public boolean isGameOver() {
@@ -102,6 +116,19 @@ public class ActiveScore {
         return this.topBpm;
     }
 
+    public int getTopBpmCompleted() {
+        return this.topBpmCompleted;
+    }
+
+    public int getScorePercent() {
+        float factor = this.topBpmCompleted / (float)K_AVAILABLE_TEMPOS[K_AVAILABLE_TEMPOS.length - 1];
+        return (int) (factor * 100f);
+    }
+
+    public void recordBpmCompleted() {
+        this.topBpmCompleted = Math.max(this.topBpm, this.topBpmCompleted);
+    }
+
     public int getMisses() {
         return this.misses;
     }
@@ -115,6 +142,13 @@ public class ActiveScore {
     }
 
     public int incHits(Note note) {
+        synchronized (this.notesMissed) {
+            Integer value = this.notesMissed.get(note);
+            if (value == null) {
+                // put a zero in here so it is the complete list
+                this.notesMissed.put(note, 0);
+            }
+        }
         // increment the counter and return it
         return ++this.hits;
     }
@@ -138,6 +172,26 @@ public class ActiveScore {
     }
 
     public int incFalseShots(Note note) {
+        synchronized (this.notesFalselyShot) {
+            Integer value = this.notesFalselyShot.get(note);
+            if (value == null) {
+                // this is the first
+                value = new Integer(1);
+            }
+            else {
+                // increment the counter
+                ++value;
+            }
+            // put back the value
+            this.notesFalselyShot.put(note, value);
+        }
+        synchronized (this.notesMissed) {
+            Integer value = this.notesMissed.get(note);
+            if (value == null) {
+                // put a zero in here so it is the complete list
+                this.notesMissed.put(note, 0);
+            }
+        }
         // increment the counter and return it
         return ++this.falseShots;
     }
@@ -146,5 +200,35 @@ public class ActiveScore {
         return this.misses > 0 ||
                 this.falseShots > 0 ||
                 this.hits > 0;
+    }
+
+    public Note[] getNotesMissed() {
+        synchronized (this.notesMissed) {
+            // sort the set to note order (uses frequency)
+            List<Note> sortedNotes = new ArrayList<Note>(this.notesMissed.keySet());
+            Collections.sort(sortedNotes);
+            return sortedNotes.toArray(new Note[sortedNotes.size()]);
+        }
+    }
+
+    public Integer getNoteMissedFrequency(Note note) {
+        synchronized (this.notesMissed) {
+            Integer value = this.notesMissed.get(note);
+            return value == null ? 0 : value.intValue();
+        }
+    }
+
+    public Note[] getNotesFalselyShot() {
+        synchronized (this.notesFalselyShot) {
+            Set<Note> notes = this.notesFalselyShot.keySet();
+            return notes.toArray(new Note[notes.size()]);
+        }
+    }
+
+    public Integer getNoteFalselyShotFrequency(Note note) {
+        synchronized (this.notesFalselyShot) {
+            Integer value = this.notesFalselyShot.get(note);
+            return value == null ? 0 : value.intValue();
+        }
     }
 }

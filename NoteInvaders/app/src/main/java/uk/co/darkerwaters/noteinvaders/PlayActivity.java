@@ -141,7 +141,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.floatingTempoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (increaseTempo()) {
+                if (increaseTempo(false)) {
                     // tempo changed, clear the notes
                     noteProvider.clearNotes();
                 }
@@ -359,6 +359,8 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
             gameOverDisplay.startAnimation(AnimationUtils.loadAnimation(PlayActivity.this, R.anim.dissapear));
             // and start running again
             noteProvider.setPaused(false);
+            // hide the back and home buttons
+            hide();
         }
         updateControlsFromState();
         // this resets the time the danger zone was clean
@@ -524,7 +526,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
 
     }
 
-    private boolean increaseTempo() {
+    private boolean increaseTempo(boolean isAllowWin) {
         int currentSelection = this.tempoSpinner.getSelectedItemPosition();
         boolean isIncreased = false;
         if (++currentSelection <= ActiveScore.K_AVAILABLE_TEMPOS.length - 1) {
@@ -541,7 +543,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
                 isIncreased = true;
             }
         }
-        else {
+        else if (isAllowWin) {
             // we just completed the last of the tempo notes, this is won!
             State.getInstance().getCurrentActiveScore().gameWon();
         }
@@ -700,7 +702,9 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
                     }
                     else if (PlayActivity.this.musicView.getNoteFreeDangerZoneTime() >= ActiveScore.K_SECBEFORESPEEDINCREASE) {
                         // this is good, increase our tempo as they are doing so well
-                        increaseTempo();
+                        State.getInstance().getCurrentActiveScore().recordBpmCompleted();
+                        // and up the tempo
+                        increaseTempo(true);
                     }
                     else if (PlayActivity.this.musicView.getNotesInDangerZone() >= ActiveScore.K_NONOTESINDANGERZONEISDEATH) {
                         // are close to death on the starting tempo, try to slow it down, score might just refuse this of course

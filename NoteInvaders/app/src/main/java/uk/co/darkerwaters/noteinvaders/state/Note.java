@@ -1,6 +1,6 @@
 package uk.co.darkerwaters.noteinvaders.state;
 
-public class Note {
+public class Note implements Comparable<Note> {
 
     final String[] names;
     final float frequency;
@@ -129,5 +129,10 @@ public class Note {
 
     public int getNoteScaleIndex() {
         return Integer.parseInt("" + this.names[0].charAt(this.names[0].length() - 1));
+    }
+
+    @Override
+    public int compareTo(Note note) {
+        return (int)((this.getFrequency() * 100000.0) - (note.getFrequency() * 100000.0));
     }
 }

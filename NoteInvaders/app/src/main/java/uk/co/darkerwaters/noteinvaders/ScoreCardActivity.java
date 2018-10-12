@@ -26,6 +26,7 @@ public class ScoreCardActivity extends AppCompatActivity  {
 
     private ScoreActiveView scoreView;
 
+    private TextView scoreText;
     private TextView missedNumberText;
     private TextView falseFiresNumberText;
     private TextView missedLabelText;
@@ -45,6 +46,7 @@ public class ScoreCardActivity extends AppCompatActivity  {
         this.scoreView.setScore(score);
 
         // get the controls
+        this.scoreText = (TextView) findViewById(R.id.score_text);
         this.missedNumberText = (TextView) findViewById(R.id.missed_notes_number);
         this.missedLabelText = (TextView) findViewById(R.id.missed_notes_label);
         this.falseFiresNumberText = (TextView) findViewById(R.id.false_fires_number);
@@ -52,6 +54,8 @@ public class ScoreCardActivity extends AppCompatActivity  {
 
         this.topBpmNumber = (TextView) findViewById(R.id.top_bpm_number);
         this.helpOn = (TextView) findViewById(R.id.help_on_off);
+
+        this.scoreText.setText(Integer.toString(score.getScorePercent()) + "%");
 
         // set all the data
         this.missedNumberText.setTextColor(getResources().getColor(R.color.colorMiss));
