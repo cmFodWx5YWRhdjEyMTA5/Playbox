@@ -7,7 +7,9 @@ import com.bumptech.glide.Glide;
 import uk.co.darkerwaters.noteinvaders.SelectableItem;
 import uk.co.darkerwaters.noteinvaders.SelectableItemActivity;
 import uk.co.darkerwaters.noteinvaders.SelectableItemAdapter;
+import uk.co.darkerwaters.noteinvaders.state.ActiveScore;
 import uk.co.darkerwaters.noteinvaders.state.NoteRange;
+import uk.co.darkerwaters.noteinvaders.state.State;
 
 public class InputSource extends SelectableItem {
 
@@ -17,6 +19,11 @@ public class InputSource extends SelectableItem {
 
     public String getSubtitle() {
         return "Some input";
+    }
+
+    @Override
+    public int getProgress() {
+        return -1;
     }
 
     @Override

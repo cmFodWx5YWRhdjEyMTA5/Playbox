@@ -27,6 +27,12 @@ public class Instrument extends SelectableItem {
     }
 
     @Override
+    public int getProgress() {
+        //TODO get the average progress for all the games that can be played by this instrument
+        return -1;
+    }
+
+    @Override
     public void onBindViewHolder(SelectableItemActivity context, SelectableItemAdapter.MyViewHolder holder) {
         super.onBindViewHolder(context, holder);
 

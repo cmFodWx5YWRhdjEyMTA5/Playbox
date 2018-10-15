@@ -30,6 +30,7 @@ import uk.co.darkerwaters.noteinvaders.R;
 import uk.co.darkerwaters.noteinvaders.SelectableItem;
 import uk.co.darkerwaters.noteinvaders.SelectableItemActivity;
 import uk.co.darkerwaters.noteinvaders.SelectableItemAdapter;
+import uk.co.darkerwaters.noteinvaders.state.ActiveScore;
 import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.Notes;
@@ -51,7 +52,19 @@ public class GameCard extends SelectableItem {
 
     @Override
     public String getSubtitle() {
-        return "Top BPM: " + State.getInstance().getGameTopTempo(this.game);
+        if (this.game.isPlayable()) {
+            return "Top BPM: " + State.getInstance().getGameTopTempo(this.game);
+        }
+        else {
+            // return the number of children
+            return Integer.toString(this.game.children.length) + " options...";
+        }
+    }
+
+    @Override
+    public int getProgress() {
+        int topTempo = State.getInstance().getGameTopTempo(this.game);
+        return ActiveScore.GetTempoAsPercent(topTempo);
     }
 
     @Override

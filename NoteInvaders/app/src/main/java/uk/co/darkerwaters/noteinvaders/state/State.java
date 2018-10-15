@@ -91,8 +91,20 @@ public class State {
     public int getGameTopTempo(Game game) {
         Integer topTempo = this.gameTempoMap.get(game.id);
         if (topTempo == null) {
-            // return zero
-            return 0;
+            if (game.children.length > 0) {
+                // there is no tempo for this, can we average the children?
+                int avgTempo = 0;
+                for (Game child : game.children) {
+                    avgTempo += getGameTopTempo(child);
+                }
+                avgTempo /= game.children.length;
+                // and return this
+                return avgTempo;
+            }
+            else {
+                // no children, no tempo
+                return 0;
+            }
         }
         else {
             // return this retrieved value

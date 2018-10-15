@@ -24,6 +24,8 @@ public abstract class SelectableItem {
 
     public abstract String getSubtitle();
 
+    public abstract int getProgress();
+
     public void setName(String name) {
         this.name = name;
     }

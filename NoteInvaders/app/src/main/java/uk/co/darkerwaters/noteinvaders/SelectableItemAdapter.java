@@ -1,6 +1,7 @@
 package uk.co.darkerwaters.noteinvaders;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,10 +10,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -22,13 +26,16 @@ public class SelectableItemAdapter extends RecyclerView.Adapter<SelectableItemAd
     private List<? extends SelectableItem> itemList;
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        public TextView title, count;
+        public TextView title, count, progressText;
+        public ProgressBar progressBar;
         public ImageView thumbnail;
 
         public MyViewHolder(View view) {
             super(view);
             title = (TextView) view.findViewById(R.id.title);
             count = (TextView) view.findViewById(R.id.count);
+            progressBar = (ProgressBar) view.findViewById(R.id.score_progress);
+            progressText = (TextView) view.findViewById(R.id.progress_text);
             thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
         }
     }
@@ -52,6 +59,15 @@ public class SelectableItemAdapter extends RecyclerView.Adapter<SelectableItemAd
         final SelectableItem item = this.itemList.get(position);
         holder.title.setText(item.getName());
         holder.count.setText(item.getSubtitle());
+        int progress = item.getProgress();
+        if (progress < 0) {
+            holder.progressBar.setVisibility(View.GONE);
+            holder.progressText.setVisibility(View.GONE);
+        }
+        else {
+            holder.progressBar.setProgress(progress);
+            holder.progressText.setText(Integer.toString(progress) + "%");
+        }
 
         holder.thumbnail.setOnClickListener(new View.OnClickListener() {
             @Override

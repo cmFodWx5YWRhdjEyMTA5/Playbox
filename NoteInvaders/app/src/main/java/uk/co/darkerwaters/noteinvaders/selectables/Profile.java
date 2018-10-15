@@ -36,6 +36,12 @@ public class Profile extends SelectableItem {
     }
 
     @Override
+    public int getProgress() {
+        //TODO get the average progress for all the games played
+        return -1;
+    }
+
+    @Override
     public void onBindViewHolder(final SelectableItemActivity context, SelectableItemAdapter.MyViewHolder holder) {
         super.onBindViewHolder(context, holder);
 
