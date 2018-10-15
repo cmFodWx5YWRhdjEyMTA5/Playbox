@@ -91,11 +91,9 @@ public class NotesGraphView extends View {
             // find the max number
             int maxFrequency = 2;
             for (Note note : notesMissed) {
-                // find the max of the misses
-                int frequency = activeScore.getNoteMissedFrequency(note);
-                maxFrequency = Math.max(frequency, maxFrequency);
-                // and the false shots
-                frequency = activeScore.getNoteFalselyShotFrequency(note);
+                // find the max of the misses and false shots combined
+                int frequency = activeScore.getNoteMissedFrequency(note) +
+                        activeScore.getNoteFalselyShotFrequency(note);
                 maxFrequency = Math.max(frequency, maxFrequency);
             }
             float noteWidth = graphRect.width() / notesMissed.length;
@@ -104,23 +102,21 @@ public class NotesGraphView extends View {
             graphPaint.setTextSize(noteWidth * 0.3f);
             for (int i = 0; i < notesMissed.length; ++i) {
                 // for each note, draw in the bar
-                float barHeight = frequencyHeight * activeScore.getNoteMissedFrequency(notesMissed[i]);
+                float missedbarHeight = frequencyHeight * activeScore.getNoteMissedFrequency(notesMissed[i]);
                 this.notePaint.setColor(getResources().getColor(R.color.colorMiss));
                 canvas.drawRect(xStart + 5f,
-                        graphRect.bottom - barHeight,
+                        graphRect.bottom - missedbarHeight,
                         xStart + noteWidth,
                         graphRect.bottom,
                         notePaint);
-                // put in any false shots for this note too
-                barHeight = frequencyHeight * activeScore.getNoteFalselyShotFrequency(notesMissed[i]);
-                if (barHeight > 0f) {
-                    this.notePaint.setColor(getResources().getColor(R.color.colorFalseFire));
-                    canvas.drawRect(xStart + 5f,
-                            graphRect.bottom - barHeight,
-                            xStart + noteWidth,
-                            graphRect.bottom,
-                            notePaint);
-                }
+                // and the false shots on top of this
+                float falseHeight = frequencyHeight * activeScore.getNoteFalselyShotFrequency(notesMissed[i]);
+                this.notePaint.setColor(getResources().getColor(R.color.colorFalseFire));
+                canvas.drawRect(xStart + 5f,
+                        graphRect.bottom - (missedbarHeight + falseHeight),
+                        xStart + noteWidth,
+                        graphRect.bottom - missedbarHeight,
+                        notePaint);
                 // put the name in
                 canvas.drawText(notesMissed[i].getName(0),
                         xStart + (noteWidth * 0.1f),

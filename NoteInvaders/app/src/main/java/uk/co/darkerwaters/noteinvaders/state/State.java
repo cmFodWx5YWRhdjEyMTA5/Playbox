@@ -28,6 +28,8 @@ public class State {
 
     private Map<String, Integer> gameTempoMap = null;
 
+    private boolean isSoundOn = true;
+
     public interface InputChangeListener {
         void onInputTypeChanged(InputType type);
     }
@@ -74,6 +76,7 @@ public class State {
         for (Game game : this.games) {
             loadGameScore(game, preferences);
         }
+        this.isSoundOn = preferences.getBoolean("is_sound_on", this.isSoundOn);
     }
 
     private void loadGameScore(Game game, SharedPreferences preferences) {
@@ -142,6 +145,20 @@ public class State {
         synchronized (this.inputChangeListeners) {
             return this.inputChangeListeners.remove(listener);
         }
+    }
+
+    public boolean isSoundOn() {
+        return this.isSoundOn;
+    }
+
+    public void setIsSoundOn(Activity context, boolean soundOn) {
+        this.isSoundOn = soundOn;
+        // store this
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean("is_sound_on", this.isSoundOn);
+        // and commit to storage this value
+        editor.commit();
     }
 
     public Instrument getInstrument() {

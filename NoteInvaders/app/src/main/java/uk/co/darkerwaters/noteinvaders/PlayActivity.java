@@ -2,7 +2,9 @@ package uk.co.darkerwaters.noteinvaders;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
@@ -20,6 +22,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import uk.co.darkerwaters.noteinvaders.games.GamePlayer;
 import uk.co.darkerwaters.noteinvaders.sounds.NoteSounds;
@@ -57,6 +60,8 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     private View mControlsView;
     private TextView microphonePermissionText;
     private Button microphonePermissionButton;
+
+    private Button soundButton;
 
     private Button[] levelButtons = new Button[3];
     private View settingsLayout;
@@ -97,6 +102,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.microphonePermissionText = (TextView) findViewById(R.id.text_microphone_permission);
         this.microphonePermissionButton = (Button) findViewById(R.id.button_mic_permission);
         this.showNoteNamesSwitch = (Switch) findViewById(R.id.help_switch);
+        this.soundButton = (Button) findViewById(R.id.button_sound);
         // level buttons
         this.levelButtons[0] = (Button) findViewById(R.id.button_easy);
         this.levelButtons[1] = (Button) findViewById(R.id.button_medium);
@@ -166,6 +172,14 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
                         Uri.parse("package:" + BuildConfig.APPLICATION_ID)));
             }
         });
+        this.soundButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // toggle the sound
+                State.getInstance().setIsSoundOn(PlayActivity.this, !State.getInstance().isSoundOn());
+                setSoundIcon();
+            }
+        });
 
         //setup our music view
         setupMusicView();
@@ -214,9 +228,22 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
                 break;
             }
         }
-
+        // set the sound icon from the state
+        setSoundIcon();
         // show / hide the controls properly
         showHideControls();
+    }
+
+    private void setSoundIcon() {
+        Drawable icon;
+        int iconId;
+        if (State.getInstance().isSoundOn()) {
+            iconId = R.drawable.ic_baseline_volume_off_24px;
+        }
+        else {
+            iconId = R.drawable.ic_baseline_volume_up_24px;
+        }
+        this.soundButton.setBackgroundResource(iconId);
     }
 
     private void setupLevelButtons() {
@@ -523,7 +550,9 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
             }
         });
         gameOverDisplay.startAnimation(animation);
-
+        if (State.getInstance().isSoundOn()) {
+            SoundPlayer.getINSTANCE().gameOver();
+        }
     }
 
     private boolean increaseTempo(boolean isAllowWin) {
@@ -723,7 +752,9 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         // this is a miss
         State.getInstance().getCurrentActiveScore().incMisses(note);
         showScore();
-        SoundPlayer.getINSTANCE().missed();
+        if (State.getInstance().isSoundOn()) {
+            SoundPlayer.getINSTANCE().missed();
+        }
     }
 
     @Override
@@ -731,12 +762,14 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         // this is a hit
         State.getInstance().getCurrentActiveScore().incHits(note);
         showScore();
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                SoundPlayer.getINSTANCE().playSound(note);
-            }
-        });
+        if (State.getInstance().isSoundOn()) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    SoundPlayer.getINSTANCE().playSound(note);
+                }
+            });
+        }
     }
 
     @Override
@@ -744,7 +777,9 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         // this is a false shot
         State.getInstance().getCurrentActiveScore().incFalseShots(note);
         showScore();
-        SoundPlayer.getINSTANCE().falseFire();
+        if (State.getInstance().isSoundOn()) {
+            SoundPlayer.getINSTANCE().falseFire();
+        }
     }
 
     private void showScoreCard() {

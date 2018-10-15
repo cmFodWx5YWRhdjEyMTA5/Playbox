@@ -252,17 +252,25 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/level_buttons_layout">
 
-            <Switch
-                android:id="@+id/help_switch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/show_note_names" />
+                <Switch
+                    android:id="@+id/help_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/show_note_names" />
 
                 <Spinner
                     android:id="@+id/tempo_spinner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:minWidth="80dp" />
+
+                <Button
+                    android:id="@+id/button_sound"
+                    style="@style/Widget.MaterialComponents.Button.Icon"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/ic_baseline_volume_up_24px" />
             </LinearLayout>
 
             <ImageView
