@@ -702,7 +702,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
                     }
                     else if (PlayActivity.this.musicView.getNoteFreeDangerZoneTime() >= ActiveScore.K_SECBEFORESPEEDINCREASE) {
                         // this is good, increase our tempo as they are doing so well
-                        State.getInstance().getCurrentActiveScore().recordBpmCompleted();
+                        State.getInstance().getCurrentActiveScore().recordBpmCompleted(PlayActivity.this);
                         // and up the tempo
                         increaseTempo(true);
                     }

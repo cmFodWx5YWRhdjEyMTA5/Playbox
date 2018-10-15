@@ -1,5 +1,9 @@
 package uk.co.darkerwaters.noteinvaders.state;
 
+
+
+import android.app.Activity;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,14 +17,14 @@ public class ActiveScore {
     public static final int K_PERMITTED_FALSE_SHOT_COUNT = 10;
     public static final int K_PERMITTED_ERRORS = K_PERMITTED_MISS_COUNT + K_PERMITTED_FALSE_SHOT_COUNT;
 
-    public static final float K_SECBEFORESPEEDINCREASE = 20f;
+    public static final float K_SECBEFORESPEEDINCREASE = 45f;
 
     public static final int[] K_AVAILABLE_TEMPOS = new int[] {
-            20,40,50,60,80,100,120,150,180
+            20,40,50,60,80,100,120,150,180,200
     };
 
-    public static final int K_MAX_TEMPO_WITH_HELP = 60;
-    public static final int K_NONOTESINDANGERZONEISDEATH = 3;   // the number of notes in the danger zone that means that we are close to death
+    public static final int K_MAX_TEMPO_WITH_HELP = 100;
+    public static final int K_NONOTESINDANGERZONEISDEATH = 4;   // the number of notes in the danger zone that means that we are close to death
 
     private int hits;
     private int misses;
@@ -120,13 +124,18 @@ public class ActiveScore {
         return this.topBpmCompleted;
     }
 
-    public int getScorePercent() {
-        float factor = this.topBpmCompleted / (float)K_AVAILABLE_TEMPOS[K_AVAILABLE_TEMPOS.length - 1];
+    public static int GetTempoAsPercent(int tempo) {
+        float factor = tempo / (float)K_AVAILABLE_TEMPOS[K_AVAILABLE_TEMPOS.length - 1];
         return (int) (factor * 100f);
     }
 
-    public void recordBpmCompleted() {
+    public int getScorePercent() {
+        return ActiveScore.GetTempoAsPercent(this.topBpmCompleted);
+    }
+
+    public void recordBpmCompleted(Activity context) {
         this.topBpmCompleted = Math.max(this.topBpm, this.topBpmCompleted);
+        State.getInstance().storeScore(context, this);
     }
 
     public int getMisses() {

@@ -1,14 +1,17 @@
 {
   "name": "Random Attack",
+  "id" : "random_attack_parent",
   "image": "games/space_invaders.jpg",
   "class": "uk.co.darkerwaters.noteinvaders.games.RandomAttack",
   "children": [
     {
       "name": "Treble",
+      "id" : "random_attack_treble",
       "image": "games/treble.jpg",
       "children" : [
         {
           "name": "1st 5",
+          "id" : "random_attack_treble_first_5",
           "image": "temp.png",
           "treble_clef": [
             "C4",
@@ -21,6 +24,7 @@
         },
         {
           "name": "1st 7",
+          "id" : "random_attack_treble_first_7",
           "image": "temp.png",
           "treble_clef": [
             "C4",
@@ -37,10 +41,12 @@
     },
     {
       "name": "Bass",
+      "id" : "random_attack_bass",
       "image": "games/bass.jpg",
       "children": [
         {
           "name": "1st 5",
+          "id" : "random_attack_bass_first_5",
           "image": "temp.png",
           "bass_clef": [
             "F3",
@@ -53,6 +59,7 @@
         },
         {
           "name": "1st 7",
+          "id" : "random_attack_bass_first_7",
           "image": "temp.png",
           "bass_clef": [
             "D3",
@@ -69,10 +76,12 @@
     },
     {
       "name": "Hands Together",
+      "id" : "random_attack_2hand",
       "image": "games/two_hands.jpg",
       "children": [
         {
           "name": "5 each",
+          "id" : "random_attack_2hand_5_each",
           "image": "temp.png",
           "treble_clef": [
             "C4",
@@ -93,6 +102,7 @@
         },
         {
           "name": "7 each",
+          "id" : "random_attack_2hand_7_each",
           "image": "temp.png",
           "treble_clef": [
             "C4",

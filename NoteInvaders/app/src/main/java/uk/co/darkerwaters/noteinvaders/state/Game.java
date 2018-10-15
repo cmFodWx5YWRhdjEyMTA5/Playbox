@@ -18,6 +18,7 @@ import uk.co.darkerwaters.noteinvaders.games.GamePlayer;
 public class Game {
 
     public final Game parent;
+    public final String id;
     public final String name;
     public final String image;
     public final String gameClass;
@@ -42,6 +43,7 @@ public class Game {
         // setup the parent of this game (if there is one)
         this.parent = parent;
         // create the game object from the JSON object passed in
+        this.id = fileSource.getString("id");
         this.name = fileSource.getString("name");
         this.image = fileSource.getString("image");
         this.gameClass = getJsonStringOptional(fileSource, "class");

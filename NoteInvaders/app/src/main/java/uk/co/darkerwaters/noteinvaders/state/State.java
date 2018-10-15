@@ -1,9 +1,14 @@
 package uk.co.darkerwaters.noteinvaders.state;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import uk.co.darkerwaters.noteinvaders.R;
 import uk.co.darkerwaters.noteinvaders.selectables.Instrument;
@@ -20,6 +25,8 @@ public class State {
     private List<Game> gameSelected = new ArrayList<Game>();
 
     private ActiveScore currentActiveScore = null;
+
+    private Map<String, Integer> gameTempoMap = null;
 
     public interface InputChangeListener {
         void onInputTypeChanged(InputType type);
@@ -54,7 +61,63 @@ public class State {
         this.games = Game.loadGamesFromAssets(context);
         this.currentActiveScore = new ActiveScore();
 
+        // load in all the scores that were stored also
+        this.gameTempoMap = new HashMap<String, Integer>();
+        loadState(context);
+
         this.inputChangeListeners = new ArrayList<InputChangeListener>();
+    }
+
+    private void loadState(Activity context) {
+        // Store values between instances here
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        for (Game game : this.games) {
+            loadGameScore(game, preferences);
+        }
+    }
+
+    private void loadGameScore(Game game, SharedPreferences preferences) {
+        int gameTempo = preferences.getInt("top_tempo_" + game.id, -1);
+        if (gameTempo > 0) {
+            // put this top tempo from the last time into the map
+            this.gameTempoMap.put(game.id, gameTempo);
+        }
+        // just recerse, should be fine - not that many games todo
+        for (Game child : game.children) {
+            loadGameScore(child, preferences);
+        }
+    }
+
+    public int getGameTopTempo(Game game) {
+        Integer topTempo = this.gameTempoMap.get(game.id);
+        if (topTempo == null) {
+            // return zero
+            return 0;
+        }
+        else {
+            // return this retrieved value
+            return topTempo.intValue();
+        }
+    }
+
+    public void storeScore(Activity context, ActiveScore score) {
+        // store the top score for the current active level
+        Game currentGame = getGameSelectedLast();
+        if (null != currentGame && null != score) {
+            // if this tempo is better, store it now
+            int topTempo = getGameTopTempo(currentGame);
+            if (score.getTopBpm() > topTempo) {
+                // there isn't a score, or the current score is more, store this
+                topTempo = score.getTopBpm();
+                this.gameTempoMap.put(currentGame.id, topTempo);
+                // and put it in the preferences for later
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putInt("top_tempo_" + currentGame.id, topTempo);
+                // and commit to storage this value
+                editor.commit();
+            }
+        }
     }
 
     public boolean addListener(InputChangeListener listener) {

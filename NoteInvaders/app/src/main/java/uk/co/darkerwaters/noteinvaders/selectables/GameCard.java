@@ -51,7 +51,7 @@ public class GameCard extends SelectableItem {
 
     @Override
     public String getSubtitle() {
-        return "Play this game";
+        return "Top BPM: " + State.getInstance().getGameTopTempo(this.game);
     }
 
     @Override
