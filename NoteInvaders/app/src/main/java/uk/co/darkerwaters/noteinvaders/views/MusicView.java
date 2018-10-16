@@ -40,6 +40,7 @@ public class MusicView extends View {
 
     private float noteFreeDangerZoneTime = 0f;
     private int notesInDangerZone = 0;
+    private float dangerFade = 0f;
 
     public interface MusicViewListener {
         void onNotePopped(Note note);
@@ -570,7 +571,6 @@ public class MusicView extends View {
             }
 
             float dangerZoneX = contentWidth * 0.5f;
-            //canvas.drawLine(dangerZoneX, 0, dangerZoneX, contentHeight, redPaint);
             this.notesInDangerZone = 0;
 
             // draw all the notes in now
@@ -733,10 +733,35 @@ public class MusicView extends View {
             if (this.notesInDangerZone == 0) {
                 // there are no notes in the danger zone, increase the time
                 this.noteFreeDangerZoneTime += elapsedTime / 1000f;
+                this.dangerFade = 0f;
             }
             else {
                 // reset the time, there is one in there
                 resetNoteFreeDangerZoneTime();
+                dangerFade = Math.min(150f, dangerFade + (secondsElapsed * 50));
+                // and show it
+                float yTop = -1f;
+                float yBottom = -1f;
+                if (this.trebleLaser != null) {
+                    yTop = this.trebleLaser.yTop;
+                    yBottom = this.trebleLaser.yBottom;
+                }
+                if (this.bassLaser != null) {
+                    if (yTop < 0 || this.bassLaser.yTop < yTop) {
+                        // set the new top
+                        yTop = this.bassLaser.yTop;
+                    }
+                    if (yBottom < 0 || this.bassLaser.yBottom > yTop) {
+                        // set this new bottom
+                        yBottom = this.bassLaser.yBottom;
+                    }
+                }
+                if (yTop >= 0 && yBottom >= 0) {
+                    int alpha = redPaint.getAlpha();
+                    redPaint.setAlpha((int)dangerFade);
+                    canvas.drawRect(dangerZoneX - lineHeight, yTop, dangerZoneX, yBottom, redPaint);
+                    redPaint.setAlpha(alpha);
+                }
             }
         }
         // draw in the lasers on top of this
