@@ -51,9 +51,10 @@ public class GameCard extends SelectableItem {
     }
 
     @Override
-    public String getSubtitle() {
+    public String getSubtitle(Activity context) {
         if (this.game.isPlayable()) {
-            return "Top BPM: " + State.getInstance().getGameTopTempo(this.game);
+            return "Last Played " + State.getInstance().getTimeGameLastPlayedStr(context, this.game);
+            //return "Top BPM: " + State.getInstance().getGameTopTempo(this.game);
         }
         else {
             // return the number of children
@@ -62,7 +63,7 @@ public class GameCard extends SelectableItem {
     }
 
     @Override
-    public int getProgress() {
+    public int getProgress(Activity context) {
         int topTempo = State.getInstance().getGameTopTempo(this.game);
         return ActiveScore.GetTempoAsPercent(topTempo);
     }

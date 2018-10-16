@@ -24,6 +24,7 @@ public class ActiveScore {
     };
 
     public static final int K_MAX_TEMPO_WITH_HELP = 100;
+    public static final int K_TEMPO_TO_TURN_HELP_ON = 60;
     public static final int K_NONOTESINDANGERZONEISDEATH = 4;   // the number of notes in the danger zone that means that we are close to death
 
     private int hits;
@@ -98,19 +99,23 @@ public class ActiveScore {
                 // this is an increase, this is no longer the start
                 this.isStartingTempo = false;
             }
+            else if (newBpm < this.topBpm && newBpm <= K_TEMPO_TO_TURN_HELP_ON) {
+                // this is very low, help them out some
+                setIsHelpOn(true);
+            }
             // and set the new BPM
             this.topBpm = newBpm;
         }
         else if (newBpm > this.topBpm) {
             // this is an increase, accept this
             this.topBpm = newBpm;
+            if (this.topBpm > K_MAX_TEMPO_WITH_HELP) {
+                // turn off help for this
+                setIsHelpOn(false);
+            }
         }
-        if (this.topBpm > K_MAX_TEMPO_WITH_HELP) {
-            // turn off help for this
-            setIsHelpOn(false);
-        }
-        else if (this.topBpm == K_AVAILABLE_TEMPOS[0]) {
-            // you are at the start, you need help
+        else if (newBpm <= K_TEMPO_TO_TURN_HELP_ON) {
+            // this is very low, help them out some
             setIsHelpOn(true);
         }
         return this.topBpm;

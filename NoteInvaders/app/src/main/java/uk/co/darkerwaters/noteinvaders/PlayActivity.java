@@ -215,7 +215,14 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
 
         // set the help switch in the proper state
         showNoteNamesSwitch.setChecked(score.isHelpOn());
-        int beats = score.getTopBpm();
+        setBeats(score.getTopBpm());
+        // set the sound icon from the state
+        setSoundIcon();
+        // show / hide the controls properly
+        showHideControls();
+    }
+
+    private void setBeats(int beats) {
         if (beats == 0) {
             // set the default nicer than this
             beats = 60;
@@ -228,10 +235,6 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
                 break;
             }
         }
-        // set the sound icon from the state
-        setSoundIcon();
-        // show / hide the controls properly
-        showHideControls();
     }
 
     private void setSoundIcon() {
@@ -389,6 +392,9 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
             // hide the back and home buttons
             hide();
         }
+        // this is us starting a game again, record this on the state
+        State.getInstance().startGame(this);
+        // update the controls to show this
         updateControlsFromState();
         // this resets the time the danger zone was clean
         this.musicView.resetNoteFreeDangerZoneTime();
@@ -628,6 +634,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     protected void onPause() {
         stopAudioMonitoring();
         this.musicView.removeListener(this);
+        this.pianoView.removeListener(this);
         this.noteProvider.setPaused(true);
         this.isRunNotes = false;
         synchronized (this.waitObject) {
@@ -635,6 +642,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         }
         // close the music view too
         this.musicView.closeView();
+        this.pianoView.closeView();
         super.onPause();
     }
 
@@ -644,16 +652,14 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
 
         // pause the player
         this.noteProvider.setPaused(true);
-
         // reset all of our data
-        this.musicView.closeView();
         this.noteProvider.clearNotes();
         this.isRunNotes = true;
 
         if (null != this.micPermissionsHandler) {
             this.micPermissionsHandler.initialiseAudioPermissions(this);
         }
-
+        // setup the thread to move the notes
         this.noteThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -676,6 +682,15 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         // update all the data on this view
         showHideControls();
         updateControlsFromState();
+
+        // setup the initial data for that last played on this game
+        State state = State.getInstance();
+        ActiveScore score = state.getCurrentActiveScore();
+        // set the data on the controls
+        Boolean helpState = state.getGameHelpState(state.getGameSelectedLast());
+        int topTempo = state.getGameTopTempo(state.getGameSelectedLast());
+        setBeats(topTempo);
+        this.showNoteNamesSwitch.setChecked(helpState == null ? topTempo <= ActiveScore.K_TEMPO_TO_TURN_HELP_ON : helpState);
 
         // and start scrolling notes
         this.noteThread.start();

@@ -22,9 +22,9 @@ public abstract class SelectableItem {
         return name;
     }
 
-    public abstract String getSubtitle();
+    public abstract String getSubtitle(Activity context);
 
-    public abstract int getProgress();
+    public abstract int getProgress(Activity context);
 
     public void setName(String name) {
         this.name = name;

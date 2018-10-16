@@ -22,12 +22,12 @@ public class Instrument extends SelectableItem {
         return this.noteRange;
     }
 
-    public String getSubtitle() {
+    public String getSubtitle(Activity context) {
         return "Some progress";
     }
 
     @Override
-    public int getProgress() {
+    public int getProgress(Activity context) {
         //TODO get the average progress for all the games that can be played by this instrument
         return -1;
     }

@@ -66,7 +66,7 @@ public class ScoreCardActivity extends AppCompatActivity  {
         this.falseFiresLabelText.setTextColor(getResources().getColor(R.color.colorFalseFire));
         this.falseFiresNumberText.setText(Integer.toString(score.getFalseShots()));
 
-        this.topBpmNumber.setText(Integer.toString(score.getTopBpm()));
+        this.topBpmNumber.setText(Integer.toString(score.getTopBpmCompleted()));
         this.helpOn.setText(score.isHelpOn() ? R.string.on : R.string.off);
     }
 

@@ -31,12 +31,12 @@ public class Profile extends SelectableItem {
     }
 
     @Override
-    public String getSubtitle() {
+    public String getSubtitle(Activity context) {
         return "subtitle";
     }
 
     @Override
-    public int getProgress() {
+    public int getProgress(Activity context) {
         //TODO get the average progress for all the games played
         return -1;
     }

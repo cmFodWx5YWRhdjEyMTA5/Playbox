@@ -17,12 +17,12 @@ public class InputSource extends SelectableItem {
         super(context, name, thumbnail);
     }
 
-    public String getSubtitle() {
+    public String getSubtitle(Activity context) {
         return "Some input";
     }
 
     @Override
-    public int getProgress() {
+    public int getProgress(Activity context) {
         return -1;
     }
 

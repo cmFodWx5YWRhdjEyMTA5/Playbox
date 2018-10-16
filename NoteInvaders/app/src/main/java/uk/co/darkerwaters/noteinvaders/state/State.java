@@ -5,10 +5,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import uk.co.darkerwaters.noteinvaders.R;
 import uk.co.darkerwaters.noteinvaders.selectables.Instrument;
@@ -27,6 +31,10 @@ public class State {
     private ActiveScore currentActiveScore = null;
 
     private Map<String, Integer> gameTempoMap = null;
+    private Map<String, Date> gamePlayedLastMap = null;
+    private Map<String, Boolean> gameHelpMap = null;
+
+    public static SimpleDateFormat K_DATEFORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private boolean isSoundOn = true;
 
@@ -65,6 +73,8 @@ public class State {
 
         // load in all the scores that were stored also
         this.gameTempoMap = new HashMap<String, Integer>();
+        this.gamePlayedLastMap = new HashMap<String, Date>();
+        this.gameHelpMap = new HashMap<String, Boolean>();
         loadState(context);
 
         this.inputChangeListeners = new ArrayList<InputChangeListener>();
@@ -85,10 +95,32 @@ public class State {
             // put this top tempo from the last time into the map
             this.gameTempoMap.put(game.id, gameTempo);
         }
+        int gameHelp = preferences.getInt("help_" + game.id, -1);
+        if (gameHelp > 0) {
+            // put this help state in the map to remember
+            this.gameHelpMap.put(game.id, gameHelp != 0);
+        }
+        String gameDateString = preferences.getString("game_played_" + game.id, "");
+        if (null != gameDateString && false == gameDateString.isEmpty()) {
+            // there is a string, convert to a date and put in the map
+            try {
+                Date gameDate = K_DATEFORMAT.parse(gameDateString);
+                this.gamePlayedLastMap.put(game.id, gameDate);
+            }
+            catch (Exception e) {
+                // oops
+                e.printStackTrace();
+            }
+        }
         // just recerse, should be fine - not that many games todo
         for (Game child : game.children) {
             loadGameScore(child, preferences);
         }
+    }
+
+    public Boolean getGameHelpState(Game game) {
+        // return if the help was on for this game
+        return this.gameHelpMap.get(game);
     }
 
     public int getGameTopTempo(Game game) {
@@ -124,14 +156,63 @@ public class State {
             if (score.getTopBpm() > topTempo) {
                 // there isn't a score, or the current score is more, store this
                 topTempo = score.getTopBpm();
+                boolean isHelpOn = score.isHelpOn();
                 this.gameTempoMap.put(currentGame.id, topTempo);
+                this.gameHelpMap.put(currentGame.id, isHelpOn);
                 // and put it in the preferences for later
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putInt("top_tempo_" + currentGame.id, topTempo);
+                editor.putInt("help_" + currentGame.id, isHelpOn ? 1 : 0);
                 // and commit to storage this value
                 editor.commit();
             }
+        }
+    }
+
+    public Date getTimeGameLastPlayed(Game game) {
+        return this.gamePlayedLastMap.get(game);
+    }
+
+    public String getTimeGameLastPlayedStr(Activity context, Game game) {
+        Date lastPlayed = getTimeGameLastPlayed(game);
+        if (null == lastPlayed) {
+            return context.getResources().getString(R.string.never);
+        }
+        else {
+            Date now = new Date();
+            long seconds=TimeUnit.MILLISECONDS.toSeconds(now.getTime() - lastPlayed.getTime());
+            long minutes=TimeUnit.MILLISECONDS.toMinutes(now.getTime() - lastPlayed.getTime());
+            long hours=TimeUnit.MILLISECONDS.toHours(now.getTime() - lastPlayed.getTime());
+
+            if (seconds < 60) {
+                return Long.toString(seconds) + " " + context.getResources().getString(R.string.seconds_ago);
+            }
+            else if (minutes < 60) {
+                return Long.toString(minutes) + " " + context.getResources().getString(R.string.minutes_ago);
+            }
+            else if (hours < 24) {
+                return Long.toString(hours) + " " + context.getResources().getString(R.string.hours_ago);
+            }
+            else {
+                long days=TimeUnit.MILLISECONDS.toDays(now.getTime() - lastPlayed.getTime());
+                return Long.toString(days) + " " + context.getResources().getString(R.string.days_ago);
+            }
+        }
+    }
+
+    public void startGame(Activity context) {
+        // start the game currently selected
+        Game currentGame = getGameSelectedLast();
+        if (null != currentGame) {
+            // nothing much to do except store that this
+            // game was played now
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            SharedPreferences.Editor editor = preferences.edit();
+            // put the string of this data in our preferences
+            editor.putString("game_played_" + currentGame.id, K_DATEFORMAT.format(new Date()));
+            // and commit to storage this value
+            editor.commit();
         }
     }
 

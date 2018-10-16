@@ -58,8 +58,8 @@ public class SelectableItemAdapter extends RecyclerView.Adapter<SelectableItemAd
     public void onBindViewHolder(final MyViewHolder holder, int position) {
         final SelectableItem item = this.itemList.get(position);
         holder.title.setText(item.getName());
-        holder.count.setText(item.getSubtitle());
-        int progress = item.getProgress();
+        holder.count.setText(item.getSubtitle(mContext));
+        int progress = item.getProgress(mContext);
         if (progress < 0) {
             holder.progressBar.setVisibility(View.GONE);
             holder.progressText.setVisibility(View.GONE);
