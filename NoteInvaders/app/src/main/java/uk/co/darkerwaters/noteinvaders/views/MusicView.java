@@ -139,11 +139,6 @@ public class MusicView extends View {
         init(context);
     }
 
-    public void closeView() {
-        // clear all the notes when we close out the view
-        this.noteProvider.clearNotes();
-    }
-
     public void setViewProvider(MusicViewNoteProvider provider) {
         this.noteProvider = provider;
     }
@@ -207,10 +202,26 @@ public class MusicView extends View {
         this.notesBass = new Note[numberNotes];
         initialiseNoteRange(this.notesTreble, K_TREBLENOTETOP, K_TREBLENOTEBOTTOM);
         initialiseNoteRange(this.notesBass, K_BASSNOTETOP, K_BASSNOTEBOTTOM);
+        // and start the view
+        start(context);
     }
+
+    public void start(final Context context) {
+        // start all processes here
+    }
+
+    public void closeView() {
+        // clear all the notes when we close out the view
+        this.noteProvider.clearNotes();
+    }
+
+
 
     public boolean addListener(MusicViewListener listener) {
         synchronized (this.listeners) {
+            if (this.listeners.contains(listener)) {
+                return false;
+            }
             return this.listeners.add(listener);
         }
     }

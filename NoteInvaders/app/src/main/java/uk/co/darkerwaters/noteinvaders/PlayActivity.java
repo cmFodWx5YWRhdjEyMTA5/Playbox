@@ -1,5 +1,6 @@
 package uk.co.darkerwaters.noteinvaders;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -650,50 +651,59 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     protected void onResume() {
         super.onResume();
 
-        // pause the player
-        this.noteProvider.setPaused(true);
-        // reset all of our data
-        this.noteProvider.clearNotes();
-        this.isRunNotes = true;
-
-        if (null != this.micPermissionsHandler) {
-            this.micPermissionsHandler.initialiseAudioPermissions(this);
+        if (State.getInstance().getCurrentActiveScore().isGameOver()) {
+            finish();
         }
-        // setup the thread to move the notes
-        this.noteThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (isRunNotes) {
-                    // while we want to run, process the notes
-                    moveNotes();
-                    synchronized (PlayActivity.this.waitObject) {
-                        try {
-                            PlayActivity.this.waitObject.wait(10);
-                        } catch (InterruptedException e) {
-                            // fine
+        else {
+            // pause the player
+            this.noteProvider.setPaused(true);
+            // reset all of our data
+            this.noteProvider.clearNotes();
+            this.isRunNotes = true;
+
+            if (null != this.micPermissionsHandler) {
+                this.micPermissionsHandler.initialiseAudioPermissions(this);
+            }
+            // setup the thread to move the notes
+            this.noteThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (isRunNotes) {
+                        // while we want to run, process the notes
+                        moveNotes();
+                        synchronized (PlayActivity.this.waitObject) {
+                            try {
+                                PlayActivity.this.waitObject.wait(10);
+                            } catch (InterruptedException e) {
+                                // fine
+                            }
                         }
                     }
                 }
-            }
-        });
-        // listen for changes on the view
-        this.musicView.addListener(this);
+            });
+            // listen for changes on the view
+            this.musicView.addListener(this);
+            this.pianoView.addListener(this);
+            // and start them again
+            this.musicView.start(this);
+            this.pianoView.start(this);
 
-        // update all the data on this view
-        showHideControls();
-        updateControlsFromState();
+            // update all the data on this view
+            showHideControls();
+            updateControlsFromState();
 
-        // setup the initial data for that last played on this game
-        State state = State.getInstance();
-        ActiveScore score = state.getCurrentActiveScore();
-        // set the data on the controls
-        Boolean helpState = state.getGameHelpState(state.getGameSelectedLast());
-        int topTempo = state.getGameTopTempo(state.getGameSelectedLast());
-        setBeats(topTempo);
-        this.showNoteNamesSwitch.setChecked(helpState == null ? topTempo <= ActiveScore.K_TEMPO_TO_TURN_HELP_ON : helpState);
+            // setup the initial data for that last played on this game
+            State state = State.getInstance();
+            ActiveScore score = state.getCurrentActiveScore();
+            // set the data on the controls
+            Boolean helpState = state.getGameHelpState(state.getGameSelectedLast());
+            int topTempo = state.getGameTopTempo(state.getGameSelectedLast());
+            setBeats(topTempo);
+            this.showNoteNamesSwitch.setChecked(helpState == null ? topTempo <= ActiveScore.K_TEMPO_TO_TURN_HELP_ON : helpState);
 
-        // and start scrolling notes
-        this.noteThread.start();
+            // and start scrolling notes
+            this.noteThread.start();
+        }
     }
 
     private void stopAudioMonitoring() {

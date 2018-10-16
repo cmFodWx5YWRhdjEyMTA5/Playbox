@@ -92,18 +92,6 @@ public class PianoView extends View {
         init(context);
     }
 
-    public void closeView() {
-        // stop the thread from reducing notes
-        if (this.isThreadStarted) {
-            this.isThreadStarted = false;
-            // and our thread while we are here
-            this.isStopThread = true;
-            synchronized (this.waitingObject) {
-                this.waitingObject.notifyAll();
-            }
-        }
-    }
-
     private void init(final Context context) {
         // Initialize new paints to draw the keys
         this.whitePaint = new Paint();
@@ -147,8 +135,14 @@ public class PianoView extends View {
         // start and end the whole range
         setNoteRange(notes.getNote(0).getFrequency(), notes.getNote(notes.getNoteCount() - 1).getFrequency());
 
+        // and start up the view
+        start(context);
+    }
+
+    public void start(final Context context) {
         // fire up the thread that will remove key depressions in time
         if (false == this.isThreadStarted) {
+            this.isStopThread = false;
             this.reductionThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -184,6 +178,18 @@ public class PianoView extends View {
         setIsPlayable(this.isPlayable);
     }
 
+    public void closeView() {
+        // stop the thread from reducing notes
+        if (this.isThreadStarted) {
+            this.isThreadStarted = false;
+            // and our thread while we are here
+            this.isStopThread = true;
+            synchronized (this.waitingObject) {
+                this.waitingObject.notifyAll();
+            }
+        }
+    }
+
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
@@ -198,6 +204,9 @@ public class PianoView extends View {
 
     public boolean addListener(IPianoViewListener listener) {
         synchronized (this.listeners) {
+            if (this.listeners.contains(listener)) {
+                return false;
+            }
             return this.listeners.add(listener);
         }
     }
