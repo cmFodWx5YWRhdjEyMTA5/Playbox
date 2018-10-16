@@ -39,6 +39,7 @@
     <string name="easy">easy</string>
     <string name="medium">medium</string>
     <string name="hard">hard</string>
+    <string name="second_postfix">s</string>
     <string name="game_over">Game Over</string>
     <string name="never">Never</string>
     <string name="dialog_reset_title">Reset score</string>

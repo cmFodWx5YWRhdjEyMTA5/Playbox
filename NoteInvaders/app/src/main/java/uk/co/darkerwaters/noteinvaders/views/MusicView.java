@@ -581,7 +581,7 @@ public class MusicView extends View {
                 }
             }
 
-            float dangerZoneX = contentWidth * 0.5f;
+            float dangerZoneX = contentWidth * 0.3f;
             this.notesInDangerZone = 0;
 
             // draw all the notes in now

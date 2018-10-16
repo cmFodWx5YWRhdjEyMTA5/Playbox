@@ -171,7 +171,7 @@ public class State {
     }
 
     public Date getTimeGameLastPlayed(Game game) {
-        return this.gamePlayedLastMap.get(game);
+        return this.gamePlayedLastMap.get(game.id);
     }
 
     public String getTimeGameLastPlayedStr(Activity context, Game game) {

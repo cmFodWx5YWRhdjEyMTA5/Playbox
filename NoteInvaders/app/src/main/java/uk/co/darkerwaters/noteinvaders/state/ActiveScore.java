@@ -25,7 +25,7 @@ public class ActiveScore {
 
     public static final int K_MAX_TEMPO_WITH_HELP = 100;
     public static final int K_TEMPO_TO_TURN_HELP_ON = 60;
-    public static final int K_NONOTESINDANGERZONEISDEATH = 4;   // the number of notes in the danger zone that means that we are close to death
+    public static final int K_NONOTESINDANGERZONEISDEATH = 3;   // the number of notes in the danger zone that means that we are close to death
 
     private int hits;
     private int misses;

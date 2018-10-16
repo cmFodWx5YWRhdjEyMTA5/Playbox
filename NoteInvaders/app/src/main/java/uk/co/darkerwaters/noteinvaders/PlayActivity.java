@@ -50,6 +50,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     private PianoView pianoView;
     private ScoreActiveView scoreView;
     private Spinner tempoSpinner;
+    private TextView tempoChangeTime;
     private FloatingActionButton floatingPauseButton;
     private FloatingActionButton floatingStopButton;
     private FloatingActionButton floatingTempoButton;
@@ -98,6 +99,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         this.tempoIncreaseIcon = findViewById(R.id.tempo_increase_image);
         this.tempoDecreaseIcon = findViewById(R.id.tempo_decrease_image);
         this.gameOverDisplay = findViewById(R.id.game_over_text);
+        this.tempoChangeTime = (TextView) findViewById(R.id.tempo_change_time);
 
         this.mControlsView = findViewById(R.id.fullscreen_content_controls);
         this.microphonePermissionText = (TextView) findViewById(R.id.text_microphone_permission);
@@ -485,6 +487,8 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
             // show the settings
             levelButtonsLayout.setVisibility(View.VISIBLE);
             settingsLayout.setVisibility(View.VISIBLE);
+            // hide the countdown
+            tempoChangeTime.setVisibility(View.INVISIBLE);
         }
         else {
             // show the pause icon
@@ -493,6 +497,8 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
             // hide the settings
             levelButtonsLayout.setVisibility(View.INVISIBLE);
             settingsLayout.setVisibility(View.INVISIBLE);
+            // show the countdown timer
+            tempoChangeTime.setVisibility(View.VISIBLE);
         }
     }
 
@@ -652,6 +658,7 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         super.onResume();
 
         if (State.getInstance().getCurrentActiveScore().isGameOver()) {
+            // the game is over, coming back from the scorecard, close this too...
             finish();
         }
         else {
@@ -764,6 +771,9 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
                         // are close to death on the starting tempo, try to slow it down, score might just refuse this of course
                         decreaseTempo();
                     }
+                    // countdown to the change in speed as the time elapses
+                    float secsLeft = ActiveScore.K_SECBEFORESPEEDINCREASE - PlayActivity.this.musicView.getNoteFreeDangerZoneTime();
+                    tempoChangeTime.setText(Integer.toString((int)(secsLeft + 0.5f)) + getResources().getString(R.string.second_postfix));
                 }
             }
         });

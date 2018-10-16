@@ -31,13 +31,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="200dp" />
 
-            <uk.co.darkerwaters.noteinvaders.views.PianoView
-                android:id="@+id/pianoView"
-                android:layout_width="match_parent"
-                android:layout_height="36dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/floatingPauseButton" />
-
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/input_action_4"
                 android:layout_width="wrap_content"
@@ -201,6 +194,25 @@
                 app:layout_constraintStart_toEndOf="@+id/score_view"
                 app:layout_constraintTop_toBottomOf="@+id/music_view"
                 app:srcCompat="@android:drawable/ic_media_ff" />
+
+            <TextView
+                android:id="@+id/tempo_change_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="0dp"
+                android:layout_marginLeft="0dp"
+                android:layout_marginTop="0dp"
+                android:text="60s"
+                android:textSize="12dp"
+                app:layout_constraintStart_toStartOf="@+id/floatingTempoButton"
+                app:layout_constraintTop_toBottomOf="@+id/floatingTempoButton" />
+
+            <uk.co.darkerwaters.noteinvaders.views.PianoView
+                android:id="@+id/pianoView"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/floatingPauseButton" />
 
             <LinearLayout
                 android:id="@+id/level_buttons_layout"
