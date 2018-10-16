@@ -1,6 +1,7 @@
 package uk.co.darkerwaters.noteinvaders.selectables;
 
 import android.app.Activity;
+import android.content.Context;
 
 import com.bumptech.glide.Glide;
 
@@ -13,10 +14,26 @@ import uk.co.darkerwaters.noteinvaders.state.State;
 
 public class InputSource extends SelectableItem {
 
+    private final String title;
+    private final int thumbnail;
+
     public InputSource(Activity context, String name, int thumbnail) {
-        super(context, name, thumbnail);
+        super(context);
+        this.title = name;
+        this.thumbnail = thumbnail;
     }
 
+    @Override
+    public String getTitle(Activity context) {
+        return title;
+    }
+
+    @Override
+    public int getThumbnail() {
+        return thumbnail;
+    }
+
+    @Override
     public String getSubtitle(Activity context) {
         return "Some input";
     }
@@ -27,8 +44,8 @@ public class InputSource extends SelectableItem {
     }
 
     @Override
-    public void onBindViewHolder(SelectableItemActivity context, SelectableItemAdapter.MyViewHolder holder) {
-        super.onBindViewHolder(context, holder);
+    public void onItemRefreshed(SelectableItemActivity context, SelectableItemAdapter.MyViewHolder holder) {
+        super.onItemRefreshed(context, holder);
 
         // loading album cover using Glide library
         Glide.with(context).load(getThumbnail()).into(holder.thumbnail);

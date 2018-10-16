@@ -38,11 +38,12 @@ import uk.co.darkerwaters.noteinvaders.state.State;
 
 public class GameCard extends SelectableItem {
 
-    private final Game game;
     private Bitmap titleImage = null;
 
+    private final Game game;
+
     public GameCard(Activity context, Game game) {
-        super(context, game.name, R.drawable.piano);
+        super(context);
         this.game = game;
     }
 
@@ -51,30 +52,41 @@ public class GameCard extends SelectableItem {
     }
 
     @Override
+    public String getTitle(Activity context) {
+        return getGame().name;
+    }
+
+    @Override
+    public int getThumbnail() {
+        return R.drawable.piano;
+    }
+
+    @Override
     public String getSubtitle(Activity context) {
-        if (this.game.isPlayable()) {
-            return "Last Played " + State.getInstance().getTimeGameLastPlayedStr(context, this.game);
+        Game game = getGame();
+        if (game.isPlayable()) {
+            return "Last Played " + State.getInstance().getTimeGameLastPlayedStr(context, game);
             //return "Top BPM: " + State.getInstance().getGameTopTempo(this.game);
         }
         else {
             // return the number of children
-            return Integer.toString(this.game.children.length) + " options...";
+            return Integer.toString(game.children.length) + " options...";
         }
     }
 
     @Override
     public int getProgress(Activity context) {
-        int topTempo = State.getInstance().getGameTopTempo(this.game);
+        int topTempo = State.getInstance().getGameTopTempo(getGame());
         return ActiveScore.GetTempoAsPercent(topTempo);
     }
 
     @Override
-    public void onBindViewHolder(final SelectableItemActivity context, SelectableItemAdapter.MyViewHolder holder) {
-        super.onBindViewHolder(context, holder);
+    public void onItemRefreshed(final SelectableItemActivity context, SelectableItemAdapter.MyViewHolder holder) {
+        super.onItemRefreshed(context, holder);
 
         // in here, called each time the activity is shown now, we can set the data on the profile card according
         // to our latest data from the state class
-        this.titleImage = SelectableItem.getBitmapFromAssets(game.image, context);
+        this.titleImage = SelectableItem.getBitmapFromAssets(getGame().image, context);
 
         final ImageView imageView = holder.thumbnail;
         imageView.post(new Runnable() {

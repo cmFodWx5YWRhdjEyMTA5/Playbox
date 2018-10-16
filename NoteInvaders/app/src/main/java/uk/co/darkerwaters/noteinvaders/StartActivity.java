@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.darkerwaters.noteinvaders.selectables.Instrument;
+import uk.co.darkerwaters.noteinvaders.selectables.LastGameCard;
 import uk.co.darkerwaters.noteinvaders.selectables.Profile;
 import uk.co.darkerwaters.noteinvaders.selectables.GameCard;
 import uk.co.darkerwaters.noteinvaders.state.Game;
@@ -43,6 +44,11 @@ public class StartActivity extends SelectableItemActivity {
         List<SelectableItem> cardList = new ArrayList<SelectableItem>();
         // add the cards to the list the view will display
         //cardList.add(new Profile(this));
+
+        Game lastGame = State.getInstance().getGamePlayedLast();
+        if (null != lastGame) {
+            cardList.add(new LastGameCard(this, lastGame));
+        }
 
         // load in all our games
         int gameCount = State.getInstance().getAvailableGameCount();
@@ -112,7 +118,7 @@ public class StartActivity extends SelectableItemActivity {
                 // show the game card for the further options available to the user
                 myIntent = new Intent(this, GameActivity.class);
             }
-            myIntent.putExtra("game", item.getName()); //Optional parameters
+            myIntent.putExtra("game", selectedGame.id); //Optional parameters
             this.startActivity(myIntent);
         }
     }

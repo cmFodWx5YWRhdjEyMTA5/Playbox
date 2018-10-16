@@ -268,4 +268,14 @@ public class Game {
             return this.gameClass;
         }
     }
+
+    public String getFullName() {
+        String fulltitle = new String(this.name);
+        Game gameParent = this.parent;
+        while (null != gameParent) {
+            fulltitle = gameParent.name + " -- " + fulltitle;
+            gameParent = gameParent.parent;
+        }
+        return fulltitle;
+    }
 }

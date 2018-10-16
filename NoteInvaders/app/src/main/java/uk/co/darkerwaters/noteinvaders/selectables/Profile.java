@@ -27,7 +27,17 @@ public class Profile extends SelectableItem {
     private FloatingActionButton btnBtMidi;
 
     public Profile(Activity context) {
-        super(context,"temp", R.drawable.piano);
+        super(context);
+    }
+
+    @Override
+    public String getTitle(Activity context) {
+        return "temp";
+    }
+
+    @Override
+    public int getThumbnail() {
+        return R.drawable.piano;
     }
 
     @Override
@@ -42,12 +52,12 @@ public class Profile extends SelectableItem {
     }
 
     @Override
-    public void onBindViewHolder(final SelectableItemActivity context, SelectableItemAdapter.MyViewHolder holder) {
-        super.onBindViewHolder(context, holder);
+    public void onItemRefreshed(final SelectableItemActivity context, SelectableItemAdapter.MyViewHolder holder) {
+        super.onItemRefreshed(context, holder);
 
         // in here, called each time the activity is shown now, we can set the data on the profile card according
         // to our latest data from the state class
-        holder.title.setText(State.getInstance().getInstrument().getName());
+        holder.title.setText(State.getInstance().getInstrument().getTitle(context));
         Glide.with(context).load(State.getInstance().getInstrument().getThumbnail()).into(holder.thumbnail);
 
         // let's show the buttons as we want to

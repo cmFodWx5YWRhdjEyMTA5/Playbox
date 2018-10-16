@@ -10,35 +10,20 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public abstract class SelectableItem {
-    private String name;
-    private int thumbnail;
 
-    public SelectableItem(Activity context, String name, int thumbnail) {
-        this.name = name;
-        this.thumbnail = thumbnail;
+    public SelectableItem(Activity context) {
     }
 
-    public String getName() {
-        return name;
-    }
+
+    public abstract String getTitle(Activity context);
 
     public abstract String getSubtitle(Activity context);
 
     public abstract int getProgress(Activity context);
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public abstract int getThumbnail();
 
-    public int getThumbnail() {
-        return thumbnail;
-    }
-
-    public void setThumbnail(int thumbnail) {
-        this.thumbnail = thumbnail;
-    }
-
-    public void onBindViewHolder(SelectableItemActivity context, SelectableItemAdapter.MyViewHolder holder) {
+    public void onItemRefreshed(SelectableItemActivity context, SelectableItemAdapter.MyViewHolder holder) {
         // default does very little
     }
 

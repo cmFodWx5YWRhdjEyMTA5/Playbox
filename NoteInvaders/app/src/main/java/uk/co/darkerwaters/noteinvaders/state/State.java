@@ -201,6 +201,59 @@ public class State {
         }
     }
 
+    public Game getGamePlayedLast() {
+        Date latestDate = null;
+        String latestGameId = null;
+        for (Map.Entry<String, Date> entry : this.gamePlayedLastMap.entrySet()) {
+            if (latestDate == null || entry.getValue().after(latestDate)) {
+                // this is later
+                latestDate = entry.getValue();
+                latestGameId = entry.getKey();
+            }
+        }
+        if (null != latestDate) {
+            // have the latest game as an ID, find it as an actual game
+            return findGame(latestGameId);
+        }
+        else {
+             // none
+            return null;
+        }
+    }
+
+    public Game findGame(String gameId) {
+        for (Game game : this.games) {
+            if (game.id.equals(gameId)) {
+                // this is it
+                return game;
+            }
+            Game matchingGame = findGameInChildren(game, gameId);
+            if (null != matchingGame) {
+                return matchingGame;
+            }
+        }
+        // if here then there is no match
+        return null;
+    }
+
+    private Game findGameInChildren(Game parent, String gameId) {
+        for (Game child : parent.children) {
+            if (child.id.equals(gameId)) {
+                // this is it
+                return child;
+            }
+            else {
+                // try the children
+                Game matchingChild = findGameInChildren(child, gameId);
+                if (null != matchingChild) {
+                    return matchingChild;
+                }
+            }
+        }
+        // if here, no match
+        return null;
+    }
+
     public void startGame(Activity context) {
         // start the game currently selected
         Game currentGame = getGameSelectedLast();
@@ -210,9 +263,12 @@ public class State {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
             SharedPreferences.Editor editor = preferences.edit();
             // put the string of this data in our preferences
-            editor.putString("game_played_" + currentGame.id, K_DATEFORMAT.format(new Date()));
+            Date datePlayed = new Date();
+            editor.putString("game_played_" + currentGame.id, K_DATEFORMAT.format(datePlayed));
             // and commit to storage this value
             editor.commit();
+            // update the map too
+            this.gamePlayedLastMap.put(currentGame.id, datePlayed);
         }
     }
 

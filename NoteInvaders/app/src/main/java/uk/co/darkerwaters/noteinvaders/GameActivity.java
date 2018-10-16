@@ -104,7 +104,7 @@ public class GameActivity extends SelectableItemActivity {
                 // show the game card for the further options available to the user
                 myIntent = new Intent(this, GameActivity.class);
             }
-            myIntent.putExtra("game", item.getName()); //Optional parameters
+            myIntent.putExtra("game", selectedGame.id); //Optional parameters
             this.startActivity(myIntent);
         }
     }

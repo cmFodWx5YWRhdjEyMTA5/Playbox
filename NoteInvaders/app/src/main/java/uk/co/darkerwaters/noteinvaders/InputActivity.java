@@ -24,7 +24,7 @@ public class InputActivity extends SelectableItemActivity {
             // get the actual instrument for this
             for (int i = 0; i < State.getInstance().getAvailableInstrumentCount(); ++i) {
                 Instrument instrument = State.getInstance().getAvailableInstrument(i);
-                if (instrument.getName().equals(instrumentName)) {
+                if (instrument.getTitle(null).equals(instrumentName)) {
                     // this is it
                     this.parentInstrument = instrument;
                     break;
@@ -64,7 +64,7 @@ public class InputActivity extends SelectableItemActivity {
     @Override
     public void onSelectableItemClicked(SelectableItem item) {
         // start the selection activity
-        if (item.getName().equals(getString(R.string.microphone))) {
+        if (item.getTitle(null).equals(getString(R.string.microphone))) {
             // user selected to use the microphone
             Intent myIntent = new Intent(this, MicrophoneSetupActivity.class);
             //myIntent.putExtra("instrument", item.getName()); //Optional parameters
