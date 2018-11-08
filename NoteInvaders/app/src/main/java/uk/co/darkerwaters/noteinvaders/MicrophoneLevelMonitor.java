@@ -13,7 +13,7 @@ public class MicrophoneLevelMonitor {
 
     private boolean isStarted = false;
     public interface IMicrophoneLevelListener {
-        public void onMicrophoneLevel(int maxAmplitudePercent);
+        void onMicrophoneLevel(int maxAmplitudePercent);
     }
     private final IMicrophoneLevelListener listener;
     private static final double K_MAXMAXAMPLITUDE = 32767.0;
@@ -33,6 +33,10 @@ public class MicrophoneLevelMonitor {
             this.recorder = null;
         }
         this.isStarted = false;
+    }
+
+    public boolean isStarted() {
+        return this.isStarted;
     }
 
     public boolean start() {

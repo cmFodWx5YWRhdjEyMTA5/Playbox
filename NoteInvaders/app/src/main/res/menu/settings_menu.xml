@@ -9,4 +9,8 @@
         android:id="@+id/menu_item_setupmicrophone"
         android:icon="@drawable/ic_baseline_mic_24px"
         android:title="@string/menu_microphone" />
+    <item
+        android:id="@+id/menu_item_setupusb"
+        android:icon="@drawable/ic_baseline_usb_24px"
+        android:title="@string/menu_usb" />
 </menu>

@@ -31,6 +31,7 @@ import uk.co.darkerwaters.noteinvaders.sounds.SoundPlayer;
 import uk.co.darkerwaters.noteinvaders.state.ActiveScore;
 import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
+import uk.co.darkerwaters.noteinvaders.state.NoteRange;
 import uk.co.darkerwaters.noteinvaders.state.Notes;
 import uk.co.darkerwaters.noteinvaders.state.State;
 import uk.co.darkerwaters.noteinvaders.state.input.InputConnectionInterface;
@@ -448,7 +449,6 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
 
     private void setupKeyboardEntry() {
         // just show a nice selection of notes
-        Notes notes = Notes.instance();
         this.pianoView.setNoteRange(this.level.getNoteRange());
         this.pianoView.setIsPlayable(true);
         // and make it larger so they can press those keys
@@ -464,15 +464,14 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     }
 
     private void setFullPianoView() {
-        Notes notes = Notes.instance();
-        this.pianoView.setNoteRange(notes.getFullRange());
+        this.pianoView.setNoteRange(this.level.getNoteRange());
         this.pianoView.setIsPlayable(false);
         // and make it larger so they can press those keys
         this.pianoView.post(new Runnable() {
             @Override
             public void run() {
                 ViewGroup.LayoutParams params = pianoView.getLayoutParams();
-                params.height = (int) (pianoView.getWidth() * 0.15f);
+                params.height = (int) (pianoView.getWidth() * 0.4f);
                 pianoView.setLayoutParams(params);
             }
         });
@@ -728,18 +727,11 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
         // add a listener
         inputMicrophone.addListener(new InputConnectionInterface() {
             @Override
-            public void onNoteDetected(final Note note, final float probability, int frequency, boolean isPitched) {
-                if (probability > InputMicrophone.K_NOTE_DETECTION_PROBABIILITY_THRESHOLD && frequency > InputMicrophone.K_NOTE_DETECTION_FREQUENCY_THRESHOLD) {
-                    // exceeded thresholds for detection, inform the music view we detected this
+            public void onNoteDetected(Note note, boolean isDetection, float probability, int frequency) {
+                if (isDetection) {
+                    // a note was detected, process this
                     noteDepressed(note);
                 }
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // invalidate the view to display it okay
-                        pianoView.invalidate();
-                    }
-                });
             }
         });
         if (false == inputMicrophone.startConnection()) {
@@ -851,8 +843,20 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     @Override
     public void noteDepressed(Note note) {
         if (false == this.noteProvider.isPaused()) {
-            // when the note is pressed, fire the laser
-            this.musicView.fireLaser(note);
+            // is this note in the range we are expecting
+            NoteRange noteRange = this.level.getNoteRange();
+            if (noteRange.contains(note)) {
+                // use this note to fire the laser
+                this.musicView.fireLaser(note);
+            }
+            // update the view
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    // invalidate the view to display it okay
+                    pianoView.invalidate();
+                }
+            });
         }
     }
 }

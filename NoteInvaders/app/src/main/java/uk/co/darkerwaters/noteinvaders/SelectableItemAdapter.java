@@ -49,7 +49,7 @@ public class SelectableItemAdapter extends RecyclerView.Adapter<SelectableItemAd
     }
 
     @Override
-    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public MyViewHolder onCreateViewHolder(ViewGroup parent, int itemList) {
         // create the view
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_instrument, parent, false);
         // and return the holder for the view

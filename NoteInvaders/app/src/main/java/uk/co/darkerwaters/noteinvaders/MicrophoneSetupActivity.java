@@ -129,7 +129,7 @@ public class MicrophoneSetupActivity extends AppCompatActivity implements PianoV
         // add a listener
         inputMicrophone.addListener(new InputConnectionInterface() {
             @Override
-            public void onNoteDetected(final Note note, final float probability, int frequency, boolean isPitched) {
+            public void onNoteDetected(final Note note, final boolean isDetection, final float probability, final int frequency) {
                 // show that the microphone is working
                 MicrophoneSetupActivity.this.runOnUiThread(new Runnable() {
                     @Override

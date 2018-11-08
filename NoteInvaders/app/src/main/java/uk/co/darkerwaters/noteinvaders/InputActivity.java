@@ -70,6 +70,12 @@ public class InputActivity extends SelectableItemActivity {
             //myIntent.putExtra("instrument", item.getName()); //Optional parameters
             this.startActivity(myIntent);
         }
+        else if (item.getTitle(null).equals(getString(R.string.usb_midi))) {
+            // user selected to use the microphone
+            Intent myIntent = new Intent(this, UsbSetupActivity.class);
+            //myIntent.putExtra("instrument", item.getName()); //Optional parameters
+            this.startActivity(myIntent);
+        }
 
     }
 

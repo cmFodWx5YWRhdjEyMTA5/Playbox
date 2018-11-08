@@ -9,6 +9,7 @@
     <string name="input">Select Input</string>
     <string name="choose_input">Choose how to listen</string>
     <string name="config_microphone">Configure Microphone Range</string>
+    <string name="config_usb">Configure USB</string>
     <string name="config_microphone_step1">1: Play a nice smooth middle note</string>
     <string name="config_microphone_step2">2: Descend to the lowest note you can play</string>
     <string name="config_microphone_step3">3: Ascend to the highest note you can play</string>
@@ -27,6 +28,7 @@
     <string name="allow">Allow</string>
     <string name="menu_instrument">Instrument</string>
     <string name="menu_microphone">Setup Microphone</string>
+    <string name="menu_usb">Setup USB</string>
     <string name="current_score">Current Score</string>
     <string name="missed_notes">Missed notes</string>
     <string name="missed_note_frequency">Frequency of missed and incorrect notes</string>
@@ -50,4 +52,6 @@
     <string name="minutes_ago">minutes ago</string>
     <string name="hours_ago">hours ago</string>
     <string name="days_ago">days ago</string>
+    <string name="no_device">No device detected</string>
+    <string name="no_midi_available">Sorry, your phone does not support MIDI</string>
 </resources>

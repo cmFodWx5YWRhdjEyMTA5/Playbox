@@ -37,6 +37,7 @@ public class State {
     public static SimpleDateFormat K_DATEFORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private boolean isSoundOn = true;
+    private String midiDeviceId = "";
 
     public interface InputChangeListener {
         void onInputTypeChanged(InputType type);
@@ -87,6 +88,7 @@ public class State {
             loadGameScore(game, preferences);
         }
         this.isSoundOn = preferences.getBoolean("is_sound_on", this.isSoundOn);
+        this.midiDeviceId = preferences.getString("midi_device_id", this.midiDeviceId);
     }
 
     private void loadGameScore(Game game, SharedPreferences preferences) {
@@ -294,6 +296,20 @@ public class State {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putBoolean("is_sound_on", this.isSoundOn);
+        // and commit to storage this value
+        editor.commit();
+    }
+
+    public String getMidiDeviceId() {
+        return this.midiDeviceId;
+    }
+
+    public void setMidiDeviceId(Activity context, String midiDeviceId) {
+        this.midiDeviceId = midiDeviceId;
+        // store this
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("midi_device_id", this.midiDeviceId);
         // and commit to storage this value
         editor.commit();
     }

@@ -38,4 +38,14 @@ public class NoteRange {
     public void setEnd(Note end) {
         this.end = end;
     }
+
+    public boolean contains(Note note) {
+        if (null == note) {
+            return false;
+        }
+        else {
+            return (null == this.start || note.getFrequency() >= this.start.getFrequency()) &&
+                    (null == this.end || note.getFrequency() <= this.end.getFrequency());
+        }
+    }
 }

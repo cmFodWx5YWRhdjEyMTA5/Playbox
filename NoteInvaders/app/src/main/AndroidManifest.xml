@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="uk.co.darkerwaters.noteinvaders">
 
+    <uses-feature android:name="android.hardware.usb.host" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
@@ -14,9 +15,11 @@
         <activity android:name=".StartActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
         </activity>
         <activity
             android:name=".InstrumentActivity"
@@ -41,6 +44,7 @@
             android:label="@string/title_activity_input"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".MicrophoneSetupActivity" />
+        <activity android:name=".UsbSetupActivity" />
         <activity
             android:name=".PlayActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
