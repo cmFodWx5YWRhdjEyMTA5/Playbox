@@ -24,6 +24,7 @@ import uk.co.darkerwaters.noteinvaders.selectables.Profile;
 import uk.co.darkerwaters.noteinvaders.selectables.GameCard;
 import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.State;
+import uk.co.darkerwaters.noteinvaders.state.input.InputMidi;
 
 public class StartActivity extends SelectableItemActivity {
 
@@ -31,8 +32,15 @@ public class StartActivity extends SelectableItemActivity {
     protected void onCreate(Bundle savedInstanceState) {
         // initialise our state immediately
         State.getInstance().initialise(this);
+        InputMidi.InitialiseConnectionMonitor(this);
         // and create this activity
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onDestroy() {
+        InputMidi.CloseConnectionMonitor();
+        super.onDestroy();
     }
 
     @Override

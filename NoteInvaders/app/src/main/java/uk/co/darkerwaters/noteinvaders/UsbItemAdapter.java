@@ -14,6 +14,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import uk.co.darkerwaters.noteinvaders.state.State;
+import uk.co.darkerwaters.noteinvaders.state.input.InputMidi;
 
 public class UsbItemAdapter extends RecyclerView.Adapter<UsbItemAdapter.ViewHolder> {
 
@@ -79,7 +80,7 @@ public class UsbItemAdapter extends RecyclerView.Adapter<UsbItemAdapter.ViewHold
             holder.title.setText(manufacturer);
             holder.subtitle.setText(name);
             int visibility = View.GONE;
-            if (UsbSetupActivity.getDeviceId(holder.item) == State.getInstance().getMidiDeviceId()) {
+            if (InputMidi.GetMidiDeviceId(holder.item) == State.getInstance().getMidiDeviceId()) {
                 visibility = View.VISIBLE;
             }
             holder.selected.setVisibility(visibility);

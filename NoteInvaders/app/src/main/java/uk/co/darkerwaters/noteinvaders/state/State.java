@@ -304,7 +304,7 @@ public class State {
         return this.midiDeviceId;
     }
 
-    public void setMidiDeviceId(Activity context, String midiDeviceId) {
+    public void setMidiDeviceId(Context context, String midiDeviceId) {
         this.midiDeviceId = midiDeviceId;
         // store this
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);

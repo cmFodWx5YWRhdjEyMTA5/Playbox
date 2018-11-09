@@ -20,6 +20,10 @@ import uk.co.darkerwaters.noteinvaders.state.Notes;
 
 public class InputMicrophone extends InputConnection {
 
+    private final static float K_NOTE_DETECTION_PROBABIILITY_THRESHOLD = 0.9f;
+    private final static int K_NOTE_DETECTION_FREQUENCY_THRESHOLD = 10;
+    private final static int K_NOTEREDUCTIONDELAY = 25;
+
     private AudioDispatcher dispatcher;
     private Thread detectionThread = null;
     private boolean isThreadStarted = false;
@@ -32,15 +36,6 @@ public class InputMicrophone extends InputConnection {
     public InputMicrophone(Activity context) {
         super(context);
         this.noteDetectionFrequency = new HashMap<Note, Integer>(Notes.instance().getNoteCount());
-    }
-
-    private final static float K_NOTE_DETECTION_PROBABIILITY_THRESHOLD = 0.9f;
-    private final static int K_NOTE_DETECTION_FREQUENCY_THRESHOLD = 10;
-    private final static int K_NOTEREDUCTIONDELAY = 25;
-
-    @Override
-    public void initialiseConnection() {
-        super.initialiseConnection();
         Notes notes = Notes.instance();
         for (int i = 0; i < notes.getNoteCount(); ++i) {
             // put all the notes into the map and the detection frequency of zero

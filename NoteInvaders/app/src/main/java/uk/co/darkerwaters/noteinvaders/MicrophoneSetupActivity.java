@@ -125,7 +125,6 @@ public class MicrophoneSetupActivity extends AppCompatActivity implements PianoV
         }
         // also start detecting the notes
         inputMicrophone = new InputMicrophone(MicrophoneSetupActivity.this);
-        inputMicrophone.initialiseConnection();
         // add a listener
         inputMicrophone.addListener(new InputConnectionInterface() {
             @Override

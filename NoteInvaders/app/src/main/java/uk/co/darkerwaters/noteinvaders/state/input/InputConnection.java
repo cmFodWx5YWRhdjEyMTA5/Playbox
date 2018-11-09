@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import uk.co.darkerwaters.noteinvaders.UsbSetupActivity;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.Notes;
 
@@ -18,9 +19,6 @@ public abstract class InputConnection {
     protected InputConnection(Activity context) {
         this.context = context;
         this.listeners = new ArrayList<InputConnectionInterface>();
-    }
-
-    public void initialiseConnection() {
         // first thing to do is to create the notes
         if (null == Notes.instance()) {
             Notes.CreateNotes(this.context);

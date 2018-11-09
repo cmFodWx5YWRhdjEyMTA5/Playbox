@@ -723,7 +723,6 @@ public class PlayActivity extends HidingFullscreenActivity implements MusicView.
     private void startAudioMonitoring() {
         // also start detecting the notes
         inputMicrophone = new InputMicrophone(this);
-        inputMicrophone.initialiseConnection();
         // add a listener
         inputMicrophone.addListener(new InputConnectionInterface() {
             @Override
