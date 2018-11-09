@@ -286,16 +286,16 @@ public class PianoView extends View {
             }
 
             // and setup the white keys accordingly
-            this.whiteKeyCount = 0;
+            int keyCount = 0;
             for (int i = 0; i < notes.getNoteCount(); ++i) {
-                if (this.whiteKeyCount > 0) {
+                if (keyCount > 0) {
                     // started counting, count this one
                     if (false == notes.getNote(i).isSharp()) {
                         // this is a normal note, count these
-                        ++this.whiteKeyCount;
+                        ++keyCount;
                     }
                 } else if (notes.getNote(i).equals(this.noteRange.getStart())) {
-                    this.whiteKeyCount = 1;
+                    keyCount = 1;
                 }
                 // check to see if we have all our notes
                 if (notes.getNote(i).equals(this.noteRange.getEnd())) {
@@ -303,6 +303,7 @@ public class PianoView extends View {
                     break;
                 }
             }
+            this.whiteKeyCount = keyCount;
             // and remember where to start
             this.initialWhiteKey = notes.getNote(this.startNoteIndex).getNotePrimativeIndex();
         }
@@ -326,7 +327,12 @@ public class PianoView extends View {
     }
 
     private int getKeyWidth() {
-        return getContentWidth() / this.whiteKeyCount;
+        if (this.whiteKeyCount == 0) {
+            return 5;
+        }
+        else {
+            return getContentWidth() / this.whiteKeyCount;
+        }
     }
 
     @Override

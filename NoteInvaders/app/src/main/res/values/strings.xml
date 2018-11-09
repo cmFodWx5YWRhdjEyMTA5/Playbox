@@ -54,4 +54,6 @@
     <string name="days_ago">days ago</string>
     <string name="no_device">No device detected</string>
     <string name="no_midi_available">Sorry, your phone does not support MIDI</string>
+    <string name="scan_usb">Scan USB</string>
+    <string name="midi_connect_help">Try to scan for USB in your phone\'s device connection settings...</string>
 </resources>

@@ -277,18 +277,10 @@ public class InputMidi extends InputConnection {
     }
 
     private void processMidiData(byte[] data, int offset, int count, long timestamp) {
-        // process everything one at a time in case we are sent data in bits
-        for (int i = offset; i < offset + count && i < data.length; ++i) {
-            // for each item of data we receive (the count), get the data and process it
-            processMidiData(data[i], timestamp);
-        }
-    }
-
-    private void processMidiData(byte data, long timestamp) {
         // we can ignore the timestamp for ourselves, just doing it live, process the data
-        if ((byte)(data & COMMAND_BYTE_MASK) == COMMAND_BYTE_MASK) {
+        if ((byte)(data[offset] & COMMAND_BYTE_MASK) == COMMAND_BYTE_MASK) {
             // this is the command
-            byte command = (byte) (data & STATUS_COMMAND_MASK);
+            byte command = (byte) (data[offset] & STATUS_COMMAND_MASK);
             switch (command) {
                 case STATUS_NOTE_OFF:
                     this.runningState = MidiCommand.NoteOff;
@@ -300,30 +292,28 @@ public class InputMidi extends InputConnection {
                     this.runningState = MidiCommand.None;
                     break;
             }
-            this.midiChannel = (byte) (data & STATUS_CHANNEL_MASK);
-        }
-        else {
-            // this is the data
-            int value = data;
-            if (null == this.runningNote) {
-                // there is no note
+            this.midiChannel = (byte) (data[offset] & STATUS_CHANNEL_MASK);
+            // have the command, process the accompanying data for this command
+            if (this.runningState != MidiCommand.None) {
+                // this is the data
+                int value = data[offset + 1];
                 if (value < this.midiNotes.length && value >= 0) {
                     this.runningNote = this.midiNotes[value];
                 }
-            }
-            else {
-                // this is velocity then
-                float velocityToProbability = (value / 40f) * 100f;
-                switch(this.runningState) {
-                    case NoteOn:
-                        informNoteDetection(this.runningNote, velocityToProbability > 1f, velocityToProbability, 1);
-                        break;
-                    case NoteOff:
-                        informNoteDetection(this.runningNote, false, velocityToProbability, 1);
-                        break;
+                if (null != this.runningNote) {
+                    // get velocity then
+                    float velocityToProbability = (data[offset + 2] / 40f) * 100f;
+                    switch (this.runningState) {
+                        case NoteOn:
+                            informNoteDetection(this.runningNote, velocityToProbability > 1f, velocityToProbability, 1);
+                            break;
+                        case NoteOff:
+                            informNoteDetection(this.runningNote, false, velocityToProbability, 1);
+                            break;
+                    }
+                    // no note then, done it
+                    this.runningNote = null;
                 }
-                // no note then, done it
-                this.runningNote = null;
             }
         }
     }

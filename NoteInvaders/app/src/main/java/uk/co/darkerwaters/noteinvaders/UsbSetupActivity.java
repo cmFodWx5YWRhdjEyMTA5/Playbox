@@ -91,6 +91,7 @@ public class UsbSetupActivity extends AppCompatActivity implements PianoView.IPi
                     testDeviceDiscovery();
                 }
             });
+            this.deviceLabel.setVisibility(View.GONE);
         }
         else {
             // disable MIDI stuff
@@ -109,6 +110,14 @@ public class UsbSetupActivity extends AppCompatActivity implements PianoView.IPi
         List<MidiDeviceInfo> connectedDevices = this.inputMidi.getConnectedDevices();
         // show this list of devices
         this.listView.setAdapter(new UsbItemAdapter(connectedDevices, this));
+        if (connectedDevices.size() == 0) {
+            // try to help them
+            this.deviceLabel.setVisibility(View.VISIBLE);
+            this.deviceLabel.setText(R.string.midi_connect_help);
+        }
+        else {
+            this.deviceLabel.setVisibility(View.GONE);
+        }
 
         // and select the default if we can
         MidiDeviceInfo defaultDevice = this.inputMidi.getDefaultDevice();
@@ -133,18 +142,20 @@ public class UsbSetupActivity extends AppCompatActivity implements PianoView.IPi
         // add a listener
         this.inputMidi.addListener(new InputConnectionInterface() {
             @Override
-            public void onNoteDetected(final Note note, final boolean isDetection, final float probability, final int frequency) {
+            public void onNoteDetected(Note note, final boolean isDetection, final float probability, final int frequency) {
                 // add to our range of notes we can detect
-                addDetectedPitch(note);
-                UsbSetupActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // invalidate the view to display it okay
-                        piano.invalidate();
-                        // show the range of the piano
-                        UsbSetupActivity.this.pianoRangeText.setText(piano.getRangeText());
-                    }
-                });
+                if (isDetection && probability > 1f) {
+                    addDetectedPitch(note);
+                    UsbSetupActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // invalidate the view to display it okay
+                            piano.invalidate();
+                            // show the range of the piano
+                            UsbSetupActivity.this.pianoRangeText.setText(piano.getRangeText());
+                        }
+                    });
+                }
             }
         });
         // also update the list view, the state of the item connected will have changed
@@ -182,18 +193,20 @@ public class UsbSetupActivity extends AppCompatActivity implements PianoView.IPi
     }
 
     private void addDetectedPitch(Note note) {
-        float pitch = note.getFrequency();
-        // add to the range of pitch we can detect
-        if (minPitchDetected < 0 || pitch < minPitchDetected) {
-            minPitchDetected = pitch;
+        if (null != note) {
+            float pitch = note.getFrequency();
+            // add to the range of pitch we can detect
+            if (minPitchDetected < 0 || pitch < minPitchDetected) {
+                minPitchDetected = pitch;
+            }
+            if (maxPitchDetected < 0 || pitch > maxPitchDetected) {
+                maxPitchDetected = pitch;
+            }
+            // depress this note
+            this.piano.depressNote(note);
+            // set the detected pitch on the piano we are showing
+            this.piano.setNoteRange(minPitchDetected, maxPitchDetected);
         }
-        if (maxPitchDetected < 0 || pitch > maxPitchDetected) {
-            maxPitchDetected = pitch;
-        }
-        // depress this note
-        this.piano.depressNote(note);
-        // set the detected pitch on the piano we are showing
-        this.piano.setNoteRange(minPitchDetected, maxPitchDetected);
     }
 
     @Override
