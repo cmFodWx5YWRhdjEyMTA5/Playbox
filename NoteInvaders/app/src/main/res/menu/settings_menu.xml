@@ -13,4 +13,8 @@
         android:id="@+id/menu_item_setupusb"
         android:icon="@drawable/ic_baseline_usb_24px"
         android:title="@string/menu_usb" />
+    <item
+        android:id="@+id/menu_item_setupbt"
+        android:icon="@drawable/ic_baseline_bluetooth_audio_24px"
+        android:title="@string/menu_bt" />
 </menu>

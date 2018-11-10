@@ -1,5 +1,6 @@
 package uk.co.darkerwaters.noteinvaders;
 
+import android.bluetooth.BluetoothDevice;
 import android.media.midi.MidiDeviceInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -8,24 +9,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.darkerwaters.noteinvaders.state.State;
 import uk.co.darkerwaters.noteinvaders.state.input.InputMidi;
 
-public class UsbItemAdapter extends RecyclerView.Adapter<UsbItemAdapter.ViewHolder> {
+public class BtItemAdapter extends RecyclerView.Adapter<BtItemAdapter.ViewHolder> {
 
-    private final List<MidiDeviceInfo> itemList;
-    private final MidiListListener listener;
+    private final List<BluetoothDevice> itemList;
+    private final BtListListener listener;
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView title, subtitle;
         public ImageView thumbnail;
         public ImageView selected;
-        MidiDeviceInfo item;
+        BluetoothDevice item;
 
         public ViewHolder(View view) {
             super(view);
@@ -36,12 +37,12 @@ public class UsbItemAdapter extends RecyclerView.Adapter<UsbItemAdapter.ViewHold
         }
     }
 
-    public interface MidiListListener {
-        void onMidiListItemClicked(MidiDeviceInfo item);
+    public interface BtListListener {
+        void onBtListItemClicked(BluetoothDevice item);
     }
 
-    public UsbItemAdapter(List<MidiDeviceInfo> itemList, MidiListListener listener) {
-        this.itemList = itemList;
+    public BtItemAdapter(BtListListener listener) {
+        this.itemList = new ArrayList<BluetoothDevice>();
         this.listener = listener;
     }
 
@@ -55,36 +56,47 @@ public class UsbItemAdapter extends RecyclerView.Adapter<UsbItemAdapter.ViewHold
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final ViewHolder midiDeviceInfo, int i) {
+    public void onBindViewHolder(@NonNull final ViewHolder btDevice, int i) {
         // setup the holder
-        midiDeviceInfo.item = this.itemList.get(i);
-        midiDeviceInfo.itemView.setOnClickListener(new View.OnClickListener() {
+        btDevice.item = this.itemList.get(i);
+        btDevice.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // inform the listener of this click
-                if (null != UsbItemAdapter.this.listener) {
-                    UsbItemAdapter.this.listener.onMidiListItemClicked(midiDeviceInfo.item);
+                if (null != BtItemAdapter.this.listener) {
+                    BtItemAdapter.this.listener.onBtListItemClicked(btDevice.item);
                 }
             }
         });
         // and refresh the content
-        refreshContent(midiDeviceInfo);
+        refreshContent(btDevice);
+    }
+
+    public void clearList() {
+        this.itemList.clear();
+    }
+
+    public boolean addDevice(BluetoothDevice device) {
+        if (this.itemList.contains(device)) {
+            // already in the list
+            return false;
+        }
+        else {
+            this.itemList.add(device);
+            notifyDataSetChanged();
+            return true;
+        }
     }
 
     private void refreshContent(ViewHolder holder) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            Bundle properties = holder.item.getProperties();
-            String manufacturer = properties.getString(MidiDeviceInfo.PROPERTY_MANUFACTURER);
-            String name = properties.getString(MidiDeviceInfo.PROPERTY_PRODUCT);
-            // set this on the holder
-            holder.title.setText(manufacturer);
-            holder.subtitle.setText(name);
-            int visibility = View.GONE;
-            if (InputMidi.GetMidiDeviceId(holder.item).equals(State.getInstance().getMidiDeviceId())) {
-                visibility = View.VISIBLE;
-            }
-            holder.selected.setVisibility(visibility);
+        // set the data on the holder
+        holder.title.setText(holder.item.getName());
+        holder.subtitle.setText(holder.item.getAddress());
+        int visibility = View.GONE;
+        if (InputMidi.GetMidiDeviceId(holder.item).equals(State.getInstance().getMidiDeviceId())) {
+            visibility = View.VISIBLE;
         }
+        holder.selected.setVisibility(visibility);
     }
 
     @Override

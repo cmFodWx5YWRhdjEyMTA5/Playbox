@@ -1,23 +1,8 @@
 package uk.co.darkerwaters.noteinvaders;
 
-import android.Manifest;
-import android.content.Context;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbManager;
-import android.media.midi.MidiDevice;
 import android.media.midi.MidiDeviceInfo;
-import android.media.midi.MidiDeviceStatus;
-import android.media.midi.MidiManager;
-import android.media.midi.MidiOutputPort;
-import android.media.midi.MidiReceiver;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -25,16 +10,8 @@ import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import uk.co.darkerwaters.noteinvaders.state.Note;
@@ -88,7 +65,7 @@ public class UsbSetupActivity extends AppCompatActivity implements PianoView.IPi
             this.detectButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    testDeviceDiscovery();
+                    discoverDevices();
                 }
             });
             this.deviceLabel.setVisibility(View.GONE);
@@ -99,10 +76,10 @@ public class UsbSetupActivity extends AppCompatActivity implements PianoView.IPi
             this.detectButton.setEnabled(false);
         }
 
-        testDeviceDiscovery();
+        discoverDevices();
     }
 
-    private void testDeviceDiscovery() {
+    private void discoverDevices() {
         // set no device detected first of all
         this.deviceLabel.setText(R.string.no_device);
 
@@ -129,7 +106,12 @@ public class UsbSetupActivity extends AppCompatActivity implements PianoView.IPi
     @Override
     public void midiDeviceConnectivityChanged(MidiDeviceInfo deviceInfo, boolean isConnected) {
         // just redo the list
-        testDeviceDiscovery();
+        discoverDevices();
+    }
+
+    @Override
+    public void midiDeviceConnectionChanged(String deviceId, boolean isConnected) {
+        // okay - we are connected or whatever
     }
 
     @Override
@@ -172,7 +154,7 @@ public class UsbSetupActivity extends AppCompatActivity implements PianoView.IPi
             @Override
             public void run() {
                 // just have a quick look here for a keyboard or whatever
-                testDeviceDiscovery();
+                discoverDevices();
             }
         });
     }

@@ -99,6 +99,9 @@ public class StartActivity extends SelectableItemActivity {
             case R.id.menu_item_setupusb :
                 newIntent = new Intent(this, UsbSetupActivity.class);
                 break;
+            case R.id.menu_item_setupbt :
+                newIntent = new Intent(this, BtSetupActivity.class);
+                break;
 
         }
         if (null == newIntent) {
