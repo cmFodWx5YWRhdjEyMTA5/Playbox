@@ -44,103 +44,10 @@ public class InputMidi extends InputConnection {
         void midiDeviceConnectivityChanged(MidiDeviceInfo deviceInfo, boolean isConnected);
     }
 
-    // monitor for connections coming and going
-    private static class ConnectionMonitor {
-        private final MidiManager midiManager;
-        private MidiManager.DeviceCallback callback = null;
+    private final MidiManager midiManager;
+    private MidiManager.DeviceCallback callback = null;
 
-        private final List<MidiListener> listeners;
-
-        ConnectionMonitor(Context context) {
-            this.listeners = new ArrayList<MidiListener>();
-            if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_MIDI) &&
-                    android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                // do MIDI stuff
-                this.midiManager = (MidiManager) context.getSystemService(Context.MIDI_SERVICE);
-                initialiseMidi(context);
-            }
-            else {
-                this.midiManager = null;
-            }
-        }
-
-        MidiManager getMidiManager() {
-            return this.midiManager;
-        }
-
-        private void initialiseMidi(final Context context) {
-            // setup MIDI on this activity
-            // and listen for hot-plugins
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                this.callback = new MidiManager.DeviceCallback() {
-                    @Override
-                    public void onDeviceAdded(MidiDeviceInfo device) {
-                        super.onDeviceAdded(device);
-                        // change the selected device to be this thing just plugged in
-                        if (device.getOutputPortCount() > 0) {
-                            // this is a device that outputs notes to us, connect to this
-                            State.getInstance().setMidiDeviceId(context, GetMidiDeviceId(device));
-                        }
-                        synchronized (listeners) {
-                            for (MidiListener listener : listeners) {
-                                listener.midiDeviceConnectivityChanged(device, true);
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onDeviceRemoved(MidiDeviceInfo device) {
-                        super.onDeviceRemoved(device);
-                        // change the selected device to not be the thing just unplugged
-                        if (GetMidiDeviceId(device).equals(State.getInstance().getMidiDeviceId())) {
-                            // just removed the device that we are using, stop using it
-                            State.getInstance().setSelectedInput(State.InputType.keyboard);
-                        }
-                        synchronized (listeners) {
-                            for (MidiListener listener : listeners) {
-                                listener.midiDeviceConnectivityChanged(device, false);
-                            }
-                        }
-                    }
-                };
-                this.midiManager.registerDeviceCallback(callback, new Handler(Looper.getMainLooper()));
-            }
-        }
-
-        void close() {
-            if (null != this.callback && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                this.midiManager.unregisterDeviceCallback(this.callback);
-                this.callback = null;
-            }
-        }
-
-        boolean addListener(MidiListener listener) {
-            synchronized (listeners) {
-                return listeners.add(listener);
-            }
-        }
-
-        boolean removeListener(MidiListener listener) {
-            synchronized (listeners) {
-                return listeners.remove(listener);
-            }
-        }
-    }
-
-    private static ConnectionMonitor monitor = null;
-
-    public static void InitialiseConnectionMonitor(Context context) {
-        // initialise monitoring for connectivity, will change the state of the connection
-        // when someone plugs in or unplugs their device.
-        monitor = new ConnectionMonitor(context);
-    }
-
-    public static void CloseConnectionMonitor() {
-        if (null != monitor) {
-            monitor.close();
-            monitor = null;
-        }
-    }
+    private final List<MidiListener> listeners;
 
     public static String GetMidiDeviceId(MidiDeviceInfo info) {
         String deviceId = "";
@@ -178,6 +85,18 @@ public class InputMidi extends InputConnection {
 
     public InputMidi(Activity context) {
         super(context);
+
+        this.listeners = new ArrayList<InputMidi.MidiListener>();
+        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_MIDI) &&
+                android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            // do MIDI stuff
+            this.midiManager = (MidiManager) context.getSystemService(Context.MIDI_SERVICE);
+            initialiseMidi(context);
+        }
+        else {
+            this.midiManager = null;
+        }
+
         // map the notes to their MIDI index (middle C being 60)
         Notes notes = Notes.instance();
         // notes in MIDI are indexed from 0 to 127, create a nice lookup array for this purpose.
@@ -197,18 +116,82 @@ public class InputMidi extends InputConnection {
         }
     }
 
-    public boolean addListener(MidiListener listener) {
-        if (null == monitor) {
-            return false;
+    private void initialiseMidi(final Context context) {
+        // setup MIDI on this activity
+        // and listen for hot-plugins
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            this.callback = new MidiManager.DeviceCallback() {
+                @Override
+                public void onDeviceAdded(MidiDeviceInfo device) {
+                    super.onDeviceAdded(device);
+                    // change the selected device to be this thing just plugged in
+                    if (device.getOutputPortCount() > 0) {
+                        // this is a device that outputs notes to us, connect to this
+                        State.getInstance().setMidiDeviceId(context, GetMidiDeviceId(device));
+                    }
+                    synchronized (listeners) {
+                        for (MidiListener listener : listeners) {
+                            listener.midiDeviceConnectivityChanged(device, true);
+                        }
+                    }
+                }
+
+                @Override
+                public void onDeviceRemoved(MidiDeviceInfo device) {
+                    super.onDeviceRemoved(device);
+                    // change the selected device to not be the thing just unplugged
+                    if (GetMidiDeviceId(device).equals(State.getInstance().getMidiDeviceId())) {
+                        // just removed the device that we are using, stop using it
+                        State.getInstance().setSelectedInput(State.InputType.keyboard);
+                    }
+                    synchronized (listeners) {
+                        for (MidiListener listener : listeners) {
+                            listener.midiDeviceConnectivityChanged(device, false);
+                        }
+                    }
+                }
+            };
+            this.midiManager.registerDeviceCallback(callback, new Handler(Looper.getMainLooper()));
         }
-        return monitor.addListener(listener);
+    }
+
+    @Override
+    public boolean stopConnection() {
+        // stop listening
+        if (null != this.callback && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            this.midiManager.unregisterDeviceCallback(this.callback);
+            this.callback = null;
+        }
+        // stop it all
+        if (null != openMidiOutputPort) {
+            try {
+                openMidiOutputPort.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            openMidiOutputPort = null;
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean startConnection() {
+        // start everything up
+
+        return true;
+    }
+
+    public boolean addListener(MidiListener listener) {
+        synchronized (listeners) {
+            return listeners.add(listener);
+        }
     }
 
     public boolean removeListener(MidiListener listener) {
-        if (null == monitor) {
-            return false;
+        synchronized (listeners) {
+            return listeners.remove(listener);
         }
-        return monitor.removeListener(listener);
     }
 
     public boolean isMidiAvailable(Context context) {
@@ -218,15 +201,15 @@ public class InputMidi extends InputConnection {
 
     public List<MidiDeviceInfo> getConnectedDevices() {
         List<MidiDeviceInfo> validDevices = new ArrayList<MidiDeviceInfo>();
-        defaultDevice = null;
-        if (null != monitor.midiManager && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            MidiDeviceInfo[] infos = monitor.midiManager.getDevices();
+        this.defaultDevice = null;
+        if (null != this.midiManager && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            MidiDeviceInfo[] infos = this.midiManager.getDevices();
             for (MidiDeviceInfo info : infos) {
                 if (info.getOutputPortCount() > 0) {
                     // this is valid
                     validDevices.add(info);
-                    if (null == defaultDevice || InputMidi.GetMidiDeviceId(info).equals(State.getInstance().getMidiDeviceId())) {
-                        defaultDevice = info;
+                    if (null == this.defaultDevice || InputMidi.GetMidiDeviceId(info).equals(State.getInstance().getMidiDeviceId())) {
+                        this.defaultDevice = info;
                     }
                 }
             }
@@ -243,10 +226,10 @@ public class InputMidi extends InputConnection {
 
     public boolean connectToDevice(final MidiDeviceInfo item) {
         boolean isConnected = false;
-        if (null != monitor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // we need to ensure that this is valid, wrap in a try.catch
             try {
-                monitor.midiManager.openDevice(item, new MidiManager.OnDeviceOpenedListener() {
+                this.midiManager.openDevice(item, new MidiManager.OnDeviceOpenedListener() {
                     @Override
                     public void onDeviceOpened(MidiDevice midiDevice) {
                         // opened a device, find the output port for this
@@ -305,7 +288,7 @@ public class InputMidi extends InputConnection {
                     float velocityToProbability = (data[offset + 2] / 40f) * 100f;
                     switch (this.runningState) {
                         case NoteOn:
-                            informNoteDetection(this.runningNote, velocityToProbability > 1f, velocityToProbability, 1);
+                            informNoteDetection(this.runningNote, velocityToProbability > 99f, velocityToProbability, 1);
                             break;
                         case NoteOff:
                             informNoteDetection(this.runningNote, false, velocityToProbability, 1);
@@ -317,27 +300,4 @@ public class InputMidi extends InputConnection {
             }
         }
     }
-
-    @Override
-    public boolean stopConnection() {
-        // stop it all
-        if (null != openMidiOutputPort) {
-            try {
-                openMidiOutputPort.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            openMidiOutputPort = null;
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean startConnection() {
-        // start everything up
-
-        return true;
-    }
-
 }

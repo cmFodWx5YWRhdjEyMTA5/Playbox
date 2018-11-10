@@ -40,7 +40,6 @@ import java.util.List;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.State;
 import uk.co.darkerwaters.noteinvaders.state.input.InputConnectionInterface;
-import uk.co.darkerwaters.noteinvaders.state.input.InputMicrophone;
 import uk.co.darkerwaters.noteinvaders.state.input.InputMidi;
 import uk.co.darkerwaters.noteinvaders.views.PianoView;
 
@@ -82,6 +81,7 @@ public class UsbSetupActivity extends AppCompatActivity implements PianoView.IPi
 
         // create the input device
         this.inputMidi = new InputMidi(this);
+        this.inputMidi.startConnection();
 
         if (this.inputMidi.isMidiAvailable(this)) {
             // do MIDI stuff
@@ -189,6 +189,7 @@ public class UsbSetupActivity extends AppCompatActivity implements PianoView.IPi
     @Override
     protected void onDestroy() {
         this.piano.closeView();
+        this.inputMidi.stopConnection();
         super.onDestroy();
     }
 
@@ -211,7 +212,7 @@ public class UsbSetupActivity extends AppCompatActivity implements PianoView.IPi
 
     @Override
     public void noteReleased(Note note) {
-        // invalidate the view
+        // invalidate the view, the piano released a note
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -222,11 +223,11 @@ public class UsbSetupActivity extends AppCompatActivity implements PianoView.IPi
 
     @Override
     public void noteDepressed(Note note) {
-        // interesting
+        // interesting, this is from the piano so we don't really care
     }
 
     @Override
     public void pianoViewSizeChanged(int w, int h, int oldw, int oldh) {
-        // interesting
+        // interesting but don't really care
     }
 }

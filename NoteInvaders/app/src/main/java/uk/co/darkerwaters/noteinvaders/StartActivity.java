@@ -32,14 +32,12 @@ public class StartActivity extends SelectableItemActivity {
     protected void onCreate(Bundle savedInstanceState) {
         // initialise our state immediately
         State.getInstance().initialise(this);
-        InputMidi.InitialiseConnectionMonitor(this);
         // and create this activity
         super.onCreate(savedInstanceState);
     }
 
     @Override
     protected void onDestroy() {
-        InputMidi.CloseConnectionMonitor();
         super.onDestroy();
     }
 
