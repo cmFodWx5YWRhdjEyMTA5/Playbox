@@ -1,7 +1,10 @@
 package uk.co.darkerwaters.noteinvaders;
 
 import android.app.Activity;
+import android.content.res.ColorStateList;
+import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -19,6 +22,7 @@ public class PlayFabsHandler implements State.InputChangeListener {
     private boolean isFabsShown = false;
     private final Activity context;
     private final State.InputChangeListener changeDeligate;
+    private State.InputType currentInput = State.InputType.keyboard;
 
     public PlayFabsHandler(Activity context, State.InputChangeListener changeListener) {
         this.context = context;
@@ -33,6 +37,7 @@ public class PlayFabsHandler implements State.InputChangeListener {
         setInputIcon();
 
         // set the icons on these buttons
+        this.inputFab.setImageResource(R.drawable.ic_baseline_keyboard_24px);
         this.manualFab.setImageResource(R.drawable.ic_baseline_keyboard_24px);
         this.micFab.setImageResource(R.drawable.ic_baseline_mic_24px);
         this.usbFab.setImageResource(R.drawable.ic_baseline_usb_24px);
@@ -107,6 +112,42 @@ public class PlayFabsHandler implements State.InputChangeListener {
         }
     }
 
+    public void setInputAvailability(State.InputType input, boolean state) {
+        if (null != this.inputFab) {
+            switch (input) {
+                case keyboard:
+                    setButtonTint(this.manualFab, state);
+                    break;
+                case microphone:
+                    setButtonTint(this.micFab, state);
+                    break;
+                case usb:
+                    setButtonTint(this.usbFab, state);
+                    break;
+                case bt:
+                    setButtonTint(this.btFab, state);
+                    break;
+            }
+            // set the master button if we are changing the state of the current input
+            if (this.currentInput == input) {
+                setButtonTint(this.inputFab, state);
+            }
+        }
+    }
+
+    private void setButtonTint(FloatingActionButton button, boolean state) {
+        if (state) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                button.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(context, android.R.color.white)));
+            }
+        }
+        else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                button.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(context, android.R.color.black)));
+            }
+        }
+    }
+
     private void toggleInputFabs() {
         if (this.isFabsShown) {
             manualFab.animate().translationX(0);
@@ -126,6 +167,7 @@ public class PlayFabsHandler implements State.InputChangeListener {
 
     private void changeInputType(State.InputType input) {
         // set the input to manual
+        this.currentInput = input;
         State.getInstance().setSelectedInput(input);
         // and shrink the selection
         toggleInputFabs();

@@ -87,6 +87,28 @@ public class BtSetupActivity extends AppCompatActivity implements PianoView.IPia
                 }
             });
         }
+        // add a listener for MIDI input
+        this.inputMidi.addListener(new InputConnectionInterface() {
+            @Override
+            public void onNoteDetected(Note note, final boolean isDetection, final float probability, final int frequency) {
+                // add to our range of notes we can detect
+                if (isDetection && probability > 1f) {
+                    // add this pitch the piano range we are showing
+                    addDetectedPitch(note);
+                    // update the view of this piano
+                    BtSetupActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // invalidate the view to display it okay
+                            piano.invalidate();
+                            // show the range of the piano
+                            BtSetupActivity.this.pianoRangeText.setText(piano.getRangeText());
+                        }
+                    });
+                }
+            }
+        });
+        // and update the label
         showDeviceLabel();
     }
 
@@ -203,27 +225,6 @@ public class BtSetupActivity extends AppCompatActivity implements PianoView.IPia
         State.getInstance().setMidiDeviceId(this, InputMidi.GetMidiDeviceId(item));
         // also connect to this device on our input
         this.inputMidi.connectToDevice(item);
-        // add a listener
-        this.inputMidi.addListener(new InputConnectionInterface() {
-            @Override
-            public void onNoteDetected(Note note, final boolean isDetection, final float probability, final int frequency) {
-                // add to our range of notes we can detect
-                if (isDetection && probability > 1f) {
-                    // add this pitch the piano range we are showing
-                    addDetectedPitch(note);
-                    // update the view of this piano
-                    BtSetupActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // invalidate the view to display it okay
-                            piano.invalidate();
-                            // show the range of the piano
-                            BtSetupActivity.this.pianoRangeText.setText(piano.getRangeText());
-                        }
-                    });
-                }
-            }
-        });
         // also update the list view, the state of the item connected will have changed
         this.listView.getAdapter().notifyDataSetChanged();
         showDeviceLabel();

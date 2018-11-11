@@ -95,17 +95,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|end"
-                android:layout_marginTop="24dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
+                android:layout_marginTop="32dp"
                 android:clickable="true"
-                android:focusable="true"
                 android:elevation="8dp"
+                android:focusable="true"
                 android:src="@drawable/ic_baseline_mic_24px"
                 app:elevation="8dp"
                 app:fabSize="normal"
-                app:layout_constraintTop_toBottomOf="@+id/music_view"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/music_view" />
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/floatingStopButton"

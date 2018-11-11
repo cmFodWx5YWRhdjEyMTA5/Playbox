@@ -76,7 +76,26 @@ public class UsbSetupActivity extends AppCompatActivity implements PianoView.IPi
             this.deviceLabel.setText(R.string.no_midi_available);
             this.detectButton.setEnabled(false);
         }
-
+        // add a listener for any MIDI input
+        this.inputMidi.addListener(new InputConnectionInterface() {
+            @Override
+            public void onNoteDetected(Note note, final boolean isDetection, final float probability, final int frequency) {
+                // add to our range of notes we can detect
+                if (isDetection && probability > 1f) {
+                    addDetectedPitch(note);
+                    UsbSetupActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // invalidate the view to display it okay
+                            piano.invalidate();
+                            // show the range of the piano
+                            UsbSetupActivity.this.pianoRangeText.setText(piano.getRangeText());
+                        }
+                    });
+                }
+            }
+        });
+        // and discover all devices when we startup
         discoverDevices();
     }
 
@@ -126,25 +145,6 @@ public class UsbSetupActivity extends AppCompatActivity implements PianoView.IPi
         State.getInstance().setMidiDeviceId(this, InputMidi.GetMidiDeviceId(item));
         // also connect to this device on our input
         this.inputMidi.connectToDevice(item);
-        // add a listener
-        this.inputMidi.addListener(new InputConnectionInterface() {
-            @Override
-            public void onNoteDetected(Note note, final boolean isDetection, final float probability, final int frequency) {
-                // add to our range of notes we can detect
-                if (isDetection && probability > 1f) {
-                    addDetectedPitch(note);
-                    UsbSetupActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // invalidate the view to display it okay
-                            piano.invalidate();
-                            // show the range of the piano
-                            UsbSetupActivity.this.pianoRangeText.setText(piano.getRangeText());
-                        }
-                    });
-                }
-            }
-        });
         // also update the list view, the state of the item connected will have changed
         this.listView.getAdapter().notifyDataSetChanged();
     }
