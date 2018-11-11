@@ -31,17 +31,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView">
 
-                <TextView
-                    android:id="@+id/textView2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="right|center_vertical"
-                    android:text="@string/connect_ble"
-                    app:layout_constraintBottom_toBottomOf="@+id/button_detect_usb"
-                    app:layout_constraintEnd_toStartOf="@+id/button_detect_usb"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView" />
-
                 <Button
                     android:id="@+id/button_detect_usb"
                     android:layout_width="wrap_content"

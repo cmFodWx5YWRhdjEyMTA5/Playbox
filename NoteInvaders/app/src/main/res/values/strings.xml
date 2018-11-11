@@ -56,7 +56,7 @@
     <string name="no_device">No device detected</string>
     <string name="no_midi_available">Sorry, your phone does not support MIDI</string>
     <string name="scan_usb">Scan...</string>
-    <string name="scan_bt">Scan...</string>
+    <string name="scan_bt">Scan for devices...</string>
     <string name="scan_bt_stop">Stop...</string>
     <string name="midi_connect_help">Try to scan for USB in your phone\'s device connection settings...</string>
     <string name="connect_usb">Connect instrument via\nUSB-OTG adapter:</string>

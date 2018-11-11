@@ -31,6 +31,14 @@ import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.Notes;
 import uk.co.darkerwaters.noteinvaders.state.State;
 
+/*
+Android MIDI Reference https://developer.android.com/reference/android/media/midi/package-summary
+Run ADB over WIFI https://developer.android.com/studio/command-line/adb
+Where is ADB? https://stackoverflow.com/questions/5526470/trying-to-add-adb-to-path-variable-osx/19764254
+Spec of MIDI protocol http://www.music-software-development.com/midi-tutorial.html
+Desc of MIDI receiver https://developer.android.com/reference/android/media/midi/MidiReceiver?authuser=3&hl=it
+BLE guide https://developer.android.com/guide/topics/connectivity/bluetooth-le
+ */
 public class InputMidi extends InputConnection {
 
     public static final int REQUEST_ENABLE_BT = 123;
@@ -41,8 +49,6 @@ public class InputMidi extends InputConnection {
     public interface MidiListener {
         void midiDeviceConnectivityChanged(MidiDeviceInfo deviceInfo, boolean isConnected);
         void midiDeviceConnectionChanged(String deviceId, boolean isConnected);
-    }
-    public interface InputMidiScanListener {
         void midiBtScanStatusChange(boolean isScanning);
         void midiBtDeviceDiscovered(BluetoothDevice device);
     }
@@ -70,7 +76,7 @@ public class InputMidi extends InputConnection {
     public static String GetMidiDeviceId(BluetoothDevice device) {
         String deviceId = "";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && null != device) {
-            deviceId = device.getAddress();
+            deviceId = device.getName();
         }
         return deviceId == null ? "" : deviceId;
     }
@@ -81,14 +87,12 @@ public class InputMidi extends InputConnection {
     private String activeMidiConnection = null;
     private final Note[] midiNotes;
 
-    public static final byte COMMAND_BYTE_MASK = (byte) 0x80;
-
-    public static final byte STATUS_COMMAND_MASK = (byte) 0xF0;
-    public static final byte STATUS_CHANNEL_MASK = (byte) 0x0F;
-
-    // Channel voice messages.
-    public static final byte STATUS_NOTE_OFF = (byte) 0x80;
-    public static final byte STATUS_NOTE_ON = (byte) 0x90;
+    //MIDI COMMAND MASKS / DATA
+    private static final byte COMMAND_BYTE_MASK = (byte) 0x80;
+    private static final byte STATUS_COMMAND_MASK = (byte) 0xF0;
+    private static final byte STATUS_CHANNEL_MASK = (byte) 0x0F;
+    private static final byte STATUS_NOTE_OFF = (byte) 0x80;
+    private static final byte STATUS_NOTE_ON = (byte) 0x90;
 
     private enum MidiCommand {
         None,
@@ -179,14 +183,14 @@ public class InputMidi extends InputConnection {
             this.callback = null;
         }
         // stop any BT scanning that might be running
-        scanForBluetoothDevices(null, null, null, false);
+        stopBluetoothScanning(null);
         // stop it all
         closeOpenMidiConnection();
         // return our success
         return true;
     }
 
-    private void closeOpenMidiConnection() {
+    public void closeOpenMidiConnection() {
         if (null != openMidiOutputPort) {
             try {
                 openMidiOutputPort.close();
@@ -230,19 +234,17 @@ public class InputMidi extends InputConnection {
             });
             return false;
         }
-        if (null == this.bluetoothManager) {
-            // create the manager and get the adapter to check it
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2 &&
-                    context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-                this.bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
-                adapter = bluetoothManager.getAdapter();
-                // Ensures Bluetooth is available on the device and it is enabled. If not,
-                // displays a dialog requesting user permission to enable Bluetooth.
-                if (adapter == null || false == adapter.isEnabled()) {
-                    // not enabled
-                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    context.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-                }
+        // create the manager and get the adapter to check it
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2 &&
+                context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            this.bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+            adapter = bluetoothManager.getAdapter();
+            // Ensures Bluetooth is available on the device and it is enabled. If not,
+            // displays a dialog requesting user permission to enable Bluetooth.
+            if (adapter == null || false == adapter.isEnabled()) {
+                // not enabled
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                context.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
             }
         }
         boolean isConnected = false;
@@ -256,56 +258,85 @@ public class InputMidi extends InputConnection {
         return isConnected;
     }
 
-    public boolean scanForBluetoothDevices(final Activity context, final InputMidiScanListener callback, Handler handler, boolean enable) {
-        if (enable) {
-            // initialise it all
-            if (!initialiseBluetooth(context)) {
-                return false;
+    public boolean stopBluetoothScanning(BluetoothAdapter adapter) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            if (null == adapter) {
+                // no adapter, get it
+                if (null != this.bluetoothManager) {
+                    // there is a manager, get the adapter and do the scan
+                    adapter = this.bluetoothManager.getAdapter();
+                }
             }
+            if (null != adapter && adapter.isEnabled()) {
+                adapter.stopLeScan(btScanCallback);
+                isBtScanning = false;
+            }
+        }
+        // inform the listeners of this change
+        synchronized (listeners) {
+            for (MidiListener listener : listeners) {
+                listener.midiBtScanStatusChange(this.isBtScanning);
+            }
+        }
+        return isBtScanning == false;
+    }
+
+    public boolean scanForBluetoothDevices(final Activity context) {
+        // initialise it all
+        if (!initialiseBluetooth(context)) {
+            return false;
         }
         if (null != this.bluetoothManager && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
             // there is a manager, get the adapter and do the scan
-            final BluetoothAdapter adapter = this.bluetoothManager.getAdapter();
+            BluetoothAdapter adapter = this.bluetoothManager.getAdapter();
             if (null != adapter && adapter.isEnabled()) {
-                // start the discovery
-                if (enable) {
-                    // create the callback
-                    btScanCallback = new BluetoothAdapter.LeScanCallback() {
-                        @Override
-                        public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
-                            // store the default
-                            if (null == defaultBtDevice || InputMidi.GetMidiDeviceId(device).equals(State.getInstance().getMidiDeviceId())) {
-                                defaultBtDevice = device;
+                // if we are already scanning, stop already
+                if (this.isBtScanning()) {
+                    // stop the old scanning
+                    stopBluetoothScanning(adapter);
+                }
+                // create the callback we need for being informed of devices found
+                btScanCallback = new BluetoothAdapter.LeScanCallback() {
+                    @Override
+                    public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
+                        // store the default, this is the first we find or the one that matches the previous
+                        if (null == defaultBtDevice || InputMidi.GetMidiDeviceId(device).equals(State.getInstance().getMidiDeviceId())) {
+                            defaultBtDevice = device;
+                            // and automatically connect to this found device
+                            connectToDevice(device);
+                        }
+                        // inform the listeners of this new device available
+                        synchronized (listeners) {
+                            for (MidiListener listener : listeners) {
+                                listener.midiBtDeviceDiscovered(device);
                             }
-                            // inform the callback
-                            callback.midiBtDeviceDiscovered(device);
                         }
-                    };
-                    // Stops scanning after a pre-defined scan period.
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            isBtScanning = false;
-                            adapter.stopLeScan(btScanCallback);
-                            callback.midiBtScanStatusChange(false);
-                        }
-                    }, SCAN_PERIOD);
+                    }
+                };
+                // Stops scanning after a pre-defined scan period.
+                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        // stop without passing the adapter, will get it again - more current
+                        stopBluetoothScanning(null);
+                    }
+                }, SCAN_PERIOD);
 
-                    this.defaultBtDevice = null;
-                    UUID[] scaningIds = new UUID[] {UUID.fromString(BT_OVER_LE_UUID)};
-                    if (adapter.startLeScan(scaningIds, btScanCallback)) {
-                        this.isBtScanning = true;
-                        callback.midiBtScanStatusChange(true);
-                    }
-                } else {
-                    adapter.stopLeScan(btScanCallback);
-                    isBtScanning = false;
-                    if (null != callback) {
-                        callback.midiBtScanStatusChange(false);
-                    }
+                // finally we can start the scan on this adapter, just looking for BLE MIDI devices
+                this.defaultBtDevice = null;
+                if (adapter.startLeScan(new UUID[] {UUID.fromString(BT_OVER_LE_UUID)}, btScanCallback)) {
+                    // this is scanning, remember this
+                    this.isBtScanning = true;
                 }
             }
         }
+        // inform the listeners of this change in status
+        synchronized (listeners) {
+            for (MidiListener listener : listeners) {
+                listener.midiBtScanStatusChange(this.isBtScanning);
+            }
+        }
+        // return if we are scanning now
         return this.isBtScanning;
     }
 
@@ -341,11 +372,15 @@ public class InputMidi extends InputConnection {
         if (null != this.midiManager && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             MidiDeviceInfo[] infos = this.midiManager.getDevices();
             for (MidiDeviceInfo info : infos) {
-                if (info.getOutputPortCount() > 0) {
+                // get the ID for this, everything should have one.
+                String deviceId = InputMidi.GetMidiDeviceId(info);
+                if (deviceId != null && deviceId.isEmpty() == false && info.getOutputPortCount() > 0) {
                     // this is valid
                     validDevices.add(info);
-                    if (null == this.defaultDevice || InputMidi.GetMidiDeviceId(info).equals(State.getInstance().getMidiDeviceId())) {
+                    if (null == this.defaultDevice || deviceId.equals(State.getInstance().getMidiDeviceId())) {
                         this.defaultDevice = info;
+                        // and auto connect to this device
+                        connectToDevice(info);
                     }
                 }
             }
@@ -374,7 +409,9 @@ public class InputMidi extends InputConnection {
                     public void onDeviceOpened(MidiDevice midiDevice) {
                         // opened a device, find the output port for this and connect to it
                         if (connectToDevice(midiDevice)) {
+                            // we connected, remember this ID
                             activeMidiConnection = GetMidiDeviceId(item);
+                            // inform listeners
                             synchronized (listeners) {
                                 for (MidiListener listener : listeners) {
                                     listener.midiDeviceConnectionChanged(activeMidiConnection, true);
@@ -383,9 +420,11 @@ public class InputMidi extends InputConnection {
                         }
                     }
                 }, new Handler(Looper.getMainLooper()));
+                // if here then it didn't throw - we are connected
                 isConnected = true;
             }
             catch (Exception e) {
+                // inform the dev but just carry on and return out false
                 e.printStackTrace();
             }
         }
@@ -402,7 +441,9 @@ public class InputMidi extends InputConnection {
                     public void onDeviceOpened(MidiDevice midiDevice) {
                         // opened a device, find the output port for this and connect to it
                         if (connectToDevice(midiDevice)) {
+                            // we connected, remember this ID
                             activeMidiConnection = GetMidiDeviceId(item);
+                            // inform listeners
                             synchronized (listeners) {
                                 for (MidiListener listener : listeners) {
                                     listener.midiDeviceConnectionChanged(activeMidiConnection, true);
@@ -411,9 +452,11 @@ public class InputMidi extends InputConnection {
                         }
                     }
                 }, new Handler(Looper.getMainLooper()));
+                // if here then it didn't throw - we ar connected
                 isConnected = true;
             }
             catch (Exception e) {
+                // inform the dev but just carry on and return out false
                 e.printStackTrace();
             }
         }
@@ -425,11 +468,13 @@ public class InputMidi extends InputConnection {
         closeOpenMidiConnection();
         boolean isConnected = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && midiDevice != null) {
+            // find the first output port and use it to connect
             for (MidiDeviceInfo.PortInfo port : midiDevice.getInfo().getPorts()) {
                 if (port.getType() == MidiDeviceInfo.PortInfo.TYPE_OUTPUT) {
                     // this is an output port - connect to this
                     openMidiOutputPort = midiDevice.openOutputPort(port.getPortNumber());
                     if (null != openMidiOutputPort) {
+                        // got the port OK - connect to it
                         openMidiOutputPort.connect(new MidiReceiver() {
                             @Override
                             public void onSend(byte[] data, int offset, int count, long timestamp) throws IOException {
@@ -437,6 +482,7 @@ public class InputMidi extends InputConnection {
                                 processMidiData(data, offset, count, timestamp);
                             }
                         });
+                        // if here then it workeds
                         isConnected = true;
                         break;
                     }
@@ -456,9 +502,20 @@ public class InputMidi extends InputConnection {
 
     private void processMidiData(byte[] data, int offset, int count, long timestamp) {
         // we can ignore the timestamp for ourselves, just doing it live, process the data
-        if ((byte)(data[offset] & COMMAND_BYTE_MASK) == COMMAND_BYTE_MASK) {
-            // this is the command
-            byte command = (byte) (data[offset] & STATUS_COMMAND_MASK);
+        // in reality we are sent the data in batches of 3 (command, volume, velocity) however
+        // it can send it in larger batches (command, vol, vel, vol, vel etc) so let's deal with
+        // each item of data one at a time.
+        for (int i = 0; i < count; ++i) {
+            // process each item of data one at a time
+            processMidiData(data[offset + i], timestamp);
+        }
+    }
+
+    private void processMidiData(byte data, long timestamp) {
+        // one at a time we will be processing the data and commands, check for a new command
+        if ((byte)(data & COMMAND_BYTE_MASK) == COMMAND_BYTE_MASK) {
+            // this is the command, the MASK means that it is
+            byte command = (byte) (data & STATUS_COMMAND_MASK);
             switch (command) {
                 case STATUS_NOTE_OFF:
                     this.runningState = MidiCommand.NoteOff;
@@ -467,31 +524,54 @@ public class InputMidi extends InputConnection {
                     this.runningState = MidiCommand.NoteOn;
                     break;
                 default:
+                    // we are not interested in all the other rubbish MIDI sends us
                     this.runningState = MidiCommand.None;
                     break;
             }
-            this.midiChannel = (byte) (data[offset] & STATUS_CHANNEL_MASK);
+            // remember the channel, for interest mostly
+            this.midiChannel = (byte) (data & STATUS_CHANNEL_MASK);
+            // a new command means a new note
+            this.runningNote = null;
+        }
+        else if (this.runningState != MidiCommand.None) {
             // have the command, process the accompanying data for this command
-            if (this.runningState != MidiCommand.None) {
-                // this is the data
-                int value = data[offset + 1];
+            if (null == this.runningNote) {
+                // this is the first bit of data that follows the command, this is the note
+                // to which it refers
+                int value = data;
+                // the value (integer) is just the data, the index of the note in the array
                 if (value < this.midiNotes.length && value >= 0) {
+                    // this is valid, use it to get the note
                     this.runningNote = this.midiNotes[value];
                 }
-                if (null != this.runningNote) {
-                    // get velocity then
-                    float velocityToProbability = (data[offset + 2] / 40f) * 100f;
-                    switch (this.runningState) {
-                        case NoteOn:
-                            informNoteDetection(this.runningNote, velocityToProbability > 99f, velocityToProbability, 1);
-                            break;
-                        case NoteOff:
-                            informNoteDetection(this.runningNote, false, velocityToProbability, 1);
-                            break;
+                if (this.runningNote == null) {
+                    // we don't have this note, but something was played, get the closest
+                    Notes notes = Notes.instance();
+                    if (value < this.midiNotes.length * 0.5f) {
+                        // the note is too low for us, use the least note we have available
+                        this.runningNote = notes.getNote(0);
                     }
-                    // no note then, done it
-                    this.runningNote = null;
+                    else {
+                        // the note is too high for us, use the max note we have available
+                        this.runningNote = notes.getNote(notes.getNoteCount() - 1);
+                    }
                 }
+            }
+            else {
+                // this is the second item of data, their being a note... play the note at the velocity specified
+                // we want a probability, 40 is very soft (piano) so this can be 100%
+                float velocityToProbability = (data / 40f) * 100f;
+                // inform people we have detected the hit note, a velocity of 0 is like a NOTE_OFF
+                switch (this.runningState) {
+                    case NoteOn:
+                        informNoteDetection(this.runningNote, velocityToProbability > 40f, velocityToProbability, 1);
+                        break;
+                    case NoteOff:
+                        informNoteDetection(this.runningNote, false, velocityToProbability, 1);
+                        break;
+                }
+                // no note then, done it here
+                this.runningNote = null;
             }
         }
     }

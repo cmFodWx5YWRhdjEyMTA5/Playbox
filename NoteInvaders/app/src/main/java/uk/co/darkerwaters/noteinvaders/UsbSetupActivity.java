@@ -1,5 +1,6 @@
 package uk.co.darkerwaters.noteinvaders;
 
+import android.bluetooth.BluetoothDevice;
 import android.content.res.Resources;
 import android.media.midi.MidiDeviceInfo;
 import android.os.Bundle;
@@ -95,12 +96,6 @@ public class UsbSetupActivity extends AppCompatActivity implements PianoView.IPi
         else {
             this.deviceLabel.setVisibility(View.GONE);
         }
-
-        // and select the default if we can
-        MidiDeviceInfo defaultDevice = this.inputMidi.getDefaultDevice();
-        if (null != defaultDevice) {
-            onMidiListItemClicked(defaultDevice);
-        }
     }
 
     @Override
@@ -111,7 +106,17 @@ public class UsbSetupActivity extends AppCompatActivity implements PianoView.IPi
 
     @Override
     public void midiDeviceConnectionChanged(String deviceId, boolean isConnected) {
-        // okay - we are connected or whatever
+        // okay - some BT keyboard connected or whatever
+    }
+
+    @Override
+    public void midiBtDeviceDiscovered(BluetoothDevice device) {
+        // we are not interested in bt here
+    }
+
+    @Override
+    public void midiBtScanStatusChange(boolean isScanning) {
+        // we are not interested in bt here
     }
 
     @Override

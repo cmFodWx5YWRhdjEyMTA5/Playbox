@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -76,14 +77,22 @@ public class UsbItemAdapter extends RecyclerView.Adapter<UsbItemAdapter.ViewHold
             Bundle properties = holder.item.getProperties();
             String manufacturer = properties.getString(MidiDeviceInfo.PROPERTY_MANUFACTURER);
             String name = properties.getString(MidiDeviceInfo.PROPERTY_PRODUCT);
-            // set this on the holder
-            holder.title.setText(manufacturer);
-            holder.subtitle.setText(name);
-            int visibility = View.GONE;
-            if (InputMidi.GetMidiDeviceId(holder.item).equals(State.getInstance().getMidiDeviceId())) {
-                visibility = View.VISIBLE;
+            if (manufacturer != null && manufacturer.isEmpty() == false) {
+                // show the manufacturer and the name
+                holder.title.setText(manufacturer);
+                holder.subtitle.setText(name);
             }
-            holder.selected.setVisibility(visibility);
+            else {
+                // show the ID we will use
+                holder.title.setText(InputMidi.GetMidiDeviceId(holder.item));
+                holder.subtitle.setText("");
+            }
+            if (InputMidi.GetMidiDeviceId(holder.item).equals(State.getInstance().getMidiDeviceId())) {
+                holder.selected.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.fade_in));
+            }
+            else {
+                holder.selected.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.fade));
+            }
         }
     }
 

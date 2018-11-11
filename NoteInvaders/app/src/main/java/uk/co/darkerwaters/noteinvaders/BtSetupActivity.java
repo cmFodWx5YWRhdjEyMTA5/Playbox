@@ -77,22 +77,13 @@ public class BtSetupActivity extends AppCompatActivity implements PianoView.IPia
                 public void onClick(View view) {
                     if (inputMidi.isBtScanning()) {
                         // stop scanning
-                        inputMidi.scanForBluetoothDevices(BtSetupActivity.this, new InputMidi.InputMidiScanListener() {
-                            @Override
-                            public void midiBtScanStatusChange(boolean isScanning) {
-                                // update the progress
-                                showScanningStatus(isScanning);
-                            }
-                            @Override
-                            public void midiBtDeviceDiscovered(BluetoothDevice device) {
-                                // not interested, are cancelling
-                            }
-                        }, null, false);
+                        inputMidi.stopBluetoothScanning(null);
                     }
                     else {
                         // scan
                         discoverDevices();
                     }
+                    showScanningStatus(inputMidi.isBtScanning());
                 }
             });
         }
@@ -110,8 +101,9 @@ public class BtSetupActivity extends AppCompatActivity implements PianoView.IPia
             this.deviceLabel.setText(R.string.no_ble_available);
             this.detectButton.setEnabled(false);
         }
-        else if (this.inputMidi.isConnectionActive()) {
+        else if (this.inputMidi.isConnectionActive() || this.inputMidi.isBtScanning()) {
             // show the active connection
+            deviceLabel.setText(this.inputMidi.getActiveMidiConnection());
             deviceLabel.setVisibility(View.GONE);
         }
         else {
@@ -140,16 +132,48 @@ public class BtSetupActivity extends AppCompatActivity implements PianoView.IPia
     }
 
     private void discoverDevices() {
-        // clear the old list
-        BtItemAdapter adapter = (BtItemAdapter) listView.getAdapter();
-        adapter.clearList();
         // scan for the devices to add to this adapter
-        this.inputMidi.scanForBluetoothDevices(this, new InputMidi.InputMidiScanListener() {
-            @Override
-            public void midiBtDeviceDiscovered(BluetoothDevice device) {
-                BtItemAdapter adapter = (BtItemAdapter) listView.getAdapter();
-                if (adapter.getItemCount() == 0) {
-                    // hide the label
+        this.inputMidi.scanForBluetoothDevices(this);
+        // and show the label properly now we are doing something
+        showDeviceLabel();
+    }
+
+    @Override
+    public void midiBtScanStatusChange(boolean isScanning) {
+        // update the progress
+        showScanningStatus(isScanning);
+    }
+
+    @Override
+    public void midiBtDeviceDiscovered(final BluetoothDevice device) {
+        // discovered a device, add it to the list and connect if it is what we are interested in
+        BtItemAdapter adapter = (BtItemAdapter) listView.getAdapter();
+        if (adapter.getItemCount() == 0) {
+            // hide the label
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    showDeviceLabel();
+                }
+            });
+        }
+        // discovered a device, add to the list
+        adapter.addDevice(device);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case InputMidi.REQUEST_ENABLE_PERMISSIONS:
+            case InputMidi.REQUEST_ENABLE_BT:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, this would have been done from the user
+                    // asking to scan for new devices, but didn't because no permissions.
+                    // do that now then
+                    discoverDevices();
+                } else {
+                    // permission denied, their choice though. don't do anything here
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -157,50 +181,7 @@ public class BtSetupActivity extends AppCompatActivity implements PianoView.IPia
                         }
                     });
                 }
-                // discovered a device, add to the list
-                if (adapter.addDevice(device)) {
-                    // and select the default if we can
-                    BluetoothDevice defaultDevice = inputMidi.getDefaultBtDevice();
-                    if (null != defaultDevice && defaultDevice.equals(device)) {
-                        // this is the default, select this
-                        onBtListItemClicked(device);
-                    }
-                }
-            }
-
-            @Override
-            public void midiBtScanStatusChange(boolean isScanning) {
-                // show / hide the status of the scan
-                showScanningStatus(isScanning);
-            }
-        }, new Handler(), true);
-        showDeviceLabel();
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case InputMidi.REQUEST_ENABLE_PERMISSIONS: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay!
-
-                } else {
-                    // permission denied, boo!
-
-                }
                 break;
-            }
-            case InputMidi.REQUEST_ENABLE_BT: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay!
-
-                } else {
-                    // permission denied, boo!
-
-                }
-                break;
-            }
         }
     }
 
@@ -219,7 +200,6 @@ public class BtSetupActivity extends AppCompatActivity implements PianoView.IPia
     @Override
     public void onBtListItemClicked(BluetoothDevice item) {
         // have clicked an item in the list, select this one then
-        showDeviceLabel();
         State.getInstance().setMidiDeviceId(this, InputMidi.GetMidiDeviceId(item));
         // also connect to this device on our input
         this.inputMidi.connectToDevice(item);
@@ -229,7 +209,9 @@ public class BtSetupActivity extends AppCompatActivity implements PianoView.IPia
             public void onNoteDetected(Note note, final boolean isDetection, final float probability, final int frequency) {
                 // add to our range of notes we can detect
                 if (isDetection && probability > 1f) {
+                    // add this pitch the piano range we are showing
                     addDetectedPitch(note);
+                    // update the view of this piano
                     BtSetupActivity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -244,6 +226,7 @@ public class BtSetupActivity extends AppCompatActivity implements PianoView.IPia
         });
         // also update the list view, the state of the item connected will have changed
         this.listView.getAdapter().notifyDataSetChanged();
+        showDeviceLabel();
     }
 
     @Override
@@ -259,14 +242,16 @@ public class BtSetupActivity extends AppCompatActivity implements PianoView.IPia
         // remove us as a listener
         this.piano.removeListener(this);
         this.inputMidi.removeListener(this);
-
+        // and let the base class pause
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
+        // close it all
         this.piano.closeView();
         this.inputMidi.stopConnection();
+        // and destroy the activity
         super.onDestroy();
     }
 

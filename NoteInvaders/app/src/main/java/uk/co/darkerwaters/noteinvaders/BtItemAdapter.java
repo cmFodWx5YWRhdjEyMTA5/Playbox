@@ -8,6 +8,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -92,11 +95,12 @@ public class BtItemAdapter extends RecyclerView.Adapter<BtItemAdapter.ViewHolder
         // set the data on the holder
         holder.title.setText(holder.item.getName());
         holder.subtitle.setText(holder.item.getAddress());
-        int visibility = View.GONE;
         if (InputMidi.GetMidiDeviceId(holder.item).equals(State.getInstance().getMidiDeviceId())) {
-            visibility = View.VISIBLE;
+            holder.selected.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.fade_in));
         }
-        holder.selected.setVisibility(visibility);
+        else {
+            holder.selected.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.fade));
+        }
     }
 
     @Override
