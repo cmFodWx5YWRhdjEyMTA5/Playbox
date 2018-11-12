@@ -32,6 +32,7 @@ public class InputMicrophone extends InputConnection {
 
     private Thread reductionThread = null;
     private final Object waitingObject = new Object();
+    private PitchProcessor audioProcessor = null;
 
     public InputMicrophone(Activity context) {
         super(context);
@@ -59,6 +60,8 @@ public class InputMicrophone extends InputConnection {
         if (this.isThreadStarted) {
             this.isThreadStarted = false;
             this.dispatcher.stop();
+            this.dispatcher.removeAudioProcessor(this.audioProcessor);
+            this.audioProcessor.processingFinished();
         }
         synchronized (this.waitingObject) {
             this.waitingObject.notifyAll();
@@ -100,8 +103,8 @@ public class InputMicrophone extends InputConnection {
             // start it all up
             try {
                 this.dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(22050, 1024, 0);
-                AudioProcessor p = new PitchProcessor(PitchProcessor.PitchEstimationAlgorithm.FFT_YIN, 22050, 1024, pdh);
-                this.dispatcher.addAudioProcessor(p);
+                this.audioProcessor = new PitchProcessor(PitchProcessor.PitchEstimationAlgorithm.FFT_YIN, 22050, 1024, pdh);
+                this.dispatcher.addAudioProcessor(this.audioProcessor);
                 // create the thread to perform the processing and start it
                 this.detectionThread = new Thread(dispatcher, "Audio Dispatcher");
                 this.detectionThread.start();

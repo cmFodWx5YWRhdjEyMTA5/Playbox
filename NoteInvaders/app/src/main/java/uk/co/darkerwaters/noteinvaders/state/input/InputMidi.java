@@ -45,6 +45,11 @@ public class InputMidi extends InputConnection {
     public static final int REQUEST_ENABLE_PERMISSIONS = 122;
     private static final String BT_OVER_LE_UUID = "03B80E5A-EDE8-4B33-A751-6CE34EC4C700";
 
+    private static final int K_BT = 0;
+    private static final int K_USB = 1;
+    private static final int K_MIDI = 2;
+    public static final int K_BT_SCAN_PERIOD = 10000;
+
     public interface MidiListener {
         void midiDeviceConnectivityChanged(MidiDeviceInfo deviceInfo, boolean isConnected);
         void midiDeviceConnectionChanged(String deviceId, boolean isConnected);
@@ -57,12 +62,6 @@ public class InputMidi extends InputConnection {
     private BluetoothAdapter.LeScanCallback btScanCallback = null;
     private volatile boolean isBtScanning = false;
     private MidiManager.DeviceCallback callback = null;
-    private enum ConnectionType {
-        BT,
-        USB,
-        UNKNOWN
-    };
-    private ConnectionType lastConnectionType = ConnectionType.UNKNOWN;
 
     private final List<MidiListener> listeners;
 
@@ -86,14 +85,58 @@ public class InputMidi extends InputConnection {
         return deviceId == null ? "" : deviceId;
     }
 
-    private MidiDeviceInfo defaultDevice = null;
-    private BluetoothDevice defaultBtDevice = null;
-    private MidiOutputPort openMidiOutputPort = null;
-    private String activeMidiConnection = null;
-    private final Note[] midiNotes;
+    /*
+    need to do this special as scanning twice can miss previously discovered devices
+    so we will have to keep and refresh a nice static list of BT devices
+     */
+    private static class BluetoothDeviceList {
+        private final List<BluetoothDevice> devices;
+        private BluetoothDevice defaultDevice;
+        BluetoothDeviceList() {
+            devices = new ArrayList<BluetoothDevice>();
+            defaultDevice = null;
+        }
+        void add(BluetoothDevice device) {
+            synchronized (this.devices) {
+                // remove any that match this device
+                String deviceId = GetMidiDeviceId(device);
+                for (BluetoothDevice old : this.devices) {
+                    if (GetMidiDeviceId(old).equals(deviceId)) {
+                        // this is a match - remove
+                        this.devices.remove(old);
+                        break;
+                    }
+                }
+                // add the new one
+                this.devices.add(device);
+                if (null == defaultDevice || GetMidiDeviceId(defaultDevice).equals(deviceId)) {
+                    // there is no default, or this replaces is
+                    defaultDevice = device;
+                }
+            }
+        }
+        BluetoothDevice getDefaultDevice() {
+            return this.defaultDevice;
+        }
+        int size() {
+            synchronized (this.devices) {
+                return this.devices.size();
+            }
+        }
+        BluetoothDevice[] getAll() {
+            synchronized (this.devices) {
+                return this.devices.toArray(new BluetoothDevice[this.devices.size()]);
+            }
+        }
+    }
 
-    private int noUsbDevices = 0;
-    private int noBtDevices = 0;
+    private int lastConnectionType = -1;
+    private MidiDeviceInfo defaultUsbDevice = null;
+    private static final BluetoothDeviceList btDevices = new BluetoothDeviceList();
+    private List<MidiDeviceInfo> usbDevices = new ArrayList<MidiDeviceInfo>();
+    private MidiOutputPort openMidiOutputPort = null;
+    private String[] activeConnectionId = new String[3];
+    private final Note[] midiNotes;
 
     //MIDI COMMAND MASKS / DATA
     private static final byte COMMAND_BYTE_MASK = (byte) 0x80;
@@ -144,55 +187,54 @@ public class InputMidi extends InputConnection {
         }
     }
 
-    private void initialiseMidi(final Activity context) {
+    public void initialiseMidi(final Activity context) {
         // setup MIDI on this activity
         // and listen for hot-plugins
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                null != this.midiManager &&
+                null == this.callback) {
             this.callback = new MidiManager.DeviceCallback() {
                 @Override
                 public void onDeviceAdded(MidiDeviceInfo device) {
                     super.onDeviceAdded(device);
-                    // change the selected device to be this thing just plugged in
-                    if (device.getOutputPortCount() > 0 && isConnectionActive() == false) {
-                        // this is a device that outputs notes to us, connect to this
-                        connectToDevice(device);
-                    }
+                    // inform listeners of this discovery
                     synchronized (listeners) {
                         for (MidiListener listener : listeners) {
                             listener.midiDeviceConnectivityChanged(device, true);
                         }
                     }
                 }
-
                 @Override
                 public void onDeviceRemoved(MidiDeviceInfo device) {
                     super.onDeviceRemoved(device);
                     // change the selected device to not be the thing just unplugged
-                    if (GetMidiDeviceId(device).equals(State.getInstance().getMidiDeviceId())) {
-                        // just removed the device that we are using, stop using it
+                    if (lastConnectionType == K_USB && activeConnectionId[K_USB].equals(GetMidiDeviceId(device))) {
+                        // just removed the USB device that we are using, stop using it
                         closeOpenMidiConnection();
+                        // set the state to be keyboard now we disconnected
+                        State.getInstance().setSelectedInput(State.InputType.keyboard);
                         // try to reconnect
                         switch (lastConnectionType) {
-                            case BT:
-                                scanForBluetoothDevices(context);
+                            case K_BT:
+                                scanForBluetoothDevices(context, true);
                                 break;
-                            case USB:
-                                getConnectedDevices();
+                            case K_USB:
+                                getConnectedUsbDevices();
                                 break;
                         }
-
-                        State.getInstance().setSelectedInput(State.InputType.keyboard);
                     }
                 }
             };
-            this.midiManager.registerDeviceCallback(callback, new Handler(Looper.getMainLooper()));
+            this.midiManager.registerDeviceCallback(this.callback, new Handler(Looper.getMainLooper()));
         }
     }
 
     @Override
     public boolean stopConnection() {
         // stop listening
-        if (null != this.callback && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (null != this.callback &&
+                null != this.midiManager &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             this.midiManager.unregisterDeviceCallback(this.callback);
             this.callback = null;
         }
@@ -208,12 +250,17 @@ public class InputMidi extends InputConnection {
         if (null != openMidiOutputPort) {
             try {
                 openMidiOutputPort.close();
+                openMidiOutputPort = null;
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            String deviceDisconnected = activeMidiConnection;
-            openMidiOutputPort = null;
-            activeMidiConnection = null;
+            // remember the ID we just disconnected
+            String deviceDisconnected = activeConnectionId[lastConnectionType];
+            for (int i = 0; i < 3; ++i) {
+                // clear the connection IDs all to nothing
+                activeConnectionId[i] = new String();
+            }
+            // inform the listners of this disconnection
             synchronized (this.listeners) {
                 for (MidiListener listener : this.listeners) {
                     listener.midiDeviceConnectionChanged(deviceDisconnected, false);
@@ -225,7 +272,6 @@ public class InputMidi extends InputConnection {
     @Override
     public boolean startConnection() {
         // start everything up
-
         return true;
     }
 
@@ -295,7 +341,7 @@ public class InputMidi extends InputConnection {
         return isBtScanning == false;
     }
 
-    public boolean scanForBluetoothDevices(final Activity context) {
+    public boolean scanForBluetoothDevices(final Activity context, boolean isIncludePrevious) {
         // initialise it all
         if (!initialiseBluetooth(context)) {
             return false;
@@ -313,13 +359,8 @@ public class InputMidi extends InputConnection {
                 btScanCallback = new BluetoothAdapter.LeScanCallback() {
                     @Override
                     public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
-                        ++noBtDevices;
-                        // store the default, this is the first we find or the one that matches the previous
-                        if (null == defaultBtDevice || InputMidi.GetMidiDeviceId(device).equals(State.getInstance().getMidiDeviceId())) {
-                            defaultBtDevice = device;
-                            // and automatically connect to this found device
-                            connectToDevice(device);
-                        }
+                        // add this to the list of BT devices
+                        btDevices.add(device);
                         // inform the listeners of this new device available
                         synchronized (listeners) {
                             for (MidiListener listener : listeners) {
@@ -335,10 +376,21 @@ public class InputMidi extends InputConnection {
                         // stop without passing the adapter, will get it again - more current
                         stopBluetoothScanning(null);
                     }
-                }, 10000);
+                }, K_BT_SCAN_PERIOD);
+
+                if (isIncludePrevious) {
+                    // send a message for each device we already have
+                    for (BluetoothDevice device : btDevices.getAll()) {
+                        // inform the listeners of this previously available device
+                        synchronized (listeners) {
+                            for (MidiListener listener : listeners) {
+                                listener.midiBtDeviceDiscovered(device);
+                            }
+                        }
+                    }
+                }
 
                 // finally we can start the scan on this adapter, just looking for BLE MIDI devices
-                this.defaultBtDevice = null;
                 if (adapter.startLeScan(new UUID[] {UUID.fromString(BT_OVER_LE_UUID)}, btScanCallback)) {
                     // this is scanning, remember this
                     this.isBtScanning = true;
@@ -359,13 +411,13 @@ public class InputMidi extends InputConnection {
         return this.isBtScanning;
     }
 
-    public boolean addListener(MidiListener listener) {
+    public boolean addMidiListener(MidiListener listener) {
         synchronized (listeners) {
             return listeners.add(listener);
         }
     }
 
-    public boolean removeListener(MidiListener listener) {
+    public boolean removeMidiListener(MidiListener listener) {
         synchronized (listeners) {
             return listeners.remove(listener);
         }
@@ -381,77 +433,88 @@ public class InputMidi extends InputConnection {
                 context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
     }
 
-    public List<MidiDeviceInfo> getConnectedDevices() {
-        List<MidiDeviceInfo> validDevices = new ArrayList<MidiDeviceInfo>();
-        this.defaultDevice = null;
-        this.noUsbDevices = 0;
-        if (null != this.midiManager && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            MidiDeviceInfo[] infos = this.midiManager.getDevices();
-            for (MidiDeviceInfo info : infos) {
-                // get the ID for this, everything should have one.
-                String deviceId = InputMidi.GetMidiDeviceId(info);
-                if (deviceId != null && deviceId.isEmpty() == false && info.getOutputPortCount() > 0) {
-                    // this is valid
-                    ++this.noUsbDevices;
-                    validDevices.add(info);
-                    if (null == this.defaultDevice || deviceId.equals(State.getInstance().getMidiDeviceId())) {
-                        this.defaultDevice = info;
-                        // and auto connect to this device
-                        connectToDevice(info);
+    public List<MidiDeviceInfo> getConnectedUsbDevices() {
+        this.defaultUsbDevice = null;
+        synchronized (this.usbDevices) {
+            this.usbDevices.clear();
+            if (null != this.midiManager && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                MidiDeviceInfo[] infos = this.midiManager.getDevices();
+                for (MidiDeviceInfo info : infos) {
+                    // get the ID for this, everything should have one.
+                    String deviceId = InputMidi.GetMidiDeviceId(info);
+                    if (deviceId != null && deviceId.isEmpty() == false && info.getOutputPortCount() > 0) {
+                        // this is valid
+                        usbDevices.add(info);
+                        if (null == this.defaultUsbDevice || deviceId.equals(State.getInstance().getMidiDeviceId())) {
+                            // this is the correct default USB device to use
+                            this.defaultUsbDevice = info;
+                        }
                     }
                 }
             }
+            // return all the found USB devices (own copy to stop them messing with our list)
+            return new ArrayList<MidiDeviceInfo>(this.usbDevices);
         }
-        return validDevices;
     }
 
-    public MidiDeviceInfo getDefaultDevice() {
-        if (null == this.defaultDevice) {
-            getConnectedDevices();
-        }
-        return this.defaultDevice;
+    public MidiDeviceInfo getDefaultUsbDevice() {
+        return this.defaultUsbDevice;
     }
 
     public BluetoothDevice getDefaultBtDevice() {
-        return this.defaultBtDevice;
+        return btDevices.getDefaultDevice();
     }
 
     public int getNoUsbDevices() {
-        return this.noUsbDevices;
+        synchronized (this.usbDevices) {
+            return this.usbDevices.size();
+        }
     }
 
     public int getNoBtDevices() {
-        return this.noBtDevices;
+        return btDevices.size();
     }
 
     public boolean connectToDevice(final BluetoothDevice item) {
         boolean isConnected = false;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // we need to ensure that this is valid, wrap in a try.catch
-            try {
-                this.lastConnectionType = ConnectionType.BT;
-                this.midiManager.openBluetoothDevice(item, new MidiManager.OnDeviceOpenedListener() {
-                    @Override
-                    public void onDeviceOpened(MidiDevice midiDevice) {
-                        // opened a device, find the output port for this and connect to it
-                        if (connectToDevice(midiDevice)) {
-                            // we connected, remember this ID
-                            activeMidiConnection = GetMidiDeviceId(item);
-                            // inform listeners
-                            synchronized (listeners) {
-                                for (MidiListener listener : listeners) {
-                                    listener.midiDeviceConnectionChanged(activeMidiConnection, true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && null != item) {
+            // check our existing connection
+            if (isConnectionActive() &&
+                    this.lastConnectionType == K_BT &&
+                    this.activeConnectionId[K_BT].equals(GetMidiDeviceId(item))) {
+                // this is connected already
+                isConnected = true;
+            }
+            else {
+                // things can go badly wrong in the depths of MIDI and BT so try/catch it
+                try {
+                    // store what we are trying here
+                    this.lastConnectionType = K_BT;
+                    this.activeConnectionId[K_BT] = GetMidiDeviceId(item);
+                    // and open the device
+                    this.midiManager.openBluetoothDevice(item, new MidiManager.OnDeviceOpenedListener() {
+                        @Override
+                        public void onDeviceOpened(MidiDevice midiDevice) {
+                            // opened a device, find the output port for this and connect to it
+                            // also checking that it is from our attempt to connect a BT device
+                            if (lastConnectionType == K_BT && connectToDevice(midiDevice)) {
+                                // we connected, remember this ID
+                                activeConnectionId[K_MIDI] = GetMidiDeviceId(item);
+                                // inform listeners
+                                synchronized (listeners) {
+                                    for (MidiListener listener : listeners) {
+                                        listener.midiDeviceConnectionChanged(activeConnectionId[K_BT], true);
+                                    }
                                 }
                             }
                         }
-                    }
-                }, new Handler(Looper.getMainLooper()));
-                // if here then it didn't throw - we are connected
-                isConnected = true;
-            }
-            catch (Exception e) {
-                // inform the dev but just carry on and return out false
-                e.printStackTrace();
+                    }, new Handler(Looper.getMainLooper()));
+                    // if here then it didn't throw - we are connected
+                    isConnected = true;
+                } catch (Exception e) {
+                    // inform the dev but just carry on and return out false
+                    e.printStackTrace();
+                }
             }
         }
         return isConnected;
@@ -459,32 +522,44 @@ public class InputMidi extends InputConnection {
 
     public boolean connectToDevice(final MidiDeviceInfo item) {
         boolean isConnected = false;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // we need to ensure that this is valid, wrap in a try.catch
-            try {
-                this.lastConnectionType = ConnectionType.USB;
-                this.midiManager.openDevice(item, new MidiManager.OnDeviceOpenedListener() {
-                    @Override
-                    public void onDeviceOpened(MidiDevice midiDevice) {
-                        // opened a device, find the output port for this and connect to it
-                        if (connectToDevice(midiDevice)) {
-                            // we connected, remember this ID
-                            activeMidiConnection = GetMidiDeviceId(item);
-                            // inform listeners
-                            synchronized (listeners) {
-                                for (MidiListener listener : listeners) {
-                                    listener.midiDeviceConnectionChanged(activeMidiConnection, true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && null != item) {
+            // check our existing connection
+            if (isConnectionActive() &&
+                    this.lastConnectionType == K_USB &&
+                    this.activeConnectionId[K_USB].equals(GetMidiDeviceId(item))) {
+                // this is connected already
+                isConnected = true;
+            }
+            else {
+                // things can go badly wrong in the depths of MIDI and BT so try/catch it
+                try {
+                    // store that we are trying a USB connectio here
+                    this.lastConnectionType = K_USB;
+                    this.activeConnectionId[K_USB] = GetMidiDeviceId(item);
+                    // and open the device
+                    this.midiManager.openDevice(item, new MidiManager.OnDeviceOpenedListener() {
+                        @Override
+                        public void onDeviceOpened(MidiDevice midiDevice) {
+                            // annoyingly a message from connecting BT MIDI will fire this,
+                            // check we are actually connecting via USB
+                            if (lastConnectionType == K_USB && connectToDevice(midiDevice)) {
+                                // we connected, remember this ID
+                                activeConnectionId[K_MIDI] = GetMidiDeviceId(item);
+                                // inform listeners
+                                synchronized (listeners) {
+                                    for (MidiListener listener : listeners) {
+                                        listener.midiDeviceConnectionChanged(activeConnectionId[K_USB], true);
+                                    }
                                 }
                             }
                         }
-                    }
-                }, new Handler(Looper.getMainLooper()));
-                // if here then it didn't throw - we ar connected
-                isConnected = true;
-            }
-            catch (Exception e) {
-                // inform the dev but just carry on and return out false
-                e.printStackTrace();
+                    }, new Handler(Looper.getMainLooper()));
+                    // if here then it didn't throw - we ar connected
+                    isConnected = true;
+                } catch (Exception e) {
+                    // inform the dev but just carry on and return out false
+                    e.printStackTrace();
+                }
             }
         }
         return isConnected;
@@ -520,11 +595,19 @@ public class InputMidi extends InputConnection {
     }
 
     public boolean isConnectionActive() {
-        return openMidiOutputPort != null && activeMidiConnection != null && activeMidiConnection.isEmpty() == false;
+        return this.openMidiOutputPort != null;
+    }
+
+    public String getActiveBtConnection() {
+        return this.activeConnectionId[K_BT];
+    }
+
+    public String getActiveUsbConnection() {
+        return this.activeConnectionId[K_USB];
     }
 
     public String getActiveMidiConnection() {
-        return this.activeMidiConnection == null ? "" : this.activeMidiConnection;
+        return this.activeConnectionId[K_MIDI];
     }
 
     private void processMidiData(byte[] data, int offset, int count, long timestamp) {

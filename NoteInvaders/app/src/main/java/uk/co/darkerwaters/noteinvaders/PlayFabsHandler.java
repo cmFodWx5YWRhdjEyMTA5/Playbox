@@ -8,6 +8,9 @@ import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import uk.co.darkerwaters.noteinvaders.state.Notes;
 import uk.co.darkerwaters.noteinvaders.state.State;
 
@@ -22,7 +25,8 @@ public class PlayFabsHandler implements State.InputChangeListener {
     private boolean isFabsShown = false;
     private final Activity context;
     private final State.InputChangeListener changeDeligate;
-    private State.InputType currentInput = State.InputType.keyboard;
+    private State.InputType currentInput;
+    private final Map<State.InputType, Boolean> inputState;
 
     public PlayFabsHandler(Activity context, State.InputChangeListener changeListener) {
         this.context = context;
@@ -33,8 +37,8 @@ public class PlayFabsHandler implements State.InputChangeListener {
         this.usbFab = (FloatingActionButton) context.findViewById(R.id.input_action_3);
         this.btFab = (FloatingActionButton) context.findViewById(R.id.input_action_4);
 
-        // set the correct current icon
-        setInputIcon();
+        // get the current input type to initialise the view
+        this.currentInput = State.getInstance().getSelectedInput();
 
         // set the icons on these buttons
         this.inputFab.setImageResource(R.drawable.ic_baseline_keyboard_24px);
@@ -42,6 +46,18 @@ public class PlayFabsHandler implements State.InputChangeListener {
         this.micFab.setImageResource(R.drawable.ic_baseline_mic_24px);
         this.usbFab.setImageResource(R.drawable.ic_baseline_usb_24px);
         this.btFab.setImageResource(R.drawable.ic_baseline_bluetooth_audio_24px);
+
+        // set the correct current icon
+        setInputIcon();
+
+        // setup the map of states
+        this.inputState = new HashMap<State.InputType, Boolean>();
+        for (State.InputType type : State.InputType.values()) {
+            // initialise the state to be false
+            this.inputState.put(type, new Boolean(false));
+            // and initialise the colour of the icon accordingly
+            setInputAvailability(type, false);
+        }
 
         this.inputFab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,14 +104,22 @@ public class PlayFabsHandler implements State.InputChangeListener {
     @Override
     public void onInputTypeChanged(State.InputType type) {
         // the input type has changed, update ourselves here
-        setInputIcon();
+        this.currentInput = type;
+        // set the correct icon
+        context.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // changing the icon has to happen on the UI
+                setInputIcon();
+            }
+        });
         // and inform the listener of us
         this.changeDeligate.onInputTypeChanged(type);
     }
 
     private void setInputIcon() {
         if (null != this.inputFab) {
-            switch (State.getInstance().getSelectedInput()) {
+            switch (this.currentInput) {
                 case keyboard:
                     this.inputFab.setImageResource(R.drawable.ic_baseline_keyboard_24px);
                     break;
@@ -109,10 +133,17 @@ public class PlayFabsHandler implements State.InputChangeListener {
                     this.inputFab.setImageResource(R.drawable.ic_baseline_bluetooth_audio_24px);
                     break;
             }
+            // also need to set the correct colour for the state
+            if (null != inputState) {
+                setButtonTint(this.inputFab, this.inputState.get(this.currentInput));
+            }
         }
     }
 
     public void setInputAvailability(State.InputType input, boolean state) {
+        // set the state
+        this.inputState.put(input, state);
+        // and change the tint for this button
         if (null != this.inputFab) {
             switch (input) {
                 case keyboard:

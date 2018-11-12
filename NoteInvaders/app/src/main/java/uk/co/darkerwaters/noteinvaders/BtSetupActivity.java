@@ -25,7 +25,11 @@ import uk.co.darkerwaters.noteinvaders.state.input.InputConnectionInterface;
 import uk.co.darkerwaters.noteinvaders.state.input.InputMidi;
 import uk.co.darkerwaters.noteinvaders.views.PianoView;
 
-public class BtSetupActivity extends AppCompatActivity implements PianoView.IPianoViewListener, BtItemAdapter.BtListListener, InputMidi.MidiListener {
+public class BtSetupActivity extends AppCompatActivity implements
+        PianoView.IPianoViewListener,
+        BtItemAdapter.BtListListener,
+        InputMidi.MidiListener,
+        InputConnectionInterface {
 
     private PianoView piano = null;
     private TextView pianoRangeText = null;
@@ -87,27 +91,6 @@ public class BtSetupActivity extends AppCompatActivity implements PianoView.IPia
                 }
             });
         }
-        // add a listener for MIDI input
-        this.inputMidi.addListener(new InputConnectionInterface() {
-            @Override
-            public void onNoteDetected(Note note, final boolean isDetection, final float probability, final int frequency) {
-                // add to our range of notes we can detect
-                if (isDetection && probability > 1f) {
-                    // add this pitch the piano range we are showing
-                    addDetectedPitch(note);
-                    // update the view of this piano
-                    BtSetupActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // invalidate the view to display it okay
-                            piano.invalidate();
-                            // show the range of the piano
-                            BtSetupActivity.this.pianoRangeText.setText(piano.getRangeText());
-                        }
-                    });
-                }
-            }
-        });
         // and update the label
         showDeviceLabel();
     }
@@ -155,7 +138,7 @@ public class BtSetupActivity extends AppCompatActivity implements PianoView.IPia
 
     private void discoverDevices() {
         // scan for the devices to add to this adapter
-        this.inputMidi.scanForBluetoothDevices(this);
+        this.inputMidi.scanForBluetoothDevices(this, true);
         // and show the label properly now we are doing something
         showDeviceLabel();
     }
@@ -181,6 +164,23 @@ public class BtSetupActivity extends AppCompatActivity implements PianoView.IPia
         }
         // discovered a device, add to the list
         adapter.addDevice(device);
+        // are we connected to any BT device?
+        String activeBtConnection = this.inputMidi.getActiveBtConnection();
+        if (null == activeBtConnection || activeBtConnection.isEmpty()) {
+            // there is no active BT connection, but we found something - connect to it
+            onBtListItemClicked(device);
+        }
+        else {
+            // so there is an active connection, is this a new discovery of the same device?
+            // if it is then connect to this instead as newer is better
+            String deviceId = InputMidi.GetMidiDeviceId(device);
+            if (this.inputMidi.isConnectionActive() && activeBtConnection.equals(deviceId)) {
+                // this is a new instance of the existing connection
+                this.inputMidi.stopConnection();
+                // connect to the new instance of this device
+                onBtListItemClicked(device);
+            }
+        }
     }
 
     @Override
@@ -228,6 +228,8 @@ public class BtSetupActivity extends AppCompatActivity implements PianoView.IPia
         // also update the list view, the state of the item connected will have changed
         this.listView.getAdapter().notifyDataSetChanged();
         showDeviceLabel();
+        // this is some indication that the user wants to use BT for their input
+        State.getInstance().setSelectedInput(State.InputType.bt);
     }
 
     @Override
@@ -236,6 +238,8 @@ public class BtSetupActivity extends AppCompatActivity implements PianoView.IPia
         // add the listener back to the piano
         this.piano.addListener(this);
         this.inputMidi.addListener(this);
+        this.inputMidi.addMidiListener(this);
+        this.inputMidi.initialiseMidi(this);
     }
 
     @Override
@@ -243,6 +247,8 @@ public class BtSetupActivity extends AppCompatActivity implements PianoView.IPia
         // remove us as a listener
         this.piano.removeListener(this);
         this.inputMidi.removeListener(this);
+        this.inputMidi.removeMidiListener(this);
+        this.inputMidi.stopConnection();
         // and let the base class pause
         super.onPause();
     }
@@ -254,6 +260,25 @@ public class BtSetupActivity extends AppCompatActivity implements PianoView.IPia
         this.inputMidi.stopConnection();
         // and destroy the activity
         super.onDestroy();
+    }
+
+    @Override
+    public void onNoteDetected(Note note, final boolean isDetection, final float probability, final int frequency) {
+        // add to our range of notes we can detect
+        if (isDetection && probability > 1f) {
+            // add this pitch the piano range we are showing
+            addDetectedPitch(note);
+            // update the view of this piano
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    // invalidate the view to display it okay
+                    piano.invalidate();
+                    // show the range of the piano
+                    BtSetupActivity.this.pianoRangeText.setText(piano.getRangeText());
+                }
+            });
+        }
     }
 
     private void addDetectedPitch(Note note) {

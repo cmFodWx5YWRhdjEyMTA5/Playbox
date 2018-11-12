@@ -48,7 +48,8 @@ public class PlayActivity extends HidingFullscreenActivity implements
         MusicView.MusicViewListener,
         PianoView.IPianoViewListener,
         MicrophonePermissionHandler.MicrophonePermissionListener,
-        InputMidi.MidiListener {
+        InputMidi.MidiListener,
+        InputConnectionInterface {
 
     private Thread noteThread = null;
     private volatile boolean isRunNotes = true;
@@ -122,10 +123,6 @@ public class PlayActivity extends HidingFullscreenActivity implements
         this.settingsLayout = findViewById(R.id.settings_layout);
         this.levelButtonsLayout = findViewById(R.id.level_buttons_layout);
 
-        // setup MIDI
-        this.inputMidi = new InputMidi(this);
-        this.inputMidi.startConnection();
-
         // setup the seek bar controls
         setupTempoSeekBar();
         // setup the sounds
@@ -134,12 +131,14 @@ public class PlayActivity extends HidingFullscreenActivity implements
         // any controls that make android show the title/back we need to add the delay listener
         tempoSpinner.setOnTouchListener(mDelayHideTouchListener);
 
+        // listen for input from the piano
         this.pianoView.addListener(this);
 
         // get the notes we want to play from on this level
         this.level = State.getInstance().getGameSelectedLast();
         this.levelPlayer = this.level.getGamePlayer();
 
+        // listen for pause button clicks
         this.floatingPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -154,6 +153,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
                 toggle();
             }
         });
+        // and stop and tempo button clicks
         this.floatingStopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -169,6 +169,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
                 }
             }
         });
+        // hide the buttons
         this.tempoIncreaseIcon.startAnimation(AnimationUtils.loadAnimation(this, R.anim.dissapear));
         this.tempoDecreaseIcon.startAnimation(AnimationUtils.loadAnimation(this, R.anim.dissapear));
         this.gameOverDisplay.startAnimation(AnimationUtils.loadAnimation(this, R.anim.dissapear));
@@ -177,10 +178,10 @@ public class PlayActivity extends HidingFullscreenActivity implements
         this.fabsHandler = new PlayFabsHandler(this, new State.InputChangeListener() {
             @Override
             public void onInputTypeChanged(State.InputType type) {
-                // change our display to represent the new input type
-                PlayActivity.this.setupPianoView();
+                PlayActivity.this.onInputTypeChanged(type);
             }
         });
+        // listen for permission requests to turn on the microphone
         this.microphonePermissionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -188,6 +189,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
                         Uri.parse("package:" + BuildConfig.APPLICATION_ID)));
             }
         });
+        // listen for the user clicking the sound button
         this.soundButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -196,7 +198,6 @@ public class PlayActivity extends HidingFullscreenActivity implements
                 setSoundIcon();
             }
         });
-
         //setup our music view
         setupMusicView();
 
@@ -218,8 +219,8 @@ public class PlayActivity extends HidingFullscreenActivity implements
             }
         });
 
-        // add a listener for MIDI input
-        setupMidi();
+        // setup MIDI
+        this.inputMidi = new InputMidi(this);
 
         // setup the level buttons
         setupLevelButtons();
@@ -231,7 +232,6 @@ public class PlayActivity extends HidingFullscreenActivity implements
     private void updateControlsFromState() {
         // get the score and set our controls accordingly
         ActiveScore score = State.getInstance().getCurrentActiveScore();
-
         // set the help switch in the proper state
         showNoteNamesSwitch.setChecked(score.isHelpOn());
         setBeats(score.getTopBpm());
@@ -319,27 +319,18 @@ public class PlayActivity extends HidingFullscreenActivity implements
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (null != this.micPermissionsHandler) {
             micPermissionsHandler.handlePermissionsRequest(requestCode, permissions, grantResults);
-
         }
     }
 
     @Override
     public void midiDeviceConnectivityChanged(MidiDeviceInfo deviceInfo, boolean isConnected) {
-        // the USB connection state changed
-        if (isConnected) {
-            // set our input state to use this
-            State.getInstance().setSelectedInput(State.InputType.usb);
-        }
+        // the USB connection state changed, update the colours of our buttons
         updateFabsStatus();
     }
 
     @Override
     public void midiDeviceConnectionChanged(final String deviceId, boolean isConnected) {
-        // the BT connection state changed
-        if (isConnected) {
-            // set our input state to use this
-            State.getInstance().setSelectedInput(State.InputType.bt);
-        }
+        // the MIDI connection state changed, update the status of the buttons to update the colours
         updateFabsStatus();
     }
 
@@ -352,6 +343,26 @@ public class PlayActivity extends HidingFullscreenActivity implements
     @Override
     public void midiBtDeviceDiscovered(final BluetoothDevice device) {
         // discovered a BT device
+        if (State.getInstance().getSelectedInput() == State.InputType.bt) {
+            // if we are not connected then connect to this
+            String activeBtConnection = this.inputMidi.getActiveBtConnection();
+            if (null == activeBtConnection || activeBtConnection.isEmpty()) {
+                // there is no BT connection, connect to it real quick
+                this.inputMidi.connectToDevice(device);
+            }
+            else {
+                // so there is an active connection, is this a new discovery of the same device?
+                // if it is then connect to this instead as newer is better
+                String deviceId = InputMidi.GetMidiDeviceId(device);
+                if (this.inputMidi.isConnectionActive() && activeBtConnection.equals(deviceId)) {
+                    // this is a new instance of the existing connection
+                    this.inputMidi.stopConnection();
+                    // connect to the new instance of this device
+                    this.inputMidi.connectToDevice(device);
+                }
+            }
+        }
+        // update the status of our input buttons
         updateFabsStatus();
     }
 
@@ -460,53 +471,94 @@ public class PlayActivity extends HidingFullscreenActivity implements
         }
     }
 
+    private void onInputTypeChanged(State.InputType type) {
+        // change our display to represent the new input type
+        switch(type) {
+            case keyboard:
+                // stop the microphone if it is running
+                stopAudioMonitoring();
+                // stop any BT scanning that might be running
+                this.inputMidi.stopBluetoothScanning(null);
+                // and close the MIDI connection
+                this.inputMidi.closeOpenMidiConnection();
+                break;
+            case microphone:
+                // stop any BT scanning that might be running
+                this.inputMidi.stopBluetoothScanning(null);
+                // and close the MIDI connection
+                this.inputMidi.closeOpenMidiConnection();
+                // if we want to use the microphone then we need to ask permission, this will start when granted
+                if (null == this.micPermissionsHandler) {
+                    this.micPermissionsHandler = new MicrophonePermissionHandler(this, this);
+                    this.micPermissionsHandler.initialiseAudioPermissions(this);
+                }
+                break;
+            case bt:
+                // stop the microphone if it is running
+                stopAudioMonitoring();
+                // requested BT, try to connect to something we had before
+                if (false == this.inputMidi.isConnectionActive()) {
+                    // there is no connection
+                    BluetoothDevice defaultBtDevice = this.inputMidi.getDefaultBtDevice();
+                    if (null != defaultBtDevice) {
+                        // try to connect to this old one
+                        this.inputMidi.connectToDevice(defaultBtDevice);
+                    }
+                }
+                // and start scanning in case we had nothing / want more
+                this.inputMidi.scanForBluetoothDevices(this, true);
+                break;
+            case usb:
+                // stop the microphone if it is running
+                stopAudioMonitoring();
+                // requested USB, scan for devices
+                this.inputMidi.getConnectedUsbDevices();
+                // if we are not connected to anything already then connect to the default
+                String activeUsbConnection = this.inputMidi.getActiveUsbConnection();
+                if (null == activeUsbConnection || activeUsbConnection.isEmpty()) {
+                    // there is no USB connection, connect to one real quick
+                    this.inputMidi.connectToDevice(this.inputMidi.getDefaultUsbDevice());
+                }
+                break;
+        }
+        // and update the view accordingly
+        setupPianoView();
+    }
+
     private void setupPianoView() {
         switch (State.getInstance().getSelectedInput()) {
             case keyboard:
-                if (null != this.micPermissionsHandler) {
-                    this.micPermissionsHandler.close();
-                    this.micPermissionsHandler = null;
-                }
+                // setup the piano to allow keyboard entry
                 setupKeyboardEntry();
                 // hide the audio permissions labels
                 onAudioPermissionChange(false);
                 break;
             case microphone:
-                // if we want to use the microphone then we need to ask permission
-                if (null == this.micPermissionsHandler) {
-                    this.micPermissionsHandler = new MicrophonePermissionHandler(this, this);
-                    this.micPermissionsHandler.initialiseAudioPermissions(this);
-                }
+                // show the piano view properly
                 setFullPianoView();
                 break;
             case usb:
-                // want to USB, close the microphone
-                if (null != this.micPermissionsHandler) {
-                    this.micPermissionsHandler.close();
-                    this.micPermissionsHandler = null;
-                }
+                // show the piano view properly
                 setFullPianoView();
-                // get available USB devices to connect to the first one
-                this.inputMidi.getConnectedDevices();
                 // hide the audio permissions labels
                 onAudioPermissionChange(false);
                 break;
             case bt:
-                // want to use BT, close the microphone
-                if (null != this.micPermissionsHandler) {
-                    this.micPermissionsHandler.close();
-                    this.micPermissionsHandler = null;
-                }
+                // show the piano view properly
                 setFullPianoView();
-                // scan for BLE device, which will connect to the first found
-                this.inputMidi.scanForBluetoothDevices(this);
                 // hide the audio permissions labels
                 onAudioPermissionChange(false);
                 break;
         }
-        // set the showing of letters etc
-        this.pianoView.setIsDrawNoteName(this.showNoteNamesSwitch.isChecked());
-        updateFabsStatus();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // set the showing of letters etc
+                pianoView.setIsDrawNoteName(showNoteNamesSwitch.isChecked());
+                // and update the input type FABs for the new input type selected
+                updateFabsStatus();
+            }
+        });
     }
 
     private void updateFabsStatus() {
@@ -529,9 +581,9 @@ public class PlayActivity extends HidingFullscreenActivity implements
                 ViewGroup.LayoutParams params = pianoView.getLayoutParams();
                 params.height = (int) (pianoView.getWidth() * 0.4f);
                 pianoView.setLayoutParams(params);
+                pianoView.invalidate();
             }
         });
-        this.pianoView.invalidate();
     }
 
     private void setFullPianoView() {
@@ -544,9 +596,9 @@ public class PlayActivity extends HidingFullscreenActivity implements
                 ViewGroup.LayoutParams params = pianoView.getLayoutParams();
                 params.height = (int) (pianoView.getWidth() * 0.4f);
                 pianoView.setLayoutParams(params);
+                pianoView.invalidate();
             }
         });
-        this.pianoView.invalidate();
     }
 
     private void showHideControls() {
@@ -713,6 +765,8 @@ public class PlayActivity extends HidingFullscreenActivity implements
         this.musicView.removeListener(this);
         this.pianoView.removeListener(this);
         this.inputMidi.removeListener(this);
+        this.inputMidi.removeMidiListener(this);
+        this.inputMidi.stopConnection();
         this.noteProvider.setPaused(true);
         this.isRunNotes = false;
         synchronized (this.waitObject) {
@@ -763,9 +817,11 @@ public class PlayActivity extends HidingFullscreenActivity implements
             this.musicView.addListener(this);
             this.pianoView.addListener(this);
             this.inputMidi.addListener(this);
+            this.inputMidi.addMidiListener(this);
             // and start them again
             this.musicView.start(this);
             this.pianoView.start(this);
+            this.inputMidi.startConnection();
 
             // update all the data on this view
             showHideControls();
@@ -783,20 +839,22 @@ public class PlayActivity extends HidingFullscreenActivity implements
             // and start scrolling notes
             this.noteThread.start();
 
-            if (this.inputMidi.isMidiAvailable(this)) {
-                // try to connect to a USB device if there is one
-                this.inputMidi.getConnectedDevices();
-                if (this.inputMidi.isBtAvailable(this)) {
-                    // and try to connect to a BT device if there is one (better...)
-                    this.inputMidi.scanForBluetoothDevices(this);
-                }
-            }
+            // initialise MIDI
+            this.inputMidi.initialiseMidi(this);
+
+            // and set to the correct state to start the input etc
+            onInputTypeChanged(state.getSelectedInput());
         }
     }
 
     private void stopAudioMonitoring() {
+        if (null != this.micPermissionsHandler) {
+            this.micPermissionsHandler.close();
+            this.micPermissionsHandler = null;
+        }
         if (null != this.inputMicrophone) {
             // and detecting the notes
+            this.inputMicrophone.removeListener(this);
             this.inputMicrophone.stopConnection();
             this.inputMicrophone = null;
         }
@@ -806,34 +864,19 @@ public class PlayActivity extends HidingFullscreenActivity implements
         // also start detecting the notes
         inputMicrophone = new InputMicrophone(this);
         // add a listener
-        inputMicrophone.addListener(new InputConnectionInterface() {
-            @Override
-            public void onNoteDetected(Note note, boolean isDetection, float probability, int frequency) {
-                if (isDetection) {
-                    // a note was detected, pretend this happened on the piano
-                    pianoView.depressNote(note);
-                }
-            }
-        });
+        inputMicrophone.addListener(this);
         if (false == inputMicrophone.startConnection()) {
             //TODO failed to start the note detector, do something about this
 
         }
     }
 
-    private void setupMidi() {
-        // listen for notes and show and process them as we get them
-        this.inputMidi.addListener(new InputConnectionInterface() {
-            @Override
-            public void onNoteDetected(Note note, final boolean isDetection, final float probability, final int frequency) {
-                // add to our range of notes we can detect
-                if (isDetection && probability > 1f) {
-                    // a note was detected, pretend this happened on the piano
-                    pianoView.depressNote(note);
-                }
-            }
-        });
-        updateFabsStatus();
+    @Override
+    public void onNoteDetected(Note note, boolean isDetection, float probability, int frequency) {
+        if (isDetection) {
+            // a note was detected, pretend this happened on the piano
+            pianoView.depressNote(note);
+        }
     }
 
     private void moveNotes() {

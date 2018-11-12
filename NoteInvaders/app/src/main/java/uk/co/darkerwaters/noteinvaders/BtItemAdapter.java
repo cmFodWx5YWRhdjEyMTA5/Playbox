@@ -80,15 +80,17 @@ public class BtItemAdapter extends RecyclerView.Adapter<BtItemAdapter.ViewHolder
     }
 
     public boolean addDevice(BluetoothDevice device) {
-        if (this.itemList.contains(device)) {
-            // already in the list
-            return false;
+        int i = this.itemList.indexOf(device);
+        if (i >= 0) {
+            // already in the list, replace with the newest
+            this.itemList.set(i, device);
         }
         else {
+            // else add the view
             this.itemList.add(device);
             notifyDataSetChanged();
-            return true;
         }
+        return true;
     }
 
     private void refreshContent(ViewHolder holder) {
