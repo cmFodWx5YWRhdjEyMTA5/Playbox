@@ -99,7 +99,7 @@ public class Profile extends SelectableItem {
 
         // setup the BT MIDI button
         this.btnBtMidi.setVisibility(View.VISIBLE);
-        this.btnBtMidi.setImageResource(R.drawable.ic_baseline_bluetooth_audio_24px);
+        this.btnBtMidi.setImageResource(R.drawable.ic_baseline_bluetooth_24px);
         // set background colour to show it isn't BT connected
         this.btnBtMidi.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context,R.color.colorPrimaryDark)));
         if (false == State.getInstance().isInputAvailable(State.InputType.bt)) {

@@ -89,6 +89,7 @@ public class State {
         }
         this.isSoundOn = preferences.getBoolean("is_sound_on", this.isSoundOn);
         this.midiDeviceId = preferences.getString("midi_device_id", this.midiDeviceId);
+        this.selectedInput = InputType.valueOf(preferences.getString("input_type", this.selectedInput.toString()));
     }
 
     private void loadGameScore(Game game, SharedPreferences preferences) {
@@ -347,13 +348,19 @@ public class State {
 
     public InputType getSelectedInput() { return this.selectedInput; }
 
-    public void setSelectedInput(InputType type) {
+    public void setSelectedInput(Context context, InputType type) {
         this.selectedInput = type;
         synchronized (this.inputChangeListeners) {
             for (InputChangeListener listener : this.inputChangeListeners) {
                 listener.onInputTypeChanged(type);
             }
         }
+        // store this
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("input_type", this.selectedInput.toString());
+        // and commit to storage this value
+        editor.commit();
     }
 
     public ActiveScore getCurrentActiveScore() {

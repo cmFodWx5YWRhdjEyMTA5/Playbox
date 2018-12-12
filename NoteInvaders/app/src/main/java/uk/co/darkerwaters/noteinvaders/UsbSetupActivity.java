@@ -138,7 +138,7 @@ public class UsbSetupActivity extends AppCompatActivity implements
         // also update the list view, the state of the item connected will have changed
         this.listView.getAdapter().notifyDataSetChanged();
         // this is some indication that the user wants to use USB for their input
-        State.getInstance().setSelectedInput(State.InputType.usb);
+        State.getInstance().setSelectedInput(this, State.InputType.usb);
     }
 
     @Override

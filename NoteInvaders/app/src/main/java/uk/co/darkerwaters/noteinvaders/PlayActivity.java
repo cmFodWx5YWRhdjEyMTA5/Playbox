@@ -1,13 +1,11 @@
 package uk.co.darkerwaters.noteinvaders;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.media.midi.MidiDeviceInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
@@ -25,16 +23,13 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import uk.co.darkerwaters.noteinvaders.games.GamePlayer;
-import uk.co.darkerwaters.noteinvaders.sounds.NoteSounds;
 import uk.co.darkerwaters.noteinvaders.sounds.SoundPlayer;
 import uk.co.darkerwaters.noteinvaders.state.ActiveScore;
 import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.NoteRange;
-import uk.co.darkerwaters.noteinvaders.state.Notes;
 import uk.co.darkerwaters.noteinvaders.state.State;
 import uk.co.darkerwaters.noteinvaders.state.input.InputConnectionInterface;
 import uk.co.darkerwaters.noteinvaders.state.input.InputMicrophone;
@@ -567,6 +562,17 @@ public class PlayActivity extends HidingFullscreenActivity implements
         this.fabsHandler.setInputAvailability(State.InputType.microphone, true);
         this.fabsHandler.setInputAvailability(State.InputType.usb, this.inputMidi.getNoUsbDevices() > 0);
         this.fabsHandler.setInputAvailability(State.InputType.bt, this.inputMidi.getNoBtDevices() > 0);
+
+        String activeBt = this.inputMidi.getActiveBtConnection();
+        if (this.inputMidi.isConnectionActive() && null != activeBt && false == activeBt.isEmpty()) {
+            fabsHandler.setBtIcon(PlayFabsHandler.BtIcon.Connected);
+        }
+        else if (this.inputMidi.isBtScanning()) {
+            fabsHandler.setBtIcon(PlayFabsHandler.BtIcon.Searching);
+        }
+        else {
+            fabsHandler.setBtIcon(PlayFabsHandler.BtIcon.Normal);
+        }
     }
 
 

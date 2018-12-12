@@ -212,7 +212,7 @@ public class InputMidi extends InputConnection {
                         // just removed the USB device that we are using, stop using it
                         closeOpenMidiConnection();
                         // set the state to be keyboard now we disconnected
-                        State.getInstance().setSelectedInput(State.InputType.keyboard);
+                        State.getInstance().setSelectedInput(context, State.InputType.keyboard);
                         // try to reconnect
                         switch (lastConnectionType) {
                             case K_BT:

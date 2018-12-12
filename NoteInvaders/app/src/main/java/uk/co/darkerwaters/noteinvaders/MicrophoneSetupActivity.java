@@ -241,7 +241,7 @@ public class MicrophoneSetupActivity extends AppCompatActivity implements PianoV
         // set the detected pitch on the piano we are showing
         this.piano.setNoteRange(minPitchDetected, maxPitchDetected);
         // this is some indication that the user wants to use the mic for their input
-        State.getInstance().setSelectedInput(State.InputType.microphone);
+        State.getInstance().setSelectedInput(this, State.InputType.microphone);
     }
 
     @Override

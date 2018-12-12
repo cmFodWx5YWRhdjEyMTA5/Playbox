@@ -6,12 +6,10 @@ import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
-import android.view.ViewGroup;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import uk.co.darkerwaters.noteinvaders.state.Notes;
 import uk.co.darkerwaters.noteinvaders.state.State;
 
 public class PlayFabsHandler implements State.InputChangeListener {
@@ -27,6 +25,14 @@ public class PlayFabsHandler implements State.InputChangeListener {
     private final State.InputChangeListener changeDeligate;
     private State.InputType currentInput;
     private final Map<State.InputType, Boolean> inputState;
+
+    public enum BtIcon {
+        Normal,
+        Searching,
+        Connected
+    }
+
+    private BtIcon lastBtIcon = BtIcon.Normal;
 
     public PlayFabsHandler(Activity context, State.InputChangeListener changeListener) {
         this.context = context;
@@ -45,7 +51,7 @@ public class PlayFabsHandler implements State.InputChangeListener {
         this.manualFab.setImageResource(R.drawable.ic_baseline_keyboard_24px);
         this.micFab.setImageResource(R.drawable.ic_baseline_mic_24px);
         this.usbFab.setImageResource(R.drawable.ic_baseline_usb_24px);
-        this.btFab.setImageResource(R.drawable.ic_baseline_bluetooth_audio_24px);
+        setBtIcon(lastBtIcon);
 
         // set the correct current icon
         setInputIcon();
@@ -101,6 +107,31 @@ public class PlayFabsHandler implements State.InputChangeListener {
         State.getInstance().removeListener(this);
     }
 
+    public void setBtIcon(BtIcon icon) {
+        switch (icon) {
+            case Normal:
+                this.btFab.setImageResource(R.drawable.ic_baseline_bluetooth_24px);
+                if (this.currentInput == State.InputType.bt) {
+                    this.inputFab.setImageResource(R.drawable.ic_baseline_bluetooth_24px);
+                }
+                break;
+            case Searching:
+                this.btFab.setImageResource(R.drawable.ic_baseline_bluetooth_searching_24px);
+                if (this.currentInput == State.InputType.bt) {
+                    this.inputFab.setImageResource(R.drawable.ic_baseline_bluetooth_searching_24px);
+                }
+                break;
+            case Connected:
+                this.btFab.setImageResource(R.drawable.ic_baseline_bluetooth_connected_24px);
+                if (this.currentInput == State.InputType.bt) {
+                    this.inputFab.setImageResource(R.drawable.ic_baseline_bluetooth_connected_24px);
+                }
+                break;
+        }
+        // remember this last icon
+        this.lastBtIcon = icon;
+    }
+
     @Override
     public void onInputTypeChanged(State.InputType type) {
         // the input type has changed, update ourselves here
@@ -130,7 +161,7 @@ public class PlayFabsHandler implements State.InputChangeListener {
                     this.inputFab.setImageResource(R.drawable.ic_baseline_usb_24px);
                     break;
                 case bt:
-                    this.inputFab.setImageResource(R.drawable.ic_baseline_bluetooth_audio_24px);
+                    setBtIcon(this.lastBtIcon);
                     break;
             }
             // also need to set the correct colour for the state
@@ -199,7 +230,7 @@ public class PlayFabsHandler implements State.InputChangeListener {
     private void changeInputType(State.InputType input) {
         // set the input to manual
         this.currentInput = input;
-        State.getInstance().setSelectedInput(input);
+        State.getInstance().setSelectedInput(this.context, input);
         // and shrink the selection
         toggleInputFabs();
         // and update the icon

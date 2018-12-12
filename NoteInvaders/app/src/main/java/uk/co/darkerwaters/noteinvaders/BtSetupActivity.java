@@ -229,7 +229,7 @@ public class BtSetupActivity extends AppCompatActivity implements
         this.listView.getAdapter().notifyDataSetChanged();
         showDeviceLabel();
         // this is some indication that the user wants to use BT for their input
-        State.getInstance().setSelectedInput(State.InputType.bt);
+        State.getInstance().setSelectedInput(this, State.InputType.bt);
     }
 
     @Override
