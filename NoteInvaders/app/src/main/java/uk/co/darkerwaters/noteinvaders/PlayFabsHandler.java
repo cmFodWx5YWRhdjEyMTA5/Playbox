@@ -1,6 +1,7 @@
 package uk.co.darkerwaters.noteinvaders;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
@@ -19,6 +20,7 @@ public class PlayFabsHandler implements State.InputChangeListener {
     private final FloatingActionButton micFab;
     private final FloatingActionButton usbFab;
     private final FloatingActionButton btFab;
+    private final FloatingActionButton settingsFab;
 
     private boolean isFabsShown = false;
     private final Activity context;
@@ -42,6 +44,7 @@ public class PlayFabsHandler implements State.InputChangeListener {
         this.micFab = (FloatingActionButton) context.findViewById(R.id.input_action_2);
         this.usbFab = (FloatingActionButton) context.findViewById(R.id.input_action_3);
         this.btFab = (FloatingActionButton) context.findViewById(R.id.input_action_4);
+        this.settingsFab = (FloatingActionButton) context.findViewById(R.id.input_action_settings);
 
         // get the current input type to initialise the view
         this.currentInput = State.getInstance().getSelectedInput();
@@ -97,6 +100,12 @@ public class PlayFabsHandler implements State.InputChangeListener {
                 changeInputType(State.InputType.bt);
             }
         });
+        this.settingsFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showSettings();
+            }
+        });
 
         // listen for changes in input to inform the listener of us
         State.getInstance().addListener(this);
@@ -132,6 +141,28 @@ public class PlayFabsHandler implements State.InputChangeListener {
         this.lastBtIcon = icon;
     }
 
+    private void showSettings() {
+        Intent newIntent = null;
+        switch (this.currentInput) {
+            case keyboard:
+                // no settings
+                break;
+            case microphone:
+                newIntent = new Intent(this.context, MicrophoneSetupActivity.class);
+                break;
+            case usb:
+                newIntent = new Intent(this.context, UsbSetupActivity.class);
+                break;
+            case bt:
+                newIntent = new Intent(this.context, BtSetupActivity.class);
+                break;
+
+        }
+        if (null != newIntent) {
+            this.context.startActivity(newIntent);
+        }
+    }
+
     @Override
     public void onInputTypeChanged(State.InputType type) {
         // the input type has changed, update ourselves here
@@ -153,15 +184,23 @@ public class PlayFabsHandler implements State.InputChangeListener {
             switch (this.currentInput) {
                 case keyboard:
                     this.inputFab.setImageResource(R.drawable.ic_baseline_keyboard_24px);
+                    // there are no settings for this input type
+                    setButtonTint(this.settingsFab, false);
                     break;
                 case microphone:
                     this.inputFab.setImageResource(R.drawable.ic_baseline_mic_24px);
+                    // there are settings for this input type
+                    setButtonTint(this.settingsFab, true);
                     break;
                 case usb:
                     this.inputFab.setImageResource(R.drawable.ic_baseline_usb_24px);
+                    // there are settings for this input type
+                    setButtonTint(this.settingsFab, true);
                     break;
                 case bt:
                     setBtIcon(this.lastBtIcon);
+                    // there are settings for this input type
+                    setButtonTint(this.settingsFab, true);
                     break;
             }
             // also need to set the correct colour for the state
@@ -216,6 +255,7 @@ public class PlayFabsHandler implements State.InputChangeListener {
             micFab.animate().translationX(0);
             usbFab.animate().translationX(0);
             btFab.animate().translationX(0);
+            settingsFab.animate().alpha(0f);
             this.isFabsShown = false;
         }
         else {
@@ -223,6 +263,7 @@ public class PlayFabsHandler implements State.InputChangeListener {
             micFab.animate().translationX(this.context.getResources().getDimension(R.dimen.standard_105));
             usbFab.animate().translationX(this.context.getResources().getDimension(R.dimen.standard_155));
             btFab.animate().translationX(this.context.getResources().getDimension(R.dimen.standard_205));
+            settingsFab.animate().alpha(1f);
             this.isFabsShown = true;
         }
     }
