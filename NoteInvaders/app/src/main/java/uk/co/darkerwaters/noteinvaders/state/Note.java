@@ -1,6 +1,8 @@
 package uk.co.darkerwaters.noteinvaders.state;
 
-public class Note implements Comparable<Note> {
+import uk.co.darkerwaters.noteinvaders.PlayActivity;
+
+public class Note extends Playable {
 
     final String[] names;
     final float frequency;
@@ -43,10 +45,6 @@ public class Note implements Comparable<Note> {
     }
 
     @Override
-    public String toString() {
-        return getName();
-    }
-
     public String getName() {
         StringBuilder name = new StringBuilder();
         for (String entry : this.names) {
@@ -58,6 +56,7 @@ public class Note implements Comparable<Note> {
         return name.toString();
     }
 
+    @Override
     public String getName(int index) {
         String result;
         if (index < 0) {
@@ -75,12 +74,32 @@ public class Note implements Comparable<Note> {
         return result;
     }
 
+    @Override
     public int getNameCount() {
         return this.names.length;
     }
 
     public float getFrequency() {
         return this.frequency;
+    }
+
+    public Note getLowest() {
+        // just the one
+        return this;
+    }
+    public Note getHighest() {
+        // just the one
+        return this;
+    }
+
+    @Override
+    public int getNoteCount() {
+        return 1;
+    }
+
+    @Override
+    public Note getNote(int index) {
+        return this;
     }
 
     public float getFrequencyUpper() {
@@ -132,7 +151,12 @@ public class Note implements Comparable<Note> {
     }
 
     @Override
-    public int compareTo(Note note) {
-        return (int)((this.getFrequency() * 100000.0) - (note.getFrequency() * 100000.0));
+    public int compareTo(Playable note) {
+        if (note instanceof Note) {
+            return (int) ((this.getFrequency() * 100000.0) - (((Note) note).getFrequency() * 100000.0));
+        }
+        else {
+            return 0;
+        }
     }
 }

@@ -18,9 +18,11 @@ import java.util.List;
 import java.util.Map;
 
 import uk.co.darkerwaters.noteinvaders.R;
+import uk.co.darkerwaters.noteinvaders.state.Chord;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.NoteRange;
 import uk.co.darkerwaters.noteinvaders.state.Notes;
+import uk.co.darkerwaters.noteinvaders.state.Playable;
 
 public class PianoView extends View {
 
@@ -29,8 +31,8 @@ public class PianoView extends View {
     private GestureDetector gestureLetector = null;
 
     public interface IPianoViewListener {
-        void noteReleased(Note note);
-        void noteDepressed(Note note);
+        void noteReleased(Playable note);
+        void noteDepressed(Playable note);
         void pianoViewSizeChanged(int w, int h, int oldw, int oldh);
     }
 
@@ -485,14 +487,20 @@ public class PianoView extends View {
         return false;
     }
 
-    public void depressNote(Note note) {
+    public void depressNote(Playable playable) {
+        // get the notes from this playable
+        Note[] notesPressed = playable.toNoteArray();
         // set the depression count
         synchronized (this.noteDepressionCount) {
-            this.noteDepressionCount.put(note, K_INITIAL_NOTE_DEPRESSION_COUNT);
+            for (Note note : notesPressed) {
+                this.noteDepressionCount.put(note, K_INITIAL_NOTE_DEPRESSION_COUNT);
+            }
         }
         synchronized (this.listeners) {
             for (IPianoViewListener listener : this.listeners) {
-                listener.noteDepressed(note);
+                for (Note note : notesPressed) {
+                    listener.noteDepressed(note);
+                }
             }
         }
     }

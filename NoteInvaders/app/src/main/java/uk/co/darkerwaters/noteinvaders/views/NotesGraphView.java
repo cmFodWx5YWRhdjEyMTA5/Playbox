@@ -11,6 +11,7 @@ import android.view.View;
 import uk.co.darkerwaters.noteinvaders.R;
 import uk.co.darkerwaters.noteinvaders.state.ActiveScore;
 import uk.co.darkerwaters.noteinvaders.state.Note;
+import uk.co.darkerwaters.noteinvaders.state.Playable;
 import uk.co.darkerwaters.noteinvaders.state.State;
 
 public class NotesGraphView extends View {
@@ -66,7 +67,7 @@ public class NotesGraphView extends View {
         canvas.drawColor(Color.WHITE);
 
         ActiveScore activeScore = State.getInstance().getCurrentActiveScore();
-        Note[] notesMissed = activeScore.getNotesMissed();
+        Playable[] notesMissed = activeScore.getNotesMissed();
 
         // draw the axis
         Rect padding = getCanvasPadding();
@@ -90,7 +91,7 @@ public class NotesGraphView extends View {
         if (notesMissed.length > 0) {
             // find the max number
             int maxFrequency = 2;
-            for (Note note : notesMissed) {
+            for (Playable note : notesMissed) {
                 // find the max of the misses and false shots combined
                 int frequency = activeScore.getNoteMissedFrequency(note) +
                         activeScore.getNoteFalselyShotFrequency(note);

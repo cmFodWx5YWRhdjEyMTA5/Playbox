@@ -42,14 +42,14 @@ public class ActiveScore {
     private boolean isLevelCompleted;
 
     // a map of the notes they missed for review
-    private final Map<Note, Integer> notesMissed;
-    private final Map<Note, Integer> notesFalselyShot;
+    private final Map<Playable, Integer> notesMissed;
+    private final Map<Playable, Integer> notesFalselyShot;
 
     public ActiveScore() {
         this.isHelpOn = false;
         // keep a map of our misses
-        this.notesMissed = new HashMap<Note, Integer>();
-        this.notesFalselyShot = new HashMap<Note, Integer>();
+        this.notesMissed = new HashMap<Playable, Integer>();
+        this.notesFalselyShot = new HashMap<Playable, Integer>();
         // reset the score to start nice
         reset();
     }
@@ -155,7 +155,7 @@ public class ActiveScore {
         return this.hits;
     }
 
-    public int incHits(Note note) {
+    public int incHits(Playable note) {
         synchronized (this.notesMissed) {
             Integer value = this.notesMissed.get(note);
             if (value == null) {
@@ -167,7 +167,7 @@ public class ActiveScore {
         return ++this.hits;
     }
 
-    public int incMisses(Note note) {
+    public int incMisses(Playable note) {
         synchronized (this.notesMissed) {
             Integer value = this.notesMissed.get(note);
             if (value == null) {
@@ -185,7 +185,7 @@ public class ActiveScore {
         return ++this.misses;
     }
 
-    public int incFalseShots(Note note) {
+    public int incFalseShots(Playable note) {
         synchronized (this.notesFalselyShot) {
             Integer value = this.notesFalselyShot.get(note);
             if (value == null) {
@@ -216,30 +216,30 @@ public class ActiveScore {
                 this.hits > 0;
     }
 
-    public Note[] getNotesMissed() {
+    public Playable[] getNotesMissed() {
         synchronized (this.notesMissed) {
             // sort the set to note order (uses frequency)
-            List<Note> sortedNotes = new ArrayList<Note>(this.notesMissed.keySet());
+            List<Playable> sortedNotes = new ArrayList<Playable>(this.notesMissed.keySet());
             Collections.sort(sortedNotes);
-            return sortedNotes.toArray(new Note[sortedNotes.size()]);
+            return sortedNotes.toArray(new Playable[sortedNotes.size()]);
         }
     }
 
-    public Integer getNoteMissedFrequency(Note note) {
+    public Integer getNoteMissedFrequency(Playable note) {
         synchronized (this.notesMissed) {
             Integer value = this.notesMissed.get(note);
             return value == null ? 0 : value.intValue();
         }
     }
 
-    public Note[] getNotesFalselyShot() {
+    public Playable[] getNotesFalselyShot() {
         synchronized (this.notesFalselyShot) {
-            Set<Note> notes = this.notesFalselyShot.keySet();
-            return notes.toArray(new Note[notes.size()]);
+            Set<Playable> notes = this.notesFalselyShot.keySet();
+            return notes.toArray(new Playable[notes.size()]);
         }
     }
 
-    public Integer getNoteFalselyShotFrequency(Note note) {
+    public Integer getNoteFalselyShotFrequency(Playable note) {
         synchronized (this.notesFalselyShot) {
             Integer value = this.notesFalselyShot.get(note);
             return value == null ? 0 : value.intValue();

@@ -22,8 +22,8 @@ public class Game {
     public final String name;
     public final String image;
     public final String gameClass;
-    public final Note[] treble_clef;
-    public final Note[] bass_clef;
+    public final Playable[] treble_clef;
+    public final Playable[] bass_clef;
     public final String[] treble_names;
     public final String[] bass_names;
     public final Annotation[] annotations;
@@ -51,11 +51,11 @@ public class Game {
         Notes notes = Notes.instance();
         // notes for the treble clef
         JSONArray jsonData = getJsonArrayOptional(fileSource,"treble_clef");
-        this.treble_clef = new Note[jsonData == null ? 0 : jsonData.length()];
+        this.treble_clef = new Playable[jsonData == null ? 0 : jsonData.length()];
         for (int i = 0; i < this.treble_clef.length; ++i) {
             // for each note, find the right one and put it in our array
             String noteName = jsonData.getString(i);
-            this.treble_clef[i] = notes.getNote(noteName);
+            this.treble_clef[i] = createPlayable(noteName);
         }
         // any names?
         jsonData = getJsonArrayOptional(fileSource,"treble_names");
@@ -67,11 +67,11 @@ public class Game {
 
         // and the bass clef
         jsonData = getJsonArrayOptional(fileSource,"bass_clef");
-        this.bass_clef = new Note[jsonData == null ? 0 : jsonData.length()];
+        this.bass_clef = new Playable[jsonData == null ? 0 : jsonData.length()];
         for (int i = 0; i < this.bass_clef.length; ++i) {
             // for each note, find the right one and put it in our array
             String noteName = jsonData.getString(i);
-            this.bass_clef[i] = notes.getNote(noteName);
+            this.bass_clef[i] = createPlayable(noteName);
         }
         // any names?
         jsonData = getJsonArrayOptional(fileSource,"bass_names");
@@ -118,6 +118,29 @@ public class Game {
             // for each level, load them in
             this.children[i] = new Game(this, jsonChildren.getJSONObject(i));
         }
+    }
+
+    private Playable createPlayable(String noteName) {
+        String[] noteNames = noteName.split(",");
+        Notes notes = Notes.instance();
+        Playable toReturn;
+        if (noteNames == null || noteNames.length == 0) {
+            // just use the name
+            toReturn = notes.getNote(noteName);
+        }
+        else if (noteNames.length == 1) {
+            // use the first note
+            toReturn = notes.getNote(noteNames[0]);
+        }
+        else {
+            // this is a chord
+            Chord chord = new Chord("CHORD");
+            for (String name : noteNames) {
+                chord.addNote(notes.getNote(name));
+            }
+            toReturn = chord;
+        }
+        return toReturn;
     }
 
     private JSONObject getJsonObjectOptional(JSONObject source, String name) {
@@ -201,22 +224,24 @@ public class Game {
         // go through all the notes to find the lowest and highest of them all
         NoteRange range = new NoteRange((Note)null, (Note)null);
         for (int i = 0; i < this.treble_clef.length + this.bass_clef.length; ++i) {
-            Note note;
+            Playable playable;
             if (i >= this.treble_clef.length) {
                 // get the note from the bass clef
-                note = this.bass_clef[i - this.treble_clef.length];
+                playable = this.bass_clef[i - this.treble_clef.length];
             }
             else {
                 // get the note from the treble clef
-                note = this.treble_clef[i];
+                playable = this.treble_clef[i];
             }
-            if (range.getStart() == null || note.frequency < range.getStart().getFrequency()) {
+            Note lowest = playable.getLowest();
+            if (range.getStart() == null || lowest.frequency < range.getStart().getFrequency()) {
                 // this is before the current start
-                range.setStart(note);
+                range.setStart(lowest);
             }
-            if (range.getEnd() == null || note.frequency > range.getEnd().getFrequency()) {
+            Note highest = playable.getHighest();
+            if (range.getEnd() == null || highest.frequency > range.getEnd().getFrequency()) {
                 // this is after the current end
-                range.setEnd(note);
+                range.setEnd(highest);
             }
         }
         return range;

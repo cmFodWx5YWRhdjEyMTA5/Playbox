@@ -7,6 +7,7 @@
     <color name="album_title">#4c4c4c</color>
 
     <color name="black_overlay">#66000000</color>
+    <color name="colorLetterBack">#AAFFFFFF</color>
     <color name="colorMiss">#FF1A1A</color>
     <color name="colorFalseFire">#BB3333</color>
     <color name="colorLaser">#3f51b5</color>

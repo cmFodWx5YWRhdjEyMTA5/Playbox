@@ -12,7 +12,9 @@ import java.util.Map;
 
 import uk.co.darkerwaters.noteinvaders.InstrumentActivity;
 import uk.co.darkerwaters.noteinvaders.R;
+import uk.co.darkerwaters.noteinvaders.state.Chord;
 import uk.co.darkerwaters.noteinvaders.state.Note;
+import uk.co.darkerwaters.noteinvaders.state.Playable;
 
 public class SoundPlayer {
 
@@ -75,7 +77,25 @@ public class SoundPlayer {
         this.soundPool.play(this.gameOverSound, 0.7f, 0.7f, 1, 0, 1f);
     }
 
-    public void playSound(Note note){
+    public void playSound(Playable note) {
+        Note[] notes = note.toNoteArray();
+        if (note instanceof Chord) {
+            // play all the notes
+            Chord chord = (Chord) note;
+            for (int i = 0; i < chord.getNoteCount(); ++i) {
+                playNote(chord.getNote(i));
+            }
+        }
+        else if (note instanceof Note) {
+            //play the note
+            playNote((Note)note);
+        }
+        else {
+            //TODO error
+        }
+    }
+
+    private void playNote(Note note) {
         // first is this sound loaded?
         Integer soundIndex;
         synchronized (this.loadedNotes) {

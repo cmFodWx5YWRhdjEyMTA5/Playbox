@@ -2,6 +2,7 @@ package uk.co.darkerwaters.noteinvaders.games;
 
 import java.util.Random;
 
+import uk.co.darkerwaters.noteinvaders.state.Playable;
 import uk.co.darkerwaters.noteinvaders.views.MusicView;
 import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
@@ -25,7 +26,7 @@ public class RandomAttack extends GamePlayer {
         int noteIndex;
         while (provider.getLastNotePosition(-1f) < maxX) {
             // add another note
-            Note note = null;
+            Playable note = null;
             String noteName = "";
             // first decide treble or bass
             if (game.isTreble() && (!game.isBass() || random.nextBoolean())) {

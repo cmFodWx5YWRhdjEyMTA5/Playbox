@@ -31,6 +31,7 @@ import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.NoteRange;
 import uk.co.darkerwaters.noteinvaders.state.Notes;
+import uk.co.darkerwaters.noteinvaders.state.Playable;
 import uk.co.darkerwaters.noteinvaders.state.State;
 import uk.co.darkerwaters.noteinvaders.state.input.InputConnectionInterface;
 import uk.co.darkerwaters.noteinvaders.state.input.InputMicrophone;
@@ -900,7 +901,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
     }
 
     @Override
-    public void onNoteDetected(Note note, boolean isDetection, float probability, int frequency) {
+    public void onNoteDetected(Playable note, boolean isDetection, float probability, int frequency) {
         if (isDetection) {
             // a note was detected, pretend this happened on the piano
             pianoView.depressNote(note);
@@ -942,7 +943,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
     }
 
     @Override
-    public void onNotePopped(Note note) {
+    public void onNotePopped(Playable note) {
         // this is a miss
         State.getInstance().getCurrentActiveScore().incMisses(note);
         showScore();
@@ -952,7 +953,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
     }
 
     @Override
-    public void onNoteDestroyed(final Note note) {
+    public void onNoteDestroyed(final Playable note) {
         // this is a hit
         State.getInstance().getCurrentActiveScore().incHits(note);
         showScore();
@@ -967,7 +968,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
     }
 
     @Override
-    public void onNoteMisfire(Note note) {
+    public void onNoteMisfire(Playable note) {
         // this is a false shot
         State.getInstance().getCurrentActiveScore().incFalseShots(note);
         showScore();
@@ -997,7 +998,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
     }
 
     @Override
-    public void noteReleased(Note note) {
+    public void noteReleased(Playable note) {
         // when the note is released from the piano it needs to be invalidated
         runOnUiThread(new Runnable() {
             @Override
@@ -1008,7 +1009,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
     }
 
     @Override
-    public void noteDepressed(Note note) {
+    public void noteDepressed(Playable note) {
         if (false == this.noteProvider.isPaused()) {
             // is this note in the range we are expecting
             NoteRange noteRange = this.level.getNoteRange();

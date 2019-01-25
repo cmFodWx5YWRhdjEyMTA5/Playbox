@@ -1,7 +1,7 @@
 package uk.co.darkerwaters.noteinvaders.views;
 
-import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
+import uk.co.darkerwaters.noteinvaders.state.Playable;
 
 public abstract class MusicViewNoteProvider {
 
@@ -14,8 +14,8 @@ public abstract class MusicViewNoteProvider {
     }
     public abstract void clearNotes();
 
-    public abstract MusicViewNote[] getNotesToDrawTreble();
-    public abstract MusicViewNote[] getNotesToDrawBass();
+    public abstract MusicViewPlayable[] getNotesToDrawTreble();
+    public abstract MusicViewPlayable[] getNotesToDrawBass();
 
     public abstract int getNoteCountTreble();
     public abstract int getNoteCountBass();
@@ -26,12 +26,12 @@ public abstract class MusicViewNoteProvider {
 
     public abstract void updateNotes(MusicView musicView);
 
-    public abstract boolean pushNoteTrebleToEnd(Note note, String noteName, MusicView musicView);
+    public abstract boolean pushNoteTrebleToEnd(Playable note, String noteName, MusicView musicView);
 
-    public abstract boolean pushNoteBassToEnd(Note note, String noteName, MusicView musicView);
+    public abstract boolean pushNoteBassToEnd(Playable note, String noteName, MusicView musicView);
 
-    public abstract boolean removeNoteTreble(MusicViewNote note);
-    public abstract boolean removeNoteBass(MusicViewNote note);
+    public abstract boolean removeNoteTreble(MusicViewPlayable note);
+    public abstract boolean removeNoteBass(MusicViewPlayable note);
 
     public boolean isStarted() { return this.isStarted; }
 

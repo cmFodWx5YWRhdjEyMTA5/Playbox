@@ -3,15 +3,15 @@ package uk.co.darkerwaters.noteinvaders.views;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
+import uk.co.darkerwaters.noteinvaders.state.Playable;
 
 public class MusicViewNoteProviderPositional extends MusicViewNoteProvider {
 
 
-    private class PositionedNote extends MusicViewNote {
+    private class PositionedNote extends MusicViewPlayable {
         float xPosition;
-        PositionedNote(float xPosition, Note note, String noteName) {
+        PositionedNote(float xPosition, Playable note, String noteName) {
             super(note, noteName);
             this.xPosition = xPosition;
         }
@@ -58,24 +58,24 @@ public class MusicViewNoteProviderPositional extends MusicViewNoteProvider {
     }
 
     @Override
-    public MusicViewNote[] getNotesToDrawTreble() {
-        MusicViewNote[] toDraw;
+    public MusicViewPlayable[] getNotesToDrawTreble() {
+        MusicViewPlayable[] toDraw;
         synchronized (this.notesToDrawTreble) {
-            toDraw = this.notesToDrawTreble.toArray(new MusicViewNote[this.notesToDrawTreble.size()]);
+            toDraw = this.notesToDrawTreble.toArray(new MusicViewPlayable[this.notesToDrawTreble.size()]);
         }
         return toDraw;
     }
 
     @Override
-    public MusicViewNote[] getNotesToDrawBass() {
-        MusicViewNote[] toDraw;
+    public MusicViewPlayable[] getNotesToDrawBass() {
+        MusicViewPlayable[] toDraw;
         synchronized (this.notesToDrawBass) {
-            toDraw = this.notesToDrawBass.toArray(new MusicViewNote[this.notesToDrawBass.size()]);
+            toDraw = this.notesToDrawBass.toArray(new MusicViewPlayable[this.notesToDrawBass.size()]);
         }
         return toDraw;
     }
 
-    public boolean pushNoteTreble(Note note, String noteName, float xPosition) {
+    public boolean pushNoteTreble(Playable note, String noteName, float xPosition) {
         synchronized (this.notesToDrawTreble) {
             return this.notesToDrawTreble.add(new PositionedNote(xPosition, note, noteName));
         }
@@ -87,7 +87,7 @@ public class MusicViewNoteProviderPositional extends MusicViewNoteProvider {
         }
     }
 
-    public boolean pushNoteBass(Note note, String noteName, float xPosition) {
+    public boolean pushNoteBass(Playable note, String noteName, float xPosition) {
         synchronized (this.notesToDrawBass) {
             return this.notesToDrawBass.add(new PositionedNote(xPosition, note, noteName));
         }
@@ -116,7 +116,7 @@ public class MusicViewNoteProviderPositional extends MusicViewNoteProvider {
     }
 
     @Override
-    public boolean pushNoteTrebleToEnd(Note note, String noteName, MusicView musicView) {
+    public boolean pushNoteTrebleToEnd(Playable note, String noteName, MusicView musicView) {
         // put this note on the end of the view
         return pushNoteTreble(note, noteName, getLastNotePosition(musicView.getWidth()) + noteSeparation);
     }
@@ -133,7 +133,7 @@ public class MusicViewNoteProviderPositional extends MusicViewNoteProvider {
     }
 
     @Override
-    public boolean pushNoteBassToEnd(Note note, String noteName, MusicView musicView) {
+    public boolean pushNoteBassToEnd(Playable note, String noteName, MusicView musicView) {
         // put this note on the end of the view
         return pushNoteBass(note, noteName, getLastNotePosition(musicView.getWidth()) + noteSeparation);
     }
@@ -152,7 +152,7 @@ public class MusicViewNoteProviderPositional extends MusicViewNoteProvider {
     }
 
     @Override
-    public boolean removeNoteTreble(MusicViewNote note) {
+    public boolean removeNoteTreble(MusicViewPlayable note) {
         boolean isRemoved = false;
         synchronized (this.notesToDrawTreble) {
             isRemoved = this.notesToDrawTreble.remove(note);
@@ -161,7 +161,7 @@ public class MusicViewNoteProviderPositional extends MusicViewNoteProvider {
     }
 
     @Override
-    public boolean removeNoteBass(MusicViewNote note) {
+    public boolean removeNoteBass(MusicViewPlayable note) {
         boolean isRemoved = false;
         synchronized (this.notesToDrawBass) {
             isRemoved = this.notesToDrawBass.remove(note);

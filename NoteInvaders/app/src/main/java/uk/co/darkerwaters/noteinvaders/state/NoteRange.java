@@ -39,13 +39,13 @@ public class NoteRange {
         this.end = end;
     }
 
-    public boolean contains(Note note) {
+    public boolean contains(Playable note) {
         if (null == note) {
             return false;
         }
         else {
-            return (null == this.start || note.getFrequency() >= this.start.getFrequency()) &&
-                    (null == this.end || note.getFrequency() <= this.end.getFrequency());
+            return (null == this.start || note.getHighest().getFrequency() >= this.start.getFrequency()) &&
+                    (null == this.end || note.getLowest().getFrequency() <= this.end.getFrequency());
         }
     }
 }

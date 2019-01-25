@@ -1,12 +1,11 @@
 package uk.co.darkerwaters.noteinvaders.views;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
+import uk.co.darkerwaters.noteinvaders.state.Playable;
 import uk.co.darkerwaters.noteinvaders.state.State;
 
 public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
@@ -23,11 +22,11 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
 
     private float beatsPerSec;
 
-    private class TimedNote extends MusicViewNote {
+    private class TimedPlayable extends MusicViewPlayable {
         float timeOffset;
         float xPosition;
-        TimedNote(float timeOffset, float xPosition, Note note, String noteName) {
-            super(note, noteName);
+        TimedPlayable(float timeOffset, float xPosition, Playable playable, String noteName) {
+            super(playable, noteName);
             this.timeOffset = timeOffset;
             this.xPosition = xPosition;
         }
@@ -37,8 +36,8 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
         }
     }
 
-    private final List<TimedNote> notesToDrawTreble = new ArrayList<TimedNote>();
-    private final List<TimedNote> notesToDrawBass = new ArrayList<TimedNote>();
+    private final List<TimedPlayable> notesToDrawTreble = new ArrayList<TimedPlayable>();
+    private final List<TimedPlayable> notesToDrawBass = new ArrayList<TimedPlayable>();
 
     public MusicViewNoteProviderTempo() {
         // initialise the view
@@ -97,13 +96,13 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
             float xSep = this.secondsInView * widthFactor / level.treble_clef.length;
             for (int i = 0; i < level.treble_clef.length; ++i) {
                 String noteName = "";
-                Note note = level.treble_clef[i];
+                Playable note = level.treble_clef[i];
                 if (null != level.treble_names && level.treble_names.length > i) {
                     noteName = level.treble_names[i];
                 }
                 float timeX = this.startSeconds + (xSep * (i+1));
                 synchronized (this.notesToDrawTreble) {
-                    TimedNote newNote = new TimedNote(timeX, calculateXPosition(musicView, timeX), note, noteName);
+                    TimedPlayable newNote = new TimedPlayable(timeX, calculateXPosition(musicView, timeX), note, noteName);
                     if (null != newNote && isValid(newNote)) {
                         this.notesToDrawTreble.add(newNote);
                     }
@@ -116,13 +115,13 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
             float xSep = this.secondsInView * widthFactor / level.bass_clef.length;
             for (int i = 0; i < level.bass_clef.length; ++i) {
                 String noteName = "";
-                Note note = level.bass_clef[i];
+                Playable note = level.bass_clef[i];
                 if (null != level.bass_names && level.bass_names.length > i) {
                     noteName = level.bass_names[i];
                 }
                 float timeX = this.startSeconds + (xSep * (i+1));
                 synchronized (this.notesToDrawBass) {
-                    TimedNote newNote = new TimedNote(timeX, calculateXPosition(musicView, timeX), note, noteName);
+                    TimedPlayable newNote = new TimedPlayable(timeX, calculateXPosition(musicView, timeX), note, noteName);
                     if (null != newNote && isValid(newNote)) {
                         this.notesToDrawBass.add(newNote);
                     }
@@ -167,7 +166,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
             // locations on the view for the times the are to represent
             float secondsTillPlay;
             synchronized (this.notesToDrawTreble) {
-                for (TimedNote note : this.notesToDrawTreble) {
+                for (TimedPlayable note : this.notesToDrawTreble) {
                     // get the time this is from the start
                     secondsTillPlay = note.timeOffset - this.startSeconds;
                     // update the position
@@ -175,7 +174,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
                 }
             }
             synchronized (this.notesToDrawBass) {
-                for (TimedNote note : this.notesToDrawBass) {
+                for (TimedPlayable note : this.notesToDrawBass) {
                     // get the time this is from the start
                     secondsTillPlay = note.timeOffset - this.startSeconds;
                     // update the position
@@ -188,13 +187,13 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
             // of all our notes in the list accordingly
             this.startSeconds = 0f;
             synchronized (this.notesToDrawTreble) {
-                for (TimedNote note : this.notesToDrawTreble) {
+                for (TimedPlayable note : this.notesToDrawTreble) {
                     // the time to play is the xPosition * the seconds per pixel they represent
                     note.timeOffset = (note.xPosition - xStart) / xSeconds;
                 }
             }
             synchronized (this.notesToDrawBass) {
-                for (TimedNote note : this.notesToDrawBass) {
+                for (TimedPlayable note : this.notesToDrawBass) {
                     // the time to play is the xPosition * the seconds per pixel they represent
                     note.timeOffset = (note.xPosition - xStart) / xSeconds;
                 }
@@ -226,25 +225,25 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
     }
 
     @Override
-    public MusicViewNote[] getNotesToDrawTreble() {
-        MusicViewNote[] toDraw;
+    public MusicViewPlayable[] getNotesToDrawTreble() {
+        MusicViewPlayable[] toDraw;
         synchronized (this.notesToDrawTreble) {
-            toDraw = this.notesToDrawTreble.toArray(new MusicViewNote[this.notesToDrawTreble.size()]);
+            toDraw = this.notesToDrawTreble.toArray(new MusicViewPlayable[this.notesToDrawTreble.size()]);
         }
         return toDraw;
     }
 
     @Override
-    public MusicViewNote[] getNotesToDrawBass() {
-        MusicViewNote[] toDraw;
+    public MusicViewPlayable[] getNotesToDrawBass() {
+        MusicViewPlayable[] toDraw;
         synchronized (this.notesToDrawBass) {
-            toDraw = this.notesToDrawBass.toArray(new MusicViewNote[this.notesToDrawBass.size()]);
+            toDraw = this.notesToDrawBass.toArray(new MusicViewPlayable[this.notesToDrawBass.size()]);
         }
         return toDraw;
     }
 
     @Override
-    public boolean removeNoteTreble(MusicViewNote note) {
+    public boolean removeNoteTreble(MusicViewPlayable note) {
         boolean isRemoved;
         synchronized (this.notesToDrawTreble) {
             isRemoved = this.notesToDrawTreble.remove(note);
@@ -253,7 +252,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
     }
 
     @Override
-    public boolean removeNoteBass(MusicViewNote note) {
+    public boolean removeNoteBass(MusicViewPlayable note) {
         boolean isRemoved;
         synchronized (this.notesToDrawBass) {
             isRemoved = this.notesToDrawBass.remove(note);
@@ -261,16 +260,16 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
         return isRemoved;
     }
 
-    private boolean isValid(TimedNote note) {
+    private boolean isValid(TimedPlayable note) {
         return null != note && note.xPosition > 0 && note.timeOffset > this.startSeconds;
     }
 
     @Override
-    public boolean pushNoteBassToEnd(Note note, String noteName, MusicView musicView) {
+    public boolean pushNoteBassToEnd(Playable note, String noteName, MusicView musicView) {
         // get the last note we have in our lists, will be the last time we added
         float lastTimeX = this.secondsInView + this.startSeconds;// old was was defined K_SECONDSINVIEW;
         // but we might have later notes on the view already (waiting to appear)
-        TimedNote lastNote = getLastNote();
+        TimedPlayable lastNote = getLastNote();
         if (null != lastNote) {
             // there is a last note, the last time is this plus the current seconds between notes
             lastTimeX = lastNote.timeOffset + (1f / this.beatsPerSec);
@@ -278,7 +277,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
         // create a note for this time
         boolean isAdded = false;
         synchronized (this.notesToDrawBass) {
-            TimedNote newNote = new TimedNote(lastTimeX, calculateXPosition(musicView, lastTimeX), note, noteName);
+            TimedPlayable newNote = new TimedPlayable(lastTimeX, calculateXPosition(musicView, lastTimeX), note, noteName);
             if (null != newNote && isValid(newNote)) {
                 isAdded =  this.notesToDrawBass.add(newNote);
             }
@@ -287,11 +286,11 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
     }
 
     @Override
-    public boolean pushNoteTrebleToEnd(Note note, String noteName, MusicView musicView) {
+    public boolean pushNoteTrebleToEnd(Playable note, String noteName, MusicView musicView) {
         // get the last note we have in our lists, will be the last time we added
         float lastTimeX = this.secondsInView + this.startSeconds;// old was was defined K_SECONDSINVIEW;
         // but we might have later notes on the view already (waiting to appear)
-        TimedNote lastNote = getLastNote();
+        TimedPlayable lastNote = getLastNote();
         if (null != lastNote) {
             // there is a last note, the last time is this plus the current seconds between notes
             lastTimeX = lastNote.timeOffset + (1f / this.beatsPerSec);
@@ -299,7 +298,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
         // create a note for this time
         boolean isAdded = false;
         synchronized (this.notesToDrawTreble) {
-            TimedNote newNote = new TimedNote(lastTimeX, calculateXPosition(musicView, lastTimeX), note, noteName);
+            TimedPlayable newNote = new TimedPlayable(lastTimeX, calculateXPosition(musicView, lastTimeX), note, noteName);
             if (null != newNote && isValid(newNote)) {
                 isAdded = this.notesToDrawTreble.add(newNote);
             }
@@ -318,7 +317,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
 
     @Override
     public float getLastNotePosition(float defaultX) {
-        TimedNote lastNote = getLastNote();
+        TimedPlayable lastNote = getLastNote();
         if (null == lastNote) {
             // return error
             return defaultX;
@@ -329,9 +328,9 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
         }
     }
 
-    public TimedNote getLastNote() {
-        TimedNote treble = getLastTrebleNote();
-        TimedNote bass = getLastBassNote();
+    public TimedPlayable getLastNote() {
+        TimedPlayable treble = getLastTrebleNote();
+        TimedPlayable bass = getLastBassNote();
         if (treble == null && bass != null) {
             // just the one
             return bass;
@@ -355,8 +354,8 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
         }
     }
 
-    private TimedNote getLastTrebleNote() {
-        TimedNote lastNote = null;
+    private TimedPlayable getLastTrebleNote() {
+        TimedPlayable lastNote = null;
         synchronized (this.notesToDrawTreble) {
             if (false == this.notesToDrawTreble.isEmpty()) {
                 lastNote = this.notesToDrawTreble.get(this.notesToDrawTreble.size() - 1);
@@ -365,8 +364,8 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
         return lastNote;
     }
 
-    private TimedNote getLastBassNote() {
-        TimedNote lastNote = null;
+    private TimedPlayable getLastBassNote() {
+        TimedPlayable lastNote = null;
         synchronized (this.notesToDrawBass) {
             if (false == this.notesToDrawBass.isEmpty()) {
                 lastNote = this.notesToDrawBass.get(this.notesToDrawBass.size() - 1);

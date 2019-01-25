@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import uk.co.darkerwaters.noteinvaders.state.Note;
+import uk.co.darkerwaters.noteinvaders.state.Playable;
 import uk.co.darkerwaters.noteinvaders.state.State;
 import uk.co.darkerwaters.noteinvaders.state.input.InputConnectionInterface;
 import uk.co.darkerwaters.noteinvaders.state.input.InputMicrophone;
@@ -132,7 +133,7 @@ public class MicrophoneSetupActivity extends AppCompatActivity implements PianoV
             // add a listener
             inputMicrophone.addListener(new InputConnectionInterface() {
                 @Override
-                public void onNoteDetected(final Note note, final boolean isDetection, final float probability, final int frequency) {
+                public void onNoteDetected(final Playable note, final boolean isDetection, final float probability, final int frequency) {
                     // show that the microphone is working
                     MicrophoneSetupActivity.this.runOnUiThread(new Runnable() {
                         @Override
@@ -227,12 +228,13 @@ public class MicrophoneSetupActivity extends AppCompatActivity implements PianoV
         }
     }
 
-    private void addDetectedPitch(Note note) {
-        float pitch = note.getFrequency();
+    private void addDetectedPitch(Playable note) {
+        float pitch = note.getLowest().getFrequency();
         // add to the range of pitch we can detect
         if (minPitchDetected < 0 || pitch < minPitchDetected) {
             minPitchDetected = pitch;
         }
+        pitch = note.getHighest().getFrequency();
         if (maxPitchDetected < 0 || pitch > maxPitchDetected) {
             maxPitchDetected = pitch;
         }
@@ -245,7 +247,7 @@ public class MicrophoneSetupActivity extends AppCompatActivity implements PianoV
     }
 
     @Override
-    public void noteReleased(Note note) {
+    public void noteReleased(Playable note) {
         // invalidate the view
         runOnUiThread(new Runnable() {
             @Override
@@ -256,7 +258,7 @@ public class MicrophoneSetupActivity extends AppCompatActivity implements PianoV
     }
 
     @Override
-    public void noteDepressed(Note note) {
+    public void noteDepressed(Playable note) {
         // interesting
     }
 

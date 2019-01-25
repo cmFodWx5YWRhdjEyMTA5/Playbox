@@ -1,8 +1,6 @@
 package uk.co.darkerwaters.noteinvaders.views;
 
 import android.content.Context;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -14,14 +12,12 @@ import android.util.Log;
 import android.view.View;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import uk.co.darkerwaters.noteinvaders.R;
-import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.Notes;
+import uk.co.darkerwaters.noteinvaders.state.Playable;
 import uk.co.darkerwaters.noteinvaders.state.State;
 
 public class MusicView extends View {
@@ -44,15 +40,16 @@ public class MusicView extends View {
     private float dangerFade = 0f;
 
     public interface MusicViewListener {
-        void onNotePopped(Note note);
-        void onNoteDestroyed(Note note);
-        void onNoteMisfire(Note trebleLaserTarget);
+        void onNotePopped(Playable note);
+        void onNoteDestroyed(Playable note);
+        void onNoteMisfire(Playable trebleLaserTarget);
     }
     private final List<MusicViewListener> listeners = new ArrayList<MusicViewListener>();
 
     private Paint blackPaint;
     private Paint notePaint;
     private Paint letterPaint;
+    private Paint letterBackPaint;
     private Paint redPaint;
     private Paint railPaint;
     private Paint laserPaint;
@@ -78,8 +75,8 @@ public class MusicView extends View {
     private MusicViewLaser bassLaser = null;
 
     private class LaserTarget {
-        Note target = null;
-        MusicViewNote note = null;
+        Playable target = null;
+        MusicViewPlayable note = null;
         boolean isTreble = false;
     }
     // create the target we are shooting at
@@ -171,6 +168,12 @@ public class MusicView extends View {
         this.letterPaint.setStrokeWidth(getResources().getDimension(R.dimen.letter_stroke));
         this.letterPaint.setColor(getResources().getColor(R.color.colorLaser));
         this.letterPaint.setAntiAlias(true);
+        // and for the notes
+        this.letterBackPaint = new Paint();
+        this.letterBackPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        this.letterBackPaint.setStrokeWidth(getResources().getDimension(R.dimen.letter_stroke));
+        this.letterBackPaint.setColor(getResources().getColor(R.color.colorLetterBack));
+        this.letterBackPaint.setAntiAlias(true);
         // and for the missed keys
         this.redPaint = new Paint();
         this.redPaint.setStyle(Paint.Style.FILL);
@@ -296,7 +299,7 @@ public class MusicView extends View {
                     // inform listeners of this
                     synchronized (this.listeners) {
                         for (MusicViewListener listener : this.listeners) {
-                            listener.onNoteDestroyed(this.laserTarget.note.note);
+                            listener.onNoteDestroyed(this.laserTarget.note.playable);
                         }
                     }
                     // this is popped, stop shooting at it
@@ -307,27 +310,27 @@ public class MusicView extends View {
         return isRemoved;
     }
 
-    public boolean fireLaser(Note target) {
+    public boolean fireLaser(Playable target) {
         float notePositionTreble = -1f;
         boolean fireResult = false;
-        MusicViewNote[] notes = this.noteProvider.getNotesToDrawTreble();
+        MusicViewPlayable[] notes = this.noteProvider.getNotesToDrawTreble();
         for (int i = 0; i < notes.length; ++i) {
-            if (isNoteTarget(notes[i].note, target)) {
+            if (isNoteTarget(notes[i].playable, target)) {
                 // this is the note, remember this index
                 notePositionTreble = notes[i].getXPosition();
                 // set the target to the note that matches, might not be in the correct scale
-                target = notes[i].note;
+                target = notes[i].playable;
                 break;
             }
         }
         float notePositionBass = -1f;
         notes = this.noteProvider.getNotesToDrawBass();
         for (int i = 0; i < notes.length; ++i) {
-            if (isNoteTarget(notes[i].note, target)) {
+            if (isNoteTarget(notes[i].playable, target)) {
                 // this is the note, remember this index
                 notePositionBass = notes[i].getXPosition();
                 // set the target to the note that matches, might not be in the correct scale
-                target = notes[i].note;
+                target = notes[i].playable;
                 break;
             }
         }
@@ -356,12 +359,12 @@ public class MusicView extends View {
         return fireResult;
     }
 
-    private boolean isNoteTarget(Note note, Note target) {
+    private boolean isNoteTarget(Playable note, Playable target) {
         boolean result = false;
         if (State.getInstance().getSelectedInput() == State.InputType.letters) {
             // this is a bit special because we just want to check the letter is correct, not
             // the position on the keyboard
-            result = note.getNotePrimative() == target.getNotePrimative();
+            result = note.getPrimative() == target.getPrimative();
         }
         else {
             // the result is just a direct comparison
@@ -370,7 +373,7 @@ public class MusicView extends View {
         return result;
     }
 
-    public boolean fireTrebleLaser(Note target) {
+    public boolean fireTrebleLaser(Playable target) {
         boolean isValidShoot = false;
         if (isDrawTreble) {
             for (Note trebleNote : this.notesTreble) {
@@ -393,7 +396,7 @@ public class MusicView extends View {
         return isValidShoot;
     }
 
-    public boolean fireBassLaser(Note target) {
+    public boolean fireBassLaser(Playable target) {
         boolean isValidShoot = false;
         if (isDrawBass) {
             for (Note bassNote : this.notesBass) {
@@ -416,30 +419,27 @@ public class MusicView extends View {
         return isValidShoot;
     }
 
-    private String getBasicNoteName(MusicViewNote note) {
-        String noteName = note.noteName;
+    private String getBasicNoteName(MusicViewPlayable note) {
+        String noteName = note.name;
         if (noteName == null || noteName.isEmpty()) {
-            noteName = note.note.getName(0);
+            noteName = note.playable.getName(0);
             noteName = noteName.substring(0, noteName.length() - 1).toLowerCase();
         }
         return noteName;
     }
 
-    private int getNotePosition(Note[] noteArray, Note note) {
+    private int getNotePosition(Playable[] noteArray, Playable note) {
         // get the position of the passed note on the passed clef
         int position = -1;
-        if (note.isSharp()) {
-            // TODO - need to sort out sharps and flats as different depending on which it is
-        }
-        else {
-            // get the position of the note on the treble clef
-            for (int i = 0; i < noteArray.length; ++i) {
-                // just count till we find it
-                if (noteArray[i].equals(note)) {
-                    // this is it
-                    position = i;
-                    break;
-                }
+        //if (note.isSharp()) {
+        // TODO - need to sort out sharps and flats as different depending on which it is
+        // get the position of the note on the treble clef
+        for (int i = 0; i < noteArray.length; ++i) {
+            // just count till we find it
+            if (noteArray[i].equals(note)) {
+                // this is it
+                position = i;
+                break;
             }
         }
         if (position == -1) {
@@ -588,8 +588,8 @@ public class MusicView extends View {
             }
 
             // draw in any notes we want to draw
-            MusicViewNote[] toDrawTreble = this.noteProvider.getNotesToDrawTreble();
-            MusicViewNote[] toDrawBass = this.noteProvider.getNotesToDrawBass();
+            MusicViewPlayable[] toDrawTreble = this.noteProvider.getNotesToDrawTreble();
+            MusicViewPlayable[] toDrawBass = this.noteProvider.getNotesToDrawBass();
 
             float laserXPosition = 0f;
             if (this.isDrawLaser) {
@@ -610,7 +610,7 @@ public class MusicView extends View {
             // draw all the notes in now
             for (int i = 0; i < toDrawTreble.length + toDrawBass.length; ++i) {
                 // for each note, draw it on each clef
-                MusicViewNote note = null;
+                MusicViewPlayable note = null;
                 boolean isFromTrebleList = i < toDrawTreble.length;
                 if (isFromTrebleList) {
                     // this is a treble note, get it
@@ -631,96 +631,105 @@ public class MusicView extends View {
                     if (isNoteRemoved) {
                         synchronized (this.listeners) {
                             for (MusicViewListener listener : this.listeners) {
-                                listener.onNotePopped(note.note);
+                                listener.onNotePopped(note.playable);
                             }
                         }
                     }
                     else {
-                        System.out.println("Error, failed to remove the note: " + note.note.getName());
+                        System.out.println("Error, failed to remove the note: " + note.playable.getName());
                     }
 
                 }
                 else if (xPosition <= contentWidth + 24) {
                     // draw this note in as it is in range of the view
-                    int position = -1;
-                    if (this.isDrawTreble && isFromTrebleList) {
-                        position = getNotePosition(this.notesTreble, note.note);
-                        yPosition = padding.top + (position * noteOffset);
-                    }
-                    if (this.isDrawBass && false == isFromTrebleList) {
-                        // can't draw this on treble, but we have bass, try this
-                        position = getNotePosition(this.notesBass, note.note);
-                        yPosition = bassClefYOffset + (position * noteOffset);
-                    }
-                    if (position != -1) {
-                        // draw the note in the correct position
-                        drawNoteOnClef(canvas, xPosition, yPosition, getBasicNoteName(note));
-                        if (xPosition < dangerZoneX) {
-                            // this note is in danger of being missed, reset the timer
-                            ++this.notesInDangerZone;
+                    int childCount = note.playable.getNoteCount();
+                    Note[] childArray = note.playable.toNoteArray();
+                    for (int childIndex = 0; childIndex < childCount; ++childIndex) {
+                        int position = -1;
+                        Note childNote = childArray[childIndex];
+                        if (this.isDrawTreble && isFromTrebleList) {
+                            position = getNotePosition(this.notesTreble, childNote);
+                            yPosition = padding.top + (position * noteOffset);
                         }
-                        // draw the line over this note if we didn't have a long one in already
-                        if (isDrawLine(position)) {
-                            canvas.drawLine(
-                                    xPosition - lineHeight * 0.8f,
-                                    yPosition,
-                                    xPosition + lineHeight * 0.8f,
-                                    yPosition,
-                                    notePaint);
+                        if (this.isDrawBass && false == isFromTrebleList) {
+                            // can't draw this on treble, but we have bass, try this
+                            position = getNotePosition(this.notesBass, childNote);
+                            yPosition = bassClefYOffset + (position * noteOffset);
                         }
-                        if (isDrawLaser && this.noteProvider.isStarted()) {
-                            // did we shoot this note down at all?
-                            if (xPosition < laserXPosition) {
-                                // the note made it past us
-                                canvas.drawCircle(xPosition, yPosition, noteRadius, redPaint);
+                        if (position != -1) {
+                            // draw the note in the correct position
+                            String noteName = "";
+                            if (childCount == childIndex + 1) {
+                                // only draw the letter for the last note
+                                noteName = getBasicNoteName(note);
                             }
-                            else if (isFromTrebleList) {
-                                // test the treble target
-                                synchronized (this.laserTarget) {
-                                    // if there is a target and it is on the treble, is it this note?
-                                    if (null != this.trebleLaser
-                                            && this.laserTarget.isTreble
-                                            && null != this.laserTarget.target
-                                            && note.note.equals(this.laserTarget.target)) {
-                                        // this note is our note we are shooting at
-                                        this.laserTarget.note = note;
-                                        // this is a hit for the treble target, draw in this laser
-                                        this.trebleLaser.targetY = yPosition;
-                                        this.trebleLaser.tLaserFire = K_LASERDURATIONSEC;
-                                        // and don't fire at another
-                                        this.laserTarget.target = null;
+                            // draw the note in
+                            drawNoteOnClef(canvas, xPosition, yPosition, noteName);
+                            if (xPosition < dangerZoneX) {
+                                // this note is in danger of being missed, reset the timer
+                                ++this.notesInDangerZone;
+                            }
+                            // draw the line over this note if we didn't have a long one in already
+                            if (isDrawLine(position)) {
+                                canvas.drawLine(
+                                        xPosition - lineHeight * 0.8f,
+                                        yPosition,
+                                        xPosition + lineHeight * 0.8f,
+                                        yPosition,
+                                        notePaint);
+                            }
+                            if (isDrawLaser && this.noteProvider.isStarted()) {
+                                // did we shoot this note down at all?
+                                if (xPosition < laserXPosition) {
+                                    // the note made it past us
+                                    canvas.drawCircle(xPosition, yPosition, noteRadius, redPaint);
+                                } else if (isFromTrebleList) {
+                                    // test the treble target
+                                    synchronized (this.laserTarget) {
+                                        // if there is a target and it is on the treble, is it this note?
+                                        if (null != this.trebleLaser
+                                                && this.laserTarget.isTreble
+                                                && null != this.laserTarget.target
+                                                && note.playable.equals(this.laserTarget.target)) {
+                                            // this note is our note we are shooting at
+                                            this.laserTarget.note = note;
+                                            // this is a hit for the treble target, draw in this laser
+                                            this.trebleLaser.targetY = yPosition;
+                                            this.trebleLaser.tLaserFire = K_LASERDURATIONSEC;
+                                            // and don't fire at another
+                                            this.laserTarget.target = null;
+                                        }
+                                    }
+                                } else {
+                                    // test the bass target
+                                    synchronized (this.laserTarget) {
+                                        // if there is a target and it is on the treble, is it this note?
+                                        if (null != this.bassLaser
+                                                && false == this.laserTarget.isTreble
+                                                && null != this.laserTarget.target
+                                                && note.playable.equals(this.laserTarget.target)) {
+                                            // this note is our note we are shooting at
+                                            this.laserTarget.note = note;
+                                            // this is a hit for the treble target, draw in this laser
+                                            this.bassLaser.targetY = yPosition;
+                                            this.bassLaser.tLaserFire = K_LASERDURATIONSEC;
+                                            // and don't fire at another
+                                            this.laserTarget.target = null;
+                                        }
                                     }
                                 }
-                            } else {
-                                // test the bass target
-                                synchronized (this.laserTarget) {
-                                    // if there is a target and it is on the treble, is it this note?
-                                    if (null != this.bassLaser
-                                            && false == this.laserTarget.isTreble
-                                            && null != this.laserTarget.target
-                                            && note.note.equals(this.laserTarget.target)) {
-                                        // this note is our note we are shooting at
-                                        this.laserTarget.note = note;
-                                        // this is a hit for the treble target, draw in this laser
-                                        this.bassLaser.targetY = yPosition;
-                                        this.bassLaser.tLaserFire = K_LASERDURATIONSEC;
-                                        // and don't fire at another
-                                        this.laserTarget.target = null;
-                                    }
-                                }
                             }
-                        }
-                    }
-                    else {
-                        // an invisible note?
-                        if (isFromTrebleList) {
-                            Log.e(State.K_APPTAG, "Added a note that cannot be drawn on treble: " + note.note.getName());
-                            // fix for the player by removing it
-                            this.noteProvider.removeNoteTreble(note);
                         } else {
-                            Log.e(State.K_APPTAG, "Added a note that cannot be drawn on bass: " + note.note.getName());
-                            // fix for the player by removing it
-                            this.noteProvider.removeNoteBass(note);
+                            // an invisible note?
+                            if (isFromTrebleList) {
+                                Log.e(State.K_APPTAG, "Added a note that cannot be drawn on treble: " + note.playable.getName());
+                                // fix for the player by removing it
+                                this.noteProvider.removeNoteTreble(note);
+                            } else {
+                                Log.e(State.K_APPTAG, "Added a note that cannot be drawn on bass: " + note.playable.getName());
+                                // fix for the player by removing it
+                                this.noteProvider.removeNoteBass(note);
+                            }
                         }
                     }
                 }
@@ -883,12 +892,13 @@ public class MusicView extends View {
             canvas.drawCircle(xPosition, yPosition, noteRadius, notePaint);
             stickX = xPosition + noteRadius;
         }
+        // and the title if we are showing this helpful thing
+        if (isDrawNoteName && noteTitle != null && noteTitle.isEmpty() == false) {
+            canvas.drawRect(xPosition - noteRadius * 1.5f, yPosition - noteRadius * 5f, xPosition + noteRadius * 1.5f, yPosition - noteRadius * 1.5f, letterBackPaint);
+            canvas.drawText(noteTitle, xPosition - noteRadius * 1.25f, yPosition - noteRadius * 2f, letterPaint);
+        }
         // draw the stick up from the note
         canvas.drawLine(stickX, yPosition, stickX, yPosition - lineHeight * 1.5f, notePaint);
-        // and the title if we are showing this helpful thing
-        if (isDrawNoteName) {
-            canvas.drawText(noteTitle, xPosition - noteRadius, yPosition - noteRadius * 2f, letterPaint);
-        }
     }
 
     private boolean isDrawLine(int notePosition) {

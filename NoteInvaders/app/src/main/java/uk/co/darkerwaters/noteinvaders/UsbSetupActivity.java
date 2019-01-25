@@ -16,6 +16,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import uk.co.darkerwaters.noteinvaders.state.Note;
+import uk.co.darkerwaters.noteinvaders.state.Playable;
 import uk.co.darkerwaters.noteinvaders.state.State;
 import uk.co.darkerwaters.noteinvaders.state.input.InputConnectionInterface;
 import uk.co.darkerwaters.noteinvaders.state.input.InputMidi;
@@ -176,7 +177,7 @@ public class UsbSetupActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onNoteDetected(Note note, final boolean isDetection, final float probability, final int frequency) {
+    public void onNoteDetected(Playable note, final boolean isDetection, final float probability, final int frequency) {
         // add to our range of notes we can detect
         if (isDetection && probability > 1f) {
             addDetectedPitch(note);
@@ -192,13 +193,14 @@ public class UsbSetupActivity extends AppCompatActivity implements
         }
     }
 
-    private void addDetectedPitch(Note note) {
+    private void addDetectedPitch(Playable note) {
         if (null != note) {
-            float pitch = note.getFrequency();
+            float pitch = note.getLowest().getFrequency();
             // add to the range of pitch we can detect
             if (minPitchDetected < 0 || pitch < minPitchDetected) {
                 minPitchDetected = pitch;
             }
+            pitch = note.getHighest().getFrequency();
             if (maxPitchDetected < 0 || pitch > maxPitchDetected) {
                 maxPitchDetected = pitch;
             }
@@ -210,7 +212,7 @@ public class UsbSetupActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void noteReleased(Note note) {
+    public void noteReleased(Playable note) {
         // invalidate the view, the piano released a note
         runOnUiThread(new Runnable() {
             @Override
@@ -221,7 +223,7 @@ public class UsbSetupActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void noteDepressed(Note note) {
+    public void noteDepressed(Playable note) {
         // interesting, this is from the piano so we don't really care
     }
 
