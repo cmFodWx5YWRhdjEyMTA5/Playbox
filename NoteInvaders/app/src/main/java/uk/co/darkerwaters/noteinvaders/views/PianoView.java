@@ -48,6 +48,7 @@ public class PianoView extends View {
     private Map<Note, Integer> noteDepressionCount;
 
     private boolean isDrawNoteNames = true;
+    private boolean isShowPrimatives = false;
 
     private Thread reductionThread = null;
     private boolean isThreadStarted = false;
@@ -133,7 +134,7 @@ public class PianoView extends View {
             }
         }
         // start and end the whole range
-        setNoteRange(notes.getNote(0).getFrequency(), notes.getNote(notes.getNoteCount() - 1).getFrequency());
+        setNoteRange(notes.getNote(0).getFrequency(), notes.getNote(notes.getNoteCount() - 1).getFrequency(), false);
 
         // and start up the view
         start(context);
@@ -225,7 +226,7 @@ public class PianoView extends View {
         }
     }
 
-    public void setNoteRange(float minPitchDetected, float maxPitchDetected) {
+    public void setNoteRange(float minPitchDetected, float maxPitchDetected, Boolean isShowPrimatives) {
         // set the notes that are to be shown on this piano
         Notes notes = Notes.instance();
         if (null == this.noteRange) {
@@ -251,10 +252,13 @@ public class PianoView extends View {
             }
         }
         // set this range now
-        setNoteRange(this.noteRange);
+        setNoteRange(this.noteRange, isShowPrimatives);
     }
 
-    public void setNoteRange(NoteRange newRange) {
+    public void setNoteRange(NoteRange newRange, Boolean isShowPrimatives) {
+        if (null != isShowPrimatives) {
+            this.isShowPrimatives = isShowPrimatives;
+        }
         // set the members to remember this range to display
         Notes notes = Notes.instance();
         if (null != newRange && null != newRange.getStart() && null != newRange.getEnd()) {
@@ -390,7 +394,7 @@ public class PianoView extends View {
                                 redPaint);
                     }
                     if (isDrawNoteNames) {
-                        canvas.drawText(currentNote.getName(),
+                        canvas.drawText(isShowPrimatives ? "" + currentNote.getNotePrimative() : currentNote.getName(),
                                 keyRect.left + (keyWidth * 0.175f),
                                 keyRect.bottom - (keyWidth * 0.5f),
                                 letterPaint);

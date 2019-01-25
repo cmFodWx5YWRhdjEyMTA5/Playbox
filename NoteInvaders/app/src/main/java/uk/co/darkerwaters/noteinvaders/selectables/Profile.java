@@ -66,10 +66,12 @@ public class Profile extends SelectableItem {
         this.btnBtMidi = (FloatingActionButton) holder.itemView.findViewById(R.id.button_card3);
 
         // setup the microphone button
-        this.btnMicrophone.setVisibility(View.VISIBLE);
         this.btnMicrophone.setImageResource(R.drawable.ic_baseline_mic_24px);
         if (false == State.getInstance().isInputAvailable(State.InputType.microphone)) {
-            this.btnUsbMidi.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
+            this.btnMicrophone.setVisibility(View.INVISIBLE);
+        }
+        else {
+            this.btnMicrophone.setVisibility(View.VISIBLE);
         }
         this.btnMicrophone.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,8 +84,13 @@ public class Profile extends SelectableItem {
         });
 
         // setup the USB MIDI button
-        this.btnUsbMidi.setVisibility(View.VISIBLE);
         this.btnUsbMidi.setImageResource(R.drawable.ic_baseline_usb_24px);
+        if (false == State.getInstance().isInputAvailable(State.InputType.usb)) {
+            this.btnUsbMidi.setVisibility(View.INVISIBLE);
+        }
+        else {
+            this.btnUsbMidi.setVisibility(View.VISIBLE);
+        }
         // set background colour to show it isn't USB connected
         this.btnUsbMidi.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context,R.color.colorPrimaryDark)));
         if (false == State.getInstance().isInputAvailable(State.InputType.usb)) {
@@ -98,8 +105,13 @@ public class Profile extends SelectableItem {
         });
 
         // setup the BT MIDI button
-        this.btnBtMidi.setVisibility(View.VISIBLE);
         this.btnBtMidi.setImageResource(R.drawable.ic_baseline_bluetooth_24px);
+        if (false == State.getInstance().isInputAvailable(State.InputType.bt)) {
+            this.btnBtMidi.setVisibility(View.INVISIBLE);
+        }
+        else {
+            this.btnBtMidi.setVisibility(View.VISIBLE);
+        }
         // set background colour to show it isn't BT connected
         this.btnBtMidi.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context,R.color.colorPrimaryDark)));
         if (false == State.getInstance().isInputAvailable(State.InputType.bt)) {

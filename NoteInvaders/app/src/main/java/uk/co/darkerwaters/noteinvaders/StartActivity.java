@@ -45,6 +45,24 @@ public class StartActivity extends SelectableItemActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.settings_menu, menu);
+
+        State state = State.getInstance();
+        if (state.getAvailableInstrumentCount() <= 1) {
+            // hide the option
+            menu.findItem(R.id.menu_item_instrument).setVisible(false);
+        }
+        if (false == state.isInputAvailable(State.InputType.microphone)) {
+            // hide the option
+            menu.findItem(R.id.menu_item_setupmicrophone).setVisible(false);
+        }
+        if (false == state.isInputAvailable(State.InputType.usb)) {
+            // hide the option
+            menu.findItem(R.id.menu_item_setupusb).setVisible(false);
+        }
+        if (false == state.isInputAvailable(State.InputType.bt)) {
+            // hide the option
+            menu.findItem(R.id.menu_item_setupbt).setVisible(false);
+        }
         return true;
     }
 

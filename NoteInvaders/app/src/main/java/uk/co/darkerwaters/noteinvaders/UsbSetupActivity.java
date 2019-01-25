@@ -205,7 +205,7 @@ public class UsbSetupActivity extends AppCompatActivity implements
             // depress this note
             this.piano.depressNote(note);
             // set the detected pitch on the piano we are showing
-            this.piano.setNoteRange(minPitchDetected, maxPitchDetected);
+            this.piano.setNoteRange(minPitchDetected, maxPitchDetected, null);
         }
     }
 

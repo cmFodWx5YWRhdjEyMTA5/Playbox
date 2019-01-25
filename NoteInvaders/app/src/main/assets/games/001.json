@@ -1,5 +1,5 @@
 {
-  "name": "Random Attack",
+  "name": "Note Attack",
   "id" : "random_attack_parent",
   "image": "games/space_invaders.jpg",
   "class": "uk.co.darkerwaters.noteinvaders.games.RandomAttack",

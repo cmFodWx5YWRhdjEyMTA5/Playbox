@@ -30,6 +30,7 @@ import uk.co.darkerwaters.noteinvaders.state.ActiveScore;
 import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.NoteRange;
+import uk.co.darkerwaters.noteinvaders.state.Notes;
 import uk.co.darkerwaters.noteinvaders.state.State;
 import uk.co.darkerwaters.noteinvaders.state.input.InputConnectionInterface;
 import uk.co.darkerwaters.noteinvaders.state.input.InputMicrophone;
@@ -476,6 +477,14 @@ public class PlayActivity extends HidingFullscreenActivity implements
                 // and close the MIDI connection
                 this.inputMidi.closeOpenMidiConnection();
                 break;
+            case letters:
+                // stop the microphone if it is running
+                stopAudioMonitoring();
+                // stop any BT scanning that might be running
+                this.inputMidi.stopBluetoothScanning(null);
+                // and close the MIDI connection
+                this.inputMidi.closeOpenMidiConnection();
+                break;
             case microphone:
                 // stop any BT scanning that might be running
                 this.inputMidi.stopBluetoothScanning(null);
@@ -527,6 +536,12 @@ public class PlayActivity extends HidingFullscreenActivity implements
                 // hide the audio permissions labels
                 onAudioPermissionChange(false);
                 break;
+            case letters:
+                // setup the piano to allow keyboard entry
+                setupLettersEntry();
+                // hide the audio permissions labels
+                onAudioPermissionChange(false);
+                break;
             case microphone:
                 // show the piano view properly
                 setFullPianoView();
@@ -558,6 +573,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
     private void updateFabsStatus() {
         // update the FAB control colours
         this.fabsHandler.setInputAvailability(State.InputType.keyboard, true);
+        this.fabsHandler.setInputAvailability(State.InputType.letters, true);
         this.fabsHandler.setInputAvailability(State.InputType.microphone, true);
         this.fabsHandler.setInputAvailability(State.InputType.usb, this.inputMidi.getNoUsbDevices() > 0);
         this.fabsHandler.setInputAvailability(State.InputType.bt, this.inputMidi.getNoBtDevices() > 0);
@@ -574,27 +590,34 @@ public class PlayActivity extends HidingFullscreenActivity implements
         }
     }
 
-
     private void setupKeyboardEntry() {
         // just show a nice selection of notes
-        this.pianoView.setNoteRange(this.level.getNoteRange());
+        this.pianoView.setNoteRange(this.level.getNoteRange(), false);
         this.pianoView.setIsPlayable(true);
         // and make it larger so they can press those keys
-        this.pianoView.post(new Runnable() {
-            @Override
-            public void run() {
-                ViewGroup.LayoutParams params = pianoView.getLayoutParams();
-                params.height = (int) (pianoView.getWidth() * 0.4f);
-                pianoView.setLayoutParams(params);
-                pianoView.invalidate();
-            }
-        });
+        setPianoViewHeight();
+    }
+
+    private void setupLettersEntry() {
+        // just show a nice selection of notes, just C4 to B4 to limit to one scale
+        Notes notes = Notes.instance();
+        NoteRange basicRange = new NoteRange(notes.getNote("C4"), notes.getNote("B4"));
+        // setup the piano view to show just a limited range
+        this.pianoView.setNoteRange(basicRange, true);
+        this.pianoView.setIsPlayable(true);
+        // and make it larger so they can press those keys
+        setPianoViewHeight();
     }
 
     private void setFullPianoView() {
-        this.pianoView.setNoteRange(this.level.getNoteRange());
+        this.pianoView.setNoteRange(this.level.getNoteRange(), false);
         this.pianoView.setIsPlayable(false);
         // and make it larger so they can press those keys
+        setPianoViewHeight();
+    }
+
+    private void setPianoViewHeight() {
+        // make the piano view height nice and high so they user can press the keys
         this.pianoView.post(new Runnable() {
             @Override
             public void run() {

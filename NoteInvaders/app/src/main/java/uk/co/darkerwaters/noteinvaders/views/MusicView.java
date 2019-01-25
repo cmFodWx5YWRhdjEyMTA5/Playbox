@@ -312,18 +312,22 @@ public class MusicView extends View {
         boolean fireResult = false;
         MusicViewNote[] notes = this.noteProvider.getNotesToDrawTreble();
         for (int i = 0; i < notes.length; ++i) {
-            if (target.equals(notes[i].note)) {
+            if (isNoteTarget(notes[i].note, target)) {
                 // this is the note, remember this index
                 notePositionTreble = notes[i].getXPosition();
+                // set the target to the note that matches, might not be in the correct scale
+                target = notes[i].note;
                 break;
             }
         }
         float notePositionBass = -1f;
         notes = this.noteProvider.getNotesToDrawBass();
         for (int i = 0; i < notes.length; ++i) {
-            if (target.equals(notes[i].note)) {
+            if (isNoteTarget(notes[i].note, target)) {
                 // this is the note, remember this index
                 notePositionBass = notes[i].getXPosition();
+                // set the target to the note that matches, might not be in the correct scale
+                target = notes[i].note;
                 break;
             }
         }
@@ -352,11 +356,25 @@ public class MusicView extends View {
         return fireResult;
     }
 
+    private boolean isNoteTarget(Note note, Note target) {
+        boolean result = false;
+        if (State.getInstance().getSelectedInput() == State.InputType.letters) {
+            // this is a bit special because we just want to check the letter is correct, not
+            // the position on the keyboard
+            result = note.getNotePrimative() == target.getNotePrimative();
+        }
+        else {
+            // the result is just a direct comparison
+            result = target.equals(note);
+        }
+        return result;
+    }
+
     public boolean fireTrebleLaser(Note target) {
         boolean isValidShoot = false;
         if (isDrawTreble) {
             for (Note trebleNote : this.notesTreble) {
-                if (trebleNote.equals(target)) {
+                if (isNoteTarget(trebleNote, target)) {
                     // this is a note that is in the treble list, can hit this so shoot at it
                     isValidShoot = true;
                     break;
@@ -379,7 +397,7 @@ public class MusicView extends View {
         boolean isValidShoot = false;
         if (isDrawBass) {
             for (Note bassNote : this.notesBass) {
-                if (bassNote.equals(target)) {
+                if (isNoteTarget(bassNote, target)) {
                     // this is a note that is in the bass list, can hit this so shoot at it
                     isValidShoot = true;
                     break;

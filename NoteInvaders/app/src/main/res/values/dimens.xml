@@ -24,6 +24,7 @@
     <dimen name="standard_105">105dp</dimen>
     <dimen name="standard_155">155dp</dimen>
     <dimen name="standard_205">205dp</dimen>
+    <dimen name="standard_255">255dp</dimen>
     <dimen name="music_line_stroke">2dp</dimen>
     <dimen name="note_stroke">2dp</dimen>
     <dimen name="letter_stroke">1dp</dimen>
