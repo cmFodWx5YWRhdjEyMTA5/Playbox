@@ -36,6 +36,73 @@
             "B4"
           ],
           "treble_names": ["c","d","e","f","g","a","b"]
+        },
+        {
+          "name": "gaps (FACE)",
+          "id" : "random_attack_treble_face",
+          "image": "temp.png",
+          "treble_clef": [
+            "F4",
+            "A4",
+            "C5",
+            "E5"
+          ],
+          "treble_names": ["f","a","c","e"]
+        },
+        {
+          "name": "Every Good Boy Deserves Favor (lines)",
+          "id" : "random_attack_treble_egbdf",
+          "image": "temp.png",
+          "treble_clef": [
+            "E4",
+            "G4",
+            "B4",
+            "D5",
+            "F5"
+          ],
+          "treble_names": ["e","g","b","d","f"]
+        },
+        {
+          "name": "gaps+ (D'FACE'G)",
+          "id" : "random_attack_treble_face_plus",
+          "image": "temp.png",
+          "treble_clef": [
+            "D4",
+            "F4",
+            "A4",
+            "C5",
+            "E5",
+            "G5"
+          ],
+          "treble_names": ["d","f","a","c","e","g"]
+        },
+        {
+          "name": "Every Good Boy Deserves Favor+ (+lines+)",
+          "id" : "random_attack_treble_egbdf_plus",
+          "image": "temp.png",
+          "treble_clef": [
+            "C4",
+            "E4",
+            "G4",
+            "B4",
+            "D5",
+            "F5",
+            "A5"
+          ],
+          "treble_names": ["c","e","g","b","d","f","a"]
+        },
+        {
+          "name": "Important Placeholders (C+G)",
+          "id" : "random_attack_treble_placeholders",
+          "image": "temp.png",
+          "treble_clef": [
+            "C4",
+            "G4",
+            "C5",
+            "G5",
+            "C6"
+          ],
+          "treble_names": ["c","g","c","g","c"]
         }
       ]
     },
@@ -71,6 +138,84 @@
             "C4"
           ],
           "bass_names": ["d","e","f","g","a","b","c"]
+        },
+        {
+          "name": "Bass FACE (Gaps-)",
+          "id" : "random_attack_bass_face",
+          "image": "temp.png",
+          "bass_clef": [
+            "F2",
+            "A2",
+            "C3",
+            "E3"
+          ],
+          "bass_names": ["f","a","c","e"]
+        },
+        {
+          "name": "gaps (ACE'G)",
+          "id" : "random_attack_bass_aceg",
+          "image": "temp.png",
+          "bass_clef": [
+            "A2",
+            "C3",
+            "E3",
+            "G3"
+          ],
+          "bass_names": ["a","c","e","g"]
+        },
+        {
+          "name": "Good Boy Deserves Favor Again (lines)",
+          "id" : "random_attack_bass_gbdfa",
+          "image": "temp.png",
+          "bass_clef": [
+            "G2",
+            "B2",
+            "D3",
+            "F3",
+            "A3"
+          ],
+          "bass_names": ["g","b","d","f","a"]
+        },
+        {
+          "name": "gaps+ (FACE'GB)",
+          "id" : "random_attack_bass_face_gb",
+          "image": "temp.png",
+          "bass_clef": [
+            "F2",
+            "A2",
+            "C3",
+            "E3",
+            "G3",
+            "B3"
+          ],
+          "bass_names": ["f","a","c","e","g","b"]
+        },
+        {
+          "name": "Every Good Boy Deserves Favor+ (lines+)",
+          "id" : "random_attack_bass_egbdf_plus",
+          "image": "temp.png",
+          "bass_clef": [
+            "E2",
+            "G2",
+            "B2",
+            "D3",
+            "F3",
+            "A3",
+            "C4"
+          ],
+          "bass_names": ["e","g","b","d","f","a","c"]
+        },
+        {
+          "name": "Important Placeholders (C+F)",
+          "id" : "random_attack_bass_placeholders",
+          "image": "temp.png",
+          "bass_clef": [
+            "F2",
+            "C3",
+            "F3",
+            "C4"
+          ],
+          "bass_names": ["f","c","f","c"]
         }
       ]
     },
@@ -124,6 +269,114 @@
             "C4"
           ],
           "bass_names": ["d","e","f","g","a","b","c"]
+        },
+        {
+          "name": "gaps (2 FACE)",
+          "id" : "random_attack_two_face",
+          "image": "temp.png",
+          "treble_clef": [
+            "F4",
+            "A4",
+            "C5",
+            "E5"
+          ],
+          "treble_names": ["f","a","c","e"],
+          "bass_clef": [
+            "F2",
+            "A2",
+            "C3",
+            "E3"
+          ],
+          "bass_names": ["f","a","c","e"]
+        },
+        {
+          "name": "Every Good Boy Deserves Favor (lines * 2)",
+          "id" : "random_attack_two_egbdf",
+          "image": "temp.png",
+          "treble_clef": [
+            "E4",
+            "G4",
+            "B4",
+            "D5",
+            "F5"
+          ],
+          "treble_names": ["e","g","b","d","f"],
+          "bass_clef": [
+            "E2",
+            "G2",
+            "B2",
+            "D3",
+            "F3"
+          ],
+          "bass_names": ["e","g","b","d","f"]
+        },
+        {
+          "name": "gaps+ (D'FACE'GB)",
+          "id" : "random_attack_two_spaces",
+          "image": "temp.png",
+          "treble_clef": [
+            "D4",
+            "F4",
+            "A4",
+            "C5",
+            "E5",
+            "G5"
+          ],
+          "treble_names": ["d","f","a","c","e","g"],
+          "bass_clef": [
+            "F2",
+            "A2",
+            "C3",
+            "E3",
+            "G3",
+            "B3"
+          ],
+          "bass_names": ["f","a","c","e","g","b"]
+        },
+        {
+          "name": "Every Good Boy Deserves Favor+ (all lines)",
+          "id" : "random_attack_two_lines",
+          "image": "temp.png",
+          "treble_clef": [
+            "C4",
+            "E4",
+            "G4",
+            "B4",
+            "D5",
+            "F5",
+            "A5"
+          ],
+          "treble_names": ["c","e","g","b","d","f","a"],
+          "bass_clef": [
+            "E2",
+            "G2",
+            "B2",
+            "D3",
+            "F3",
+            "A3",
+            "C4"
+          ],
+          "bass_names": ["e","g","b","d","f","a","c"]
+        },
+        {
+          "name": "Important Placeholders (C+F+G)",
+          "id" : "random_attack_two_placeholders",
+          "image": "temp.png",
+          "treble_clef": [
+            "C4",
+            "G4",
+            "C5",
+            "G5",
+            "C6"
+          ],
+          "treble_names": ["c","g","c","g","c"],
+          "bass_clef": [
+            "F2",
+            "C3",
+            "F3",
+            "C4"
+          ],
+          "bass_names": ["f","c","f","c"]
         }
       ]
     }

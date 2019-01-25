@@ -252,13 +252,12 @@ public class PlayActivity extends HidingFullscreenActivity implements
     }
 
     private void setSoundIcon() {
-        Drawable icon;
         int iconId;
         if (State.getInstance().isSoundOn()) {
-            iconId = R.drawable.ic_baseline_volume_off_24px;
+            iconId = R.drawable.ic_baseline_volume_up_24px;
         }
         else {
-            iconId = R.drawable.ic_baseline_volume_up_24px;
+            iconId = R.drawable.ic_baseline_volume_off_24px;
         }
         this.soundButton.setBackgroundResource(iconId);
     }

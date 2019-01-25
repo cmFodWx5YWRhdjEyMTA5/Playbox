@@ -1,8 +1,17 @@
 package uk.co.darkerwaters.noteinvaders.views;
 
+import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 
 public abstract class MusicViewNoteProvider {
+
+    private boolean isStarted = false;
+    private boolean isInitialised = false;
+    private volatile boolean isPaused = false;
+
+    public void initialiseNotes(MusicView musicView) {
+        this.isInitialised = true;
+    }
     public abstract void clearNotes();
 
     public abstract MusicViewNote[] getNotesToDrawTreble();
@@ -23,4 +32,26 @@ public abstract class MusicViewNoteProvider {
 
     public abstract boolean removeNoteTreble(MusicViewNote note);
     public abstract boolean removeNoteBass(MusicViewNote note);
+
+    public boolean isStarted() { return this.isStarted; }
+
+    public boolean isInitialised() { return this.isInitialised; }
+
+    public void setPaused(boolean isPaused) {
+        // we also use this to start the game
+        if (false == isPaused && false == this.isStarted) {
+            // we will soon not be paused, but we also haven't started
+            this.setStarted(true);
+        }
+        // pause / resume
+        this.isPaused = isPaused;
+    }
+
+    public void setStarted(boolean isStarted) {
+        this.isStarted = isStarted;
+    }
+
+    public boolean isPaused() {
+        return this.isPaused;
+    }
 }

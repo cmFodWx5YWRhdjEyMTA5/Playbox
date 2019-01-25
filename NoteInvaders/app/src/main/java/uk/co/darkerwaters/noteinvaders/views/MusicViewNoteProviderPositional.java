@@ -3,6 +3,7 @@ package uk.co.darkerwaters.noteinvaders.views;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 
 public class MusicViewNoteProviderPositional extends MusicViewNoteProvider {
@@ -38,6 +39,11 @@ public class MusicViewNoteProviderPositional extends MusicViewNoteProvider {
         synchronized (this.notesToDrawBass) {
             this.notesToDrawBass.clear();
         }
+    }
+
+    @Override
+    public void initialiseNotes(MusicView musicView) {
+        super.initialiseNotes(musicView);
     }
 
     @Override

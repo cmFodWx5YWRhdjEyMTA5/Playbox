@@ -5,6 +5,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.State;
 
@@ -21,7 +22,6 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
     private float startSeconds = 0f;
 
     private float beatsPerSec;
-    private volatile boolean isPaused = false;
 
     private class TimedNote extends MusicViewNote {
         float timeOffset;
@@ -71,15 +71,6 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
         return (int)(this.beatsPerSec * 60f);
     }
 
-    public void setPaused(boolean isPaused) {
-        // pause / resume
-        this.isPaused = isPaused;
-    }
-
-    public boolean isPaused() {
-        return this.isPaused;
-    }
-
     private float getXStart(MusicView musicView) {
         return musicView.getNoteStartX();
     }
@@ -92,6 +83,62 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
         float width = xEnd - xStart;
         // calculate the number of pixels that we want to repesent a second of time
         return width / this.secondsInView;// old way was via the seconds on view K_SECONDSINVIEW;
+    }
+
+    @Override
+    public void initialiseNotes(MusicView musicView) {
+        // initialise the base class
+        super.initialiseNotes(musicView);
+        // initially we can show the notes from the level in a nice friendly order
+        Game level = State.getInstance().getGameSelectedLast();
+        final float widthFactor = 0.95f;
+        if (null != level.treble_clef && level.treble_clef.length > 0) {
+            // we can take a large section of the view (95%) and divide equally by the note length
+            float xSep = this.secondsInView * widthFactor / level.treble_clef.length;
+            for (int i = 0; i < level.treble_clef.length; ++i) {
+                String noteName = "";
+                Note note = level.treble_clef[i];
+                if (null != level.treble_names && level.treble_names.length > i) {
+                    noteName = level.treble_names[i];
+                }
+                float timeX = this.startSeconds + (xSep * (i+1));
+                synchronized (this.notesToDrawTreble) {
+                    TimedNote newNote = new TimedNote(timeX, calculateXPosition(musicView, timeX), note, noteName);
+                    if (null != newNote && isValid(newNote)) {
+                        this.notesToDrawTreble.add(newNote);
+                    }
+                }
+            }
+        }
+        // do the bass clef too
+        if (null != level.bass_clef && level.bass_clef.length > 0) {
+            // we can take a large section of the view (95%) and divide equally by the note length
+            float xSep = this.secondsInView * widthFactor / level.bass_clef.length;
+            for (int i = 0; i < level.bass_clef.length; ++i) {
+                String noteName = "";
+                Note note = level.bass_clef[i];
+                if (null != level.bass_names && level.bass_names.length > i) {
+                    noteName = level.bass_names[i];
+                }
+                float timeX = this.startSeconds + (xSep * (i+1));
+                synchronized (this.notesToDrawBass) {
+                    TimedNote newNote = new TimedNote(timeX, calculateXPosition(musicView, timeX), note, noteName);
+                    if (null != newNote && isValid(newNote)) {
+                        this.notesToDrawBass.add(newNote);
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void setStarted(boolean isStarted) {
+        if (isStarted) {
+            // clear the helping notes
+            clearNotes();
+        }
+        // and start
+        super.setStarted(isStarted);
     }
 
     @Override
@@ -115,7 +162,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
         float xEnd = getXEnd(musicView);
         // calculate the number of pixels that we want to repesent a second of time
         float xSeconds = getXSeconds(xStart, xEnd);
-        if (false == this.isPaused && this.startSeconds < K_MAXSECONDSTOREPRESENT) {
+        if (false == this.isPaused() && this.startSeconds < K_MAXSECONDSTOREPRESENT) {
             // if we are here then some time has elapsed, need to move all the notes to their correct
             // locations on the view for the times the are to represent
             float secondsTillPlay;

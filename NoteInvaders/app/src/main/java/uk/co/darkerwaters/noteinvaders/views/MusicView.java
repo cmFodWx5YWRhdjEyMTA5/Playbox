@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import uk.co.darkerwaters.noteinvaders.R;
+import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.Notes;
 import uk.co.darkerwaters.noteinvaders.state.State;
@@ -214,8 +215,6 @@ public class MusicView extends View {
         // clear all the notes when we close out the view
         this.noteProvider.clearNotes();
     }
-
-
 
     public boolean addListener(MusicViewListener listener) {
         synchronized (this.listeners) {
@@ -453,6 +452,12 @@ public class MusicView extends View {
         // Draw a solid color on the canvas as background
         canvas.drawColor(Color.WHITE);
 
+        // if this is the first draw then we can initialise our provider
+        if (false == this.noteProvider.isInitialised() && false == this.noteProvider.isStarted()) {
+            // initilaise our notes on the view
+            this.noteProvider.initialiseNotes(this);
+        }
+
         // calculate the time between each draw to help our animations
         if (this.lastTimeDrawn == 0) {
             this.lastTimeDrawn = System.currentTimeMillis();
@@ -597,7 +602,7 @@ public class MusicView extends View {
                     note = toDrawBass[i - toDrawTreble.length];
                 }
                 float xPosition = note.getXPosition();
-                if (xPosition < getNoteStartX()) {
+                if (this.noteProvider.isStarted() && xPosition < getNoteStartX()) {
                     // this is gone from the view
                     boolean isNoteRemoved = false;
                     if (isFromTrebleList) {
@@ -645,7 +650,7 @@ public class MusicView extends View {
                                     yPosition,
                                     notePaint);
                         }
-                        if (isDrawLaser) {
+                        if (isDrawLaser && this.noteProvider.isStarted()) {
                             // did we shoot this note down at all?
                             if (xPosition < laserXPosition) {
                                 // the note made it past us
@@ -741,42 +746,45 @@ public class MusicView extends View {
                     this.laserTarget.target = null;
                 }
             }
-            if (this.notesInDangerZone == 0) {
-                // there are no notes in the danger zone, increase the time
-                this.noteFreeDangerZoneTime += elapsedTime / 1000f;
-                this.dangerFade = 0f;
-            }
-            else {
-                // reset the time, there is one in there
-                resetNoteFreeDangerZoneTime();
-                dangerFade = Math.min(150f, dangerFade + (secondsElapsed * 50));
-                // and show it
-                float yTop = -1f;
-                float yBottom = -1f;
-                if (this.trebleLaser != null) {
-                    yTop = this.trebleLaser.yTop;
-                    yBottom = this.trebleLaser.yBottom;
-                }
-                if (this.bassLaser != null) {
-                    if (yTop < 0 || this.bassLaser.yTop < yTop) {
-                        // set the new top
-                        yTop = this.bassLaser.yTop;
+            if (this.noteProvider.isStarted()) {
+                if (this.notesInDangerZone == 0) {
+                    // there are no notes in the danger zone, increase the time
+                    this.noteFreeDangerZoneTime += elapsedTime / 1000f;
+                    this.dangerFade = 0f;
+                } else {
+                    // reset the time, there is one in there
+                    resetNoteFreeDangerZoneTime();
+                    dangerFade = Math.min(150f, dangerFade + (secondsElapsed * 50));
+                    // and show it
+                    float yTop = -1f;
+                    float yBottom = -1f;
+                    if (this.trebleLaser != null) {
+                        yTop = this.trebleLaser.yTop;
+                        yBottom = this.trebleLaser.yBottom;
                     }
-                    if (yBottom < 0 || this.bassLaser.yBottom > yTop) {
-                        // set this new bottom
-                        yBottom = this.bassLaser.yBottom;
+                    if (this.bassLaser != null) {
+                        if (yTop < 0 || this.bassLaser.yTop < yTop) {
+                            // set the new top
+                            yTop = this.bassLaser.yTop;
+                        }
+                        if (yBottom < 0 || this.bassLaser.yBottom > yTop) {
+                            // set this new bottom
+                            yBottom = this.bassLaser.yBottom;
+                        }
                     }
-                }
-                if (yTop >= 0 && yBottom >= 0) {
-                    int alpha = redPaint.getAlpha();
-                    redPaint.setAlpha((int)dangerFade);
-                    canvas.drawRect(dangerZoneX - lineHeight, yTop, dangerZoneX, yBottom, redPaint);
-                    redPaint.setAlpha(alpha);
+                    if (yTop >= 0 && yBottom >= 0) {
+                        int alpha = redPaint.getAlpha();
+                        redPaint.setAlpha((int) dangerFade);
+                        canvas.drawRect(dangerZoneX - lineHeight, yTop, dangerZoneX, yBottom, redPaint);
+                        redPaint.setAlpha(alpha);
+                    }
                 }
             }
         }
-        // draw in the lasers on top of this
-        drawLaserOnClef(canvas, secondsElapsed);
+        if (this.noteProvider.isStarted()) {
+            // draw in the lasers on top of this
+            drawLaserOnClef(canvas, secondsElapsed);
+        }
 
         // reset the time calc so we can animate the correct amount on each draw cycle
         this.lastTimeDrawn = System.currentTimeMillis();
