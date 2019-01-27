@@ -316,7 +316,6 @@ public class MusicView extends View {
         boolean isInList;
         synchronized (this.depressedNotes) {
             isInList = this.depressedNotes.remove(note);
-            System.out.println("released: " + note.getPrimative() + (isInList ? " miss" : ""));
         }
         if (isInList) {
             // this was in the list, so was not a part of a successful hit, this is a miss
@@ -331,7 +330,6 @@ public class MusicView extends View {
     public void noteDepressed(Playable note, Playable depressedNotes) {
         // record that this note was pressed, we need to know if it was / is part of a hit...
         synchronized (this.depressedNotes) {
-            System.out.println("depressed: " + note.getPrimative());
             this.depressedNotes.add(note);
         }
         // fire the laser at the notes that are depressed now
@@ -404,7 +402,6 @@ public class MusicView extends View {
             // so when released any invalid ones count as a miss...
             synchronized (this.depressedNotes) {
                 for (Note hitNote : fireTarget.toNoteArray()) {
-                    System.out.println("hit: " + hitNote.getPrimative());
                     this.depressedNotes.remove(hitNote);
                 }
             }
