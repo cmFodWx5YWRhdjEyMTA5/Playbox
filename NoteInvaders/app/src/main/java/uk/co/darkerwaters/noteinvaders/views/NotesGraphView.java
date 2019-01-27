@@ -91,39 +91,47 @@ public class NotesGraphView extends View {
         if (notesMissed.length > 0) {
             // find the max number
             int maxFrequency = 2;
+            int noNotesFound = 0;
             for (Playable note : notesMissed) {
                 // find the max of the misses and false shots combined
                 int frequency = activeScore.getNoteMissedFrequency(note) +
                         activeScore.getNoteFalselyShotFrequency(note);
                 maxFrequency = Math.max(frequency, maxFrequency);
+                if (note instanceof Note) {
+                    ++noNotesFound;
+                }
             }
-            float noteWidth = graphRect.width() / notesMissed.length;
-            float xStart = graphRect.left;
-            float frequencyHeight = (graphRect.height() - padding.height()) / maxFrequency;
-            graphPaint.setTextSize(noteWidth * 0.3f);
-            for (int i = 0; i < notesMissed.length; ++i) {
-                // for each note, draw in the bar
-                float missedbarHeight = frequencyHeight * activeScore.getNoteMissedFrequency(notesMissed[i]);
-                this.notePaint.setColor(getResources().getColor(R.color.colorMiss));
-                canvas.drawRect(xStart + 5f,
-                        graphRect.bottom - missedbarHeight,
-                        xStart + noteWidth,
-                        graphRect.bottom,
-                        notePaint);
-                // and the false shots on top of this
-                float falseHeight = frequencyHeight * activeScore.getNoteFalselyShotFrequency(notesMissed[i]);
-                this.notePaint.setColor(getResources().getColor(R.color.colorFalseFire));
-                canvas.drawRect(xStart + 5f,
-                        graphRect.bottom - (missedbarHeight + falseHeight),
-                        xStart + noteWidth,
-                        graphRect.bottom - missedbarHeight,
-                        notePaint);
-                // put the name in
-                canvas.drawText(notesMissed[i].getName(0),
-                        xStart + (noteWidth * 0.1f),
-                        graphRect.bottom - (noteWidth * 0.1f),
-                        graphPaint);
-                xStart += noteWidth;
+            if (noNotesFound > 0) {
+                float noteWidth = graphRect.width() / noNotesFound;
+                float xStart = graphRect.left;
+                float frequencyHeight = (graphRect.height() - padding.height()) / maxFrequency;
+                graphPaint.setTextSize(noteWidth * 0.3f);
+                for (int i = 0; i < notesMissed.length; ++i) {
+                    // for each note, draw in the bar
+                    if (notesMissed[i] instanceof Note) {
+                        float missedbarHeight = frequencyHeight * activeScore.getNoteMissedFrequency(notesMissed[i]);
+                        this.notePaint.setColor(getResources().getColor(R.color.colorMiss));
+                        canvas.drawRect(xStart + 5f,
+                                graphRect.bottom - missedbarHeight,
+                                xStart + noteWidth,
+                                graphRect.bottom,
+                                notePaint);
+                        // and the false shots on top of this
+                        float falseHeight = frequencyHeight * activeScore.getNoteFalselyShotFrequency(notesMissed[i]);
+                        this.notePaint.setColor(getResources().getColor(R.color.colorFalseFire));
+                        canvas.drawRect(xStart + 5f,
+                                graphRect.bottom - (missedbarHeight + falseHeight),
+                                xStart + noteWidth,
+                                graphRect.bottom - missedbarHeight,
+                                notePaint);
+                        // put the name in
+                        canvas.drawText(notesMissed[i].getName(0),
+                                xStart + (noteWidth * 0.1f),
+                                graphRect.bottom - (noteWidth * 0.1f),
+                                graphPaint);
+                        xStart += noteWidth;
+                    }
+                }
             }
         }
     }

@@ -38,6 +38,7 @@ public class MusicView extends View {
     private float noteFreeDangerZoneTime = 0f;
     private int notesInDangerZone = 0;
     private float dangerFade = 0f;
+    private ArrayList<Playable> depressedNotes = new ArrayList<Playable>();
 
     public interface MusicViewListener {
         void onNotePopped(Playable note);
@@ -310,113 +311,135 @@ public class MusicView extends View {
         return isRemoved;
     }
 
+    public void noteReleased(Playable note) {
+        // if this note was not part of a hit, then it was a miss - inform the listeners of this
+        boolean isInList;
+        synchronized (this.depressedNotes) {
+            isInList = this.depressedNotes.remove(note);
+            System.out.println("released: " + note.getPrimative() + (isInList ? " miss" : ""));
+        }
+        if (isInList) {
+            // this was in the list, so was not a part of a successful hit, this is a miss
+            synchronized (this.listeners) {
+                for (MusicViewListener listener : this.listeners) {
+                    listener.onNoteMisfire(note);
+                }
+            }
+        }
+    }
+
+    public void noteDepressed(Playable note, Playable depressedNotes) {
+        // record that this note was pressed, we need to know if it was / is part of a hit...
+        synchronized (this.depressedNotes) {
+            System.out.println("depressed: " + note.getPrimative());
+            this.depressedNotes.add(note);
+        }
+        // fire the laser at the notes that are depressed now
+        fireLaser(depressedNotes);
+    }
+
     public boolean fireLaser(Playable target) {
         float notePositionTreble = -1f;
-        boolean fireResult = false;
         MusicViewPlayable[] notes = this.noteProvider.getNotesToDrawTreble();
-        for (int i = 0; i < notes.length; ++i) {
-            if (isNoteTarget(notes[i].playable, target)) {
-                // this is the note, remember this index
-                notePositionTreble = notes[i].getXPosition();
-                // set the target to the note that matches, might not be in the correct scale
-                target = notes[i].playable;
-                break;
+        Playable targetTreble = null;
+        if (isDrawTreble) {
+            for (int i = 0; i < notes.length; ++i) {
+                if (isNoteTarget(notes[i].playable, target)) {
+                    // this is the note, remember this index
+                    notePositionTreble = notes[i].getXPosition();
+                    // set the target to the note that matches, might not be in the correct scale
+                    targetTreble = notes[i].playable;
+                    break;
+                }
             }
         }
         float notePositionBass = -1f;
         notes = this.noteProvider.getNotesToDrawBass();
-        for (int i = 0; i < notes.length; ++i) {
-            if (isNoteTarget(notes[i].playable, target)) {
-                // this is the note, remember this index
-                notePositionBass = notes[i].getXPosition();
-                // set the target to the note that matches, might not be in the correct scale
-                target = notes[i].playable;
-                break;
+        Playable targetBass = null;
+        if (isDrawBass) {
+            for (int i = 0; i < notes.length; ++i) {
+                if (isNoteTarget(notes[i].playable, target)) {
+                    // this is the note, remember this index
+                    notePositionBass = notes[i].getXPosition();
+                    // set the target to the note that matches, might not be in the correct scale
+                    targetBass = notes[i].playable;
+                    break;
+                }
             }
         }
+        Playable fireTarget = null;
+        boolean isTargetTreble = false;
         if (notePositionTreble >= 0f && notePositionBass >= 0f) {
             // there are notes on bass and treble we can fire at, shoot at the closest
             if (notePositionTreble < notePositionBass) {
-                fireResult = fireTrebleLaser(target);
+                fireTarget = targetTreble;
+                isTargetTreble = true;
             } else {
-                fireResult = fireBassLaser(target);
+                fireTarget = targetBass;
+                isTargetTreble = false;
             }
         }
-        else if (notePositionBass < 0f) {
+        else if (notePositionTreble >= 0f) {
             // there is no bass note to fire at, but there is one on the treble
-            fireResult = fireTrebleLaser(target);
+            fireTarget = targetTreble;
+            isTargetTreble = true;
         }
-        else if (notePositionTreble < 0f) {
+        else if (notePositionBass >= 0f) {
             // there is no treble note, but there is one on the bass
-            fireResult = fireBassLaser(target);
+            fireTarget = targetBass;
+            isTargetTreble = false;
         }
-        else {
-            // there are no valid notes on either clef
-            fireResult = fireTrebleLaser(target);
-            boolean bassResult = fireBassLaser(target);
-            fireResult = bassResult || fireResult;
+        //else there are no valid notes on either clef
+
+        // open fire, if there is one
+        if (null != fireTarget) {
+            // we have a target, open fire
+            killTarget();
+            synchronized (this.laserTarget) {
+                // now set the new target to shoot at
+                this.laserTarget.target = fireTarget;
+                this.laserTarget.isTreble = isTargetTreble;
+            }
+            // every note on this target it a hit, remove from the list we record that are pressed
+            // so when released any invalid ones count as a miss...
+            synchronized (this.depressedNotes) {
+                for (Note hitNote : fireTarget.toNoteArray()) {
+                    System.out.println("hit: " + hitNote.getPrimative());
+                    this.depressedNotes.remove(hitNote);
+                }
+            }
         }
-        return fireResult;
+        // return if we fired at something
+        return null != fireTarget;
     }
 
     private boolean isNoteTarget(Playable note, Playable target) {
-        boolean result = false;
-        if (State.getInstance().getSelectedInput() == State.InputType.letters) {
-            // this is a bit special because we just want to check the letter is correct, not
-            // the position on the keyboard
-            result = note.getPrimative() == target.getPrimative();
-        }
-        else {
-            // the result is just a direct comparison
-            result = target.equals(note);
-        }
-        return result;
-    }
-
-    public boolean fireTrebleLaser(Playable target) {
-        boolean isValidShoot = false;
-        if (isDrawTreble) {
-            for (Note trebleNote : this.notesTreble) {
-                if (isNoteTarget(trebleNote, target)) {
-                    // this is a note that is in the treble list, can hit this so shoot at it
-                    isValidShoot = true;
-                    break;
+        int contained = 0;
+        for (Note noteTest : note.toNoteArray()) {
+            // for each note, test each target
+            for (Note targetTest : target.toNoteArray()) {
+                // test to see if this is hit
+                if (State.getInstance().getSelectedInput() == State.InputType.letters) {
+                    // this is a bit special because we just want to check the letter is correct, not
+                    // the position on the keyboard
+                    if (noteTest.getPrimative() == targetTest.getPrimative()) {
+                        // this target note matches the one in the note
+                        ++contained;
+                        break;
+                    }
+                }
+                else {
+                    // test to see if this is hit
+                    if (targetTest.equals(noteTest)) {
+                        // this target note matches the one in the note
+                        ++contained;
+                        break;
+                    }
                 }
             }
         }
-        if (isValidShoot) {
-            // shoot at this new target, first kill any already shot at but not yet killed
-            killTarget();
-            synchronized (this.laserTarget) {
-                // now set the new target to shoot at
-                this.laserTarget.target = target;
-                this.laserTarget.isTreble = true;
-            }
-        }
-        return isValidShoot;
-    }
-
-    public boolean fireBassLaser(Playable target) {
-        boolean isValidShoot = false;
-        if (isDrawBass) {
-            for (Note bassNote : this.notesBass) {
-                if (isNoteTarget(bassNote, target)) {
-                    // this is a note that is in the bass list, can hit this so shoot at it
-                    isValidShoot = true;
-                    break;
-                }
-            }
-        }
-        if (isValidShoot) {
-            // shoot at this new target, first kill any already shot at but not yet killed
-            killTarget();
-            synchronized (this.laserTarget) {
-                // now set the new target to shoot at
-                this.laserTarget.target = target;
-                this.laserTarget.isTreble = false;
-            }
-        }
-        return isValidShoot;
+        // this is hit if the number hit matches those in the note array
+        return contained == note.getNoteCount();
     }
 
     private String getBasicNoteName(MusicViewPlayable note) {
@@ -732,45 +755,6 @@ public class MusicView extends View {
                             }
                         }
                     }
-                }
-            }
-            // if we didn't fire yet, there was nothing to fire at
-            synchronized (this.laserTarget) {
-                if (null != this.laserTarget.target
-                        && this.laserTarget.isTreble
-                        && null != this.trebleLaser) {
-                    // this was fired at but was not on the view, this is a misfire
-                    int position = getNotePosition(this.notesTreble, this.laserTarget.target);
-                    if (position != -1) {
-                        // move the laser to the miss position
-                        this.trebleLaser.targetY = padding.top + (position * noteOffset);
-                    }
-                    synchronized (this.listeners) {
-                        for (MusicViewListener listener : this.listeners) {
-                            listener.onNoteMisfire(this.laserTarget.target);
-                        }
-                    }
-                    // reset the target to be null, shot and missed
-                    this.laserTarget.target = null;
-                }
-            }
-            synchronized (this.laserTarget) {
-                if (null != this.laserTarget.target
-                        && false == this.laserTarget.isTreble
-                        && null != this.bassLaser) {
-                    // this was fired at but was not on the view, this is a misfire
-                    int position = getNotePosition(this.notesBass, this.laserTarget.target);
-                    if (position != -1) {
-                        // move the laser to the miss position
-                        this.bassLaser.targetY = padding.top + (position * noteOffset) + bassClefYOffset;
-                    }
-                    synchronized (this.listeners) {
-                        for (MusicViewListener listener : this.listeners) {
-                            listener.onNoteMisfire(this.laserTarget.target);
-                        }
-                    }
-                    // reset the target to be null, shot and missed
-                    this.laserTarget.target = null;
                 }
             }
             if (this.noteProvider.isStarted()) {

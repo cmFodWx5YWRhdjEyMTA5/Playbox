@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.support.v4.view.MotionEventCompat;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -28,7 +29,6 @@ public class PianoView extends View {
 
     private static final Integer K_INITIAL_NOTE_DEPRESSION_COUNT = 10;
     private static final Integer K_NOTE_DEPRESSION_COUNTER_INTERVAL = 100;
-    private GestureDetector gestureLetector = null;
 
     public interface IPianoViewListener {
         void noteReleased(Playable note);
@@ -452,14 +452,26 @@ public class PianoView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        // by default we are not interested in any touching!
-        boolean result = false;
-        if (null != gestureLetector) {
-            // there is a detector, use this
-            result = gestureLetector.onTouchEvent(event);
+        if (this.isPlayable) {
+            // get masked (not specific to a pointer) action
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_POINTER_DOWN:
+                    // process this press
+                    onViewPressed(event);
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_POINTER_UP:
+                case MotionEvent.ACTION_CANCEL:
+                default:
+                    // can ignore this
+                    break;
+
+            }
         }
         // return our result
-        return result;
+        return true;
     }
 
     private boolean onViewPressed(MotionEvent e) {
@@ -477,8 +489,6 @@ public class PianoView extends View {
                         depressNote(testKey.note);
                         invalidate((int) testKey.bounds.left, (int) testKey.bounds.top,
                                 (int) testKey.bounds.right, (int) testKey.bounds.bottom);
-                        // stop checking all the other keys
-                        break;
                     }
                 }
             }
@@ -505,6 +515,20 @@ public class PianoView extends View {
         }
     }
 
+    public Chord getDepressedNotes() {
+        Chord toReturn = new Chord("pressed");
+        synchronized (this.noteDepressionCount) {
+            for (Map.Entry<Note, Integer> entry : this.noteDepressionCount.entrySet()) {
+                if (entry.getValue() > 0) {
+                    // this is pressed, add to the chord to return
+                    toReturn.addNote(entry.getKey());
+                }
+            }
+        }
+        // return the chord that now contains all the depressed notes
+        return toReturn;
+    }
+
     private boolean isNoteDepressed(Note note) {
         Integer depressionCount = 0;
         synchronized (this.noteDepressionCount) {
@@ -524,22 +548,9 @@ public class PianoView extends View {
 
     public void setIsPlayable(boolean isPlayable) {
         this.isPlayable = isPlayable;
-        if (this.isPlayable) {
-            // we are playable, fine - onDraw will create the playable views
-            // and we can setup the gesture listener
-            GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
-                @Override
-                public boolean onDown(MotionEvent e) {
-                    // we need to return true in order to tell the listener we are interested
-                    return onViewPressed(e);
-                }
-            };
-            this.gestureLetector = new GestureDetector(this.getContext(), gestureListener);
-        }
-        else {
+        if (false == this.isPlayable) {
             // are not playable
             this.playableKeys = null;
-            this.gestureLetector = null;
         }
     }
 

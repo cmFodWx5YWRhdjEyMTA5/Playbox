@@ -27,6 +27,7 @@ import java.util.List;
 import uk.co.darkerwaters.noteinvaders.games.GamePlayer;
 import uk.co.darkerwaters.noteinvaders.sounds.SoundPlayer;
 import uk.co.darkerwaters.noteinvaders.state.ActiveScore;
+import uk.co.darkerwaters.noteinvaders.state.Chord;
 import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.NoteRange;
@@ -999,6 +1000,15 @@ public class PlayActivity extends HidingFullscreenActivity implements
 
     @Override
     public void noteReleased(Playable note) {
+        // inform the music view that a note was released
+        if (false == this.noteProvider.isPaused()) {
+            // is this note in the range we are expecting
+            NoteRange noteRange = this.level.getNoteRange();
+            if (noteRange.contains(note)) {
+                // inform the view that a note was released, if not part of a hit, will be a miss
+                this.musicView.noteReleased(note);
+            }
+        }
         // when the note is released from the piano it needs to be invalidated
         runOnUiThread(new Runnable() {
             @Override
@@ -1010,12 +1020,13 @@ public class PlayActivity extends HidingFullscreenActivity implements
 
     @Override
     public void noteDepressed(Playable note) {
+        Chord depressedNotes = this.pianoView.getDepressedNotes();
         if (false == this.noteProvider.isPaused()) {
             // is this note in the range we are expecting
             NoteRange noteRange = this.level.getNoteRange();
             if (noteRange.contains(note)) {
-                // use this note to fire the laser
-                this.musicView.fireLaser(note);
+                // inform the music view of this to fire the laser at everything that is currently pressed down
+                this.musicView.noteDepressed(note, depressedNotes);
             }
         }
         // update the piano view to show this
