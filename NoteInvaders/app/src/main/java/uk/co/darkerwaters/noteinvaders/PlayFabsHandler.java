@@ -196,30 +196,31 @@ public class PlayFabsHandler implements State.InputChangeListener {
                 case keyboard:
                     this.inputFab.setImageResource(R.drawable.ic_baseline_keyboard_24px);
                     // there are no settings for this input type
-                    setButtonTint(this.settingsFab, false);
+                    settingsFab.animate().alpha(0f);
                     break;
                 case letters:
                     this.inputFab.setImageResource(R.drawable.ic_baseline_queue_music_24px);
                     // there are no settings for this input type
-                    setButtonTint(this.settingsFab, false);
+                    settingsFab.animate().alpha(0f);
                     break;
                 case microphone:
                     this.inputFab.setImageResource(R.drawable.ic_baseline_mic_24px);
                     // there are settings for this input type
-                    setButtonTint(this.settingsFab, true);
+                    settingsFab.animate().alpha(1f);
                     break;
                 case usb:
                     this.inputFab.setImageResource(R.drawable.ic_baseline_usb_24px);
                     // there are settings for this input type
-                    setButtonTint(this.settingsFab, true);
+                    settingsFab.animate().alpha(1f);
                     break;
                 case bt:
                     setBtIcon(this.lastBtIcon);
                     // there are settings for this input type
-                    setButtonTint(this.settingsFab, true);
+                    settingsFab.animate().alpha(1f);
                     break;
             }
             // also need to set the correct colour for the state
+            setButtonTint(this.settingsFab, true);
             if (null != inputState) {
                 setButtonTint(this.inputFab, this.inputState.get(this.currentInput));
             }
@@ -275,7 +276,7 @@ public class PlayFabsHandler implements State.InputChangeListener {
             micFab.animate().translationX(0);
             usbFab.animate().translationX(0);
             btFab.animate().translationX(0);
-            settingsFab.animate().alpha(0f);
+            settingsFab.animate().translationY(0);
             this.isFabsShown = false;
         }
         else {
@@ -302,7 +303,7 @@ public class PlayFabsHandler implements State.InputChangeListener {
                 btFab.animate().translationX(translations[iTranslation++]);
             }
             // and reveal the settings
-            settingsFab.animate().alpha(1f);
+            settingsFab.animate().translationY(translations[0]);
             this.isFabsShown = true;
         }
     }
@@ -311,8 +312,6 @@ public class PlayFabsHandler implements State.InputChangeListener {
         // set the input to manual
         this.currentInput = input;
         State.getInstance().setSelectedInput(this.context, input);
-        // and shrink the selection
-        toggleInputFabs();
         // and update the icon
         setInputIcon();
     }
