@@ -488,7 +488,7 @@ public class MusicView extends View {
         }
         if (position == -1) {
             // this is a problem!
-            System.out.println("Asking for a note that isn't in the list...");
+            Log.e(State.K_APPTAG, "Asking for a note that isn't in the list...");
         }
         return position;
     }
@@ -680,7 +680,7 @@ public class MusicView extends View {
                         }
                     }
                     else {
-                        System.out.println("Error, failed to remove the note: " + note.playable.getName());
+                        Log.e(State.K_APPTAG, "Error, failed to remove the note: " + note.playable.getName());
                     }
 
                 }

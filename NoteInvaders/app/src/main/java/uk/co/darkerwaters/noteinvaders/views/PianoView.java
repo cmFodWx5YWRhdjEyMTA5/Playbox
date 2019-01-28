@@ -478,7 +478,6 @@ public class PianoView extends View {
         MotionEvent.PointerCoords pointerCoords = new MotionEvent.PointerCoords();
         for (int i = 0; i < e.getPointerCount(); ++i) {
             e.getPointerCoords(i, pointerCoords);
-            System.out.println("**** x:" + pointerCoords.x + " y:" + pointerCoords.y);
             // check this for a key to have been hit, go through the list backwards
             // to test the ones drawn on top first
             for (int j = this.playableKeys.size() - 1; j >=0; --j) {
