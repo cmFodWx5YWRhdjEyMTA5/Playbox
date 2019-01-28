@@ -12,9 +12,12 @@ import android.util.Log;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import uk.co.darkerwaters.noteinvaders.R;
+import uk.co.darkerwaters.noteinvaders.state.Chord;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.Notes;
 import uk.co.darkerwaters.noteinvaders.state.Playable;
@@ -38,7 +41,7 @@ public class MusicView extends View {
     private float noteFreeDangerZoneTime = 0f;
     private int notesInDangerZone = 0;
     private float dangerFade = 0f;
-    private ArrayList<Playable> depressedNotes = new ArrayList<Playable>();
+    private Set<Playable> depressedNotes = new HashSet<Playable>();
 
     public interface MusicViewListener {
         void onNotePopped(Playable note);
@@ -313,11 +316,7 @@ public class MusicView extends View {
 
     public void noteReleased(Playable note) {
         // if this note was not part of a hit, then it was a miss - inform the listeners of this
-        boolean isInList;
-        synchronized (this.depressedNotes) {
-            isInList = this.depressedNotes.remove(note);
-        }
-        if (isInList) {
+        if (removeUsedDepressedNote(note)) {
             // this was in the list, so was not a part of a successful hit, this is a miss
             synchronized (this.listeners) {
                 for (MusicViewListener listener : this.listeners) {
@@ -327,13 +326,23 @@ public class MusicView extends View {
         }
     }
 
-    public void noteDepressed(Playable note, Playable depressedNotes) {
+    public void noteDepressed(Playable note) {
         // record that this note was pressed, we need to know if it was / is part of a hit...
+        Chord depressedChord = new Chord("depressed");
         synchronized (this.depressedNotes) {
+            // add this note to our list
             this.depressedNotes.add(note);
+            // and create a chord of everything that is pressed right now (and not used)
+            for (Playable depressed : this.depressedNotes) {
+                if (depressed instanceof Note) {
+                    // has to be a note
+                    depressedChord.addNote((Note)depressed);
+                }
+            }
         }
-        // fire the laser at the notes that are depressed now
-        fireLaser(depressedNotes);
+        // fire the laser at the notes that are depressed now, we will use our list
+        // because our list removes those that are used (can't use the same twice)
+        fireLaser(depressedChord);
     }
 
     public boolean fireLaser(Playable target) {
@@ -400,14 +409,29 @@ public class MusicView extends View {
             }
             // every note on this target it a hit, remove from the list we record that are pressed
             // so when released any invalid ones count as a miss...
-            synchronized (this.depressedNotes) {
-                for (Note hitNote : fireTarget.toNoteArray()) {
-                    this.depressedNotes.remove(hitNote);
-                }
+            for (Note hitNote : fireTarget.toNoteArray()) {
+                // remove each note that was hit
+                removeUsedDepressedNote(hitNote);
             }
         }
         // return if we fired at something
         return null != fireTarget;
+    }
+
+    private boolean removeUsedDepressedNote(Playable note) {
+        // remove the note from our list of depressed notes (used or released)
+        // we go through by hand as the note hit needn't be exactly the note used
+        boolean isRemoved = false;
+        synchronized (this.depressedNotes) {
+            for (Playable depressed : this.depressedNotes) {
+                if (isNoteTarget(depressed, note)) {
+                    // this is the one to remove
+                    isRemoved = this.depressedNotes.remove(depressed);
+                    break;
+                }
+            }
+        }
+        return isRemoved;
     }
 
     private boolean isNoteTarget(Playable note, Playable target) {

@@ -1020,13 +1020,12 @@ public class PlayActivity extends HidingFullscreenActivity implements
 
     @Override
     public void noteDepressed(Playable note) {
-        Chord depressedNotes = this.pianoView.getDepressedNotes();
         if (false == this.noteProvider.isPaused()) {
             // is this note in the range we are expecting
             NoteRange noteRange = this.level.getNoteRange();
             if (noteRange.contains(note)) {
                 // inform the music view of this to fire the laser at everything that is currently pressed down
-                this.musicView.noteDepressed(note, depressedNotes);
+                this.musicView.noteDepressed(note);
             }
         }
         // update the piano view to show this
