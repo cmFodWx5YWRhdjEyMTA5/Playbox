@@ -524,7 +524,8 @@ public class PianoView extends View {
             for (Map.Entry<Note, Integer> entry : this.noteDepressionCount.entrySet()) {
                 if (entry.getValue() > 0) {
                     // this is pressed, add to the chord to return
-                    toReturn.addNote(entry.getKey());
+                    Note pressed = entry.getKey();
+                    toReturn.addNote(pressed, pressed.getName());
                 }
             }
         }

@@ -5,10 +5,19 @@ import java.util.ArrayList;
 public class Chord extends Playable  {
 
     private ArrayList<Note> notes = new ArrayList<Note>();
+    private ArrayList<String> noteNames = new ArrayList<String>();
     private final String name;
 
     public Chord(String name) {
         this.name = name;
+    }
+
+    public Chord(String name, Note[] notes) {
+        this.name = name;
+        for (Note note : notes) {
+            // for each passed, add the note
+            addNote(note, note.getName());
+        }
     }
 
     @Override
@@ -24,8 +33,8 @@ public class Chord extends Playable  {
     @Override
     public int getNameCount() { return 1; }
 
-    public boolean addNote(Note note) {
-        return this.notes.add(note);
+    public boolean addNote(Note note, String noteName) {
+        return this.notes.add(note) && this.noteNames.add(noteName);
     }
 
     @Override
@@ -36,6 +45,34 @@ public class Chord extends Playable  {
     @Override
     public Note getNote(int index) {
         return this.notes.get(index);
+    }
+
+    public String getNoteName(int index) {
+        return this.noteNames.get(index);
+    }
+
+    public boolean contains(Note toCompare) {
+        boolean isInList = false;
+        for (Note inList : this.notes) {
+            if (inList.equals(toCompare)) {
+                // found
+                isInList = true;
+                break;
+            }
+        }
+        return isInList;
+    }
+
+    public boolean contains(String noteName) {
+        boolean isInList = false;
+        for (String inList : this.noteNames) {
+            if (inList.equals(noteName)) {
+                // found
+                isInList = true;
+                break;
+            }
+        }
+        return isInList;
     }
 
     public Note getLowest() {

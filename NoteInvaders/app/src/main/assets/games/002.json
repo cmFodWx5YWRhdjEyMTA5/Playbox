@@ -10,8 +10,8 @@
       "image": "games/treble.jpg",
       "children" : [
         {
-          "name": "Majors",
-          "id" : "chord_attack_treble_majors",
+          "name": "C Family Majors",
+          "id" : "chord_attack_treble_c_majors",
           "image": "temp.png",
           "treble_clef": [
             "C4,E4,G4",
@@ -19,6 +19,56 @@
             "G4,B4,D5"
           ],
           "treble_names": ["C","F","G"]
+        },
+        {
+          "name": "C Family Minors",
+          "id" : "chord_attack_treble_c_minors",
+          "image": "temp.png",
+          "treble_clef": [
+            "D4,F4,A4",
+            "E4,G4,B4",
+            "A4,C5,E5"
+          ],
+          "treble_names": ["Dm","Em","Am"]
+        },
+        {
+          "name": "C Family Complete",
+          "id" : "chord_attack_treble_c_complete",
+          "image": "temp.png",
+          "treble_clef": [
+            "C4,E4,G4",
+            "D4,F4,A4",
+            "E4,G4,B4",
+            "F4,A4,C5",
+            "G4,B4,D5",
+            "A4,C5,E5",
+            "B4,D5,F5"
+          ],
+          "treble_names": ["C","Dm","Em","F","G","Am","Bᵒ"]
+        },
+        {
+          "name": "Majors D.E.A",
+          "id" : "chord_attack_treble_dea_majors",
+          "image": "temp.png",
+          "treble_clef": [
+            "D4,F#4,A4",
+            "E4,G#4,B4",
+            "A3,C#4,E4"
+          ],
+          "treble_names": ["D","E","A"]
+        },
+        {
+          "name": "Bees",
+          "id" : "chord_attack_treble_b_variations",
+          "image": "temp.png",
+          "treble_clef": [
+            "B3,D4,F4",
+            "Bb3,D4,F4",
+            "Bb3,Db4,F4",
+            "B3,D#4,F#4",
+            "B3,D4,F#4"
+          ],
+          "treble_names": ["Bᵒ","Bᵇ","Bᵇm","B","Bm"]
         }
       ]
     },
@@ -28,15 +78,65 @@
       "image": "games/bass.jpg",
       "children": [
         {
-          "name": "Majors",
-          "id" : "chord_attack_bass_majors",
+          "name": "C Family Majors",
+          "id" : "chord_attack_bass_c_majors",
           "image": "temp.png",
           "bass_clef": [
-            "C3,E3,G3",
-            "F3,A3,C4",
-            "G3,B3,D4"
+            "C2,E2,G2",
+            "F2,A2,C3",
+            "G2,B2,D3"
           ],
           "bass_names": ["C","F","G"]
+        },
+        {
+          "name": "C Family Minors",
+          "id" : "chord_attack_bass_c_minors",
+          "image": "temp.png",
+          "bass_clef": [
+            "D2,F2,A2",
+            "E2,G2,B2",
+            "A2,C3,E3"
+          ],
+          "bass_names": ["Dm","Em","Am"]
+        },
+        {
+          "name": "C Family Complete",
+          "id" : "chord_attack_bass_c_complete",
+          "image": "temp.png",
+          "bass_clef": [
+            "C2,E2,G2",
+            "D2,F2,A2",
+            "E2,G2,B2",
+            "F2,A2,C3",
+            "G2,B2,D3",
+            "A2,C3,E3",
+            "B2,D3,F3"
+          ],
+          "bass_names": ["C","Dm","Em","F","G","Am","Bᵒ"]
+        },
+        {
+          "name": "Majors D.E.A",
+          "id" : "chord_attack_bass_dea_majors",
+          "image": "temp.png",
+          "bass_clef": [
+            "D2,F#2,A2",
+            "E2,G#2,B2",
+            "A2,C#3,E3"
+          ],
+          "bass_names": ["D","E","A"]
+        },
+        {
+          "name": "Bees",
+          "id" : "chord_attack_bass_b_variations",
+          "image": "temp.png",
+          "bass_clef": [
+            "B2,D3,F3",
+            "Bb2,D3,F3",
+            "Bb2,Db3,F3",
+            "B2,D#3,F#3",
+            "B2,D3,F#3"
+          ],
+          "bass_names": ["Bᵒ","Bᵇ","Bᵇm","B","Bm"]
         }
       ]
     },
@@ -46,8 +146,8 @@
       "image": "games/two_hands.jpg",
       "children": [
         {
-          "name": "5 each",
-          "id" : "chord_attack_2hand_majors",
+          "name": "C Family Majors",
+          "id" : "chord_attack_2hand_c_majors",
           "image": "temp.png",
           "treble_clef": [
             "C4,E4,G4",
@@ -56,11 +156,91 @@
           ],
           "treble_names": ["C","F","G"],
           "bass_clef": [
-            "C3,E3,G3",
-            "F3,A3,C4",
-            "G3,B3,D4"
+            "C2,E2,G2",
+            "F2,A2,C3",
+            "G2,B2,D3"
           ],
           "bass_names": ["C","F","G"]
+        },
+        {
+          "name": "C Family Minors",
+          "id" : "chord_attack_2hand_c_minors",
+          "image": "temp.png",
+          "treble_clef": [
+            "D4,F4,A4",
+            "E4,G4,B4",
+            "A4,C5,E5"
+          ],
+          "treble_names": ["Dm","Em","Am"],
+          "bass_clef": [
+            "D2,F2,A2",
+            "E2,G2,B2",
+            "A2,C3,E3"
+          ],
+          "bass_names": ["Dm","Em","Am"]
+        },
+        {
+          "name": "C Family Complete",
+          "id" : "chord_attack_2hand_c_complete",
+          "image": "temp.png",
+          "treble_clef": [
+            "C4,E4,G4",
+            "D4,F4,A4",
+            "E4,G4,B4",
+            "F4,A4,C5",
+            "G4,B4,D5",
+            "A4,C5,E5",
+            "B4,D5,F5"
+          ],
+          "treble_names": ["C","Dm","Em","F","G","Am","Bᵒ"],
+          "bass_clef": [
+            "C2,E2,G2",
+            "D2,F2,A2",
+            "E2,G2,B2",
+            "F2,A2,C3",
+            "G2,B2,D3",
+            "A2,C3,E3",
+            "B2,D3,F3"
+          ],
+          "bass_names": ["C","Dm","Em","F","G","Am","Bᵒ"]
+        },
+        {
+          "name": "Majors D.E.A",
+          "id" : "chord_attack_2hand_dea_majors",
+          "image": "temp.png",
+          "treble_clef": [
+            "D4,F#4,A4",
+            "E4,G#4,B4",
+            "A3,C#4,E4"
+          ],
+          "treble_names": ["D","E","A"],
+          "bass_clef": [
+            "D2,F#2,A2",
+            "E2,G#2,B2",
+            "A2,C#3,E3"
+          ],
+          "bass_names": ["D","E","A"]
+        },
+        {
+          "name": "Bees",
+          "id" : "chord_attack_2hands_b_variations",
+          "image": "temp.png",
+          "treble_clef": [
+            "B3,D4,F4",
+            "Bb3,D4,F4",
+            "Bb3,Db4,F4",
+            "B3,D#4,F#4",
+            "B3,D4,F#4"
+          ],
+          "treble_names": ["Bᵒ","Bᵇ","Bᵇm","B","Bm"],
+          "bass_clef": [
+            "B2,D3,F3",
+            "Bb2,D3,F3",
+            "Bb2,Db3,F3",
+            "B2,D#3,F#3",
+            "B2,D3,F#3"
+          ],
+          "bass_names": ["Bᵒ","Bᵇ","Bᵇm","B","Bm"]
         }
       ]
     }

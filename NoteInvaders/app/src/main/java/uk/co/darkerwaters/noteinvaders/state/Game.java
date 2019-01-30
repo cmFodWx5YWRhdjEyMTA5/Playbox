@@ -134,9 +134,9 @@ public class Game {
         }
         else {
             // this is a chord
-            Chord chord = new Chord("CHORD");
+            Chord chord = new Chord(noteName);
             for (String name : noteNames) {
-                chord.addNote(notes.getNote(name));
+                chord.addNote(notes.getNote(name), name);
             }
             toReturn = chord;
         }

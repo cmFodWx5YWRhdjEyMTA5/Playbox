@@ -121,6 +121,62 @@ public class Note extends Playable {
         return isSharpFound;
     }
 
+    public char getSharpPrimative() {
+        boolean isSharpFound = false;
+        char notePrimative = 0;
+        for (String name : this.names) {
+            if (name.contains("#")) {
+                notePrimative = name.charAt(0);
+                break;
+            }
+        }
+        return notePrimative;
+    }
+
+    public String getNameSharp() {
+        String toReturn = "";
+        for (String name : this.names) {
+            if (name.contains("#")) {
+                toReturn = name;
+                break;
+            }
+        }
+        return toReturn;
+    }
+
+    public boolean isFlat() {
+        boolean isFlatFound = false;
+        for (String name : this.names) {
+            if (name.contains("b")) {
+                isFlatFound = true;
+                break;
+            }
+        }
+        return isFlatFound;
+    }
+
+    public char getFlatPrimative() {
+        char notePrimative = 0;
+        for (String name : this.names) {
+            if (name.contains("b")) {
+                notePrimative = name.charAt(0);
+                break;
+            }
+        }
+        return notePrimative;
+    }
+
+    public String getNameFlat() {
+        String toReturn = "";
+        for (String name : this.names) {
+            if (name.contains("b")) {
+                toReturn = name;
+                break;
+            }
+        }
+        return toReturn;
+    }
+
     public char getNotePrimative() {
         return this.names[0].charAt(0);
     }

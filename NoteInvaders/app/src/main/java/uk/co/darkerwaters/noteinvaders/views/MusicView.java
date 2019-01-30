@@ -66,8 +66,8 @@ public class MusicView extends View {
     private boolean isDrawNoteName = true;
 
     // store an array of notes that the treble and bass clefs represent
-    private Note[] notesTreble;
-    private Note[] notesBass;
+    private Chord[] notesTreble;
+    private Chord[] notesBass;
     private float noteRadius = 1f;
     private float lineHeight = 1f;
 
@@ -206,8 +206,8 @@ public class MusicView extends View {
 
         // get the notes that are represented on the clefs, start with treble (top to bottom for drawing ease)
         int numberNotes = (2 * (K_LINESINCLEF + (2 * K_LINESABOVEANDBELOW))) - 1;
-        this.notesTreble = new Note[numberNotes];
-        this.notesBass = new Note[numberNotes];
+        this.notesTreble = new Chord[numberNotes];
+        this.notesBass = new Chord[numberNotes];
         initialiseNoteRange(this.notesTreble, K_TREBLENOTETOP, K_TREBLENOTEBOTTOM);
         initialiseNoteRange(this.notesBass, K_BASSNOTETOP, K_BASSNOTEBOTTOM);
         // and start the view
@@ -238,7 +238,8 @@ public class MusicView extends View {
         }
     }
 
-    private void initialiseNoteRange(Note[] noteArray, String topNoteName, String bottomNoteName) {
+    private void initialiseNoteRange(Chord[] noteArray, String topNoteName, String bottomNoteName) {
+        // create an array of notes (each note is a chord that comprises all the notes at that position
         int noteIndex = -1;
         Notes notes = Notes.instance();
         for (int i = notes.getNoteCount() - 1; i >= 0; --i) {
@@ -248,12 +249,13 @@ public class MusicView extends View {
                 if (note.getName().equals(topNoteName)) {
                     // have the first note, set the index to store and store it
                     noteIndex = 0;
-                    noteArray[noteIndex++] = note;
+                    // put a new chord in the array
+                    noteArray[noteIndex++] = new Chord("" + note.getNotePrimative(), new Note[] {note});
                 }
             }
             else if (false == note.isSharp()){
-                // this is a normal note (not a sharp, store this)
-                noteArray[noteIndex++] = note;
+                // this is a normal note (not a sharp, store this as a new chord)
+                noteArray[noteIndex++] = new Chord("" + note.getNotePrimative(), new Note[] {note});
             }
             if (noteIndex > noteArray.length - 1) {
                 // have exceeded the notes we need, quit this loop
@@ -262,6 +264,29 @@ public class MusicView extends View {
                     Log.e(State.K_APPTAG, "Note range is incorrect, " + noteArray[noteArray.length - 1].getName() + " should be " + bottomNoteName);
                 }
                 break;
+            }
+        }
+        // go through the notes again finding the sharps and flats for each
+        for (Chord chord : noteArray) {
+            // for each cord, find the note above and below to add to it
+            Note baseNote = chord.getNote(0);
+            int baseIndex = notes.getNoteIndex(baseNote.getFrequency());
+            // find the flat if there is one
+            if (baseIndex > 0) {
+                // not the first, get the flat below this
+                Note flat = notes.getNote(baseIndex - 1);
+                if (flat.isFlat()) {
+                    // this is a flat, so this is the flat of this base note, add to the chord
+                    chord.addNote(flat, flat.getNameFlat());
+                }
+            }
+            if (baseIndex < notes.getNoteCount() - 2) {
+                // note over the end, get the sharp beyond this
+                Note sharp = notes.getNote(baseIndex + 1);
+                if (sharp.isSharp()) {
+                    // this is a sharp, so this is the sharp of this base note, add to the chord
+                    chord.addNote(sharp, sharp.getNameSharp());
+                }
             }
         }
     }
@@ -336,7 +361,7 @@ public class MusicView extends View {
             for (Playable depressed : this.depressedNotes) {
                 if (depressed instanceof Note) {
                     // has to be a note
-                    depressedChord.addNote((Note)depressed);
+                    depressedChord.addNote((Note)depressed, depressed.getName());
                 }
             }
         }
@@ -472,15 +497,13 @@ public class MusicView extends View {
         return noteName;
     }
 
-    private int getNotePosition(Playable[] noteArray, Playable note) {
+    private int getNotePosition(Chord[] noteArray, String noteName) {
         // get the position of the passed note on the passed clef
         int position = -1;
-        //if (note.isSharp()) {
-        // TODO - need to sort out sharps and flats as different depending on which it is
-        // get the position of the note on the treble clef
+        // get the position of the note in the array of chords
         for (int i = 0; i < noteArray.length; ++i) {
             // just count till we find it
-            if (noteArray[i].equals(note)) {
+            if (noteArray[i].contains(noteName)) {
                 // this is it
                 position = i;
                 break;
@@ -627,7 +650,7 @@ public class MusicView extends View {
 
             // draw the note that represents the tempo if we want to
             if (this.showTempo > 0) {
-                drawNoteOnClef(canvas, padding.left + lineHeight, padding.top + (lineHeight * 1f), "");
+                drawNoteOnClef(canvas, padding.left + lineHeight, padding.top + (lineHeight * 1f), "", (char)0);
                 canvas.drawText("=" + Integer.toString(this.showTempo), padding.left + (lineHeight * 1.5f), padding.top + lineHeight, letterPaint);
             }
 
@@ -691,24 +714,42 @@ public class MusicView extends View {
                     for (int childIndex = 0; childIndex < childCount; ++childIndex) {
                         int position = -1;
                         Note childNote = childArray[childIndex];
+                        String childName = childNote.getName();
+                        if (note.playable instanceof Chord) {
+                            // get the name of the note in the chord instead (will be # or b)
+                            childName = ((Chord)note.playable).getNoteName(childIndex);
+                        }
                         if (this.isDrawTreble && isFromTrebleList) {
-                            position = getNotePosition(this.notesTreble, childNote);
+                            position = getNotePosition(this.notesTreble, childName);
                             yPosition = padding.top + (position * noteOffset);
                         }
                         if (this.isDrawBass && false == isFromTrebleList) {
                             // can't draw this on treble, but we have bass, try this
-                            position = getNotePosition(this.notesBass, childNote);
+                            position = getNotePosition(this.notesBass, childName);
                             yPosition = bassClefYOffset + (position * noteOffset);
                         }
                         if (position != -1) {
                             // draw the note in the correct position
                             String noteName = "";
-                            if (childCount == childIndex + 1) {
-                                // only draw the letter for the last note
+                            char leftNotation = 0;
+                            if (childName.contains("#")) {
+                                // draw the sharp
+                                leftNotation = '#';
+                            }
+                            else if (childName.contains("b")) {
+                                // draw the flat
+                                leftNotation = 'b';
+                            }
+                            if (childCount == 1) {
+                                // just use the nice name for the single note
+                                noteName = getBasicNoteName(note);
+                            }
+                            else if (childCount == childIndex + 1) {
+                                // this is a chord and this is the last note, put the chord name in
                                 noteName = getBasicNoteName(note);
                             }
                             // draw the note in
-                            drawNoteOnClef(canvas, xPosition, yPosition, noteName);
+                            drawNoteOnClef(canvas, xPosition, yPosition, noteName, leftNotation);
                             if (xPosition < dangerZoneX) {
                                 // this note is in danger of being missed, reset the timer
                                 ++this.notesInDangerZone;
@@ -880,7 +921,7 @@ public class MusicView extends View {
 
     }
 
-    private void drawNoteOnClef(Canvas canvas, float xPosition, float yPosition, String noteTitle) {
+    private void drawNoteOnClef(Canvas canvas, float xPosition, float yPosition, String noteTitle, char leftNotation) {
         // we have a note, yPosition set for bass or treble, draw it now then
         float stickX;
         if (Build.VERSION.SDK_INT >= 21) {
@@ -897,13 +938,21 @@ public class MusicView extends View {
             canvas.drawCircle(xPosition, yPosition, noteRadius, notePaint);
             stickX = xPosition + noteRadius;
         }
-        // and the title if we are showing this helpful thing
-        if (isDrawNoteName && noteTitle != null && noteTitle.isEmpty() == false) {
-            canvas.drawRect(xPosition - noteRadius * 1.5f, yPosition - noteRadius * 5f, xPosition + noteRadius * 1.5f, yPosition - noteRadius * 1.5f, letterBackPaint);
-            canvas.drawText(noteTitle, xPosition - noteRadius * 1.25f, yPosition - noteRadius * 2f, letterPaint);
-        }
         // draw the stick up from the note
         canvas.drawLine(stickX, yPosition, stickX, yPosition - lineHeight * 1.5f, notePaint);
+        // and the title if we are showing this helpful thing
+        if (isDrawNoteName && noteTitle != null && noteTitle.isEmpty() == false) {
+            Paint.FontMetrics fontMetrics = letterPaint.getFontMetrics();
+            float letterWidth = letterPaint.measureText(noteTitle);
+            float xText = xPosition - letterWidth * 0.5f;
+            float yText = yPosition - noteRadius * 2f;
+            canvas.drawRect(xText, yText + fontMetrics.top, xText + letterWidth, yText + fontMetrics.bottom, letterBackPaint);
+            canvas.drawText(noteTitle, xText, yText, letterPaint);
+        }
+        if (leftNotation != 0) {
+            // there is a little left notation, draw this in now
+            canvas.drawText("" + leftNotation, xPosition - noteRadius * 3.5f, yPosition, letterPaint);
+        }
     }
 
     private boolean isDrawLine(int notePosition) {
