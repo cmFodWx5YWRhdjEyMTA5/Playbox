@@ -1,0 +1,139 @@
+{
+  "name": "7 Chords Attack",
+  "id" : "7_chord_attack_parent",
+  "image": "games/space_invaders.jpg",
+  "class": "uk.co.darkerwaters.noteinvaders.games.RandomAttack",
+  "children": [
+    {
+      "name": "Treble",
+      "id" : "7_chord_attack_treble",
+      "image": "games/treble.jpg",
+      "children" : [
+        {
+          "name": "Major M7ths",
+          "id" : "7_chord_attack_treble_majors_M7",
+          "image": "temp.png",
+          "treble_clef": [
+            "B3,E4,G4",
+            "Db4,F#4,A4",
+            "Eb4,G#4,B4",
+            "E4,A4,C5",
+            "Gb4,B4,D5",
+            "Ab4,C#5,E5",
+            "Bb4,D#5,F#5"
+          ],
+          "treble_names": ["CM7","DM7","EM7","FM7","GM7","AM7","BM7"]
+        },
+        {
+          "name": "Major 7ths",
+          "id" : "7_chord_attack_treble_majors_7",
+          "image": "temp.png",
+          "treble_clef": [
+            "Bb3,E4,G4",
+            "C4,F#4,A4",
+            "D4,G#4,B4",
+            "Eb4,A4,C5",
+            "F4,B4,D5",
+            "G4,C#5,E5",
+            "A4,D#5,F#5"
+          ],
+          "treble_names": ["C7","D7","E7","F7","G7","A7","B7"]
+        }
+      ]
+    },
+    {
+      "name": "Bass",
+      "id" : "7_chord_attack_bass",
+      "image": "games/bass.jpg",
+      "children": [
+        {
+          "name": "Major M7ths",
+          "id" : "7_chord_attack_bass_majors_M7",
+          "image": "temp.png",
+          "bass_clef": [
+            "Db2,F#2,A2",
+            "Eb2,G#2,B2",
+            "E2,A2,C3",
+            "Gb2,B2,D3",
+            "Ab2,C#3,E3",
+            "Bb2,D#3,F#3",
+            "B2,E3,G3"
+          ],
+          "bass_names": ["DM7","EM7","FM7","GM7","AM7","BM7","CM7"]
+        },
+        {
+          "name": "Major 7ths",
+          "id" : "7_chord_attack_bass_majors_7",
+          "image": "temp.png",
+          "bass_clef": [
+            "C2,F#2,A2",
+            "D2,G#2,B2",
+            "Eb2,A2,C3",
+            "F2,B2,D3",
+            "G2,C#3,E3",
+            "A2,D#3,F#3",
+            "Bb2,E3,G3"
+          ],
+          "bass_names": ["D7","E7","F7","G7","A7","B7","C7"]
+        }
+      ]
+    },
+    {
+      "name": "Hands Together",
+      "id" : "7_chord_attack_2hand",
+      "image": "games/two_hands.jpg",
+      "children": [
+        {
+          "name": "Major M7ths",
+          "id" : "7_chord_attack_2hand_majors_M7",
+          "image": "temp.png",
+          "treble_clef": [
+            "B3,E4,G4",
+            "Db4,F#4,A4",
+            "Eb4,G#4,B4",
+            "E4,A4,C5",
+            "Gb4,B4,D5",
+            "Ab4,C#5,E5",
+            "Bb4,D#5,F#5"
+          ],
+          "treble_names": ["CM7","DM7","EM7","FM7","GM7","AM7","BM7"],
+          "bass_clef": [
+            "Db2,F#2,A2",
+            "Eb2,G#2,B2",
+            "E2,A2,C3",
+            "Gb2,B2,D3",
+            "Ab2,C#3,E3",
+            "Bb2,D#3,F#3",
+            "B2,E3,G3"
+          ],
+          "bass_names": ["DM7","EM7","FM7","GM7","AM7","BM7","CM7"]
+        },
+        {
+          "name": "Major 7ths",
+          "id" : "7_chord_attack_2hand_majors_7",
+          "image": "temp.png",
+          "treble_clef": [
+            "Bb3,E4,G4",
+            "C4,F#4,A4",
+            "D4,G#4,B4",
+            "Eb4,A4,C5",
+            "F4,B4,D5",
+            "G4,C#5,E5",
+            "A4,D#5,F#5"
+          ],
+          "treble_names": ["C7","D7","E7","F7","G7","A7","B7"],
+          "bass_clef": [
+            "C2,F#2,A2",
+            "D2,G#2,B2",
+            "Eb2,A2,C3",
+            "F2,B2,D3",
+            "G2,C#3,E3",
+            "A2,D#3,F#3",
+            "Bb2,E3,G3"
+          ],
+          "bass_names": ["D7","E7","F7","G7","A7","B7","C7"]
+        }
+      ]
+    }
+  ]
+}

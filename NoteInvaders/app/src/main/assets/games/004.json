@@ -1,0 +1,63 @@
+{
+  "name": "Scales",
+  "id" : "scales_parent",
+  "image": "games/scales.jpg",
+  "class": "uk.co.darkerwaters.noteinvaders.games.Scales",
+  "levels": [
+    {
+      "name": "C",
+      "id" : "scales_c",
+      "image": "temp.png",
+      "treble_clef": [ "C4", "D4", "E4", "F4", "G4" ],
+      "treble_names": ["c","d","e","f","g"],
+      "annotation1": {
+        "name": "fingering",
+        "values": ["1", "2", "3", "4", "5"]
+      }
+    },
+    {
+      "name": "D",
+      "id" : "scales_d",
+      "image": "piano.jpg",
+      "treble_clef" : [ "C4", "D4", "E4", "F4", "G4", "A5", "B5" ],
+      "treble_names": ["c","d","e","f","g","a","b"],
+      "annotation1": {
+        "name": "fingering",
+        "values": ["1", "2", "3", "1", "2", "3", "4", "5"]
+      }
+    },
+    {
+      "name": "E",
+      "id" : "scales_e",
+      "image": "piano.jpg",
+      "treble_clef" : [ "C4", "D4", "E4", "F4", "G4", "A5", "B5" ],
+      "treble_names": ["c","d","e","f","g","a","b"],
+      "annotation1": {
+        "name": "fingering",
+        "values": ["1", "2", "3", "1", "2", "3", "4", "5"]
+      }
+    },
+    {
+      "name": "F",
+      "id" : "scales_f",
+      "image": "piano.jpg",
+      "treble_clef" : [ "C4", "D4", "E4", "F4", "G4", "A5", "B5" ],
+      "treble_names": ["c","d","e","f","g","a","b"],
+      "annotation1": {
+        "name": "fingering",
+        "values": ["1", "2", "3", "1", "2", "3", "4", "5"]
+      }
+    },
+    {
+      "name": "G",
+      "id" : "scales_g",
+      "image": "piano.jpg",
+      "treble_clef" : [ "C4", "D4", "E4", "F4", "G4", "A5", "B5" ],
+      "treble_names": ["c","d","e","f","g","a","b"],
+      "annotation1": {
+        "name": "fingering",
+        "values": ["1", "2", "3", "1", "2", "3", "4", "5"]
+      }
+    }
+  ]
+}

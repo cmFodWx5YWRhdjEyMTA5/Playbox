@@ -1,63 +1,123 @@
 {
-  "name": "Scales",
-  "id" : "scales_parent",
-  "image": "games/scales.jpg",
-  "class": "uk.co.darkerwaters.noteinvaders.games.Scales",
-  "levels": [
+  "name": "Major Chord Attack",
+  "id" : "m_chord_attack_parent",
+  "image": "games/space_invaders.jpg",
+  "class": "uk.co.darkerwaters.noteinvaders.games.RandomAttack",
+  "children": [
     {
-      "name": "C",
-      "id" : "scales_c",
-      "image": "temp.png",
-      "treble_clef": [ "C4", "D4", "E4", "F4", "G4" ],
-      "treble_names": ["c","d","e","f","g"],
-      "annotation1": {
-        "name": "fingering",
-        "values": ["1", "2", "3", "4", "5"]
-      }
+      "name": "Treble",
+      "id" : "m_chord_attack_treble",
+      "image": "games/treble.jpg",
+      "children" : [
+        {
+          "name": "Majors D.E.A",
+          "id" : "m_chord_attack_treble_dea_majors",
+          "image": "temp.png",
+          "treble_clef": [
+            "D4,F#4,A4",
+            "E4,G#4,B4",
+            "A4,C#5,E5"
+          ],
+          "treble_names": ["D","E","A"]
+        },
+        {
+          "name": "Majors",
+          "id" : "m_chord_attack_treble_majors",
+          "image": "temp.png",
+          "treble_clef": [
+            "C4,E4,G4",
+            "D4,F#4,A4",
+            "E4,G#4,B4",
+            "F4,A4,C5",
+            "G4,B4,D5",
+            "A4,C#5,E5",
+            "B4,D#5,F#5"
+          ],
+          "treble_names": ["C","D","E","F","G","A","B"]
+        }
+      ]
     },
     {
-      "name": "D",
-      "id" : "scales_d",
-      "image": "piano.jpg",
-      "treble_clef" : [ "C4", "D4", "E4", "F4", "G4", "A5", "B5" ],
-      "treble_names": ["c","d","e","f","g","a","b"],
-      "annotation1": {
-        "name": "fingering",
-        "values": ["1", "2", "3", "1", "2", "3", "4", "5"]
-      }
+      "name": "Bass",
+      "id" : "m_chord_attack_bass",
+      "image": "games/bass.jpg",
+      "children": [
+        {
+          "name": "Majors D.E.A",
+          "id" : "m_chord_attack_bass_dea_majors",
+          "image": "temp.png",
+          "bass_clef": [
+            "D2,F#2,A2",
+            "E2,G#2,B2",
+            "A2,C#3,E3"
+          ],
+          "bass_names": ["D","E","A"]
+        },
+        {
+          "name": "Majors",
+          "id" : "m_chord_attack_bass_majors",
+          "image": "temp.png",
+          "bass_clef": [
+            "C2,E2,G2",
+            "D2,F#2,A2",
+            "E2,G#2,B2",
+            "F2,A2,C3",
+            "G2,B2,D3",
+            "A2,C#3,E3",
+            "B2,D#3,F#3"
+          ],
+          "bass_names": ["C","D","E","F","G","A","B"]
+        }
+      ]
     },
     {
-      "name": "E",
-      "id" : "scales_e",
-      "image": "piano.jpg",
-      "treble_clef" : [ "C4", "D4", "E4", "F4", "G4", "A5", "B5" ],
-      "treble_names": ["c","d","e","f","g","a","b"],
-      "annotation1": {
-        "name": "fingering",
-        "values": ["1", "2", "3", "1", "2", "3", "4", "5"]
-      }
-    },
-    {
-      "name": "F",
-      "id" : "scales_f",
-      "image": "piano.jpg",
-      "treble_clef" : [ "C4", "D4", "E4", "F4", "G4", "A5", "B5" ],
-      "treble_names": ["c","d","e","f","g","a","b"],
-      "annotation1": {
-        "name": "fingering",
-        "values": ["1", "2", "3", "1", "2", "3", "4", "5"]
-      }
-    },
-    {
-      "name": "G",
-      "id" : "scales_g",
-      "image": "piano.jpg",
-      "treble_clef" : [ "C4", "D4", "E4", "F4", "G4", "A5", "B5" ],
-      "treble_names": ["c","d","e","f","g","a","b"],
-      "annotation1": {
-        "name": "fingering",
-        "values": ["1", "2", "3", "1", "2", "3", "4", "5"]
-      }
+      "name": "Hands Together",
+      "id" : "m_chord_attack_2hand",
+      "image": "games/two_hands.jpg",
+      "children": [
+        {
+          "name": "Majors D.E.A",
+          "id" : "m_chord_attack_2hand_dea_majors",
+          "image": "temp.png",
+          "treble_clef": [
+            "D4,F#4,A4",
+            "E4,G#4,B4",
+            "A4,C#5,E5"
+          ],
+          "treble_names": ["D","E","A"],
+          "bass_clef": [
+            "D2,F#2,A2",
+            "E2,G#2,B2",
+            "A2,C#3,E3"
+          ],
+          "bass_names": ["D","E","A"]
+        },
+        {
+          "name": "Majors",
+          "id" : "m_chord_attack_2hand_majors",
+          "image": "temp.png",
+          "treble_clef": [
+            "C4,E4,G4",
+            "D4,F#4,A4",
+            "E4,G#4,B4",
+            "F4,A4,C5",
+            "G4,B4,D5",
+            "A4,C#5,E5",
+            "B4,D#5,F#5"
+          ],
+          "treble_names": ["C","D","E","F","G","A","B"],
+          "bass_clef": [
+            "C2,E2,G2",
+            "D2,F#2,A2",
+            "E2,G#2,B2",
+            "F2,A2,C3",
+            "G2,B2,D3",
+            "A2,C#3,E3",
+            "B2,D#3,F#3"
+          ],
+          "bass_names": ["C","D","E","F","G","A","B"]
+        }
+      ]
     }
   ]
 }
