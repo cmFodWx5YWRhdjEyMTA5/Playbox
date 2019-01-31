@@ -1002,12 +1002,8 @@ public class PlayActivity extends HidingFullscreenActivity implements
     public void noteReleased(Playable note) {
         // inform the music view that a note was released
         if (false == this.noteProvider.isPaused()) {
-            // is this note in the range we are expecting
-            NoteRange noteRange = this.level.getNoteRange();
-            if (noteRange.contains(note)) {
-                // inform the view that a note was released, if not part of a hit, will be a miss
-                this.musicView.noteReleased(note);
-            }
+            // inform the view that a note was released, if not part of a hit, will be a miss
+            this.musicView.noteReleased(note);
         }
         // when the note is released from the piano it needs to be invalidated
         runOnUiThread(new Runnable() {
@@ -1021,12 +1017,8 @@ public class PlayActivity extends HidingFullscreenActivity implements
     @Override
     public void noteDepressed(Playable note) {
         if (false == this.noteProvider.isPaused()) {
-            // is this note in the range we are expecting
-            NoteRange noteRange = this.level.getNoteRange();
-            if (noteRange.contains(note)) {
-                // inform the music view of this to fire the laser at everything that is currently pressed down
-                this.musicView.noteDepressed(note);
-            }
+            // inform the music view of this to fire the laser at everything that is currently pressed down
+            this.musicView.noteDepressed(note);
         }
         // update the piano view to show this
         runOnUiThread(new Runnable() {

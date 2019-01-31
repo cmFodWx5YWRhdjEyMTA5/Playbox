@@ -313,6 +313,8 @@ public class PianoView extends View {
             // and remember where to start
             this.initialWhiteKey = notes.getNote(this.startNoteIndex).getNotePrimativeIndex();
         }
+        // clear all our keys because it has changed size
+        this.playableKeys = null;
     }
 
     public void setIsDrawNoteName(boolean isDrawNoteName) {

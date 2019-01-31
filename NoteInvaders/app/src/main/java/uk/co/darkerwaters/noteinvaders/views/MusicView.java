@@ -470,8 +470,20 @@ public class MusicView extends View {
                     // the position on the keyboard
                     if (noteTest.getPrimative() == targetTest.getPrimative()) {
                         // this target note matches the one in the note
-                        ++contained;
-                        break;
+                        boolean isMatch = false;
+                        if (noteTest.isSharp()) {
+                            isMatch = targetTest.isSharp();
+                        }
+                        else if (noteTest.isFlat()) {
+                            isMatch = targetTest.isFlat();
+                        }
+                        else {
+                            isMatch = !targetTest.isSharp() && !targetTest.isFlat();
+                        }
+                        if (isMatch) {
+                            ++contained;
+                            break;
+                        }
                     }
                 }
                 else {
