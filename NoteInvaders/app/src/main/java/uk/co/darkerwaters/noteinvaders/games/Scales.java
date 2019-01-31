@@ -9,12 +9,14 @@ import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.views.MusicViewNoteProvider;
 
 public class Scales extends GamePlayer  {
-    private final Random random;
+    private int trebleIndex = 0;
+    private int bassIndex = 0;
+    private int direction = 1;
 
     private static final int K_NUMBERTRIESWITHOUTSUCCESS = 10;
 
     public Scales() {
-        this.random = new Random(System.currentTimeMillis());
+
     }
 
     @Override
@@ -23,21 +25,18 @@ public class Scales extends GamePlayer  {
         MusicViewNoteProvider provider = musicView.getNoteProvider();
         int maxX = musicView.getWidth();
         int iNoAttempts = 0;
-        int noteIndex;
         while (provider.getLastNotePosition(-1f) < maxX) {
-            // add another note
+            // add the next notes
             Playable note = null;
             String noteName = "";
-            // first decide treble or bass
-            if (game.isTreble() && (!game.isBass() || random.nextBoolean())) {
-                // we are doing treble and either no bass or treble's turn
-                noteIndex = random.nextInt(game.treble_clef.length);
-                // find the note to push the the provider
-                note = game.treble_clef[noteIndex];
+            // first do treble
+            if (game.isTreble() && trebleIndex >= 0 && trebleIndex < game.treble_clef.length) {
+                // are in the range, get the next
+                note = game.treble_clef[trebleIndex];
                 // get the name
-                if (game.treble_names != null && noteIndex < game.treble_names.length) {
+                if (game.treble_names != null && trebleIndex < game.treble_names.length) {
                     // there is a name, use this
-                    noteName = game.treble_names[noteIndex];
+                    noteName = game.treble_names[trebleIndex];
                 }
                 else {
                     // use the name of the note
@@ -45,21 +44,43 @@ public class Scales extends GamePlayer  {
                 }
                 provider.pushNoteTrebleToEnd(note, noteName, musicView);
             }
-            if (note == null && game.isBass()) {
-                // didn't do treble, so do bass
-                noteIndex = random.nextInt(game.bass_clef.length);
-                note = game.bass_clef[noteIndex];
+            // now do bass
+            if (game.isBass() && bassIndex >= 0 && bassIndex < game.bass_clef.length) {
+                // are in the range, get the next
+                note = game.bass_clef[bassIndex];
                 // get the name
-                if (game.bass_names != null && noteIndex < game.bass_names.length) {
+                if (game.bass_names != null && bassIndex < game.bass_names.length) {
                     // there is a name, use this
-                    noteName = game.bass_names[noteIndex];
+                    noteName = game.treble_names[bassIndex];
                 }
                 else {
                     // use the name of the note
                     noteName = note.getName();
                 }
-                // find the note to push the the provider
                 provider.pushNoteBassToEnd(note, noteName, musicView);
+            }
+            // increment the counters
+            trebleIndex += direction;
+            bassIndex += direction;
+            if (direction > 0) {
+                // are going up, check to see if we are completed
+                if (trebleIndex >= game.treble_clef.length && ++bassIndex >= game.bass_clef.length) {
+                    // both counters have played all the notes in their lists, reset them both
+                    trebleIndex = game.treble_clef.length - 1;
+                    bassIndex = game.bass_clef.length - 1;
+                    // and change direction
+                    direction = -1;
+                }
+            }
+            else {
+                // are going down, check to see if we are completed
+                if (trebleIndex < 0 && bassIndex < 0) {
+                    // both counters have dropped off the bottom, reset them both
+                    trebleIndex = 0;
+                    bassIndex = 0;
+                    // and change direction
+                    direction = 1;
+                }
             }
             if (++iNoAttempts > provider.getNotesFitOnView() + K_NUMBERTRIESWITHOUTSUCCESS) {
                 // stop already

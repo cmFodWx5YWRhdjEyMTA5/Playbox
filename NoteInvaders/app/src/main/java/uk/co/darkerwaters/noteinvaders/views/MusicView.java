@@ -510,7 +510,6 @@ public class MusicView extends View {
             }
         }
         if (position == -1) {
-            // this is a problem!
             Log.e(State.K_APPTAG, "Asking for a note that isn't in the list...");
         }
         return position;
@@ -717,7 +716,28 @@ public class MusicView extends View {
                         String childName = childNote.getName();
                         if (note.playable instanceof Chord) {
                             // get the name of the note in the chord instead (will be # or b)
-                            childName = ((Chord)note.playable).getNoteName(childIndex);
+                            if (childCount <= 1) {
+                                // just the one child, use the name of the chord
+                                childName = ((Chord)note.playable).getName();
+                            }
+                            else {
+                                // get the name from the note we are using
+                                childName = ((Chord) note.playable).getNoteName(childIndex);
+                            }
+                        }
+                        else {
+                            // need to tackle double names here for notes
+                            if (childNote.getNameCount() > 1) {
+                                // there is more than one name, which do we want?
+                                if (note.name.contains("#")) {
+                                    // want the sharp name
+                                    childName = childNote.getNameSharp();
+                                }
+                                else if (note.name.contains("b")) {
+                                    // want the flat name
+                                    childName = childNote.getNameFlat();
+                                }
+                            }
                         }
                         if (this.isDrawTreble && isFromTrebleList) {
                             position = getNotePosition(this.notesTreble, childName);

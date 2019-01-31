@@ -3,61 +3,495 @@
   "id" : "scales_parent",
   "image": "games/scales.jpg",
   "class": "uk.co.darkerwaters.noteinvaders.games.Scales",
-  "levels": [
+  "children": [
     {
-      "name": "C",
-      "id" : "scales_c",
-      "image": "temp.png",
-      "treble_clef": [ "C4", "D4", "E4", "F4", "G4" ],
-      "treble_names": ["c","d","e","f","g"],
-      "annotation1": {
-        "name": "fingering",
-        "values": ["1", "2", "3", "4", "5"]
-      }
+      "name": "Treble",
+      "id" : "scales_treble",
+      "image": "games/treble.jpg",
+      "children" : [
+        {
+          "name": "C Major",
+          "id" : "scales_treble_c",
+          "image": "temp.png",
+          "treble_clef": ["C4","D4","E4","F4","G4","A4","B4","C5"],
+          "treble_names": ["c","d","e","f","g","a","b","c"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["1","2","3","1","2","3","4","5"]
+          }
+        },
+        {
+          "name": "D Major",
+          "id" : "scales_treble_d",
+          "image": "temp.png",
+          "treble_clef" : ["D4","E4","F#4","G4","A4","B4","C#5","D5" ],
+          "treble_names": ["d","e","f","g","a","b","c","d"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["1","2","3","1","2","3","4","5"]
+          }
+        },
+        {
+          "name": "E Major",
+          "id" : "scales_treble_e",
+          "image": "temp.png",
+          "treble_clef" : ["E4","F#4","G#4","A4","B4","C#5","D#5","E5"],
+          "treble_names": ["e","f","g","a","b","c","d","e"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["1","2","3","1","2","3","4","5"]
+          }
+        },
+        {
+          "name": "F Major",
+          "id" : "scales_treble_f",
+          "image": "temp.png",
+          "treble_clef" : ["F4","G4","A4","Bb4","C5","D5","E5","F5"],
+          "treble_names": ["f","g","a","b","c","d","e","f"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["1","2","3","4","1","2","3","4"]
+          }
+        },
+        {
+          "name": "G Major",
+          "id" : "scales_treble_g",
+          "image": "temp.png",
+          "treble_clef" : ["G4","A4","B4","C5","D5","E5","F#5","G5"],
+          "treble_names": ["g","a","b","c","d","e","f","g"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["1","2","3","1","2","3","4","5"]
+          }
+        },
+        {
+          "name": "A Major",
+          "id" : "scales_treble_a",
+          "image": "temp.png",
+          "treble_clef" : ["A4","B4","C#5","D5","E5","F#5","G#5","A5"],
+          "treble_names": ["a","b","c","d","e","f","g","a"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["1","2","3","1","2","3","4","5"]
+          }
+        },
+        {
+          "name": "B Major",
+          "id" : "scales_treble_b",
+          "image": "temp.png",
+          "treble_clef" : ["B3","C#4","D#4","E4","F#4","G#4","A#4","B4"],
+          "treble_names": ["b","c","d","e","f","g","a","b"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["1","2","3","1","2","3","4","5"]
+          }
+        },
+        {
+          "name": "C# / Dᵇ Major",
+          "id" : "scales_treble_c_sharp",
+          "image": "temp.png",
+          "treble_clef": ["Db4","Eb4","F4","Gb4","Ab4","Bb4","C5","Db5"],
+          "treble_names": ["d","e","f","g","a","b","c","d"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["2","3","1","2","3","4","1","2"]
+          }
+        },
+        {
+          "name": "D# / Eᵇ Major",
+          "id" : "scales_treble_d_sharp",
+          "image": "temp.png",
+          "treble_clef": ["Eb4","F4","G4","Ab4","Bb4","C5","D5","Eb5"],
+          "treble_names": ["e","f","g","a","b","c","d","e"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["3","1","2","3","4","1","2","3"]
+          }
+        },
+        {
+          "name": "F# /Gᵇ Major",
+          "id" : "scales_treble_f_sharp",
+          "image": "temp.png",
+          "treble_clef": ["F#4","G#4","A#4","B4","C#5","D#5","F5","F#5"],
+          "treble_names": ["f","g","a","b","c","d","f","f"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["2","3","4","1","2","3","1","2"]
+          }
+        },
+        {
+          "name": "G# / Aᵇ Major",
+          "id" : "scales_treble_g_sharp",
+          "image": "temp.png",
+          "treble_clef": ["Ab4","Bb4","C5","Db5","Eb5","F5","G5","Ab5"],
+          "treble_names": ["a","b","c","d","e","f","g","a"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["3","4","1","2","3","1","2","3"]
+          }
+        },
+        {
+          "name": "A# / Bᵇ Major",
+          "id" : "scales_treble_a_sharp",
+          "image": "temp.png",
+          "treble_clef": ["Bb3","C4","D4","Eb4","F4","G4","A4","Bb4"],
+          "treble_names": ["b","c","d","e","f","g","a","b"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["4","1","2","3","1","2","3","4"]
+          }
+        }
+      ]
     },
     {
-      "name": "D",
-      "id" : "scales_d",
-      "image": "piano.jpg",
-      "treble_clef" : [ "C4", "D4", "E4", "F4", "G4", "A5", "B5" ],
-      "treble_names": ["c","d","e","f","g","a","b"],
-      "annotation1": {
-        "name": "fingering",
-        "values": ["1", "2", "3", "1", "2", "3", "4", "5"]
-      }
+      "name": "Bass",
+      "id" : "scales_bass",
+      "image": "games/bass.jpg",
+      "children": [
+        {
+          "name": "C Major",
+          "id" : "scales_bass_c",
+          "image": "temp.png",
+          "bass_clef": ["C2","D2","E2","F2","G2","A2","B2","C3"],
+          "bass_names": ["c","d","e","f","g","a","b","c"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["5","4","3","2","1","3","2","1"]
+          }
+        },
+        {
+          "name": "D Major",
+          "id" : "scales_bass_d",
+          "image": "temp.png",
+          "bass_clef" : ["D2","E2","F#2","G2","A2","B2","C#3","D3" ],
+          "bass_names": ["d","e","f","g","a","b","c","d"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["5","4","3","2","1","3","2","1"]
+          }
+        },
+        {
+          "name": "E Major",
+          "id" : "scales_bass_e",
+          "image": "temp.png",
+          "bass_clef" : ["E2","F#2","G#2","A2","B2","C#3","D#3","E3"],
+          "bass_names": ["e","f","g","a","b","c","d","e"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["5","4","3","2","1","3","2","1"]
+          }
+        },
+        {
+          "name": "F Major",
+          "id" : "scales_bass_f",
+          "image": "temp.png",
+          "bass_clef" : ["F2","G2","A2","Bb2","C3","D3","E3","F3"],
+          "bass_names": ["f","g","a","b","c","d","e","f"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["5","4","3","2","1","3","2","1"]
+          }
+        },
+        {
+          "name": "G Major",
+          "id" : "scales_bass_g",
+          "image": "temp.png",
+          "bass_clef" : ["G2","A2","B2","C3","D3","E3","F#3","G3"],
+          "bass_names": ["g","a","b","c","d","e","f","g"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["5","4","3","2","1","3","2","1"]
+          }
+        },
+        {
+          "name": "A Major",
+          "id" : "scales_bass_a",
+          "image": "temp.png",
+          "bass_clef" : ["A2","B2","C#3","D3","E3","F#3","G#3","A3"],
+          "bass_names": ["a","b","c","d","e","f","g","a"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["5","4","3","2","1","3","2","1"]
+          }
+        },
+        {
+          "name": "B Major",
+          "id" : "scales_bass_b",
+          "image": "temp.png",
+          "bass_clef" : ["B2","C#3","D#3","E3","F#3","G#3","A#3","B3"],
+          "bass_names": ["b","c","d","e","f","g","a","b"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["4","3","2","1","4","3","2","1"]
+          }
+        },
+        {
+          "name": "C# / Dᵇ Major",
+          "id" : "scales_bass_c_sharp",
+          "image": "temp.png",
+          "bass_clef": ["Db2","Eb2","F2","Gb2","Ab2","Bb2","C3","Db3"],
+          "bass_names": ["d","e","f","g","a","b","c","d"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["3","2","1","4","3","2","1","3"]
+          }
+        },
+        {
+          "name": "D# / Eᵇ Major",
+          "id" : "scales_bass_d_sharp",
+          "image": "temp.png",
+          "bass_clef": ["Eb2","F2","G2","Ab2","Bb2","C3","D3","Eb3"],
+          "bass_names": ["e","f","g","a","b","c","d","e"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["3","2","1","4","3","2","1","3"]
+          }
+        },
+        {
+          "name": "F# /Gᵇ Major",
+          "id" : "scales_bass_f_sharp",
+          "image": "temp.png",
+          "bass_clef": ["F#2","G#2","A#2","B2","C#3","D#3","F3","F#3"],
+          "bass_names": ["f","g","a","b","c","d","f","f"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["4","3","2","1","4","3","2","1"]
+          }
+        },
+        {
+          "name": "G# / Aᵇ Major",
+          "id" : "scales_bass_g_sharp",
+          "image": "temp.png",
+          "bass_clef": ["Ab2","Bb2","C3","Db3","Eb3","F3","G3","Ab3"],
+          "bass_names": ["a","b","c","d","e","f","g","a"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["3","2","1","4","3","2","1","3"]
+          }
+        },
+        {
+          "name": "A# / Bᵇ Major",
+          "id" : "scales_bass_a_sharp",
+          "image": "temp.png",
+          "bass_clef": ["Bb2","C3","D3","Eb3","F3","G3","A3","Bb3"],
+          "bass_names": ["b","c","d","e","f","g","a","b"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["3","2","1","4","3","2","1","3"]
+          }
+        }
+      ]
     },
     {
-      "name": "E",
-      "id" : "scales_e",
-      "image": "piano.jpg",
-      "treble_clef" : [ "C4", "D4", "E4", "F4", "G4", "A5", "B5" ],
-      "treble_names": ["c","d","e","f","g","a","b"],
-      "annotation1": {
-        "name": "fingering",
-        "values": ["1", "2", "3", "1", "2", "3", "4", "5"]
-      }
-    },
-    {
-      "name": "F",
-      "id" : "scales_f",
-      "image": "piano.jpg",
-      "treble_clef" : [ "C4", "D4", "E4", "F4", "G4", "A5", "B5" ],
-      "treble_names": ["c","d","e","f","g","a","b"],
-      "annotation1": {
-        "name": "fingering",
-        "values": ["1", "2", "3", "1", "2", "3", "4", "5"]
-      }
-    },
-    {
-      "name": "G",
-      "id" : "scales_g",
-      "image": "piano.jpg",
-      "treble_clef" : [ "C4", "D4", "E4", "F4", "G4", "A5", "B5" ],
-      "treble_names": ["c","d","e","f","g","a","b"],
-      "annotation1": {
-        "name": "fingering",
-        "values": ["1", "2", "3", "1", "2", "3", "4", "5"]
-      }
+      "name": "Hands Together",
+      "id" : "scales_2hand",
+      "image": "games/two_hands.jpg",
+      "children": [
+        {
+          "name": "C Major",
+          "id" : "scales_2hand_c",
+          "image": "temp.png",
+          "treble_clef": ["C4","D4","E4","F4","G4","A4","B4","C5"],
+          "treble_names": ["c","d","e","f","g","a","b","c"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["1","2","3","1","2","3","4","5"]
+          },
+          "bass_clef": ["C2","D2","E2","F2","G2","A2","B2","C3"],
+          "bass_names": ["c","d","e","f","g","a","b","c"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["5","4","3","2","1","3","2","1"]
+          }
+        },
+        {
+          "name": "D Major",
+          "id" : "scales_2hand_d",
+          "image": "temp.png",
+          "treble_clef" : ["D4","E4","F#4","G4","A4","B4","C#5","D5" ],
+          "treble_names": ["d","e","f","g","a","b","c","d"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["1","2","3","1","2","3","4","5"]
+          },
+          "bass_clef" : ["D2","E2","F#2","G2","A2","B2","C#3","D3" ],
+          "bass_names": ["d","e","f","g","a","b","c","d"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["5","4","3","2","1","3","2","1"]
+          }
+        },
+        {
+          "name": "E Major",
+          "id" : "scales_2hand_e",
+          "image": "temp.png",
+          "treble_clef" : ["E4","F#4","G#4","A4","B4","C#5","D#5","E5"],
+          "treble_names": ["e","f","g","a","b","c","d","e"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["1","2","3","1","2","3","4","5"]
+          },
+          "bass_clef" : ["E2","F#2","G#2","A2","B2","C#3","D#3","E3"],
+          "bass_names": ["e","f","g","a","b","c","d","e"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["5","4","3","2","1","3","2","1"]
+          }
+        },
+        {
+          "name": "F Major",
+          "id" : "scales_2hand_f",
+          "image": "temp.png",
+          "treble_clef" : ["F4","G4","A4","Bb4","C5","D5","E5","F5"],
+          "treble_names": ["f","g","a","b","c","d","e","f"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["1","2","3","4","1","2","3","4"]
+          },
+          "bass_clef" : ["F2","G2","A2","Bb2","C3","D3","E3","F3"],
+          "bass_names": ["f","g","a","b","c","d","e","f"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["5","4","3","2","1","3","2","1"]
+          }
+        },
+        {
+          "name": "G Major",
+          "id" : "scales_2hand_g",
+          "image": "temp.png",
+          "treble_clef" : ["G4","A4","B4","C5","D5","E5","F#5","G5"],
+          "treble_names": ["g","a","b","c","d","e","f","g"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["1","2","3","1","2","3","4","5"]
+          },
+          "bass_clef" : ["G2","A2","B2","C3","D3","E3","F#3","G3"],
+          "bass_names": ["g","a","b","c","d","e","f","g"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["5","4","3","2","1","3","2","1"]
+          }
+        },
+        {
+          "name": "A Major",
+          "id" : "scales_2hand_a",
+          "image": "temp.png",
+          "treble_clef" : ["A4","B4","C#5","D5","E5","F#5","G#5","A5"],
+          "treble_names": ["a","b","c","d","e","f","g","a"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["1","2","3","1","2","3","4","5"]
+          },
+          "bass_clef" : ["A2","B2","C#3","D3","E3","F#3","G#3","A3"],
+          "bass_names": ["a","b","c","d","e","f","g","a"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["5","4","3","2","1","3","2","1"]
+          }
+        },
+        {
+          "name": "B Major",
+          "id" : "scales_2hand_b",
+          "image": "temp.png",
+          "treble_clef" : ["B3","C#4","D#4","E4","F#4","G#4","A#4","B4"],
+          "treble_names": ["b","c","d","e","f","g","a","b"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["1","2","3","1","2","3","4","5"]
+          },
+          "bass_clef" : ["B2","C#3","D#3","E3","F#3","G#3","A#3","B3"],
+          "bass_names": ["b","c","d","e","f","g","a","b"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["4","3","2","1","4","3","2","1"]
+          }
+        },
+        {
+          "name": "C# / Dᵇ Major",
+          "id" : "scales_2hand_c_sharp",
+          "image": "temp.png",
+          "treble_clef": ["Db4","Eb4","F4","Gb4","Ab4","Bb4","C5","Db5"],
+          "treble_names": ["d","e","f","g","a","b","c","d"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["2","3","1","2","3","4","1","2"]
+          },
+          "bass_clef": ["Db2","Eb2","F2","Gb2","Ab2","Bb2","C3","Db3"],
+          "bass_names": ["d","e","f","g","a","b","c","d"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["3","2","1","4","3","2","1","3"]
+          }
+        },
+        {
+          "name": "D# / Eᵇ Major",
+          "id" : "scales_2hand_d_sharp",
+          "image": "temp.png",
+          "treble_clef": ["Eb4","F4","G4","Ab4","Bb4","C5","D5","Eb5"],
+          "treble_names": ["e","f","g","a","b","c","d","e"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["3","1","2","3","4","1","2","3"]
+          },
+          "bass_clef": ["Eb2","F2","G2","Ab2","Bb2","C3","D3","Eb3"],
+          "bass_names": ["e","f","g","a","b","c","d","e"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["3","2","1","4","3","2","1","3"]
+          }
+        },
+        {
+          "name": "F# /Gᵇ Major",
+          "id" : "scales_2hand_f_sharp",
+          "image": "temp.png",
+          "treble_clef": ["F#4","G#4","A#4","B4","C#5","D#5","F5","F#5"],
+          "treble_names": ["f","g","a","b","c","d","f","f"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["2","3","4","1","2","3","1","2"]
+          },
+          "bass_clef": ["F#2","G#2","A#2","B2","C#3","D#3","F3","F#3"],
+          "bass_names": ["f","g","a","b","c","d","f","f"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["4","3","2","1","4","3","2","1"]
+          }
+        },
+        {
+          "name": "G# / Aᵇ Major",
+          "id" : "scales_2hand_g_sharp",
+          "image": "temp.png",
+          "treble_clef": ["Ab4","Bb4","C5","Db5","Eb5","F5","G5","Ab5"],
+          "treble_names": ["a","b","c","d","e","f","g","a"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["3","4","1","2","3","1","2","3"]
+          },
+          "bass_clef": ["Ab2","Bb2","C3","Db3","Eb3","F3","G3","Ab3"],
+          "bass_names": ["a","b","c","d","e","f","g","a"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["3","2","1","4","3","2","1","3"]
+          }
+        },
+        {
+          "name": "A# / Bᵇ Major",
+          "id" : "scales_2hand_a_sharp",
+          "image": "temp.png",
+          "treble_clef": ["Bb3","C4","D4","Eb4","F4","G4","A4","Bb4"],
+          "treble_names": ["b","c","d","e","f","g","a","b"],
+          "treble_annotation1": {
+            "name": "fingering",
+            "values": ["4","1","2","3","1","2","3","4"]
+          },
+          "bass_clef": ["Bb2","C3","D3","Eb3","F3","G3","A3","Bb3"],
+          "bass_names": ["b","c","d","e","f","g","a","b"],
+          "bass_annotation1": {
+            "name": "fingering",
+            "values": ["3","2","1","4","3","2","1","3"]
+          }
+        }
+      ]
     }
   ]
 }

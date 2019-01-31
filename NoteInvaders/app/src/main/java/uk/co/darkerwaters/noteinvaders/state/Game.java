@@ -26,7 +26,8 @@ public class Game {
     public final Playable[] bass_clef;
     public final String[] treble_names;
     public final String[] bass_names;
-    public final Annotation[] annotations;
+    public final Annotation[] treble_annotations;
+    public final Annotation[] bass_annotations;
 
     public class Annotation {
         final String name;
@@ -85,7 +86,7 @@ public class Game {
         int annotationNumber = 1;
         ArrayList<Annotation> annotationList = new ArrayList<Annotation>();
         while(true) {
-            String annotationTitle = "annotation" + Integer.toString(annotationNumber);
+            String annotationTitle = "treble_annotation" + Integer.toString(annotationNumber++);
             JSONObject annotation = getJsonObjectOptional(fileSource, annotationTitle);
             if (null != annotation) {
                 // there is an annotation, get the data for it
@@ -105,9 +106,37 @@ public class Game {
             }
         }
         // set the list of retrieved annotations
-        this.annotations = new Annotation[annotationList.size()];
-        for (int i = 0; i < this.annotations.length; ++i) {
-            this.annotations[i] = annotationList.get(i);
+        this.treble_annotations = new Annotation[annotationList.size()];
+        for (int i = 0; i < this.treble_annotations.length; ++i) {
+            this.treble_annotations[i] = annotationList.get(i);
+        }
+        // and bass
+        annotationNumber = 1;
+        annotationList.clear();
+        while(true) {
+            String annotationTitle = "bass_annotation" + Integer.toString(annotationNumber++);
+            JSONObject annotation = getJsonObjectOptional(fileSource, annotationTitle);
+            if (null != annotation) {
+                // there is an annotation, get the data for it
+                String annotationName = annotation.getString("name");
+                JSONArray values = annotation.getJSONArray("values");
+                // put the values in a string array
+                String[] annotationValues = new String[values.length()];
+                for (int i = 0; i < annotationValues.length; ++i) {
+                    annotationValues[i] = values.getString(i);
+                }
+                // add to the list we are compiling
+                annotationList.add(new Annotation(annotationName, annotationValues));
+            }
+            else {
+                // stop looking
+                break;
+            }
+        }
+        // set the list of retrieved annotations
+        this.bass_annotations = new Annotation[annotationList.size()];
+        for (int i = 0; i < this.bass_annotations.length; ++i) {
+            this.bass_annotations[i] = annotationList.get(i);
         }
 
 
@@ -123,24 +152,25 @@ public class Game {
     private Playable createPlayable(String noteName) {
         String[] noteNames = noteName.split(",");
         Notes notes = Notes.instance();
-        Playable toReturn;
+        Chord createdChord;
         if (noteNames == null || noteNames.length == 0) {
             // just use the name
-            toReturn = notes.getNote(noteName);
+            createdChord = new Chord(noteName, new Note[] {notes.getNote(noteName)});
         }
         else if (noteNames.length == 1) {
-            // use the first note
-            toReturn = notes.getNote(noteNames[0]);
+            // use the first note title
+            createdChord = new Chord(noteName, new Note[] {notes.getNote(noteNames[0])});
         }
         else {
             // this is a chord
-            Chord chord = new Chord(noteName);
+            createdChord = new Chord(noteName);
             for (String name : noteNames) {
-                chord.addNote(notes.getNote(name), name);
+                // add all the notes one by one
+                createdChord.addNote(notes.getNote(name), name);
             }
-            toReturn = chord;
         }
-        return toReturn;
+        // return the created chord
+        return createdChord;
     }
 
     private JSONObject getJsonObjectOptional(JSONObject source, String name) {
