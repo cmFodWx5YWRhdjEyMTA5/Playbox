@@ -11,8 +11,8 @@ public class MusicViewNoteProviderPositional extends MusicViewNoteProvider {
 
     private class PositionedNote extends MusicViewPlayable {
         float xPosition;
-        PositionedNote(float xPosition, Playable note, String noteName) {
-            super(note, noteName);
+        PositionedNote(float xPosition, Playable note, String noteName, String annotation) {
+            super(note, noteName, annotation);
             this.xPosition = xPosition;
         }
         @Override
@@ -75,9 +75,9 @@ public class MusicViewNoteProviderPositional extends MusicViewNoteProvider {
         return toDraw;
     }
 
-    public boolean pushNoteTreble(Playable note, String noteName, float xPosition) {
+    public boolean pushNoteTreble(Playable note, String noteName, String annotation, float xPosition) {
         synchronized (this.notesToDrawTreble) {
-            return this.notesToDrawTreble.add(new PositionedNote(xPosition, note, noteName));
+            return this.notesToDrawTreble.add(new PositionedNote(xPosition, note, noteName, annotation));
         }
     }
 
@@ -87,9 +87,9 @@ public class MusicViewNoteProviderPositional extends MusicViewNoteProvider {
         }
     }
 
-    public boolean pushNoteBass(Playable note, String noteName, float xPosition) {
+    public boolean pushNoteBass(Playable note, String noteName, String annotation, float xPosition) {
         synchronized (this.notesToDrawBass) {
-            return this.notesToDrawBass.add(new PositionedNote(xPosition, note, noteName));
+            return this.notesToDrawBass.add(new PositionedNote(xPosition, note, noteName, annotation));
         }
     }
 
@@ -116,9 +116,15 @@ public class MusicViewNoteProviderPositional extends MusicViewNoteProvider {
     }
 
     @Override
-    public boolean pushNoteTrebleToEnd(Playable note, String noteName, MusicView musicView) {
+    public boolean pushNoteTrebleToEnd(Playable note, String noteName, String annotation, MusicView musicView) {
         // put this note on the end of the view
-        return pushNoteTreble(note, noteName, getLastNotePosition(musicView.getWidth()) + noteSeparation);
+        return pushNoteTreble(note, noteName, annotation,getLastNotePosition(musicView.getWidth()) + noteSeparation);
+    }
+
+    @Override
+    public boolean pushNoteTrebleToEnd(Playable note, String noteName, String annotation, MusicView musicView, float offset) {
+        // put this note on the end of the view
+        return pushNoteTreble(note, noteName, annotation,getLastNotePosition(musicView.getWidth()) + noteSeparation);
     }
 
     public float getLastBassPosition(float defaultX) {
@@ -133,10 +139,17 @@ public class MusicViewNoteProviderPositional extends MusicViewNoteProvider {
     }
 
     @Override
-    public boolean pushNoteBassToEnd(Playable note, String noteName, MusicView musicView) {
+    public boolean pushNoteBassToEnd(Playable note, String noteName, String annotation, MusicView musicView) {
         // put this note on the end of the view
-        return pushNoteBass(note, noteName, getLastNotePosition(musicView.getWidth()) + noteSeparation);
+        return pushNoteBass(note, noteName, annotation,getLastNotePosition(musicView.getWidth()) + noteSeparation);
     }
+
+    @Override
+    public boolean pushNoteBassToEnd(Playable note, String noteName, String annotation, MusicView musicView, float offset) {
+        // put this note on the end of the view
+        return pushNoteBass(note, noteName, annotation,getLastNotePosition(musicView.getWidth()) + noteSeparation);
+    }
+
 
     public void shiftNotesLeft(int pixels) {
         synchronized (this.notesToDrawTreble) {

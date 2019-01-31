@@ -250,6 +250,42 @@ public class Game {
         return (isBass() || isTreble());
     }
 
+    public String getTrebleAnnotations(int index) {
+        // return all the annotations at this index
+        StringBuilder annotations = new StringBuilder();
+        if (null != this.treble_annotations) {
+            for (Annotation annotation : this.treble_annotations) {
+                if (null != annotation && null != annotation.values && index < annotation.values.length) {
+                    // there is an annotation here
+                    if (annotations.length() > 0) {
+                        annotations.append(',');
+                    }
+                    // append this annotation
+                    annotations.append(annotation.values[index]);
+                }
+            }
+        }
+        return annotations.toString();
+    }
+
+    public String getBassAnnotations(int index) {
+        // return all the annotations at this index
+        StringBuilder annotations = new StringBuilder();
+        if (null != this.bass_annotations) {
+            for (Annotation annotation : this.bass_annotations) {
+                if (null != annotation && null != annotation.values && index < annotation.values.length) {
+                    // there is an annotation here
+                    if (annotations.length() > 0) {
+                        annotations.append(',');
+                    }
+                    // append this annotation
+                    annotations.append(annotation.values[index]);
+                }
+            }
+        }
+        return annotations.toString();
+    }
+
     public NoteRange getNoteRange() {
         // go through all the notes to find the lowest and highest of them all
         NoteRange range = new NoteRange((Note)null, (Note)null);

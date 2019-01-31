@@ -30,6 +30,7 @@ public class Scales extends GamePlayer  {
             Playable note = null;
             String noteName = "";
             // first do treble
+            boolean isTrebleAdded = false;
             if (game.isTreble() && trebleIndex >= 0 && trebleIndex < game.treble_clef.length) {
                 // are in the range, get the next
                 note = game.treble_clef[trebleIndex];
@@ -42,7 +43,10 @@ public class Scales extends GamePlayer  {
                     // use the name of the note
                     noteName = note.getName();
                 }
-                provider.pushNoteTrebleToEnd(note, noteName, musicView);
+                String annotations = game.getTrebleAnnotations(trebleIndex);
+                provider.pushNoteTrebleToEnd(note, noteName, annotations, musicView);
+                // remember this
+                isTrebleAdded = true;
             }
             // now do bass
             if (game.isBass() && bassIndex >= 0 && bassIndex < game.bass_clef.length) {
@@ -57,7 +61,15 @@ public class Scales extends GamePlayer  {
                     // use the name of the note
                     noteName = note.getName();
                 }
-                provider.pushNoteBassToEnd(note, noteName, musicView);
+                String annotations = game.getBassAnnotations(bassIndex);
+                if (isTrebleAdded) {
+                    // add without a time offset
+                    provider.pushNoteBassToEnd(note, noteName, annotations, musicView, 0f);
+                }
+                else {
+                    // push with the standard offset
+                    provider.pushNoteBassToEnd(note, noteName, annotations, musicView);
+                }
             }
             // increment the counters
             trebleIndex += direction;

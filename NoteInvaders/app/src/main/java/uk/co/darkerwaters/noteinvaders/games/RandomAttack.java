@@ -43,7 +43,8 @@ public class RandomAttack extends GamePlayer {
                     // use the name of the note
                     noteName = note.getName();
                 }
-                provider.pushNoteTrebleToEnd(note, noteName, musicView);
+                String annotations = game.getTrebleAnnotations(noteIndex);
+                provider.pushNoteTrebleToEnd(note, noteName, annotations, musicView);
             }
             if (note == null && game.isBass()) {
                 // didn't do treble, so do bass
@@ -59,7 +60,8 @@ public class RandomAttack extends GamePlayer {
                     noteName = note.getName();
                 }
                 // find the note to push the the provider
-                provider.pushNoteBassToEnd(note, noteName, musicView);
+                String annotations = game.getBassAnnotations(noteIndex);
+                provider.pushNoteBassToEnd(note, noteName, annotations, musicView);
             }
             if (++iNoAttempts > provider.getNotesFitOnView() + K_NUMBERTRIESWITHOUTSUCCESS) {
                 // stop already

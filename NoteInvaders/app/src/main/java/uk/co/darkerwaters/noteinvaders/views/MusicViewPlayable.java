@@ -9,9 +9,12 @@ public abstract class MusicViewPlayable {
 
     public final String name;
 
-    public MusicViewPlayable(Playable playable, String noteName) {
+    public final String annotation;
+
+    public MusicViewPlayable(Playable playable, String noteName, String annotation) {
         this.playable = playable;
         this.name = noteName;
+        this.annotation = annotation;
     }
 
     @Override

@@ -26,9 +26,11 @@ public abstract class MusicViewNoteProvider {
 
     public abstract void updateNotes(MusicView musicView);
 
-    public abstract boolean pushNoteTrebleToEnd(Playable note, String noteName, MusicView musicView);
+    public abstract boolean pushNoteTrebleToEnd(Playable note, String noteName, String annotation, MusicView musicView);
+    public abstract boolean pushNoteTrebleToEnd(Playable note, String noteName, String annotation, MusicView musicView, float timeOffset);
 
-    public abstract boolean pushNoteBassToEnd(Playable note, String noteName, MusicView musicView);
+    public abstract boolean pushNoteBassToEnd(Playable note, String noteName, String annotation, MusicView musicView);
+    public abstract boolean pushNoteBassToEnd(Playable note, String noteName, String annotation, MusicView musicView, float timeOffset);
 
     public abstract boolean removeNoteTreble(MusicViewPlayable note);
     public abstract boolean removeNoteBass(MusicViewPlayable note);

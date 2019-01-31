@@ -739,13 +739,20 @@ public class MusicView extends View {
                                 }
                             }
                         }
+                        float annotationYPosition = 0f;
                         if (this.isDrawTreble && isFromTrebleList) {
                             position = getNotePosition(this.notesTreble, childName);
+                            annotationYPosition = padding.top + letterPaint.getTextSize() * 0.25f;
                             yPosition = padding.top + (position * noteOffset);
                         }
                         if (this.isDrawBass && false == isFromTrebleList) {
                             // can't draw this on treble, but we have bass, try this
                             position = getNotePosition(this.notesBass, childName);
+                            annotationYPosition = bassClefYOffset + letterPaint.getTextSize() * 0.25f;
+                            if (this.isDrawTreble) {
+                                // draw the annotations on the bottom when there are 2
+                                annotationYPosition += (clefHeight - letterPaint.getTextSize()) * 2f;
+                            }
                             yPosition = bassClefYOffset + (position * noteOffset);
                         }
                         if (position != -1) {
@@ -764,9 +771,14 @@ public class MusicView extends View {
                                 // just use the nice name for the single note
                                 noteName = getBasicNoteName(note);
                             }
-                            else if (childCount == childIndex + 1) {
-                                // this is a chord and this is the last note, put the chord name in
-                                noteName = getBasicNoteName(note);
+                            // is there an annotation?
+                            if (null != note.annotation && false == note.annotation.isEmpty()) {
+                                // draw in this annotation
+                                canvas.drawText(note.annotation, xPosition, annotationYPosition, letterPaint);
+                            }
+                            else if (childCount > 1) {
+                                // no annotation, draw the title for the chord in if we are playing one
+                                canvas.drawText(note.name, xPosition, annotationYPosition, letterPaint);
                             }
                             // draw the note in
                             drawNoteOnClef(canvas, xPosition, yPosition, noteName, leftNotation);
@@ -783,6 +795,7 @@ public class MusicView extends View {
                                         yPosition,
                                         notePaint);
                             }
+
                             if (isDrawLaser && this.noteProvider.isStarted()) {
                                 // did we shoot this note down at all?
                                 if (xPosition < laserXPosition) {

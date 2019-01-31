@@ -25,8 +25,8 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
     private class TimedPlayable extends MusicViewPlayable {
         float timeOffset;
         float xPosition;
-        TimedPlayable(float timeOffset, float xPosition, Playable playable, String noteName) {
-            super(playable, noteName);
+        TimedPlayable(float timeOffset, float xPosition, Playable playable, String noteName, String annotation) {
+            super(playable, noteName, annotation);
             this.timeOffset = timeOffset;
             this.xPosition = xPosition;
         }
@@ -96,13 +96,14 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
             float xSep = this.secondsInView * widthFactor / level.treble_clef.length;
             for (int i = 0; i < level.treble_clef.length; ++i) {
                 String noteName = "";
+                String annotation = level.getTrebleAnnotations(i);
                 Playable note = level.treble_clef[i];
                 if (null != level.treble_names && level.treble_names.length > i) {
                     noteName = level.treble_names[i];
                 }
                 float timeX = this.startSeconds + (xSep * (i+1));
                 synchronized (this.notesToDrawTreble) {
-                    TimedPlayable newNote = new TimedPlayable(timeX, calculateXPosition(musicView, timeX), note, noteName);
+                    TimedPlayable newNote = new TimedPlayable(timeX, calculateXPosition(musicView, timeX), note, noteName, annotation);
                     if (null != newNote && isValid(newNote)) {
                         this.notesToDrawTreble.add(newNote);
                     }
@@ -115,13 +116,14 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
             float xSep = this.secondsInView * widthFactor / level.bass_clef.length;
             for (int i = 0; i < level.bass_clef.length; ++i) {
                 String noteName = "";
+                String annotation = level.getBassAnnotations(i);
                 Playable note = level.bass_clef[i];
                 if (null != level.bass_names && level.bass_names.length > i) {
                     noteName = level.bass_names[i];
                 }
                 float timeX = this.startSeconds + (xSep * (i+1));
                 synchronized (this.notesToDrawBass) {
-                    TimedPlayable newNote = new TimedPlayable(timeX, calculateXPosition(musicView, timeX), note, noteName);
+                    TimedPlayable newNote = new TimedPlayable(timeX, calculateXPosition(musicView, timeX), note, noteName, annotation);
                     if (null != newNote && isValid(newNote)) {
                         this.notesToDrawBass.add(newNote);
                     }
@@ -265,19 +267,24 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
     }
 
     @Override
-    public boolean pushNoteBassToEnd(Playable note, String noteName, MusicView musicView) {
+    public boolean pushNoteBassToEnd(Playable note, String noteName, String annotation, MusicView musicView) {
+        return this.pushNoteBassToEnd(note, noteName, annotation, musicView, 1f / this.beatsPerSec);
+    }
+
+    @Override
+    public boolean pushNoteBassToEnd(Playable note, String noteName, String annotation, MusicView musicView, float timeOffset) {
         // get the last note we have in our lists, will be the last time we added
         float lastTimeX = this.secondsInView + this.startSeconds;// old was was defined K_SECONDSINVIEW;
         // but we might have later notes on the view already (waiting to appear)
         TimedPlayable lastNote = getLastNote();
         if (null != lastNote) {
             // there is a last note, the last time is this plus the current seconds between notes
-            lastTimeX = lastNote.timeOffset + (1f / this.beatsPerSec);
+            lastTimeX = lastNote.timeOffset + timeOffset;
         }
         // create a note for this time
         boolean isAdded = false;
         synchronized (this.notesToDrawBass) {
-            TimedPlayable newNote = new TimedPlayable(lastTimeX, calculateXPosition(musicView, lastTimeX), note, noteName);
+            TimedPlayable newNote = new TimedPlayable(lastTimeX, calculateXPosition(musicView, lastTimeX), note, noteName, annotation);
             if (null != newNote && isValid(newNote)) {
                 isAdded =  this.notesToDrawBass.add(newNote);
             }
@@ -286,7 +293,12 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
     }
 
     @Override
-    public boolean pushNoteTrebleToEnd(Playable note, String noteName, MusicView musicView) {
+    public boolean pushNoteTrebleToEnd(Playable note, String noteName, String annotation, MusicView musicView) {
+        return this.pushNoteTrebleToEnd(note, noteName, annotation, musicView, 1f / this.beatsPerSec);
+    }
+
+    @Override
+    public boolean pushNoteTrebleToEnd(Playable note, String noteName, String annotation, MusicView musicView, float timeOffset) {
         // get the last note we have in our lists, will be the last time we added
         float lastTimeX = this.secondsInView + this.startSeconds;// old was was defined K_SECONDSINVIEW;
         // but we might have later notes on the view already (waiting to appear)
@@ -298,7 +310,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
         // create a note for this time
         boolean isAdded = false;
         synchronized (this.notesToDrawTreble) {
-            TimedPlayable newNote = new TimedPlayable(lastTimeX, calculateXPosition(musicView, lastTimeX), note, noteName);
+            TimedPlayable newNote = new TimedPlayable(lastTimeX, calculateXPosition(musicView, lastTimeX), note, noteName, annotation);
             if (null != newNote && isValid(newNote)) {
                 isAdded = this.notesToDrawTreble.add(newNote);
             }
