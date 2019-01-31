@@ -17,4 +17,8 @@
         android:id="@+id/menu_item_setupbt"
         android:icon="@drawable/ic_baseline_bluetooth_24px"
         android:title="@string/menu_bt" />
+    <item
+        android:id="@+id/menu_item_attributions"
+        android:icon="@drawable/ic_baseline_copyright_24px"
+        android:title="@string/menu_attributions" />
 </menu>

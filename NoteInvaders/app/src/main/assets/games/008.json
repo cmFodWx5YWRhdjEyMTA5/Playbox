@@ -1,0 +1,254 @@
+{
+  "name": "Cycle of Fifths",
+  "id" : "cycle_fifths_parent",
+  "image": "games/cycle_fifths.jpg",
+  "class": "uk.co.darkerwaters.noteinvaders.games.Scales",
+  "children": [
+    {
+      "name": "Treble",
+      "id" : "cycle_fifths_treble",
+      "image": "games/treble.jpg",
+      "children" : [
+        {
+          "name": "Cycle Root - Middle",
+          "id" : "cycle_fifths_treble_root_middle",
+          "image": "temp.png",
+          "treble_clef": [
+            "E5,G#5,B5",
+            "E5,A5,C#6",
+            "D5,F#5,A5",
+            "D5,G5,B5",
+            "C5,E5,G5",
+            "C5,F5,A5",
+            "Bb4,D5,F5",
+            "Bb4,Eb5,G5",
+            "Ab4,C5,Eb5",
+            "Ab4,Db5,F5",
+            "F#4,A#4,C#5",
+            "F#4,B4,D#5"
+          ],
+          "treble_names": ["E","A","D","G","C","F","Bb","Eb","Ab","Db","F#","B"]
+        },
+        {
+          "name": "Cycle Backwards - Middle",
+          "id" : "cycle_fifths_treble_back_middle",
+          "image": "temp.png",
+          "treble_clef": [
+            "G#4,B4,E5",
+            "A4,C#5,E5",
+            "F#4,A4,D5",
+            "G4,B4,D5",
+            "E4,G4,C5",
+            "F4,A4,C5",
+            "D4,F4,Bb4",
+            "Eb4,G4,Bb4",
+            "C4,Eb4,Ab4",
+            "Db4,F4,Ab4",
+            "A#3,C#4,F#4",
+            "B3,D#4,F#4"
+          ],
+          "treble_names": ["E","A","D","G","C","F","Bb","Eb","Ab","Db","F#","B"]
+        },
+        {
+          "name": "Cycle Middle - Backwards",
+          "id" : "cycle_fifths_treble_middle_back",
+          "image": "temp.png",
+          "treble_clef": [
+            "B4,E5,G#5",
+            "C#5,E5,A5",
+            "A4,D5,F#5",
+            "B4,D5,G5",
+            "G4,C5,E5",
+            "A4,C5,F5",
+            "F4,Bb4,D5",
+            "G4,Bb4,Eb5",
+            "Eb4,Ab4,C5",
+            "F4,Ab4,Db5",
+            "C#4,F#4,A#4",
+            "D#4,F#4,B4"
+          ],
+          "treble_names": ["E","A","D","G","C","F","Bb","Eb","Ab","Db","F#","B"]
+        }
+      ]
+    },
+    {
+      "name": "Bass",
+      "id" : "cycle_fifths_bass",
+      "image": "games/bass.jpg",
+      "children": [
+        {
+          "name": "Cycle Root - Middle",
+          "id" : "cycle_fifths_bass_root_middle",
+          "image": "temp.png",
+          "bass_clef": [
+            "E3,G#3,B3",
+            "E3,A3,C#4",
+            "D3,F#3,A3",
+            "D3,G3,B3",
+            "C3,E3,G3",
+            "C3,F3,A3",
+            "Bb2,D3,F3",
+            "Bb2,Eb3,G3",
+            "Ab2,C3,Eb3",
+            "Ab2,Db3,F3",
+            "F#2,A#2,C#3",
+            "F#2,B2,D#3"
+          ],
+          "bass_names": ["E","A","D","G","C","F","Bb","Eb","Ab","Db","F#","B"]
+        },
+        {
+          "name": "Cycle Backwards - Middle",
+          "id" : "cycle_fifths_bass_back_middle",
+          "image": "temp.png",
+          "bass_clef": [
+            "G#3,B3,E4",
+            "A3,C#4,E4",
+            "F#3,A3,D4",
+            "G3,B3,D4",
+            "E3,G3,C4",
+            "F3,A3,C4",
+            "D3,F3,Bb3",
+            "Eb3,G3,Bb3",
+            "C3,Eb3,Ab3",
+            "Db3,F3,Ab3",
+            "A#2,C#3,F#3",
+            "B2,D#3,F#3"
+          ],
+          "bass_names": ["E","A","D","G","C","F","Bb","Eb","Ab","Db","F#","B"]
+        },
+        {
+          "name": "Cycle Middle - Backwards",
+          "id" : "cycle_fifths_bass_middle_back",
+          "image": "temp.png",
+          "bass_clef": [
+            "B2,E3,G#3",
+            "C#3,E3,A3",
+            "A2,D3,F#3",
+            "B2,D3,G3",
+            "G2,C3,E2",
+            "A2,C3,F3",
+            "F2,Bb2,D3",
+            "G2,Bb2,Eb3",
+            "Eb2,Ab2,C3",
+            "F2,Ab2,Db3",
+            "C#2,F#2,A#2",
+            "D#2,F#2,B2"
+          ],
+          "bass_names": ["E","A","D","G","C","F","Bb","Eb","Ab","Db","F#","B"]
+        }
+      ]
+    },
+    {
+      "name": "Hands Together",
+      "id" : "cycle_fifths_2hand_root_middle",
+      "image": "games/two_hands.jpg",
+      "children": [
+        {
+          "name": "Cycle Root - Middle",
+          "id" : "cycle_fifths_2hand_root_middle",
+          "image": "temp.png",
+          "treble_clef": [
+            "E5,G#5,B5",
+            "E5,A5,C#6",
+            "D5,F#5,A5",
+            "D5,G5,B5",
+            "C5,E5,G5",
+            "C5,F5,A5",
+            "Bb4,D5,F5",
+            "Bb4,Eb5,G5",
+            "Ab4,C5,Eb5",
+            "Ab4,Db5,F5",
+            "F#4,A#4,C#5",
+            "F#4,B4,D#5"
+          ],
+          "treble_names": ["E","A","D","G","C","F","Bb","Eb","Ab","Db","F#","B"],
+          "bass_clef": [
+            "E3,G#3,B3",
+            "E3,A3,C#4",
+            "D3,F#3,A3",
+            "D3,G3,B3",
+            "C3,E3,G3",
+            "C3,F3,A3",
+            "Bb2,D3,F3",
+            "Bb2,Eb3,G3",
+            "Ab2,C3,Eb3",
+            "Ab2,Db3,F3",
+            "F#2,A#2,C#3",
+            "F#2,B2,D#3"
+          ],
+          "bass_names": ["E","A","D","G","C","F","Bb","Eb","Ab","Db","F#","B"]
+        },
+        {
+          "name": "Cycle Backwards - Middle",
+          "id" : "cycle_fifths_2hand_back_middle",
+          "image": "temp.png",
+          "treble_clef": [
+            "G#4,B4,E5",
+            "A4,C#5,E5",
+            "F#4,A4,D5",
+            "G4,B4,D5",
+            "E4,G4,C5",
+            "F4,A4,C5",
+            "D4,F4,Bb4",
+            "Eb4,G4,Bb4",
+            "C4,Eb4,Ab4",
+            "Db4,F4,Ab4",
+            "A#3,C#4,F#4",
+            "B3,D#4,F#4"
+          ],
+          "treble_names": ["E","A","D","G","C","F","Bb","Eb","Ab","Db","F#","B"],
+          "bass_clef": [
+            "G#3,B3,E4",
+            "A3,C#4,E4",
+            "F#3,A3,D4",
+            "G3,B3,D4",
+            "E3,G3,C4",
+            "F3,A3,C4",
+            "D3,F3,Bb3",
+            "Eb3,G3,Bb3",
+            "C3,Eb3,Ab3",
+            "Db3,F3,Ab3",
+            "A#2,C#3,F#3",
+            "B2,D#3,F#3"
+          ],
+          "bass_names": ["E","A","D","G","C","F","Bb","Eb","Ab","Db","F#","B"]
+        },
+        {
+          "name": "Cycle Middle - Backwards",
+          "id" : "cycle_fifths_2hand_middle_back",
+          "image": "temp.png",
+          "treble_clef": [
+            "B4,E5,G#5",
+            "C#5,E5,A5",
+            "A4,D5,F#5",
+            "B4,D5,G5",
+            "G4,C5,E5",
+            "A4,C5,F5",
+            "F4,Bb4,D5",
+            "G4,Bb4,Eb5",
+            "Eb4,Ab4,C5",
+            "F4,Ab4,Db5",
+            "C#4,F#4,A#4",
+            "D#4,F#4,B4"
+          ],
+          "treble_names": ["E","A","D","G","C","F","Bb","Eb","Ab","Db","F#","B"],
+          "bass_clef": [
+            "B2,E3,G#3",
+            "C#3,E3,A3",
+            "A2,D3,F#3",
+            "B2,D3,G3",
+            "G2,C3,E2",
+            "A2,C3,F3",
+            "F2,Bb2,D3",
+            "G2,Bb2,Eb3",
+            "Eb2,Ab2,C3",
+            "F2,Ab2,Db3",
+            "C#2,F#2,A#2",
+            "D#2,F#2,B2"
+          ],
+          "bass_names": ["E","A","D","G","C","F","Bb","Eb","Ab","Db","F#","B"]
+        }
+      ]
+    }
+  ]
+}

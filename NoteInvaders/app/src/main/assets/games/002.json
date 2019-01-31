@@ -1,7 +1,7 @@
 {
   "name": "C Chord Attack",
   "id" : "c_chord_attack_parent",
-  "image": "games/space_invaders.jpg",
+  "image": "games/c_chord.jpg",
   "class": "uk.co.darkerwaters.noteinvaders.games.RandomAttack",
   "children": [
     {

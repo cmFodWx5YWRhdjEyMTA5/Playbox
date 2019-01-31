@@ -120,6 +120,9 @@ public class StartActivity extends SelectableItemActivity {
             case R.id.menu_item_setupbt :
                 newIntent = new Intent(this, BtSetupActivity.class);
                 break;
+            case R.id.menu_item_attributions :
+                newIntent = new Intent(this, AttributionsActivity.class);
+                break;
 
         }
         if (null == newIntent) {

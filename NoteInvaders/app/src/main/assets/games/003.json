@@ -1,7 +1,7 @@
 {
   "name": "Major Chord Attack",
   "id" : "m_chord_attack_parent",
-  "image": "games/space_invaders.jpg",
+  "image": "games/major_chords.jpg",
   "class": "uk.co.darkerwaters.noteinvaders.games.RandomAttack",
   "children": [
     {

@@ -1,7 +1,7 @@
 {
   "name": "7 Chords Attack",
   "id" : "7_chord_attack_parent",
-  "image": "games/space_invaders.jpg",
+  "image": "games/sevenths.jpg",
   "class": "uk.co.darkerwaters.noteinvaders.games.RandomAttack",
   "children": [
     {
