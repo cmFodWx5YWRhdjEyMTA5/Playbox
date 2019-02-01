@@ -209,30 +209,33 @@ public class Game {
     public static List<Game> loadGamesFromAssets(Context context) {
         String json = null;
         // we want to load all the games from our 'games' folder in 'assets'
-        int iFileCounter = 0;
         List<Game> games = new ArrayList<Game>();
-        do {
+        try {
             // try to load the next file
-            String filename = String.format("games/%03d.json", ++iFileCounter);
-            try {
-                // open the input stream to this file
-                InputStream is = context.getAssets().open(filename);
-                int size = is.available();
-                byte[] buffer = new byte[size];
-                is.read(buffer);
-                is.close();
-                // and try to create the Game from this JSON data
-                games.add(new Game(null, new JSONObject(new String(buffer, "UTF-8"))));
-
-            } catch (IOException ex) {
-                ex.printStackTrace();
-                // out of files, stop looking for them then
-                break;
-            } catch (JSONException e) {
-                e.printStackTrace();
+            for (String filename : context.getAssets().list("games")) {
+                if (filename.toLowerCase().endsWith(".json")) {
+                    // this is a json file (a game), load it
+                    try {
+                        // open the input stream to this file
+                        InputStream is = context.getAssets().open("games/" + filename);
+                        int size = is.available();
+                        byte[] buffer = new byte[size];
+                        is.read(buffer);
+                        is.close();
+                        // and try to create the Game from this JSON data
+                        games.add(new Game(null, new JSONObject(new String(buffer, "UTF-8"))));
+                        // done (O;
+                    } catch (IOException ex) {
+                        Log.e(State.K_APPTAG, "failed to load the game file: " + ex.getMessage());
+                    } catch (JSONException e) {
+                        Log.e(State.K_APPTAG, "failed to read the game file: " + e.getMessage());
+                    }
+                }
             }
         }
-        while (true);
+        catch (IOException e) {
+            Log.e(State.K_APPTAG, "failed to find the game files: " + e.getMessage());
+        }
         // return the games we managed to load
         return games;
     }
