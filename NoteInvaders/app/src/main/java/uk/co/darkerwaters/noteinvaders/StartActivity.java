@@ -137,6 +137,7 @@ public class StartActivity extends SelectableItemActivity {
 
     @Override
     public void onSelectableItemClicked(SelectableItem item) {
+        Game selectedGame = null;
         if (item instanceof Profile) {
             // they have clicked the profile item, let them change their instrument
             Intent myIntent = new Intent(this, InstrumentActivity.class);
@@ -145,7 +146,13 @@ public class StartActivity extends SelectableItemActivity {
         }
         else if (item instanceof GameCard) {
             // get the game this card represents
-            Game selectedGame = ((GameCard)item).getGame();
+            selectedGame = ((GameCard) item).getGame();
+        }
+        else if (item instanceof LastGameCard) {
+            // get the game this card represents
+            selectedGame = ((LastGameCard) item).getGame();
+        }
+        if (null != selectedGame) {
             // set this on our state
             State.getInstance().selectGame(selectedGame);
             // show the card for this game

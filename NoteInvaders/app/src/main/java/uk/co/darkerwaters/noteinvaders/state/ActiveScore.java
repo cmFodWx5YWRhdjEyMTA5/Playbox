@@ -108,16 +108,20 @@ public class ActiveScore {
         }
         else if (newBpm > this.topBpm) {
             // this is an increase, accept this
-            this.topBpm = newBpm;
-            if (this.topBpm > K_MAX_TEMPO_WITH_HELP) {
-                // turn off help for this
+            if (this.topBpm > K_MAX_TEMPO_WITH_HELP && this.isHelpOn) {
+                // turn off help instead, maybe decrease speed a little...
                 setIsHelpOn(false);
+            }
+            else {
+                // help is off, increase the speed
+                this.topBpm = newBpm;
             }
         }
         else if (newBpm <= K_TEMPO_TO_TURN_HELP_ON) {
             // this is very low, help them out some
             setIsHelpOn(true);
         }
+        // return the top BPM we are now set to
         return this.topBpm;
     }
 
@@ -216,33 +220,111 @@ public class ActiveScore {
                 this.hits > 0;
     }
 
-    public Playable[] getNotesMissed() {
+    public Note[] getNotesMissed() {
         synchronized (this.notesMissed) {
+            // get all the notes we missed, need to break down the chords into notes here
+            List<Note> sortedNotes = new ArrayList<Note>();
+            for (Playable playable : this.notesMissed.keySet()) {
+                if (playable instanceof Note) {
+                    // add to the list
+                    Note note = (Note)playable;
+                    if (false == sortedNotes.contains(note)) {
+                        sortedNotes.add(note);
+                    }
+                }
+                else if (playable instanceof Chord) {
+                    // add al the notes to the list
+                    for (Note note : ((Chord)playable).toNoteArray()) {
+                        if (false == sortedNotes.contains(note)) {
+                            sortedNotes.add(note);
+                        }
+                    }
+                }
+            }
             // sort the set to note order (uses frequency)
-            List<Playable> sortedNotes = new ArrayList<Playable>(this.notesMissed.keySet());
             Collections.sort(sortedNotes);
-            return sortedNotes.toArray(new Playable[sortedNotes.size()]);
+            // and return as a nice safe array
+            return sortedNotes.toArray(new Note[sortedNotes.size()]);
         }
     }
 
-    public Integer getNoteMissedFrequency(Playable note) {
+    public Integer getNoteMissedFrequency(Note note) {
         synchronized (this.notesMissed) {
-            Integer value = this.notesMissed.get(note);
-            return value == null ? 0 : value.intValue();
+            // get all the frequency of the missed notes,
+            // need to break down the chords into notes here
+            int total = 0;
+            for (Map.Entry<Playable,Integer> entry : this.notesMissed.entrySet()) {
+                Playable playable = entry.getKey();
+                Integer value = entry.getValue();
+                if (null != value) {
+                    if (playable instanceof Note) {
+                        // this is a note, add to the total
+                        total += value.intValue();
+                    } else if (playable instanceof Chord) {
+                        // is the note in the chord
+                        if (((Chord) playable).contains(note)) {
+                            // the chord contains this note, add the value
+                            total += value.intValue();
+                        }
+                    }
+                }
+            }
+            // return the total we calculated
+            return total;
         }
     }
 
-    public Playable[] getNotesFalselyShot() {
+    public Note[] getNotesFalselyShot() {
         synchronized (this.notesFalselyShot) {
-            Set<Playable> notes = this.notesFalselyShot.keySet();
-            return notes.toArray(new Playable[notes.size()]);
+            // get all the notes we missed, need to break down the chords into notes here
+            List<Note> sortedNotes = new ArrayList<Note>();
+            for (Playable playable : this.notesFalselyShot.keySet()) {
+                if (playable instanceof Note) {
+                    // add to the list
+                    Note note = (Note)playable;
+                    if (false == sortedNotes.contains(note)) {
+                        sortedNotes.add(note);
+                    }
+                }
+                else if (playable instanceof Chord) {
+                    // add al the notes to the list
+                    for (Note note : ((Chord)playable).toNoteArray()) {
+                        if (false == sortedNotes.contains(note)) {
+                            sortedNotes.add(note);
+                        }
+                    }
+                }
+            }
+            // sort the set to note order (uses frequency)
+            Collections.sort(sortedNotes);
+            // and return as a nice safe array
+            return sortedNotes.toArray(new Note[sortedNotes.size()]);
         }
     }
 
-    public Integer getNoteFalselyShotFrequency(Playable note) {
+    public Integer getNoteFalselyShotFrequency(Note note) {
         synchronized (this.notesFalselyShot) {
-            Integer value = this.notesFalselyShot.get(note);
-            return value == null ? 0 : value.intValue();
+            // get all the frequency of the missed notes,
+            // need to break down the chords into notes here
+            int total = 0;
+            for (Map.Entry<Playable,Integer> entry : this.notesFalselyShot.entrySet()) {
+                Playable playable = entry.getKey();
+                Integer value = entry.getValue();
+                if (null != value) {
+                    if (playable instanceof Note) {
+                        // this is a note, add to the total
+                        total += value.intValue();
+                    } else if (playable instanceof Chord) {
+                        // is the note in the chord
+                        if (((Chord) playable).contains(note)) {
+                            // the chord contains this note, add the value
+                            total += value.intValue();
+                        }
+                    }
+                }
+            }
+            // return the total we calculated
+            return total;
         }
     }
 }
