@@ -435,10 +435,11 @@ public class PlayActivity extends HidingFullscreenActivity implements
         int tempo = ActiveScore.K_AVAILABLE_TEMPOS[this.tempoSpinner.getSelectedItemPosition()];
         // set this data on the score
         score.setIsHelpOn(isHelp);
-        tempo = score.setBpm(tempo);
-        // this changes our score so update the views
-        this.scoreView.invalidate();
-        this.musicView.invalidate();
+        if (score.setBpm(tempo)) {
+            // this changes our score so update the views
+            this.scoreView.invalidate();
+            this.musicView.invalidate();
+        }
     }
 
     private void resumePlaying() {
@@ -724,13 +725,14 @@ public class PlayActivity extends HidingFullscreenActivity implements
         if (++currentSelection <= ActiveScore.K_AVAILABLE_TEMPOS.length - 1) {
             int requiredBpm = ActiveScore.K_AVAILABLE_TEMPOS[currentSelection];
             // set this on the active score to immediately accept this new pace of notes
-            State.getInstance().getCurrentActiveScore().setBpm(requiredBpm);
-            // animate this information
-            this.tempoIncreaseIcon.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade));
-            // and update our controls to reflect this
-            updateControlsFromState();
-            // this changes the speed, reset the time the danger zone is clean of notes
-            this.musicView.resetNoteFreeDangerZoneTime();
+            if (State.getInstance().getCurrentActiveScore().setBpm(requiredBpm)) {
+                // animate this information
+                this.tempoIncreaseIcon.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade));
+                // and update our controls to reflect this
+                updateControlsFromState();
+                // this changes the speed, reset the time the danger zone is clean of notes
+                this.musicView.resetNoteFreeDangerZoneTime();
+            }
         }
         else if (isAllowWin) {
             // we just completed the last of the tempo notes, this is won!
@@ -743,15 +745,16 @@ public class PlayActivity extends HidingFullscreenActivity implements
         if (--currentSelection >= 0) {
             int requiredBpm = ActiveScore.K_AVAILABLE_TEMPOS[currentSelection];
             // set this on the active score to immediately accept this new pace of notes
-            State.getInstance().getCurrentActiveScore().setBpm(requiredBpm);
-            // animate this information
-            this.tempoDecreaseIcon.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade));
-            // and update our controls to reflect this
-            updateControlsFromState();
-            // this changes the speed, reset the time the danger zone is clean of notes
-            this.musicView.resetNoteFreeDangerZoneTime();
-            // clear the notes, too fast for the beginner
-            this.noteProvider.clearNotes();
+            if (State.getInstance().getCurrentActiveScore().setBpm(requiredBpm)) {
+                // animate this information
+                this.tempoDecreaseIcon.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade));
+                // and update our controls to reflect this
+                updateControlsFromState();
+                // this changes the speed, reset the time the danger zone is clean of notes
+                this.musicView.resetNoteFreeDangerZoneTime();
+                // clear the notes, too fast for the beginner
+                this.noteProvider.clearNotes();
+            }
         }
     }
 

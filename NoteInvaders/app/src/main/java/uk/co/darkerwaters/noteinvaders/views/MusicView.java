@@ -537,6 +537,10 @@ public class MusicView extends View {
         return this.lineHeight * K_LINESINCLEF * 0.5f;
     }
 
+    public float getNoteRadius() {
+        return this.noteRadius;
+    }
+
     protected Rect getCanvasPadding() {
         // adding a little to the top to draw the top note and bottom notes
         return new Rect(getPaddingLeft(), getPaddingTop() + 24, getPaddingRight(), getPaddingBottom() + 8);
@@ -795,7 +799,7 @@ public class MusicView extends View {
                             }
                             // draw the note in
                             drawNoteOnClef(canvas, xPosition, yPosition, noteName, leftNotation);
-                            if (xPosition < dangerZoneX) {
+                            if (xPosition < dangerZoneX && this.noteProvider.isStarted()) {
                                 // this note is in danger of being missed, reset the timer
                                 ++this.notesInDangerZone;
                             }

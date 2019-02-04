@@ -25,7 +25,7 @@ public class ActiveScore {
 
     public static final int K_MAX_TEMPO_WITH_HELP = 100;
     public static final int K_TEMPO_TO_TURN_HELP_ON = 60;
-    public static final int K_NONOTESINDANGERZONEISDEATH = 3;   // the number of notes in the danger zone that means that we are close to death
+    public static final int K_NONOTESINDANGERZONEISDEATH = 1;   // the number of notes in the danger zone that means that we are close to death
 
     private int hits;
     private int misses;
@@ -92,7 +92,8 @@ public class ActiveScore {
         this.isHelpOn = isHelpOn;
     }
 
-    public int setBpm(int newBpm) {
+    public boolean setBpm(int newBpm) {
+        boolean isChanged = false;
         if (isStartingTempo) {
             // this is the starting tempo, just accept this
             if (this.topBpm > 0 && newBpm > this.topBpm) {
@@ -104,32 +105,26 @@ public class ActiveScore {
                 setIsHelpOn(true);
             }
             // and set the new BPM
-            if (this.topBpm >= K_MAX_TEMPO_WITH_HELP && this.isHelpOn) {
-                // turn off help instead, maybe decrease speed a little...
-                setIsHelpOn(false);
-            }
-            else {
-                // help is off, increase the speed
-                this.topBpm = newBpm;
-            }
+            this.topBpm = newBpm;
+            isChanged = true;
         }
         else if (newBpm > this.topBpm) {
             // this is an increase, accept this
             if (this.topBpm >= K_MAX_TEMPO_WITH_HELP && this.isHelpOn) {
-                // turn off help instead, maybe decrease speed a little...
+                // turn off help for this instead of increasing the tempo
                 setIsHelpOn(false);
             }
             else {
-                // help is off, increase the speed
+                // adjust the tempo instead
                 this.topBpm = newBpm;
             }
+            isChanged = true;
         }
         else if (newBpm <= K_TEMPO_TO_TURN_HELP_ON) {
             // this is very low, help them out some
             setIsHelpOn(true);
         }
-        // return the top BPM we are now set to
-        return this.topBpm;
+        return isChanged;
     }
 
     public int getTopBpm() {
