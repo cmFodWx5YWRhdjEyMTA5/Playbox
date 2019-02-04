@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import uk.co.darkerwaters.noteinvaders.NoteInvaders;
+
 public class ActiveScore {
 
     public static final int K_PERMITTED_MISS_COUNT = 10;
@@ -146,7 +148,7 @@ public class ActiveScore {
 
     public void recordBpmCompleted(Activity context) {
         this.topBpmCompleted = Math.max(this.topBpm, this.topBpmCompleted);
-        State.getInstance().storeScore(context, this);
+        NoteInvaders.getAppContext().storeScore(this);
     }
 
     public int getMisses() {

@@ -21,7 +21,7 @@ import java.util.List;
 
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.Playable;
-import uk.co.darkerwaters.noteinvaders.state.State;
+
 import uk.co.darkerwaters.noteinvaders.state.input.InputConnectionInterface;
 import uk.co.darkerwaters.noteinvaders.state.input.InputMidi;
 import uk.co.darkerwaters.noteinvaders.views.PianoView;
@@ -223,14 +223,14 @@ public class BtSetupActivity extends AppCompatActivity implements
     @Override
     public void onBtListItemClicked(BluetoothDevice item) {
         // have clicked an item in the list, select this one then
-        State.getInstance().setMidiDeviceId(this, InputMidi.GetMidiDeviceId(item));
+        NoteInvaders.getAppContext().setMidiDeviceId(InputMidi.GetMidiDeviceId(item));
         // also connect to this device on our input
         this.inputMidi.connectToDevice(item);
         // also update the list view, the state of the item connected will have changed
         this.listView.getAdapter().notifyDataSetChanged();
         showDeviceLabel();
         // this is some indication that the user wants to use BT for their input
-        State.getInstance().setSelectedInput(this, State.InputType.bt);
+        NoteInvaders.getAppContext().setSelectedInput(NoteInvaders.InputType.bt);
     }
 
     @Override

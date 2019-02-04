@@ -21,7 +21,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.co.darkerwaters.noteinvaders.state.State;
+
 
 public class AttributionsActivity extends AppCompatActivity {
 
@@ -47,7 +47,7 @@ public class AttributionsActivity extends AppCompatActivity {
             }
         }
         catch (IOException e) {
-            Log.e(State.K_APPTAG, "failed to find attribution files: " + e.getMessage());
+            Log.e(NoteInvaders.K_APPTAG, "failed to find attribution files: " + e.getMessage());
         }
 
         vpArticle.setAdapter(myAdapter);
@@ -72,7 +72,7 @@ public class AttributionsActivity extends AppCompatActivity {
             }
         }
         catch (Exception e) {
-            Log.e(State.K_APPTAG, "error reading file: " + e.getMessage());
+            Log.e(NoteInvaders.K_APPTAG, "error reading file: " + e.getMessage());
         }
         return fileContent.toString();
     }

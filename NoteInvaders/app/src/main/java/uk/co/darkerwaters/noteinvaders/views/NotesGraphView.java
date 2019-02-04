@@ -12,11 +12,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 
+import uk.co.darkerwaters.noteinvaders.NoteInvaders;
 import uk.co.darkerwaters.noteinvaders.R;
 import uk.co.darkerwaters.noteinvaders.state.ActiveScore;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.Playable;
-import uk.co.darkerwaters.noteinvaders.state.State;
+
 
 public class NotesGraphView extends View {
 
@@ -70,7 +71,7 @@ public class NotesGraphView extends View {
         // Draw a solid color on the canvas as background
         canvas.drawColor(Color.WHITE);
 
-        ActiveScore activeScore = State.getInstance().getCurrentActiveScore();
+        ActiveScore activeScore = NoteInvaders.getAppContext().getCurrentActiveScore();
         ArrayList<Note> notesMissed = new ArrayList<Note>();
         // add all the notes missed
         for (Note toAdd : activeScore.getNotesMissed()) {

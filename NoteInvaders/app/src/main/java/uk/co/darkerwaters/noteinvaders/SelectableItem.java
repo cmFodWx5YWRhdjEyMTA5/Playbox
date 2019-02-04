@@ -11,7 +11,7 @@ import java.io.InputStream;
 
 public abstract class SelectableItem {
 
-    public SelectableItem(Activity context) {
+    public SelectableItem(Context context) {
     }
 
 

@@ -27,9 +27,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import uk.co.darkerwaters.noteinvaders.NoteInvaders;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.Notes;
-import uk.co.darkerwaters.noteinvaders.state.State;
+
 
 /*
 Android MIDI Reference https://developer.android.com/reference/android/media/midi/package-summary
@@ -169,7 +170,7 @@ public class InputMidi extends InputConnection {
         }
 
         // map the notes to their MIDI index (middle C being 60)
-        Notes notes = Notes.instance();
+        Notes notes = NoteInvaders.getNotes();
         // notes in MIDI are indexed from 0 to 127, create a nice lookup array for this purpose.
         this.midiNotes = new Note[128];
         // find middle C
@@ -212,7 +213,7 @@ public class InputMidi extends InputConnection {
                         // just removed the USB device that we are using, stop using it
                         closeOpenMidiConnection();
                         // set the state to be keyboard now we disconnected
-                        State.getInstance().setSelectedInput(context, State.InputType.keyboard);
+                        NoteInvaders.getAppContext().setSelectedInput(NoteInvaders.InputType.keyboard);
                         // try to reconnect
                         switch (lastConnectionType) {
                             case K_BT:
@@ -445,7 +446,7 @@ public class InputMidi extends InputConnection {
                     if (deviceId != null && deviceId.isEmpty() == false && info.getOutputPortCount() > 0) {
                         // this is valid
                         usbDevices.add(info);
-                        if (null == this.defaultUsbDevice || deviceId.equals(State.getInstance().getMidiDeviceId())) {
+                        if (null == this.defaultUsbDevice || deviceId.equals(NoteInvaders.getAppContext().getMidiDeviceId())) {
                             // this is the correct default USB device to use
                             this.defaultUsbDevice = info;
                         }
@@ -656,7 +657,7 @@ public class InputMidi extends InputConnection {
                 }
                 if (this.runningNote == null) {
                     // we don't have this note, but something was played, get the closest
-                    Notes notes = Notes.instance();
+                    Notes notes = NoteInvaders.getNotes();
                     if (value < this.midiNotes.length * 0.5f) {
                         // the note is too low for us, use the least note we have available
                         this.runningNote = notes.getNote(0);

@@ -14,11 +14,12 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 
 import uk.co.darkerwaters.noteinvaders.MicrophoneSetupActivity;
+import uk.co.darkerwaters.noteinvaders.NoteInvaders;
 import uk.co.darkerwaters.noteinvaders.R;
 import uk.co.darkerwaters.noteinvaders.SelectableItem;
 import uk.co.darkerwaters.noteinvaders.SelectableItemActivity;
 import uk.co.darkerwaters.noteinvaders.SelectableItemAdapter;
-import uk.co.darkerwaters.noteinvaders.state.State;
+
 
 public class Profile extends SelectableItem {
 
@@ -57,8 +58,8 @@ public class Profile extends SelectableItem {
 
         // in here, called each time the activity is shown now, we can set the data on the profile card according
         // to our latest data from the state class
-        holder.title.setText(State.getInstance().getInstrument().getTitle(context));
-        Glide.with(context).load(State.getInstance().getInstrument().getThumbnail()).into(holder.thumbnail);
+        holder.title.setText(NoteInvaders.getAppContext().getInstrument().getTitle(context));
+        Glide.with(context).load(NoteInvaders.getAppContext().getInstrument().getThumbnail()).into(holder.thumbnail);
 
         // let's show the buttons as we want to
         this.btnMicrophone = (FloatingActionButton) holder.itemView.findViewById(R.id.button_card1);
@@ -67,7 +68,7 @@ public class Profile extends SelectableItem {
 
         // setup the microphone button
         this.btnMicrophone.setImageResource(R.drawable.ic_baseline_mic_24px);
-        if (false == State.getInstance().isInputAvailable(State.InputType.microphone)) {
+        if (false == NoteInvaders.getAppContext().isInputAvailable(NoteInvaders.InputType.microphone)) {
             this.btnMicrophone.setVisibility(View.INVISIBLE);
         }
         else {
@@ -85,7 +86,7 @@ public class Profile extends SelectableItem {
 
         // setup the USB MIDI button
         this.btnUsbMidi.setImageResource(R.drawable.ic_baseline_usb_24px);
-        if (false == State.getInstance().isInputAvailable(State.InputType.usb)) {
+        if (false == NoteInvaders.getAppContext().isInputAvailable(NoteInvaders.InputType.usb)) {
             this.btnUsbMidi.setVisibility(View.INVISIBLE);
         }
         else {
@@ -93,7 +94,7 @@ public class Profile extends SelectableItem {
         }
         // set background colour to show it isn't USB connected
         this.btnUsbMidi.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context,R.color.colorPrimaryDark)));
-        if (false == State.getInstance().isInputAvailable(State.InputType.usb)) {
+        if (false == NoteInvaders.getAppContext().isInputAvailable(NoteInvaders.InputType.usb)) {
             this.btnUsbMidi.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
         }
         this.btnUsbMidi.setOnClickListener(new View.OnClickListener() {
@@ -106,7 +107,7 @@ public class Profile extends SelectableItem {
 
         // setup the BT MIDI button
         this.btnBtMidi.setImageResource(R.drawable.ic_baseline_bluetooth_24px);
-        if (false == State.getInstance().isInputAvailable(State.InputType.bt)) {
+        if (false == NoteInvaders.getAppContext().isInputAvailable(NoteInvaders.InputType.bt)) {
             this.btnBtMidi.setVisibility(View.INVISIBLE);
         }
         else {
@@ -114,7 +115,7 @@ public class Profile extends SelectableItem {
         }
         // set background colour to show it isn't BT connected
         this.btnBtMidi.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(context,R.color.colorPrimaryDark)));
-        if (false == State.getInstance().isInputAvailable(State.InputType.bt)) {
+        if (false == NoteInvaders.getAppContext().isInputAvailable(NoteInvaders.InputType.bt)) {
             this.btnBtMidi.setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
         }
         this.btnBtMidi.setOnClickListener(new View.OnClickListener() {

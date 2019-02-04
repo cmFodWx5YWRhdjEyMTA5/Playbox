@@ -18,7 +18,7 @@ import org.w3c.dom.Text;
 import uk.co.darkerwaters.noteinvaders.state.ActiveScore;
 import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
-import uk.co.darkerwaters.noteinvaders.state.State;
+
 import uk.co.darkerwaters.noteinvaders.state.input.InputConnectionInterface;
 import uk.co.darkerwaters.noteinvaders.state.input.InputMicrophone;
 import uk.co.darkerwaters.noteinvaders.views.PianoView;
@@ -45,7 +45,7 @@ public class ScoreCardActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scorecard);
 
-        ActiveScore score = State.getInstance().getCurrentActiveScore();
+        ActiveScore score = NoteInvaders.getAppContext().getCurrentActiveScore();
 
         this.scoreView = (ScoreActiveView) findViewById(R.id.score_view);
         this.scoreView.setScore(score);
@@ -77,13 +77,13 @@ public class ScoreCardActivity extends AppCompatActivity  {
         this.topBpmNumber.setText(Integer.toString(score.getTopBpmCompleted()));
         this.helpOn.setText(score.isHelpOn() ? R.string.on : R.string.off);
 
-        if (null != State.getInstance().getNextGame()) {
+        if (null != NoteInvaders.getAppContext().getNextGame()) {
             this.nextButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Game nextGame = State.getInstance().getNextGame();
+                    Game nextGame = NoteInvaders.getAppContext().getNextGame();
                     if (null != nextGame && nextGame.isPlayable()) {
-                        State.getInstance().selectGame(nextGame);
+                        NoteInvaders.getAppContext().selectGame(nextGame);
                         ScoreCardActivity.this.onBackPressed();
                     }
                 }

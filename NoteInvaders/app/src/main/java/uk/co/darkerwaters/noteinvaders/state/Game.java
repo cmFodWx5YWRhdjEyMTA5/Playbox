@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.co.darkerwaters.noteinvaders.NoteInvaders;
 import uk.co.darkerwaters.noteinvaders.games.GamePlayer;
 
 public class Game {
@@ -49,7 +50,7 @@ public class Game {
         this.image = fileSource.getString("image");
         this.gameClass = getJsonStringOptional(fileSource, "class");
 
-        Notes notes = Notes.instance();
+        Notes notes = NoteInvaders.getNotes();
         // notes for the treble clef
         JSONArray jsonData = getJsonArrayOptional(fileSource,"treble_clef");
         this.treble_clef = new Playable[jsonData == null ? 0 : jsonData.length()];
@@ -151,7 +152,7 @@ public class Game {
 
     private Playable createPlayable(String noteName) {
         String[] noteNames = noteName.split(",");
-        Notes notes = Notes.instance();
+        Notes notes = NoteInvaders.getNotes();
         Chord createdChord;
         if (noteNames == null || noteNames.length == 0) {
             // just use the name
@@ -226,15 +227,15 @@ public class Game {
                         games.add(new Game(null, new JSONObject(new String(buffer, "UTF-8"))));
                         // done (O;
                     } catch (IOException ex) {
-                        Log.e(State.K_APPTAG, "failed to load the game file: " + ex.getMessage());
+                        Log.e(NoteInvaders.K_APPTAG, "failed to load the game file: " + ex.getMessage());
                     } catch (JSONException e) {
-                        Log.e(State.K_APPTAG, "failed to read the game file: " + e.getMessage());
+                        Log.e(NoteInvaders.K_APPTAG, "failed to read the game file: " + e.getMessage());
                     }
                 }
             }
         }
         catch (IOException e) {
-            Log.e(State.K_APPTAG, "failed to find the game files: " + e.getMessage());
+            Log.e(NoteInvaders.K_APPTAG, "failed to find the game files: " + e.getMessage());
         }
         // return the games we managed to load
         return games;
@@ -339,7 +340,7 @@ public class Game {
                 return (GamePlayer) classCreated;
             }
             else {
-                Log.e(State.K_APPTAG, "Loaded class of " + className + " is not a GamePlayer");
+                Log.e(NoteInvaders.K_APPTAG, "Loaded class of " + className + " is not a GamePlayer");
             }
         }
         return null;

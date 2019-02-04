@@ -12,7 +12,7 @@ import java.util.List;
 
 import uk.co.darkerwaters.noteinvaders.selectables.GameCard;
 import uk.co.darkerwaters.noteinvaders.state.Game;
-import uk.co.darkerwaters.noteinvaders.state.State;
+
 
 public class GameActivity extends SelectableItemActivity {
 
@@ -25,7 +25,7 @@ public class GameActivity extends SelectableItemActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // load in the game that this card is showing the data for
-        this.game = State.getInstance().getGameSelectedLast();
+        this.game = NoteInvaders.getAppContext().getGameSelectedLast();
         // and create this activity
         super.onCreate(savedInstanceState);
         // set the title for this
@@ -55,7 +55,7 @@ public class GameActivity extends SelectableItemActivity {
     protected void onDestroy() {
         super.onDestroy();
         // this is killed, remove our selection from the state
-        State.getInstance().deselectGame(this.game);
+        NoteInvaders.getAppContext().deselectGame(this.game);
     }
 
     @Override
@@ -92,7 +92,7 @@ public class GameActivity extends SelectableItemActivity {
             // get the game this card represents
             Game selectedGame = ((GameCard)item).getGame();
             // set this on our state
-            State.getInstance().selectGame(selectedGame);
+            NoteInvaders.getAppContext().selectGame(selectedGame);
             // show the card for this game
             Intent myIntent;
             if (selectedGame.isPlayable()) {

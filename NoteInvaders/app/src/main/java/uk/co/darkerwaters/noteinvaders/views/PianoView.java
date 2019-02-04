@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import uk.co.darkerwaters.noteinvaders.NoteInvaders;
 import uk.co.darkerwaters.noteinvaders.R;
 import uk.co.darkerwaters.noteinvaders.state.Chord;
 import uk.co.darkerwaters.noteinvaders.state.Note;
@@ -122,11 +123,11 @@ public class PianoView extends View {
         this.listeners = new ArrayList<IPianoViewListener>();
 
         // and initialise the notes we are going to show on the piano, do the whole range...
-        if (null == Notes.instance()) {
+        if (null == NoteInvaders.getNotes()) {
             Notes.CreateNotes(context);
         }
         // ok, let's find out the number of white keys we want to display
-        Notes notes = Notes.instance();
+        Notes notes = NoteInvaders.getNotes();
         this.noteDepressionCount = new HashMap<Note, Integer>(notes.getNoteCount());
         for (int i = 0; i < notes.getNoteCount(); ++i) {
             Note note = notes.getNote(i);
@@ -230,7 +231,7 @@ public class PianoView extends View {
 
     public void setNoteRange(float minPitchDetected, float maxPitchDetected, Boolean isShowPrimatives) {
         // set the notes that are to be shown on this piano
-        Notes notes = Notes.instance();
+        Notes notes = NoteInvaders.getNotes();
         if (null == this.noteRange) {
             this.noteRange = new NoteRange((Note)null, (Note)null);
         }
@@ -262,7 +263,7 @@ public class PianoView extends View {
             this.isShowPrimatives = isShowPrimatives;
         }
         // set the members to remember this range to display
-        Notes notes = Notes.instance();
+        Notes notes = NoteInvaders.getNotes();
         if (null != newRange && null != newRange.getStart() && null != newRange.getEnd()) {
             this.noteRange = newRange;
 
@@ -362,7 +363,7 @@ public class PianoView extends View {
             float sharpWidth = keyWidth * 0.4f;
 
 
-            Notes notes = Notes.instance();
+            Notes notes = NoteInvaders.getNotes();
             boolean isCreateKey = false;
             if (this.isPlayable && null == this.playableKeys) {
                 // there are no keys - create them

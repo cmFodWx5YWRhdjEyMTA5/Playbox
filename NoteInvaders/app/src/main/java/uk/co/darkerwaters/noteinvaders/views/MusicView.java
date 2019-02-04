@@ -16,13 +16,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import uk.co.darkerwaters.noteinvaders.NoteInvaders;
 import uk.co.darkerwaters.noteinvaders.R;
 import uk.co.darkerwaters.noteinvaders.state.ActiveScore;
 import uk.co.darkerwaters.noteinvaders.state.Chord;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.Notes;
 import uk.co.darkerwaters.noteinvaders.state.Playable;
-import uk.co.darkerwaters.noteinvaders.state.State;
+
 
 public class MusicView extends View {
 
@@ -201,7 +202,7 @@ public class MusicView extends View {
         this.bassDrawable = VectorDrawableCompat.create(getContext().getResources(), R.drawable.ic_bass, null);
 
         // and initialise the notes we are going to show on the piano, do the whole range...
-        if (null == Notes.instance()) {
+        if (null == NoteInvaders.getNotes()) {
             Notes.CreateNotes(context);
         }
 
@@ -242,7 +243,7 @@ public class MusicView extends View {
     private void initialiseNoteRange(Chord[] noteArray, String topNoteName, String bottomNoteName) {
         // create an array of notes (each note is a chord that comprises all the notes at that position
         int noteIndex = -1;
-        Notes notes = Notes.instance();
+        Notes notes = NoteInvaders.getNotes();
         for (int i = notes.getNoteCount() - 1; i >= 0; --i) {
             Note note = notes.getNote(i);
             if (noteIndex < 0) {
@@ -262,7 +263,7 @@ public class MusicView extends View {
                 // have exceeded the notes we need, quit this loop
                 if (false == noteArray[noteArray.length - 1].getName().equals(bottomNoteName)) {
                     // not the correct range!
-                    Log.e(State.K_APPTAG, "Note range is incorrect, " + noteArray[noteArray.length - 1].getName() + " should be " + bottomNoteName);
+                    Log.e(NoteInvaders.K_APPTAG, "Note range is incorrect, " + noteArray[noteArray.length - 1].getName() + " should be " + bottomNoteName);
                 }
                 break;
             }
@@ -466,7 +467,7 @@ public class MusicView extends View {
             // for each note, test each target
             for (Note targetTest : target.toNoteArray()) {
                 // test to see if this is hit
-                if (State.getInstance().getSelectedInput() == State.InputType.letters) {
+                if (NoteInvaders.getAppContext().getSelectedInput() == NoteInvaders.InputType.letters) {
                     // this is a bit special because we just want to check the letter is correct, not
                     // the position on the keyboard
                     if (noteTest.getPrimative() == targetTest.getPrimative()) {
@@ -523,7 +524,7 @@ public class MusicView extends View {
             }
         }
         if (position == -1) {
-            Log.e(State.K_APPTAG, "Asking for a note that isn't in the list...");
+            Log.e(NoteInvaders.K_APPTAG, "Asking for a note that isn't in the list...");
         }
         return position;
     }
@@ -719,7 +720,7 @@ public class MusicView extends View {
                         }
                     }
                     else {
-                        Log.e(State.K_APPTAG, "Error, failed to remove the note: " + note.playable.getName());
+                        Log.e(NoteInvaders.K_APPTAG, "Error, failed to remove the note: " + note.playable.getName());
                     }
 
                 }
@@ -857,11 +858,11 @@ public class MusicView extends View {
                         } else {
                             // an invisible note?
                             if (isFromTrebleList) {
-                                Log.e(State.K_APPTAG, "Added a note that cannot be drawn on treble: " + note.playable.getName());
+                                Log.e(NoteInvaders.K_APPTAG, "Added a note that cannot be drawn on treble: " + note.playable.getName());
                                 // fix for the player by removing it
                                 this.noteProvider.removeNoteTreble(note);
                             } else {
-                                Log.e(State.K_APPTAG, "Added a note that cannot be drawn on bass: " + note.playable.getName());
+                                Log.e(NoteInvaders.K_APPTAG, "Added a note that cannot be drawn on bass: " + note.playable.getName());
                                 // fix for the player by removing it
                                 this.noteProvider.removeNoteBass(note);
                             }

@@ -33,7 +33,6 @@ import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.NoteRange;
 import uk.co.darkerwaters.noteinvaders.state.Notes;
 import uk.co.darkerwaters.noteinvaders.state.Playable;
-import uk.co.darkerwaters.noteinvaders.state.State;
 import uk.co.darkerwaters.noteinvaders.state.input.InputConnectionInterface;
 import uk.co.darkerwaters.noteinvaders.state.input.InputMicrophone;
 import uk.co.darkerwaters.noteinvaders.state.input.InputMidi;
@@ -92,7 +91,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
         super.onCreate(savedInstanceState);
 
         // this is a new game
-        State.getInstance().getCurrentActiveScore().reset();
+        NoteInvaders.getAppContext().getCurrentActiveScore().reset();
 
         this.noteProvider = new MusicViewNoteProviderTempo();
 
@@ -133,7 +132,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
         this.pianoView.addListener(this);
 
         // get the notes we want to play from on this level
-        this.level = State.getInstance().getGameSelectedLast();
+        this.level = NoteInvaders.getAppContext().getGameSelectedLast();
         this.levelPlayer = this.level.getGamePlayer();
 
         // listen for pause button clicks
@@ -141,7 +140,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
             @Override
             public void onClick(View v) {
                 // start playing
-                if (State.getInstance().getCurrentActiveScore().isGameOver()) {
+                if (NoteInvaders.getAppContext().getCurrentActiveScore().isGameOver()) {
                     // reset the old game
                     resetGame();
                     // update all our controls
@@ -172,9 +171,9 @@ public class PlayActivity extends HidingFullscreenActivity implements
         this.gameOverDisplay.startAnimation(AnimationUtils.loadAnimation(this, R.anim.dissapear));
 
         // create the fabs for this view
-        this.fabsHandler = new PlayFabsHandler(this, new State.InputChangeListener() {
+        this.fabsHandler = new PlayFabsHandler(this, new NoteInvaders.InputChangeListener() {
             @Override
-            public void onInputTypeChanged(State.InputType type) {
+            public void onInputTypeChanged(NoteInvaders.InputType type) {
                 PlayActivity.this.onInputTypeChanged(type);
             }
         });
@@ -191,7 +190,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
             @Override
             public void onClick(View view) {
                 // toggle the sound
-                State.getInstance().setIsSoundOn(PlayActivity.this, !State.getInstance().isSoundOn());
+                NoteInvaders.getAppContext().setIsSoundOn(!NoteInvaders.getAppContext().isSoundOn());
                 setSoundIcon();
             }
         });
@@ -199,7 +198,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
         setupMusicView();
 
         // setup the display of this active score
-        this.scoreView.setScore(State.getInstance().getCurrentActiveScore());
+        this.scoreView.setScore(NoteInvaders.getAppContext().getCurrentActiveScore());
         this.scoreView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -228,7 +227,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
 
     private void updateControlsFromState() {
         // get the score and set our controls accordingly
-        ActiveScore score = State.getInstance().getCurrentActiveScore();
+        ActiveScore score = NoteInvaders.getAppContext().getCurrentActiveScore();
         // set the help switch in the proper state
         showNoteNamesSwitch.setChecked(score.isHelpOn());
         setBeats(score.getTopBpm());
@@ -255,7 +254,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
 
     private void setSoundIcon() {
         int iconId;
-        if (State.getInstance().isSoundOn()) {
+        if (NoteInvaders.getAppContext().isSoundOn()) {
             iconId = R.drawable.ic_baseline_volume_up_24px;
         }
         else {
@@ -339,7 +338,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
     @Override
     public void midiBtDeviceDiscovered(final BluetoothDevice device) {
         // discovered a BT device
-        if (State.getInstance().getSelectedInput() == State.InputType.bt) {
+        if (NoteInvaders.getAppContext().getSelectedInput() == NoteInvaders.InputType.bt) {
             // if we are not connected then connect to this
             String activeBtConnection = this.inputMidi.getActiveBtConnection();
             if (null == activeBtConnection || activeBtConnection.isEmpty()) {
@@ -374,20 +373,20 @@ public class PlayActivity extends HidingFullscreenActivity implements
             this.micPermissionsHandler = null;
         }
         // this is killed, remove our selection from the state
-        State.getInstance().deselectGame(this.level);
+        NoteInvaders.getAppContext().deselectGame(this.level);
     }
 
     @Override
     protected void toggle() {
         super.toggle();
-        if (false == noteProvider.isPaused() || State.getInstance().getCurrentActiveScore().isGameOver()) {
+        if (false == noteProvider.isPaused() || NoteInvaders.getAppContext().getCurrentActiveScore().isGameOver()) {
             // we are running or the game is over, pause the provider
             noteProvider.setPaused(true);
             updateControlsFromState();
         }
         else {
             // we want to start the game, ensure everything is set on the state before we start
-            ActiveScore score = State.getInstance().getCurrentActiveScore();
+            ActiveScore score = NoteInvaders.getAppContext().getCurrentActiveScore();
             boolean isHelp = this.showNoteNamesSwitch.isChecked();
             int tempo = ActiveScore.K_AVAILABLE_TEMPOS[this.tempoSpinner.getSelectedItemPosition()];
 
@@ -424,13 +423,13 @@ public class PlayActivity extends HidingFullscreenActivity implements
 
     private void resetGame() {
         // reset everything as this is a new game
-        State.getInstance().getCurrentActiveScore().reset();
+        NoteInvaders.getAppContext().getCurrentActiveScore().reset();
         // clear the notes on the view
         this.noteProvider.clearNotes();
     }
 
     private void updateScoreFromControls() {
-        ActiveScore score = State.getInstance().getCurrentActiveScore();
+        ActiveScore score = NoteInvaders.getAppContext().getCurrentActiveScore();
         boolean isHelp = this.showNoteNamesSwitch.isChecked();
         int tempo = ActiveScore.K_AVAILABLE_TEMPOS[this.tempoSpinner.getSelectedItemPosition()];
         // set this data on the score
@@ -444,7 +443,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
 
     private void resumePlaying() {
         // resume playing the game, restart the provider and update the controls
-        if (false == State.getInstance().getCurrentActiveScore().isGameOver()) {
+        if (false == NoteInvaders.getAppContext().getCurrentActiveScore().isGameOver()) {
             // game isn't over - start it up again
             gameOverDisplay.startAnimation(AnimationUtils.loadAnimation(PlayActivity.this, R.anim.dissapear));
             // and start running again
@@ -453,7 +452,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
             hide();
         }
         // this is us starting a game again, record this on the state
-        State.getInstance().startGame(this);
+        NoteInvaders.getAppContext().startGame();
         // update the controls to show this
         updateControlsFromState();
         // this resets the time the danger zone was clean
@@ -468,7 +467,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
         }
     }
 
-    private void onInputTypeChanged(State.InputType type) {
+    private void onInputTypeChanged(NoteInvaders.InputType type) {
         // change our display to represent the new input type
         switch(type) {
             case keyboard:
@@ -531,7 +530,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
     }
 
     private void setupPianoView() {
-        switch (State.getInstance().getSelectedInput()) {
+        switch (NoteInvaders.getAppContext().getSelectedInput()) {
             case keyboard:
                 // setup the piano to allow keyboard entry
                 setupKeyboardEntry();
@@ -574,11 +573,11 @@ public class PlayActivity extends HidingFullscreenActivity implements
 
     private void updateFabsStatus() {
         // update the FAB control colours
-        this.fabsHandler.setInputAvailability(State.InputType.keyboard, true);
-        this.fabsHandler.setInputAvailability(State.InputType.letters, true);
-        this.fabsHandler.setInputAvailability(State.InputType.microphone, true);
-        this.fabsHandler.setInputAvailability(State.InputType.usb, this.inputMidi.getNoUsbDevices() > 0);
-        this.fabsHandler.setInputAvailability(State.InputType.bt, this.inputMidi.getNoBtDevices() > 0);
+        this.fabsHandler.setInputAvailability(NoteInvaders.InputType.keyboard, true);
+        this.fabsHandler.setInputAvailability(NoteInvaders.InputType.letters, true);
+        this.fabsHandler.setInputAvailability(NoteInvaders.InputType.microphone, true);
+        this.fabsHandler.setInputAvailability(NoteInvaders.InputType.usb, this.inputMidi.getNoUsbDevices() > 0);
+        this.fabsHandler.setInputAvailability(NoteInvaders.InputType.bt, this.inputMidi.getNoBtDevices() > 0);
 
         String activeBt = this.inputMidi.getActiveBtConnection();
         if (this.inputMidi.isConnectionActive() && null != activeBt && false == activeBt.isEmpty()) {
@@ -602,7 +601,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
 
     private void setupLettersEntry() {
         // just show a nice selection of notes, just C4 to B4 to limit to one scale
-        Notes notes = Notes.instance();
+        Notes notes = NoteInvaders.getNotes();
         NoteRange basicRange = new NoteRange(notes.getNote("C4"), notes.getNote("B4"));
         // setup the piano view to show just a limited range
         this.pianoView.setNoteRange(basicRange, true);
@@ -715,7 +714,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
             }
         });
         gameOverDisplay.startAnimation(animation);
-        if (State.getInstance().isSoundOn()) {
+        if (NoteInvaders.getAppContext().isSoundOn()) {
             SoundPlayer.getINSTANCE().gameOver();
         }
     }
@@ -725,7 +724,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
         if (++currentSelection <= ActiveScore.K_AVAILABLE_TEMPOS.length - 1) {
             int requiredBpm = ActiveScore.K_AVAILABLE_TEMPOS[currentSelection];
             // set this on the active score to immediately accept this new pace of notes
-            if (State.getInstance().getCurrentActiveScore().setBpm(requiredBpm)) {
+            if (NoteInvaders.getAppContext().getCurrentActiveScore().setBpm(requiredBpm)) {
                 // animate this information
                 this.tempoIncreaseIcon.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade));
                 // and update our controls to reflect this
@@ -736,7 +735,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
         }
         else if (isAllowWin) {
             // we just completed the last of the tempo notes, this is won!
-            State.getInstance().getCurrentActiveScore().gameWon();
+            NoteInvaders.getAppContext().getCurrentActiveScore().gameWon();
         }
     }
 
@@ -745,7 +744,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
         if (--currentSelection >= 0) {
             int requiredBpm = ActiveScore.K_AVAILABLE_TEMPOS[currentSelection];
             // set this on the active score to immediately accept this new pace of notes
-            if (State.getInstance().getCurrentActiveScore().setBpm(requiredBpm)) {
+            if (NoteInvaders.getAppContext().getCurrentActiveScore().setBpm(requiredBpm)) {
                 // animate this information
                 this.tempoDecreaseIcon.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade));
                 // and update our controls to reflect this
@@ -760,7 +759,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
 
     @Override
     public void onAudioPermissionChange(boolean isPermissionGranted) {
-        if (isPermissionGranted || State.getInstance().getSelectedInput() != State.InputType.microphone) {
+        if (isPermissionGranted || NoteInvaders.getAppContext().getSelectedInput() != NoteInvaders.InputType.microphone) {
             // hide the allow buttons
             this.microphonePermissionText.setVisibility(View.GONE);
             this.microphonePermissionButton.setVisibility(View.GONE);
@@ -772,7 +771,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
         else {
             // don't monitor for any audio
             stopAudioMonitoring();
-            if (State.getInstance().getSelectedInput() == State.InputType.microphone) {
+            if (NoteInvaders.getAppContext().getSelectedInput() == NoteInvaders.InputType.microphone) {
                 // we don't have permission but we want it
                 this.microphonePermissionText.setVisibility(View.VISIBLE);
                 this.microphonePermissionButton.setVisibility(View.VISIBLE);
@@ -804,7 +803,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
     protected void onResume() {
         super.onResume();
 
-        if (State.getInstance().getCurrentActiveScore().isGameOver()) {
+        if (NoteInvaders.getAppContext().getCurrentActiveScore().isGameOver()) {
             // the game is over, coming back from the scorecard, close this too...
             finish();
         }
@@ -850,11 +849,11 @@ public class PlayActivity extends HidingFullscreenActivity implements
             updateControlsFromState();
 
             // setup the initial data for that last played on this game
-            State state = State.getInstance();
-            ActiveScore score = state.getCurrentActiveScore();
+            NoteInvaders application = NoteInvaders.getAppContext();
+            ActiveScore score = application.getCurrentActiveScore();
             // set the data on the controls
-            Boolean helpState = state.getGameHelpState(state.getGameSelectedLast());
-            int topTempo = state.getGameTopTempo(state.getGameSelectedLast());
+            Boolean helpState = application.getGameHelpState(application.getGameSelectedLast());
+            int topTempo = application.getGameTopTempo(application.getGameSelectedLast());
             setBeats(topTempo);
             this.showNoteNamesSwitch.setChecked(helpState == null ? topTempo <= ActiveScore.K_TEMPO_TO_TURN_HELP_ON : helpState);
 
@@ -865,7 +864,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
             this.inputMidi.initialiseMidi(this);
 
             // and set to the correct state to start the input etc
-            onInputTypeChanged(state.getSelectedInput());
+            onInputTypeChanged(application.getSelectedInput());
         }
     }
 
@@ -910,13 +909,13 @@ public class PlayActivity extends HidingFullscreenActivity implements
                 // invalidate the changed view
                 PlayActivity.this.musicView.invalidate();
                 if (false == PlayActivity.this.noteProvider.isPaused()) {
-                    if (State.getInstance().getCurrentActiveScore().isGameOver()) {
+                    if (NoteInvaders.getAppContext().getCurrentActiveScore().isGameOver()) {
                         // this game is over!
                         gameOver();
                     }
                     else if (PlayActivity.this.musicView.getNoteFreeDangerZoneTime() >= ActiveScore.K_SECBEFORESPEEDINCREASE) {
                         // this is good, increase our tempo as they are doing so well
-                        State.getInstance().getCurrentActiveScore().recordBpmCompleted(PlayActivity.this);
+                        NoteInvaders.getAppContext().getCurrentActiveScore().recordBpmCompleted(PlayActivity.this);
                         // and up the tempo
                         increaseTempo(true);
                     }
@@ -938,9 +937,9 @@ public class PlayActivity extends HidingFullscreenActivity implements
     @Override
     public void onNotePopped(Playable note) {
         // this is a miss
-        State.getInstance().getCurrentActiveScore().incMisses(note);
+        NoteInvaders.getAppContext().getCurrentActiveScore().incMisses(note);
         showScore();
-        if (State.getInstance().isSoundOn()) {
+        if (NoteInvaders.getAppContext().isSoundOn()) {
             SoundPlayer.getINSTANCE().missed();
         }
     }
@@ -948,9 +947,9 @@ public class PlayActivity extends HidingFullscreenActivity implements
     @Override
     public void onNoteDestroyed(final Playable note) {
         // this is a hit
-        State.getInstance().getCurrentActiveScore().incHits(note);
+        NoteInvaders.getAppContext().getCurrentActiveScore().incHits(note);
         showScore();
-        if (State.getInstance().isSoundOn()) {
+        if (NoteInvaders.getAppContext().isSoundOn()) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -963,9 +962,9 @@ public class PlayActivity extends HidingFullscreenActivity implements
     @Override
     public void onNoteMisfire(Playable note) {
         // this is a false shot
-        State.getInstance().getCurrentActiveScore().incFalseShots(note);
+        NoteInvaders.getAppContext().getCurrentActiveScore().incFalseShots(note);
         showScore();
-        if (State.getInstance().isSoundOn()) {
+        if (NoteInvaders.getAppContext().isSoundOn()) {
             SoundPlayer.getINSTANCE().falseFire();
         }
     }

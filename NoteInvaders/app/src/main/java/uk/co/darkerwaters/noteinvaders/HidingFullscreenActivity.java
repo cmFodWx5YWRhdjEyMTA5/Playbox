@@ -11,7 +11,7 @@ import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
 
 import uk.co.darkerwaters.noteinvaders.state.Game;
-import uk.co.darkerwaters.noteinvaders.state.State;
+
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.

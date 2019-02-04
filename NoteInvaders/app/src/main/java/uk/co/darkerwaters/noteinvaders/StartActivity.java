@@ -23,15 +23,13 @@ import uk.co.darkerwaters.noteinvaders.selectables.LastGameCard;
 import uk.co.darkerwaters.noteinvaders.selectables.Profile;
 import uk.co.darkerwaters.noteinvaders.selectables.GameCard;
 import uk.co.darkerwaters.noteinvaders.state.Game;
-import uk.co.darkerwaters.noteinvaders.state.State;
+
 import uk.co.darkerwaters.noteinvaders.state.input.InputMidi;
 
 public class StartActivity extends SelectableItemActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // initialise our state immediately
-        State.getInstance().initialise(this);
         // and create this activity
         super.onCreate(savedInstanceState);
     }
@@ -46,20 +44,20 @@ public class StartActivity extends SelectableItemActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.settings_menu, menu);
 
-        State state = State.getInstance();
-        if (state.getAvailableInstrumentCount() <= 1) {
+        NoteInvaders application = NoteInvaders.getAppContext();
+        if (application.getAvailableInstrumentCount() <= 1) {
             // hide the option
             menu.findItem(R.id.menu_item_instrument).setVisible(false);
         }
-        if (false == state.isInputAvailable(State.InputType.microphone)) {
+        if (false == application.isInputAvailable(NoteInvaders.InputType.microphone)) {
             // hide the option
             menu.findItem(R.id.menu_item_setupmicrophone).setVisible(false);
         }
-        if (false == state.isInputAvailable(State.InputType.usb)) {
+        if (false == application.isInputAvailable(NoteInvaders.InputType.usb)) {
             // hide the option
             menu.findItem(R.id.menu_item_setupusb).setVisible(false);
         }
-        if (false == state.isInputAvailable(State.InputType.bt)) {
+        if (false == application.isInputAvailable(NoteInvaders.InputType.bt)) {
             // hide the option
             menu.findItem(R.id.menu_item_setupbt).setVisible(false);
         }
@@ -77,15 +75,15 @@ public class StartActivity extends SelectableItemActivity {
         // add the cards to the list the view will display
         //cardList.add(new Profile(this));
 
-        Game lastGame = State.getInstance().getGamePlayedLast();
+        Game lastGame = NoteInvaders.getAppContext().getGamePlayedLast();
         if (null != lastGame) {
             cardList.add(new LastGameCard(this, lastGame));
         }
 
         // load in all our games
-        int gameCount = State.getInstance().getAvailableGameCount();
+        int gameCount = NoteInvaders.getAppContext().getAvailableGameCount();
         for (int i = 0; i < gameCount; ++i) {
-            Game game = State.getInstance().getAvailableGame(i);
+            Game game = NoteInvaders.getAppContext().getAvailableGame(i);
             cardList.add(new GameCard(this, game));
         }
 
@@ -95,7 +93,7 @@ public class StartActivity extends SelectableItemActivity {
     @Override
     protected int getTitleImageRes() {
 
-        Instrument instrument = State.getInstance().getInstrument();
+        Instrument instrument = NoteInvaders.getAppContext().getInstrument();
         if (null != instrument) {
             return instrument.getThumbnail();
         }
@@ -154,7 +152,7 @@ public class StartActivity extends SelectableItemActivity {
         }
         if (null != selectedGame) {
             // set this on our state
-            State.getInstance().selectGame(selectedGame);
+            NoteInvaders.getAppContext().selectGame(selectedGame);
             // show the card for this game
             Intent myIntent;
             if (selectedGame.isPlayable()) {

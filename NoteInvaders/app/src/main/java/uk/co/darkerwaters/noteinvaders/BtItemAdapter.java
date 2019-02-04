@@ -17,7 +17,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.co.darkerwaters.noteinvaders.state.State;
+
 import uk.co.darkerwaters.noteinvaders.state.input.InputMidi;
 
 public class BtItemAdapter extends RecyclerView.Adapter<BtItemAdapter.ViewHolder> {
@@ -97,7 +97,7 @@ public class BtItemAdapter extends RecyclerView.Adapter<BtItemAdapter.ViewHolder
         // set the data on the holder
         holder.title.setText(holder.item.getName());
         holder.subtitle.setText(holder.item.getAddress());
-        if (InputMidi.GetMidiDeviceId(holder.item).equals(State.getInstance().getMidiDeviceId())) {
+        if (InputMidi.GetMidiDeviceId(holder.item).equals(NoteInvaders.getAppContext().getMidiDeviceId())) {
             holder.selected.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.fade_in));
         }
         else {

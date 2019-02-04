@@ -1,6 +1,7 @@
 package uk.co.darkerwaters.noteinvaders.selectables;
 
 import android.app.Activity;
+import android.content.Context;
 
 import com.bumptech.glide.Glide;
 
@@ -16,7 +17,7 @@ public class Instrument extends SelectableItem {
     private final String title;
     private final int thumbnail;
 
-    public Instrument(Activity context, String name, NoteRange noteRange, int thumbnail) {
+    public Instrument(Context context, String name, NoteRange noteRange, int thumbnail) {
         super(context);
         this.noteRange = noteRange;
         this.title = name;

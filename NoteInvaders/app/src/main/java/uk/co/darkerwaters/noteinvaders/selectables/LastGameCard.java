@@ -4,13 +4,14 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.widget.ImageView;
 
+import uk.co.darkerwaters.noteinvaders.NoteInvaders;
 import uk.co.darkerwaters.noteinvaders.R;
 import uk.co.darkerwaters.noteinvaders.SelectableItem;
 import uk.co.darkerwaters.noteinvaders.SelectableItemActivity;
 import uk.co.darkerwaters.noteinvaders.SelectableItemAdapter;
 import uk.co.darkerwaters.noteinvaders.state.ActiveScore;
 import uk.co.darkerwaters.noteinvaders.state.Game;
-import uk.co.darkerwaters.noteinvaders.state.State;
+
 
 public class LastGameCard extends SelectableItem {
 
@@ -24,7 +25,7 @@ public class LastGameCard extends SelectableItem {
     }
 
     public Game getGame() {
-        return State.getInstance().getGamePlayedLast();
+        return NoteInvaders.getAppContext().getGamePlayedLast();
     }
 
     @Override
@@ -41,8 +42,8 @@ public class LastGameCard extends SelectableItem {
     public String getSubtitle(Activity context) {
         Game game = getGame();
         if (game.isPlayable()) {
-            return "Last Played " + State.getInstance().getTimeGameLastPlayedStr(context, game);
-            //return "Top BPM: " + State.getInstance().getGameTopTempo(this.game);
+            return "Last Played " + NoteInvaders.getAppContext().getTimeGameLastPlayedStr(game);
+            //return "Top BPM: " + NoteInvaders.getAppContext().getGameTopTempo(this.game);
         }
         else {
             // return the number of children
@@ -52,7 +53,7 @@ public class LastGameCard extends SelectableItem {
 
     @Override
     public int getProgress(Activity context) {
-        int topTempo = State.getInstance().getGameTopTempo(getGame());
+        int topTempo = NoteInvaders.getAppContext().getGameTopTempo(getGame());
         return ActiveScore.GetTempoAsPercent(topTempo);
     }
 

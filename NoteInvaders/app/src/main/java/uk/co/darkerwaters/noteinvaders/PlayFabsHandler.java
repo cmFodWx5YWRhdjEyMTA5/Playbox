@@ -11,9 +11,9 @@ import android.view.View;
 import java.util.HashMap;
 import java.util.Map;
 
-import uk.co.darkerwaters.noteinvaders.state.State;
 
-public class PlayFabsHandler implements State.InputChangeListener {
+
+public class PlayFabsHandler implements NoteInvaders.InputChangeListener {
 
     private final FloatingActionButton inputFab;
     private final FloatingActionButton manualFab;
@@ -25,9 +25,9 @@ public class PlayFabsHandler implements State.InputChangeListener {
 
     private boolean isFabsShown = false;
     private final Activity context;
-    private final State.InputChangeListener changeDeligate;
-    private State.InputType currentInput;
-    private final Map<State.InputType, Boolean> inputState;
+    private final NoteInvaders.InputChangeListener changeDeligate;
+    private NoteInvaders.InputType currentInput;
+    private final Map<NoteInvaders.InputType, Boolean> inputState;
 
     public enum BtIcon {
         Normal,
@@ -37,7 +37,7 @@ public class PlayFabsHandler implements State.InputChangeListener {
 
     private BtIcon lastBtIcon = BtIcon.Normal;
 
-    public PlayFabsHandler(Activity context, State.InputChangeListener changeListener) {
+    public PlayFabsHandler(Activity context, NoteInvaders.InputChangeListener changeListener) {
         this.context = context;
         this.changeDeligate = changeListener;
         this.inputFab = (FloatingActionButton) context.findViewById(R.id.input_action_button);
@@ -49,7 +49,7 @@ public class PlayFabsHandler implements State.InputChangeListener {
         this.settingsFab = (FloatingActionButton) context.findViewById(R.id.input_action_settings);
 
         // get the current input type to initialise the view
-        this.currentInput = State.getInstance().getSelectedInput();
+        this.currentInput = NoteInvaders.getAppContext().getSelectedInput();
 
         // set the icons on these buttons
         this.inputFab.setImageResource(R.drawable.ic_baseline_keyboard_24px);
@@ -63,8 +63,8 @@ public class PlayFabsHandler implements State.InputChangeListener {
         setInputIcon();
 
         // setup the map of states
-        this.inputState = new HashMap<State.InputType, Boolean>();
-        for (State.InputType type : State.InputType.values()) {
+        this.inputState = new HashMap<NoteInvaders.InputType, Boolean>();
+        for (NoteInvaders.InputType type : NoteInvaders.InputType.values()) {
             // initialise the state to be false
             this.inputState.put(type, new Boolean(false));
             // and initialise the colour of the icon accordingly
@@ -81,31 +81,31 @@ public class PlayFabsHandler implements State.InputChangeListener {
         this.manualFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeInputType(State.InputType.keyboard);
+                changeInputType(NoteInvaders.InputType.keyboard);
             }
         });
         this.lettersFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeInputType(State.InputType.letters);
+                changeInputType(NoteInvaders.InputType.letters);
             }
         });
         this.micFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeInputType(State.InputType.microphone);
+                changeInputType(NoteInvaders.InputType.microphone);
             }
         });
         this.usbFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeInputType(State.InputType.usb);
+                changeInputType(NoteInvaders.InputType.usb);
             }
         });
         this.btFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeInputType(State.InputType.bt);
+                changeInputType(NoteInvaders.InputType.bt);
             }
         });
         this.settingsFab.setOnClickListener(new View.OnClickListener() {
@@ -116,31 +116,31 @@ public class PlayFabsHandler implements State.InputChangeListener {
         });
 
         // listen for changes in input to inform the listener of us
-        State.getInstance().addListener(this);
+        NoteInvaders.getAppContext().addListener(this);
     }
 
     public void close() {
         // remove us as a listener
-        State.getInstance().removeListener(this);
+        NoteInvaders.getAppContext().removeListener(this);
     }
 
     public void setBtIcon(BtIcon icon) {
         switch (icon) {
             case Normal:
                 this.btFab.setImageResource(R.drawable.ic_baseline_bluetooth_24px);
-                if (this.currentInput == State.InputType.bt) {
+                if (this.currentInput == NoteInvaders.InputType.bt) {
                     this.inputFab.setImageResource(R.drawable.ic_baseline_bluetooth_24px);
                 }
                 break;
             case Searching:
                 this.btFab.setImageResource(R.drawable.ic_baseline_bluetooth_searching_24px);
-                if (this.currentInput == State.InputType.bt) {
+                if (this.currentInput == NoteInvaders.InputType.bt) {
                     this.inputFab.setImageResource(R.drawable.ic_baseline_bluetooth_searching_24px);
                 }
                 break;
             case Connected:
                 this.btFab.setImageResource(R.drawable.ic_baseline_bluetooth_connected_24px);
-                if (this.currentInput == State.InputType.bt) {
+                if (this.currentInput == NoteInvaders.InputType.bt) {
                     this.inputFab.setImageResource(R.drawable.ic_baseline_bluetooth_connected_24px);
                 }
                 break;
@@ -175,7 +175,7 @@ public class PlayFabsHandler implements State.InputChangeListener {
     }
 
     @Override
-    public void onInputTypeChanged(State.InputType type) {
+    public void onInputTypeChanged(NoteInvaders.InputType type) {
         // the input type has changed, update ourselves here
         this.currentInput = type;
         // set the correct icon
@@ -227,7 +227,7 @@ public class PlayFabsHandler implements State.InputChangeListener {
         }
     }
 
-    public void setInputAvailability(State.InputType input, boolean state) {
+    public void setInputAvailability(NoteInvaders.InputType input, boolean state) {
         // set the state
         this.inputState.put(input, state);
         // and change the tint for this button
@@ -288,18 +288,18 @@ public class PlayFabsHandler implements State.InputChangeListener {
                     this.context.getResources().getDimension(R.dimen.standard_205),
                     this.context.getResources().getDimension(R.dimen.standard_255)
             };
-            State state = State.getInstance();
+            NoteInvaders application = NoteInvaders.getAppContext();
             // always manual and letters
             int iTranslation = 0;
             manualFab.animate().translationX(translations[iTranslation++]);
             lettersFab.animate().translationX(translations[iTranslation++]);
-            if (state.isInputAvailable(State.InputType.microphone)) {
+            if (application.isInputAvailable(NoteInvaders.InputType.microphone)) {
                 micFab.animate().translationX(translations[iTranslation++]);
             }
-            if (state.isInputAvailable(State.InputType.usb)) {
+            if (application.isInputAvailable(NoteInvaders.InputType.usb)) {
                 usbFab.animate().translationX(translations[iTranslation++]);
             }
-            if (state.isInputAvailable(State.InputType.bt)) {
+            if (application.isInputAvailable(NoteInvaders.InputType.bt)) {
                 btFab.animate().translationX(translations[iTranslation++]);
             }
             // and reveal the settings
@@ -308,10 +308,10 @@ public class PlayFabsHandler implements State.InputChangeListener {
         }
     }
 
-    private void changeInputType(State.InputType input) {
+    private void changeInputType(NoteInvaders.InputType input) {
         // set the input to manual
         this.currentInput = input;
-        State.getInstance().setSelectedInput(this.context, input);
+        NoteInvaders.getAppContext().setSelectedInput(input);
         // and update the icon
         setInputIcon();
     }

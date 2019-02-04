@@ -15,6 +15,7 @@ import be.tarsos.dsp.io.android.AudioDispatcherFactory;
 import be.tarsos.dsp.pitch.PitchDetectionHandler;
 import be.tarsos.dsp.pitch.PitchDetectionResult;
 import be.tarsos.dsp.pitch.PitchProcessor;
+import uk.co.darkerwaters.noteinvaders.NoteInvaders;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.Notes;
 
@@ -36,8 +37,8 @@ public class InputMicrophone extends InputConnection {
 
     public InputMicrophone(Activity context) {
         super(context);
-        this.noteDetectionFrequency = new HashMap<Note, Integer>(Notes.instance().getNoteCount());
-        Notes notes = Notes.instance();
+        this.noteDetectionFrequency = new HashMap<Note, Integer>(NoteInvaders.getNotes().getNoteCount());
+        Notes notes = NoteInvaders.getNotes();
         for (int i = 0; i < notes.getNoteCount(); ++i) {
             // put all the notes into the map and the detection frequency of zero
             Note note = notes.getNote(i);
@@ -79,7 +80,7 @@ public class InputMicrophone extends InputConnection {
                     final float pitchInHz = result.getPitch();
                     if (pitchInHz > 0) {
                         // get the name of the note
-                        Note note = Notes.instance().getNote(pitchInHz);
+                        Note note = NoteInvaders.getNotes().getNote(pitchInHz);
                         if (null != note && result.getProbability() > K_NOTE_DETECTION_PROBABIILITY_THRESHOLD) {
                             // this is a hit, record this
                             boolean isNewHit;

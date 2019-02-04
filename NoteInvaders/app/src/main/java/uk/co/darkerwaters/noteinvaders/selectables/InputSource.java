@@ -10,7 +10,7 @@ import uk.co.darkerwaters.noteinvaders.SelectableItemActivity;
 import uk.co.darkerwaters.noteinvaders.SelectableItemAdapter;
 import uk.co.darkerwaters.noteinvaders.state.ActiveScore;
 import uk.co.darkerwaters.noteinvaders.state.NoteRange;
-import uk.co.darkerwaters.noteinvaders.state.State;
+
 
 public class InputSource extends SelectableItem {
 

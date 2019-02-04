@@ -1,12 +1,14 @@
 package uk.co.darkerwaters.noteinvaders.state;
 
+import uk.co.darkerwaters.noteinvaders.NoteInvaders;
+
 public class NoteRange {
     private Note start;
     private Note end;
 
     public NoteRange(String start, String end) {
-        this.start = Notes.instance().getNote(start);
-        this.end = Notes.instance().getNote(end);
+        this.start = NoteInvaders.getNotes().getNote(start);
+        this.end = NoteInvaders.getNotes().getNote(end);
     }
 
     public NoteRange(Note start, Note end) {

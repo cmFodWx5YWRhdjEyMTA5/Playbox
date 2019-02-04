@@ -9,7 +9,7 @@ import java.util.List;
 
 import uk.co.darkerwaters.noteinvaders.selectables.InputSource;
 import uk.co.darkerwaters.noteinvaders.selectables.Instrument;
-import uk.co.darkerwaters.noteinvaders.state.State;
+
 
 public class InputActivity extends SelectableItemActivity {
 
@@ -22,8 +22,8 @@ public class InputActivity extends SelectableItemActivity {
         if(null != bundle) {
             String instrumentName = bundle.getString("instrument");
             // get the actual instrument for this
-            for (int i = 0; i < State.getInstance().getAvailableInstrumentCount(); ++i) {
-                Instrument instrument = State.getInstance().getAvailableInstrument(i);
+            for (int i = 0; i < NoteInvaders.getAppContext().getAvailableInstrumentCount(); ++i) {
+                Instrument instrument = NoteInvaders.getAppContext().getAvailableInstrument(i);
                 if (instrument.getTitle(null).equals(instrumentName)) {
                     // this is it
                     this.parentInstrument = instrument;

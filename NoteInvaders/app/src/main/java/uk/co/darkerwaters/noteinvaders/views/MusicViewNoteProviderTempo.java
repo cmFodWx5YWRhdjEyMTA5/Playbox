@@ -3,10 +3,11 @@ package uk.co.darkerwaters.noteinvaders.views;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.co.darkerwaters.noteinvaders.NoteInvaders;
 import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.Playable;
-import uk.co.darkerwaters.noteinvaders.state.State;
+
 
 public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
 
@@ -82,7 +83,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
         float noteRadius = musicView.getNoteRadius();
         this.noteSpacing = noteRadius * 2f;
         // initially we can show the notes from the level in a nice friendly order
-        Game level = State.getInstance().getGameSelectedLast();
+        Game level = NoteInvaders.getAppContext().getGameSelectedLast();
         final float widthFactor = 0.95f;
         final float xStart = musicView.getNoteStartX();
         final float xWidth = musicView.getWidth() - xStart;

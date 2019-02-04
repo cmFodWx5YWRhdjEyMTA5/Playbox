@@ -1,8 +1,10 @@
-package uk.co.darkerwaters.noteinvaders.state;
+package uk.co.darkerwaters.noteinvaders;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.preference.PreferenceManager;
 
 import java.text.SimpleDateFormat;
@@ -10,16 +12,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import uk.co.darkerwaters.noteinvaders.R;
 import uk.co.darkerwaters.noteinvaders.selectables.Instrument;
+import uk.co.darkerwaters.noteinvaders.state.ActiveScore;
+import uk.co.darkerwaters.noteinvaders.state.Game;
+import uk.co.darkerwaters.noteinvaders.state.NoteRange;
+import uk.co.darkerwaters.noteinvaders.state.Notes;
 
-public class State {
+public class NoteInvaders extends Application {
 
-    private static final State INSTANCE = new State();
     public static final String K_APPTAG = "NoteInvaders";
 
     private Instrument instrument = null;
@@ -29,6 +32,10 @@ public class State {
     private List<Game> gameSelected = new ArrayList<Game>();
 
     private ActiveScore currentActiveScore = null;
+
+    private Notes notes = null;
+
+    private static NoteInvaders context;
 
     private Map<String, Integer> gameTempoMap = null;
     private Map<String, Date> gamePlayedLastMap = null;
@@ -55,42 +62,65 @@ public class State {
 
     private List<InputChangeListener> inputChangeListeners;
 
-    public static State getInstance() {
-        return INSTANCE;
+    public static Notes getNotes() {
+        NoteInvaders app = getAppContext();
+        if (app.notes == null) {
+            app.notes = Notes.CreateNotes(app);
+        }
+        return app.notes;
     }
 
-    public void initialise(Activity context) {
+    public static NoteInvaders getAppContext() {
+        return NoteInvaders.context;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        // remember ourselves
+        NoteInvaders.context = (NoteInvaders) getApplicationContext();
         // make sure the notes are all loaded
-        Notes.CreateNotes(context);
+        getNotes();
         // initialise the members of this state
         this.instrumentList = new ArrayList<Instrument>();
-        this.instrumentList.add(new Instrument(context, context.getString(R.string.piano_keyboard), new NoteRange("A0", "C8"), R.drawable.piano));
-        //this.instrumentList.add(new Instrument(context, context.getString(R.string.violin), new NoteRange("G3", "E7"), R.drawable.violin));
+        this.instrumentList.add(new Instrument(this, getString(R.string.piano_keyboard), new NoteRange("A0", "C8"), R.drawable.piano));
+        //this.instrumentList.add(new Instrument(this, getString(R.string.violin), new NoteRange("G3", "E7"), R.drawable.violin));
         // first default everything to something sensible
         this.instrument = instrumentList.get(0);
 
         // load in all the games available too
-        this.games = Game.loadGamesFromAssets(context);
+        this.games = Game.loadGamesFromAssets(this);
         this.currentActiveScore = new ActiveScore();
 
         // load in all the scores that were stored also
         this.gameTempoMap = new HashMap<String, Integer>();
         this.gamePlayedLastMap = new HashMap<String, Date>();
         this.gameHelpMap = new HashMap<String, Boolean>();
-        loadState(context);
+
+        // load the previous state that was stored
+        loadState();
 
         this.inputChangeListeners = new ArrayList<InputChangeListener>();
     }
 
-    private void loadState(Activity context) {
+    private void loadState() {
         // Store values between instances here
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         for (Game game : this.games) {
             loadGameScore(game, preferences);
         }
         this.isSoundOn = preferences.getBoolean("is_sound_on", this.isSoundOn);
         this.midiDeviceId = preferences.getString("midi_device_id", this.midiDeviceId);
         this.selectedInput = InputType.valueOf(preferences.getString("input_type", this.selectedInput.toString()));
+
+        // and the game list
+        int noGames = preferences.getInt("no_games_selected", 0);
+        for (int i = 1; i < noGames + 1; ++i) {
+            String gameId = preferences.getString("game_selected_" + i, "");
+            if (null != gameId && false == gameId.isEmpty()) {
+                this.gameSelected.add(findGame(gameId));
+            }
+        }
     }
 
     private void loadGameScore(Game game, SharedPreferences preferences) {
@@ -151,7 +181,7 @@ public class State {
         }
     }
 
-    public void storeScore(Activity context, ActiveScore score) {
+    public void storeScore(ActiveScore score) {
         // store the top score for the current active level
         Game currentGame = getGameSelectedLast();
         if (null != currentGame && null != score) {
@@ -164,7 +194,7 @@ public class State {
                 this.gameTempoMap.put(currentGame.id, topTempo);
                 this.gameHelpMap.put(currentGame.id, isHelpOn);
                 // and put it in the preferences for later
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putInt("top_tempo_" + currentGame.id, topTempo);
                 editor.putInt("help_" + currentGame.id, isHelpOn ? 1 : 0);
@@ -178,10 +208,10 @@ public class State {
         return this.gamePlayedLastMap.get(game.id);
     }
 
-    public String getTimeGameLastPlayedStr(Activity context, Game game) {
+    public String getTimeGameLastPlayedStr(Game game) {
         Date lastPlayed = getTimeGameLastPlayed(game);
         if (null == lastPlayed) {
-            return context.getResources().getString(R.string.never);
+            return getResources().getString(R.string.never);
         }
         else {
             Date now = new Date();
@@ -190,17 +220,17 @@ public class State {
             long hours=TimeUnit.MILLISECONDS.toHours(now.getTime() - lastPlayed.getTime());
 
             if (seconds < 60) {
-                return Long.toString(seconds) + " " + context.getResources().getString(R.string.seconds_ago);
+                return Long.toString(seconds) + " " + getResources().getString(R.string.seconds_ago);
             }
             else if (minutes < 60) {
-                return Long.toString(minutes) + " " + context.getResources().getString(R.string.minutes_ago);
+                return Long.toString(minutes) + " " + getResources().getString(R.string.minutes_ago);
             }
             else if (hours < 24) {
-                return Long.toString(hours) + " " + context.getResources().getString(R.string.hours_ago);
+                return Long.toString(hours) + " " + getResources().getString(R.string.hours_ago);
             }
             else {
                 long days=TimeUnit.MILLISECONDS.toDays(now.getTime() - lastPlayed.getTime());
-                return Long.toString(days) + " " + context.getResources().getString(R.string.days_ago);
+                return Long.toString(days) + " " + getResources().getString(R.string.days_ago);
             }
         }
     }
@@ -220,7 +250,7 @@ public class State {
             return findGame(latestGameId);
         }
         else {
-             // none
+            // none
             return null;
         }
     }
@@ -283,13 +313,13 @@ public class State {
         return null;
     }
 
-    public void startGame(Activity context) {
+    public void startGame() {
         // start the game currently selected
         Game currentGame = getGameSelectedLast();
         if (null != currentGame) {
             // nothing much to do except store that this
             // game was played now
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             SharedPreferences.Editor editor = preferences.edit();
             // put the string of this data in our preferences
             Date datePlayed = new Date();
@@ -317,10 +347,10 @@ public class State {
         return this.isSoundOn;
     }
 
-    public void setIsSoundOn(Activity context, boolean soundOn) {
+    public void setIsSoundOn(boolean soundOn) {
         this.isSoundOn = soundOn;
         // store this
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putBoolean("is_sound_on", this.isSoundOn);
         // and commit to storage this value
@@ -331,10 +361,10 @@ public class State {
         return this.midiDeviceId;
     }
 
-    public void setMidiDeviceId(Context context, String midiDeviceId) {
+    public void setMidiDeviceId(String midiDeviceId) {
         this.midiDeviceId = midiDeviceId;
         // store this
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("midi_device_id", this.midiDeviceId);
         // and commit to storage this value
@@ -376,7 +406,7 @@ public class State {
 
     public InputType getSelectedInput() { return this.selectedInput; }
 
-    public void setSelectedInput(Context context, InputType type) {
+    public void setSelectedInput(InputType type) {
         this.selectedInput = type;
         synchronized (this.inputChangeListeners) {
             for (InputChangeListener listener : this.inputChangeListeners) {
@@ -384,7 +414,7 @@ public class State {
             }
         }
         // store this
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("input_type", this.selectedInput.toString());
         // and commit to storage this value
@@ -402,7 +432,11 @@ public class State {
     }
 
     public boolean selectGame(Game game) {
-        return this.gameSelected.add(game);
+        // add to the list
+        boolean result = this.gameSelected.add(game);
+        storeGameSelectedState();
+        // and return
+        return result;
     }
 
     public int deselectGame(Game toDeselect) {
@@ -415,7 +449,23 @@ public class State {
                 break;
             }
         }
+        // store this state
+        storeGameSelectedState();
         return noRemoved;
+    }
+
+    private void storeGameSelectedState() {
+        // store this
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt("no_games_selected", this.gameSelected.size());
+        int i = 1;
+        for (Game gameSel : this.gameSelected) {
+            editor.putString("game_selected_" + i, gameSel.id);
+            ++i;
+        }
+        // and commit to storage this value
+        editor.commit();
     }
 
     public Game getGameSelectedLast() {
@@ -429,5 +479,4 @@ public class State {
     public int getAvailableGameCount() { return this.games.size(); }
 
     public Game getAvailableGame(int index) { return this.games.get(index); }
-
 }
