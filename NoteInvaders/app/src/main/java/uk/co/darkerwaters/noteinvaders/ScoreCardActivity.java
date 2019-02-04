@@ -1,6 +1,7 @@
 package uk.co.darkerwaters.noteinvaders;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 import org.w3c.dom.Text;
 
 import uk.co.darkerwaters.noteinvaders.state.ActiveScore;
+import uk.co.darkerwaters.noteinvaders.state.Game;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.State;
 import uk.co.darkerwaters.noteinvaders.state.input.InputConnectionInterface;
@@ -34,6 +36,9 @@ public class ScoreCardActivity extends AppCompatActivity  {
 
     private TextView topBpmNumber;
     private TextView helpOn;
+
+    private Button nextButton;
+    private Button againButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +60,9 @@ public class ScoreCardActivity extends AppCompatActivity  {
         this.topBpmNumber = (TextView) findViewById(R.id.top_bpm_number);
         this.helpOn = (TextView) findViewById(R.id.help_on_off);
 
+        this.nextButton = (Button) findViewById(R.id.button_play_next);
+        this.againButton = (Button) findViewById(R.id.button_play_again);
+
         this.scoreText.setText(Integer.toString(score.getScorePercent()) + "%");
 
         // set all the data
@@ -68,6 +76,33 @@ public class ScoreCardActivity extends AppCompatActivity  {
 
         this.topBpmNumber.setText(Integer.toString(score.getTopBpmCompleted()));
         this.helpOn.setText(score.isHelpOn() ? R.string.on : R.string.off);
+
+        if (null != State.getInstance().getNextGame()) {
+            this.nextButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Game nextGame = State.getInstance().getNextGame();
+                    if (null != nextGame && nextGame.isPlayable()) {
+                        State.getInstance().selectGame(nextGame);
+                        ScoreCardActivity.this.onBackPressed();
+                    }
+                }
+            });
+        }
+        else {
+            this.nextButton.setEnabled(false);
+        }
+        // play the game again
+
+        this.againButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // show the card for this game
+                ScoreCardActivity.this.onBackPressed();
+            }
+        });
+
+
     }
 
     @Override

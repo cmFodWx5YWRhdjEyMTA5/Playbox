@@ -66,5 +66,7 @@
     <string name="connect_ble">Connect instrument via Bluetooth LE:</string>
     <string name="menu_attributions">Attributions</string>
     <string name="title_activity_attributions">Attributions</string>
+    <string name="play_next">Play Next</string>
+    <string name="play_again">Play Again</string>
 
 </resources>

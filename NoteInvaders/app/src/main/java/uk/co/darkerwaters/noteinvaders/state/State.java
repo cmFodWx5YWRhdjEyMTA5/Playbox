@@ -225,6 +225,31 @@ public class State {
         }
     }
 
+    public Game getNextGame() {
+        Game currentGame = getGameSelectedLast();
+        Game nextGame = null;
+        if (null != currentGame && null != currentGame.parent) {
+            // get the sibling of the current game
+            Game[] siblings = currentGame.parent.children;
+            if (null != siblings) {
+                int foundIndex = -1;
+                for (int i = 0; i < siblings.length; ++i) {
+                    if (siblings[i] == currentGame) {
+                        // this is the current game
+                        foundIndex = i;
+                        break;
+                    }
+                }
+                if (foundIndex > -1 && foundIndex + 1 < siblings.length) {
+                    // there is a later game
+                    nextGame = siblings[foundIndex + 1];
+                }
+            }
+        }
+        // return the next game if there is one
+        return nextGame;
+    }
+
     public Game findGame(String gameId) {
         for (Game game : this.games) {
             if (game.id.equals(gameId)) {
