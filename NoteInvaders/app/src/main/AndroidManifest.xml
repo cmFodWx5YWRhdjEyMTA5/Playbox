@@ -72,7 +72,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="uk.co.darkerwaters.noteinvaders.ScoreCardActivity" />
+                android:value="uk.co.darkerwaters.noteinvaders.PlayActivity" />
         </activity>
         <activity
             android:name=".AttributionsActivity"

@@ -83,7 +83,7 @@ public class MusicViewNoteProviderTempo extends MusicViewNoteProvider {
         float noteRadius = musicView.getNoteRadius();
         this.noteSpacing = noteRadius * 2f;
         // initially we can show the notes from the level in a nice friendly order
-        Game level = NoteInvaders.getAppContext().getGameSelectedLast();
+        Game level = NoteInvaders.getAppContext().getGameSelected();
         final float widthFactor = 0.95f;
         final float xStart = musicView.getNoteStartX();
         final float xWidth = musicView.getWidth() - xStart;

@@ -29,7 +29,7 @@ public class NoteInvaders extends Application {
     private List<Instrument> instrumentList = null;
 
     private List<Game> games = null;
-    private List<Game> gameSelected = new ArrayList<Game>();
+    private Game gameSelected = null;
 
     private ActiveScore currentActiveScore = null;
 
@@ -114,12 +114,12 @@ public class NoteInvaders extends Application {
         this.selectedInput = InputType.valueOf(preferences.getString("input_type", this.selectedInput.toString()));
 
         // and the game list
-        int noGames = preferences.getInt("no_games_selected", 0);
-        for (int i = 1; i < noGames + 1; ++i) {
-            String gameId = preferences.getString("game_selected_" + i, "");
-            if (null != gameId && false == gameId.isEmpty()) {
-                this.gameSelected.add(findGame(gameId));
-            }
+        String gameId = preferences.getString("game_selected", "");
+        if (null != gameId && false == gameId.isEmpty()) {
+            this.gameSelected = findGame(gameId);
+        }
+        else {
+            this.gameSelected = null;
         }
     }
 
@@ -183,7 +183,7 @@ public class NoteInvaders extends Application {
 
     public void storeScore(ActiveScore score) {
         // store the top score for the current active level
-        Game currentGame = getGameSelectedLast();
+        Game currentGame = getGameSelected();
         if (null != currentGame && null != score) {
             // if this tempo is better, store it now
             int topTempo = getGameTopTempo(currentGame);
@@ -256,7 +256,7 @@ public class NoteInvaders extends Application {
     }
 
     public Game getNextGame() {
-        Game currentGame = getGameSelectedLast();
+        Game currentGame = getGameSelected();
         Game nextGame = null;
         if (null != currentGame && null != currentGame.parent) {
             // get the sibling of the current game
@@ -315,7 +315,7 @@ public class NoteInvaders extends Application {
 
     public void startGame() {
         // start the game currently selected
-        Game currentGame = getGameSelectedLast();
+        Game currentGame = getGameSelected();
         if (null != currentGame) {
             // nothing much to do except store that this
             // game was played now
@@ -425,55 +425,19 @@ public class NoteInvaders extends Application {
         return this.currentActiveScore;
     }
 
-    public int getGameSelectedCount() { return this.gameSelected.size(); }
-
-    public Game getGameSelected(int index) {
-        return this.gameSelected.get(index);
-    }
-
-    public boolean selectGame(Game game) {
-        // add to the list
-        boolean result = this.gameSelected.add(game);
-        storeGameSelectedState();
-        // and return
-        return result;
-    }
-
-    public int deselectGame(Game toDeselect) {
-        int noRemoved = 0;
-        while (this.gameSelected.size() > 0) {
-            Game removed = this.gameSelected.remove(this.gameSelected.size() - 1);
-            ++noRemoved;
-            if (removed == toDeselect) {
-                // this is the right one removed
-                break;
-            }
-        }
-        // store this state
-        storeGameSelectedState();
-        return noRemoved;
-    }
-
-    private void storeGameSelectedState() {
-        // store this
+    public void selectGame(Game game) {
+        // set this game
+        this.gameSelected = game;
+        // and store this
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt("no_games_selected", this.gameSelected.size());
-        int i = 1;
-        for (Game gameSel : this.gameSelected) {
-            editor.putString("game_selected_" + i, gameSel.id);
-            ++i;
-        }
+        editor.putString("game_selected", this.gameSelected == null ? "" : this.gameSelected.id);
         // and commit to storage this value
         editor.commit();
     }
 
-    public Game getGameSelectedLast() {
-        Game selected = null;
-        if (this.gameSelected.size() > 0) {
-            selected = this.gameSelected.get(this.gameSelected.size() - 1);
-        }
-        return selected;
+    public Game getGameSelected() {
+        return this.gameSelected;
     }
 
     public int getAvailableGameCount() { return this.games.size(); }

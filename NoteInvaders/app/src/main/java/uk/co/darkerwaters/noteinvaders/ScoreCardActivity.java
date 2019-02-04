@@ -83,8 +83,12 @@ public class ScoreCardActivity extends AppCompatActivity  {
                 public void onClick(View view) {
                     Game nextGame = NoteInvaders.getAppContext().getNextGame();
                     if (null != nextGame && nextGame.isPlayable()) {
+                        // clear the current score
+                        NoteInvaders.getAppContext().getCurrentActiveScore().reset();
+                        // set the selected game to the next one
                         NoteInvaders.getAppContext().selectGame(nextGame);
-                        ScoreCardActivity.this.onBackPressed();
+                        // show the card for this game by finishing this activity
+                        finish();
                     }
                 }
             });
@@ -93,12 +97,18 @@ public class ScoreCardActivity extends AppCompatActivity  {
             this.nextButton.setEnabled(false);
         }
         // play the game again
-
         this.againButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // show the card for this game
-                ScoreCardActivity.this.onBackPressed();
+                // get the current game
+                Game game = NoteInvaders.getAppContext().getGameSelected();
+                if (null != game && game.isPlayable()) {
+                    // clear the current score
+                    NoteInvaders.getAppContext().getCurrentActiveScore().reset();
+                    // show the card for this game by finishing this activity
+                    finish();
+
+                }
             }
         });
 

@@ -25,7 +25,7 @@ public class GameActivity extends SelectableItemActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // load in the game that this card is showing the data for
-        this.game = NoteInvaders.getAppContext().getGameSelectedLast();
+        this.game = NoteInvaders.getAppContext().getGameSelected();
         // and create this activity
         super.onCreate(savedInstanceState);
         // set the title for this
@@ -52,10 +52,15 @@ public class GameActivity extends SelectableItemActivity {
     }
 
     @Override
+    protected void onResume() {
+        // this is the currently selected game, set this
+        NoteInvaders.getAppContext().selectGame(this.game);
+        super.onResume();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
-        // this is killed, remove our selection from the state
-        NoteInvaders.getAppContext().deselectGame(this.game);
     }
 
     @Override

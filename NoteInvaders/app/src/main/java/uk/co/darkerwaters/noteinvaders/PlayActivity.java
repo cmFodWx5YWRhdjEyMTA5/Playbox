@@ -3,12 +3,15 @@ package uk.co.darkerwaters.noteinvaders;
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.media.midi.MidiDeviceInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
+import android.util.Size;
+import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -132,7 +135,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
         this.pianoView.addListener(this);
 
         // get the notes we want to play from on this level
-        this.level = NoteInvaders.getAppContext().getGameSelectedLast();
+        this.level = NoteInvaders.getAppContext().getGameSelected();
         this.levelPlayer = this.level.getGamePlayer();
 
         // listen for pause button clicks
@@ -372,8 +375,6 @@ public class PlayActivity extends HidingFullscreenActivity implements
             this.micPermissionsHandler.close();
             this.micPermissionsHandler = null;
         }
-        // this is killed, remove our selection from the state
-        NoteInvaders.getAppContext().deselectGame(this.level);
     }
 
     @Override
@@ -623,9 +624,20 @@ public class PlayActivity extends HidingFullscreenActivity implements
             @Override
             public void run() {
                 ViewGroup.LayoutParams params = pianoView.getLayoutParams();
-                params.height = (int) (pianoView.getWidth() * 0.4f);
+                int pianoHeight = (int) (pianoView.getWidth() * 0.4f);
+
+                // where is this view on the screen
+                int[] pianoPosition = new int[2];
+                Point size = new Point();
+                pianoView.getLocationOnScreen(pianoPosition);
+                getWindowManager().getDefaultDisplay().getSize(size);
+                // using the size of the screen, how much is left available, limit to this
+                params.height = Math.min(pianoHeight, size.y - pianoPosition[1]);
+                // and set this height
                 pianoView.setLayoutParams(params);
                 pianoView.invalidate();
+
+
             }
         });
     }
@@ -803,6 +815,9 @@ public class PlayActivity extends HidingFullscreenActivity implements
     protected void onResume() {
         super.onResume();
 
+        // get the game we are supposed to be playing
+        this.level = NoteInvaders.getAppContext().getGameSelected();
+
         if (NoteInvaders.getAppContext().getCurrentActiveScore().isGameOver()) {
             // the game is over, coming back from the scorecard, close this too...
             finish();
@@ -810,6 +825,8 @@ public class PlayActivity extends HidingFullscreenActivity implements
         else {
             // pause the player
             this.noteProvider.setPaused(true);
+            // make sure the game over label is hidden
+            gameOverDisplay.startAnimation(AnimationUtils.loadAnimation(PlayActivity.this, R.anim.dissapear));
             // reset all of our data
             this.noteProvider.clearNotes();
             this.isRunNotes = true;
@@ -852,8 +869,8 @@ public class PlayActivity extends HidingFullscreenActivity implements
             NoteInvaders application = NoteInvaders.getAppContext();
             ActiveScore score = application.getCurrentActiveScore();
             // set the data on the controls
-            Boolean helpState = application.getGameHelpState(application.getGameSelectedLast());
-            int topTempo = application.getGameTopTempo(application.getGameSelectedLast());
+            Boolean helpState = application.getGameHelpState(application.getGameSelected());
+            int topTempo = application.getGameTopTempo(application.getGameSelected());
             setBeats(topTempo);
             this.showNoteNamesSwitch.setChecked(helpState == null ? topTempo <= ActiveScore.K_TEMPO_TO_TURN_HELP_ON : helpState);
 
