@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 import uk.co.darkerwaters.noteinvaders.R;
+import uk.co.darkerwaters.noteinvaders.state.ActiveScore;
 import uk.co.darkerwaters.noteinvaders.state.Chord;
 import uk.co.darkerwaters.noteinvaders.state.Note;
 import uk.co.darkerwaters.noteinvaders.state.Notes;
@@ -682,7 +683,7 @@ public class MusicView extends View {
                 }
             }
 
-            float dangerZoneX = contentWidth * 0.3f;
+            float dangerZoneX = contentWidth * 0.2f;
             this.notesInDangerZone = 0;
 
             // draw all the notes in now

@@ -17,7 +17,7 @@ public class ActiveScore {
     public static final int K_PERMITTED_FALSE_SHOT_COUNT = 10;
     public static final int K_PERMITTED_ERRORS = K_PERMITTED_MISS_COUNT + K_PERMITTED_FALSE_SHOT_COUNT;
 
-    public static final float K_SECBEFORESPEEDINCREASE = 45f;
+    public static final float K_SECBEFORESPEEDINCREASE = 30f;
 
     public static final int[] K_AVAILABLE_TEMPOS = new int[] {
             20,40,50,60,80,100,120,150,180,200
@@ -104,11 +104,18 @@ public class ActiveScore {
                 setIsHelpOn(true);
             }
             // and set the new BPM
-            this.topBpm = newBpm;
+            if (this.topBpm >= K_MAX_TEMPO_WITH_HELP && this.isHelpOn) {
+                // turn off help instead, maybe decrease speed a little...
+                setIsHelpOn(false);
+            }
+            else {
+                // help is off, increase the speed
+                this.topBpm = newBpm;
+            }
         }
         else if (newBpm > this.topBpm) {
             // this is an increase, accept this
-            if (this.topBpm > K_MAX_TEMPO_WITH_HELP && this.isHelpOn) {
+            if (this.topBpm >= K_MAX_TEMPO_WITH_HELP && this.isHelpOn) {
                 // turn off help instead, maybe decrease speed a little...
                 setIsHelpOn(false);
             }

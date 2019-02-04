@@ -161,10 +161,9 @@ public class PlayActivity extends HidingFullscreenActivity implements
         this.floatingTempoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (increaseTempo(false)) {
-                    // tempo changed, clear the notes
-                    noteProvider.clearNotes();
-                }
+                increaseTempo(false);
+                // tempo changed, clear the notes
+                noteProvider.clearNotes();
             }
         });
         // hide the buttons
@@ -436,7 +435,7 @@ public class PlayActivity extends HidingFullscreenActivity implements
         int tempo = ActiveScore.K_AVAILABLE_TEMPOS[this.tempoSpinner.getSelectedItemPosition()];
         // set this data on the score
         score.setIsHelpOn(isHelp);
-        score.setBpm(tempo);
+        tempo = score.setBpm(tempo);
         // this changes our score so update the views
         this.scoreView.invalidate();
         this.musicView.invalidate();
@@ -720,50 +719,40 @@ public class PlayActivity extends HidingFullscreenActivity implements
         }
     }
 
-    private boolean increaseTempo(boolean isAllowWin) {
+    private void increaseTempo(boolean isAllowWin) {
         int currentSelection = this.tempoSpinner.getSelectedItemPosition();
-        boolean isIncreased = false;
         if (++currentSelection <= ActiveScore.K_AVAILABLE_TEMPOS.length - 1) {
-            int newBpm = ActiveScore.K_AVAILABLE_TEMPOS[currentSelection];
+            int requiredBpm = ActiveScore.K_AVAILABLE_TEMPOS[currentSelection];
             // set this on the active score to immediately accept this new pace of notes
-            if (newBpm == State.getInstance().getCurrentActiveScore().setBpm(newBpm)) {
-                // the score accepted this change, animate this information
-                this.tempoIncreaseIcon.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade));
-                // and update our controls to reflect this
-                updateControlsFromState();
-                // this changes the speed, reset the time the danger zone is clean of notes
-                this.musicView.resetNoteFreeDangerZoneTime();
-                // this is a change, return this
-                isIncreased = true;
-            }
+            State.getInstance().getCurrentActiveScore().setBpm(requiredBpm);
+            // animate this information
+            this.tempoIncreaseIcon.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade));
+            // and update our controls to reflect this
+            updateControlsFromState();
+            // this changes the speed, reset the time the danger zone is clean of notes
+            this.musicView.resetNoteFreeDangerZoneTime();
         }
         else if (isAllowWin) {
             // we just completed the last of the tempo notes, this is won!
             State.getInstance().getCurrentActiveScore().gameWon();
         }
-        return isIncreased;
     }
 
-    private boolean decreaseTempo() {
+    private void decreaseTempo() {
         int currentSelection = this.tempoSpinner.getSelectedItemPosition();
-        boolean isDecreased = false;
         if (--currentSelection >= 0) {
-            int newBpm = ActiveScore.K_AVAILABLE_TEMPOS[currentSelection];
+            int requiredBpm = ActiveScore.K_AVAILABLE_TEMPOS[currentSelection];
             // set this on the active score to immediately accept this new pace of notes
-            if (newBpm == State.getInstance().getCurrentActiveScore().setBpm(newBpm)) {
-                // the score accepted this change, animate this information
-                this.tempoDecreaseIcon.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade));
-                // and update our controls to reflect this
-                updateControlsFromState();
-                // this changes the speed, reset the time the danger zone is clean of notes
-                this.musicView.resetNoteFreeDangerZoneTime();
-                // this is a change, return this
-                isDecreased = true;
-                // clear the notes, too fast for the beginner
-                this.noteProvider.clearNotes();
-            }
+            State.getInstance().getCurrentActiveScore().setBpm(requiredBpm);
+            // animate this information
+            this.tempoDecreaseIcon.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade));
+            // and update our controls to reflect this
+            updateControlsFromState();
+            // this changes the speed, reset the time the danger zone is clean of notes
+            this.musicView.resetNoteFreeDangerZoneTime();
+            // clear the notes, too fast for the beginner
+            this.noteProvider.clearNotes();
         }
-        return isDecreased;
     }
 
     @Override
