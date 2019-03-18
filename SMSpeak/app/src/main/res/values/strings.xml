@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">SMSpeak</string>
+    <string name="google_tts">Google TTS</string>
+    <string name="tts_settings">TTS Settings</string>
+    <string name="tts_talkTime">Time</string>
+    <string name="tts_talkIntro">Intro</string>
+    <string name="tts_talkContact">From</string>
+    <string name="tts_talkMessage">Content</string>
+    <string name="intro_text_default">Message from</string>
+    <string name="everything">Everything</string>
+    <string name="headphones">Headphones</string>
+    <string name="headset">Headset</string>
+    <string name="bluetooth">BT Devices</string>
+    <string name="test">Test</string>
+    <string name="powerSettings">Active settings</string>
+</resources>
