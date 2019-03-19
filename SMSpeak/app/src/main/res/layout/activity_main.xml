@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-
+<!--
     <LinearLayout
         android:id="@+id/header_layout"
         android:layout_width="match_parent"
@@ -41,22 +41,27 @@
             android:layout_marginBottom="8dp"
             android:text="@string/test" />
     </LinearLayout>
-
+-->
     <LinearLayout
         android:id="@+id/exampleLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/header_layout">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
+        <ImageButton
             android:id="@+id/imageExample"
             android:layout_width="64dp"
             android:layout_height="64dp"
+            android:background="@android:color/transparent"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:contentDescription="@string/tts_talkExample"
             android:scaleType="fitCenter"
-            app:srcCompat="@drawable/ic_baseline_phonelink_ring_24px"
-            android:contentDescription="@string/tts_talkExample" />
+            app:srcCompat="@drawable/ic_baseline_phonelink_ring_24px" />
 
         <TextView
             android:id="@+id/exampleText"
@@ -178,7 +183,7 @@
 
     </android.support.constraint.ConstraintLayout>
 
-    <LinearLayout
+    <android.support.constraint.ConstraintLayout
         android:id="@+id/power_title_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -190,8 +195,8 @@
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/powerActionButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
             android:layout_weight="1"
             android:scaleType="fitCenter"
             android:elevation="8dp"
@@ -199,17 +204,25 @@
             app:maxImageSize="48dp"
             android:layout_margin="8dp"
             android:clickable="true"
-            app:srcCompat="@drawable/ic_baseline_power_settings_new_24px" />
+            app:srcCompat="@drawable/ic_baseline_power_settings_new_24px"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/powerText"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
             android:gravity="center_vertical"
             android:text="@string/power_off"
-            android:textSize="24sp" />
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/powerActionButton"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
 
     <ScrollView
         android:id="@+id/settings_content_layout"

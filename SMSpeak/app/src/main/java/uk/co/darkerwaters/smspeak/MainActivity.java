@@ -2,8 +2,11 @@ package uk.co.darkerwaters.smspeak;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.speech.tts.TextToSpeech;
 import android.support.design.widget.FloatingActionButton;
@@ -13,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
@@ -27,11 +31,13 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSIONS_CONTACT_REQUEST_CODE = 131;
     private static final int MY_PERMISSIONS_SMS_REQUEST_CODE = 132;
+    private static final int MY_PERMISSIONS_HEADSET_REQUEST_CODE = 133;
 
     private static final int ACT_CHECK_TTS_DATA = 1000;
 
     private boolean permissionContacts = false;
     private boolean permissionSms = false;
+    private boolean permissionHeadphones = false;
 
     private Switch switchTime;
     private Switch switchIntro;
@@ -43,6 +49,11 @@ public class MainActivity extends AppCompatActivity {
 
     private FloatingActionButton powerFab;
     private TextView powerText;
+
+    private Switch switchHeadphones;
+    private Switch switchHeadset;
+
+    private BroadcastReceiver headphoneStateReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +71,10 @@ public class MainActivity extends AppCompatActivity {
         this.powerFab = (FloatingActionButton) findViewById(R.id.powerActionButton);
         this.powerText = (TextView) findViewById(R.id.powerText);
 
-        findViewById(R.id.button_test).setOnClickListener(new View.OnClickListener() {
+        this.switchHeadphones = (Switch) findViewById(R.id.switch_headphones);
+        this.switchHeadset = (Switch) findViewById(R.id.switch_headset);
+
+        findViewById(R.id.imageExample).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 SpeakService.SpeakMessage(MainActivity.this,
@@ -131,6 +145,34 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // headphones
+        this.switchHeadphones.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                // set this on the state
+                State.GetInstance(MainActivity.this).setIsTalkHeadphones(MainActivity.this.switchHeadphones.isChecked());
+                // reconstruct the example text
+                constructExampleMessage();
+                if (MainActivity.this.switchHeadphones.isChecked()) {
+                    // and check permissions as they want to use this
+                    checkHeadsetPermission();
+                }
+            }
+        });
+        this.switchHeadset.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                // set this on the state
+                State.GetInstance(MainActivity.this).setIsTalkHeadset(MainActivity.this.switchHeadset.isChecked());
+                // reconstruct the example text
+                constructExampleMessage();
+                if (MainActivity.this.switchHeadset.isChecked()) {
+                    // and check permissions as they want to use this
+                    checkHeadsetPermission();
+                }
+            }
+        });
+
         // set all the defaults correctly
         setControlsFromData();
 
@@ -155,11 +197,33 @@ public class MainActivity extends AppCompatActivity {
         this.switchMessage.setChecked(state.isTalkMessage());
         // and the intro
         this.introText.setText(state.getIntro());
+
+        // when to talk too
+        this.switchHeadphones.setChecked(state.isTalkHeadphones());
+        this.switchHeadset.setChecked(state.isTalkHeadset());
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        // listen for headphone changes
+        this.headphoneStateReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                onHeadphoneStateChanged(intent);
+            }
+        };
+        registerReceiver(this.headphoneStateReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
+    }
+
+    @Override
+    protected void onPause() {
+        // stop listening for headphone changes
+        unregisterReceiver(this.headphoneStateReceiver);
+        this.headphoneStateReceiver = null;
+        // and pause
+        super.onPause();
     }
 
     protected void constructExampleMessage() {
@@ -172,6 +236,15 @@ public class MainActivity extends AppCompatActivity {
         }
         else {
             this.exampleText.setText(exampleMessage);
+        }
+
+        if (State.GetInstance(this).isTalkActive(this)) {
+            // we are active
+            this.powerText.setText(R.string.power_on);
+        }
+        else {
+            // we are not active
+            this.powerText.setText(R.string.power_off);
         }
     }
 
@@ -259,6 +332,48 @@ public class MainActivity extends AppCompatActivity {
         else {
             // permission is granted
             this.permissionContacts = true;
+            // if they enabled this then chances are that they want to use it
+            this.switchContact.setChecked(true);
+        }
+    }
+
+    protected void checkHeadsetPermission(){
+        if(ContextCompat.checkSelfPermission(this,Manifest.permission.MODIFY_AUDIO_SETTINGS) != PackageManager.PERMISSION_GRANTED) {
+            // Do something, when permissions not granted
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this ,Manifest.permission.MODIFY_AUDIO_SETTINGS)) {
+                // If we should give explanation of requested permissions
+
+                // Show an alert dialog here with request explanation
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage("Permission is required to detect headphones being plugged in.");
+                builder.setTitle("Please grant this permission");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        ActivityCompat.requestPermissions(
+                                MainActivity.this,
+                                new String[]{Manifest.permission.MODIFY_AUDIO_SETTINGS},
+                                MY_PERMISSIONS_HEADSET_REQUEST_CODE
+                        );
+                    }
+                });
+                builder.setNeutralButton("Cancel",null);
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            } else {
+                // Directly request for required permission, without explanation
+                ActivityCompat.requestPermissions(
+                        this,
+                        new String[]{
+                                Manifest.permission.MODIFY_AUDIO_SETTINGS
+                        },
+                        MY_PERMISSIONS_HEADSET_REQUEST_CODE
+                );
+            }
+        }
+        else {
+            // permission is granted
+            this.permissionHeadphones = true;
         }
     }
 
@@ -287,6 +402,17 @@ public class MainActivity extends AppCompatActivity {
                 }
                 onPermissionsChanged();
                 break;
+            case MY_PERMISSIONS_HEADSET_REQUEST_CODE:
+                // When request is cancelled, the results array are empty
+                if((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)){
+                    // Permissions are granted
+                    this.permissionHeadphones = true;
+                } else {
+                    // Permissions are denied
+                    this.permissionHeadphones = false;
+                }
+                onPermissionsChanged();
+                break;
         }
     }
 
@@ -304,11 +430,32 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+
+    private void onHeadphoneStateChanged(Intent intent) {
+        // state of the headphone changed, update our status we are showing
+        constructExampleMessage();/*
+        String action = intent.getAction();
+        Log.i("SMSpeak", action);
+        if( (action.compareTo(Intent.ACTION_HEADSET_PLUG))  == 0)   //if the action match a headset one
+        {
+            int headSetState = intent.getIntExtra("state", 0);      //get the headset state property
+            int hasMicrophone = intent.getIntExtra("microphone", 0);//get the headset microphone property
+            if( (headSetState == 0) && (hasMicrophone == 0))        //headset was unplugged & has no microphone
+            {
+                //do whatever
+            }
+        }*/
+    }
+
     protected void onPermissionsChanged() {
         // called when the permissions change for something on this activity (SMS or Contacts allowed)
         if (this.permissionContacts == false) {
             // disable the reading of the contact, not allowed
             this.switchContact.setChecked(false);
+        }
+        if (this.permissionHeadphones == false) {
+            this.switchHeadphones.setChecked(false);
         }
         // and reconstruct the example
         constructExampleMessage();

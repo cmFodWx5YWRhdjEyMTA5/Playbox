@@ -28,13 +28,15 @@ public class SpeakService extends Service implements TextToSpeech.OnInitListener
     private static final DateFormat timeFormat = new SimpleDateFormat("HH:mm");
 
     public static void SpeakMessage(Context context, String senderNum, String contactName, String message) {
-        // start the service that will speak this message
-        Intent intent = new Intent(context.getApplicationContext(), SpeakService.class);
-        intent.putExtra("number", senderNum);
-        intent.putExtra("name", contactName);
-        intent.putExtra("message", message);
-        // start the service that will speak this out
-        context.getApplicationContext().startService(intent);
+        if (State.GetInstance(context).isTalkActive(context)) {
+            // start the service that will speak this message
+            Intent intent = new Intent(context.getApplicationContext(), SpeakService.class);
+            intent.putExtra("number", senderNum);
+            intent.putExtra("name", contactName);
+            intent.putExtra("message", message);
+            // start the service that will speak this out
+            context.getApplicationContext().startService(intent);
+        }
     }
 
     public static String getTimeToRead() {
@@ -109,12 +111,15 @@ public class SpeakService extends Service implements TextToSpeech.OnInitListener
                     result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 Toast.makeText(this, "TTS language is not supported", Toast.LENGTH_LONG).show();
             } else {
-                String toSpeak = this.message;
-                if (null != this.name && false == name.isEmpty()) {
-                    // there is a name
-                    toSpeak = "Message from " + this.name + "." + this.message;
+                // construct the message
+                String contact = this.number;
+                if (this.name != null && false == this.name.isEmpty()) {
+                    // there is a contact name to use, use it
+                    contact = this.name;
                 }
-                // speak this
+                // construct the thing to speak from all our settings and the name / number
+                String toSpeak = constructMessage(this, contact, this.message);
+                // and speak this
                 ttsEngine.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, utterancesMap);
             }
         }
