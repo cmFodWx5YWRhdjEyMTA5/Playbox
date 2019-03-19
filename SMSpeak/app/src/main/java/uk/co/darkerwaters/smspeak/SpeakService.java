@@ -8,6 +8,11 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.widget.Toast;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.UUID;
@@ -20,6 +25,8 @@ public class SpeakService extends Service implements TextToSpeech.OnInitListener
 
     private HashMap<String, String> utterancesMap = new HashMap<String, String>();
 
+    private static final DateFormat timeFormat = new SimpleDateFormat("HH:mm");
+
     public static void SpeakMessage(Context context, String senderNum, String contactName, String message) {
         // start the service that will speak this message
         Intent intent = new Intent(context.getApplicationContext(), SpeakService.class);
@@ -28,6 +35,37 @@ public class SpeakService extends Service implements TextToSpeech.OnInitListener
         intent.putExtra("message", message);
         // start the service that will speak this out
         context.getApplicationContext().startService(intent);
+    }
+
+    public static String getTimeToRead() {
+        return timeFormat.format(Calendar.getInstance().getTime());
+    }
+
+    public static String constructMessage(Context context, String contact, String content) {
+        StringBuilder exampleMessage = new StringBuilder();
+        State state = State.GetInstance(context);
+        if (state.isTalkTime()) {
+            exampleMessage.append(getTimeToRead());
+        }
+        if (state.isTalkIntro()) {
+            if (exampleMessage.length() > 0) {
+                exampleMessage.append(" ");
+            }
+            exampleMessage.append(state.getIntro());
+        }
+        if (state.isTalkContact()) {
+            if (exampleMessage.length() > 0) {
+                exampleMessage.append(" ");
+            }
+            exampleMessage.append(contact);
+        }
+        if (state.isTalkMessage()) {
+            if (exampleMessage.length() > 0) {
+                exampleMessage.append(". ");
+            }
+            exampleMessage.append(content);
+        }
+        return exampleMessage.toString();
     }
 
     @Override

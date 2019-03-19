@@ -6,6 +6,7 @@
     <string name="tts_talkIntro">Intro</string>
     <string name="tts_talkContact">From</string>
     <string name="tts_talkMessage">Content</string>
+    <string name="tts_talkExample">Example Message</string>
     <string name="intro_text_default">Message from</string>
     <string name="everything">Everything</string>
     <string name="headphones">Headphones</string>
@@ -13,4 +14,10 @@
     <string name="bluetooth">BT Devices</string>
     <string name="test">Test</string>
     <string name="powerSettings">Active settings</string>
+    <string name="example_text">10:00 Message from contact. Hello there buddy (O;</string>
+    <string name="example_message">Hello there buddy (O;</string>
+    <string name="example_contact">contact</string>
+    <string name="example_failure">No message content will be read.</string>
+    <string name="power_off">Off: nothing will be read.</string>
+    <string name="power_on">On: messages will be read.</string>
 </resources>

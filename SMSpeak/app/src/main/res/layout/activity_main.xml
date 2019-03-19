@@ -42,6 +42,30 @@
             android:text="@string/test" />
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/exampleLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@+id/header_layout">
+
+        <ImageView
+            android:id="@+id/imageExample"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_baseline_phonelink_ring_24px"
+            android:contentDescription="@string/tts_talkExample" />
+
+        <TextView
+            android:id="@+id/exampleText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/example_text"
+            android:textSize="24sp" />
+    </LinearLayout>
+
     <android.support.constraint.ConstraintLayout
         android:id="@+id/outputLayout"
         android:layout_width="0dp"
@@ -50,7 +74,7 @@
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/header_layout">
+        app:layout_constraintTop_toBottomOf="@+id/exampleLayout">
 
         <LinearLayout
             android:id="@+id/layout_time"
@@ -73,7 +97,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal|center_vertical"
-                android:text="@string/tts_talkTime" />
+                android:text="@string/tts_talkTime"/>
         </LinearLayout>
 
         <LinearLayout
@@ -164,12 +188,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/outputLayout">
 
-        <ImageView
-            android:id="@+id/imageViewPower"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:contentDescription="@string/powerSettings"
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/powerActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
+            android:elevation="8dp"
+            app:fabCustomSize="64dp"
+            app:maxImageSize="48dp"
+            android:layout_margin="8dp"
+            android:clickable="true"
             app:srcCompat="@drawable/ic_baseline_power_settings_new_24px" />
+
+        <TextView
+            android:id="@+id/powerText"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="@string/power_off"
+            android:textSize="24sp" />
 
     </LinearLayout>
 
