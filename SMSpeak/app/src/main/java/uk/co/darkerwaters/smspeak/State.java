@@ -19,9 +19,10 @@ public class State {
     private String intro = null;
     private final String defaultIntro;
 
-    private boolean isTalkEverything = false;
+    private boolean isTalkAlways = false;
     private boolean isTalkHeadphones = true;
     private boolean isTalkHeadset = true;
+    private boolean isTalkBluetooth = false;
 
     private static final Object MUTEX = new Object();
     private static State INSTANCE = null;
@@ -47,18 +48,22 @@ public class State {
         IntentFilter iFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
         // without registering a filter we can determine the state one would have discovered
         Intent iStatus = context.registerReceiver(null, iFilter);
-        // from this we can get our state of headphones
-        int headSetState = iStatus.getIntExtra("state", 0);      //get the headset state property
-        int hasMicrophone = iStatus.getIntExtra("microphone", 0);//get the headset microphone property
-        // check our current settings
-        boolean isTalkActive = false;
-        if (this.isTalkHeadphones && headSetState == 1 && hasMicrophone == 0) {
-            // this is headphones connected
-            isTalkActive = true;
+        boolean isTalkActive = this.isTalkAlways;
+        if (false == isTalkActive && null != iStatus) {
+            // from this we can get our state of headphones
+            int headSetState = iStatus.getIntExtra("state", 0);      //get the headset state property
+            int hasMicrophone = iStatus.getIntExtra("microphone", 0);//get the headset microphone property
+            // check our current settings
+            if (this.isTalkHeadphones && headSetState == 1 && hasMicrophone == 0) {
+                // this is headphones connected
+                isTalkActive = true;
+            } else if (this.isTalkHeadset && headSetState == 1 && hasMicrophone == 1) {
+                // this is headset connected (have microphone)
+                isTalkActive = true;
+            }
         }
-        else if (this.isTalkHeadset && headSetState == 1 && hasMicrophone == 1) {
-            // this is headset connected (have microphone)
-            isTalkActive = true;
+        if (false == isTalkActive) {
+            // need to check the connection status of BT devices then
         }
         return isTalkActive;
     }
@@ -93,6 +98,12 @@ public class State {
         }
     }
 
+    public boolean isTalkAlways() {
+        synchronized (this.preferences) {
+            return this.preferences.getBoolean("isTalkAlways", this.isTalkAlways);
+        }
+    }
+
     public boolean isTalkHeadphones() {
         synchronized (this.preferences) {
             return this.preferences.getBoolean("isTalkHeadphones", this.isTalkHeadphones);
@@ -102,6 +113,12 @@ public class State {
     public boolean isTalkHeadset() {
         synchronized (this.preferences) {
             return this.preferences.getBoolean("isTalkHeadset", this.isTalkHeadset);
+        }
+    }
+
+    public boolean isTalkBluetooth() {
+        synchronized (this.preferences) {
+            return this.preferences.getBoolean("isTalkBluetooth", this.isTalkBluetooth);
         }
     }
 
@@ -141,6 +158,15 @@ public class State {
         }
     }
 
+    public void setIsTalkAlways(boolean isTalkAlways) {
+        synchronized (this.preferences) {
+            this.isTalkAlways = isTalkAlways;
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean("isTalkAlways", this.isTalkAlways);
+            editor.commit();
+        }
+    }
+
     public void setIsTalkHeadphones(boolean isTalkHeadphones) {
         synchronized (this.preferences) {
             this.isTalkHeadphones = isTalkHeadphones;
@@ -155,6 +181,15 @@ public class State {
             this.isTalkHeadset = isTalkHeadset;
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean("isTalkHeadset", this.isTalkHeadset);
+            editor.commit();
+        }
+    }
+
+    public void setIsTalkBluetooth(boolean isTalkBluetooth) {
+        synchronized (this.preferences) {
+            this.isTalkBluetooth = isTalkBluetooth;
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean("isTalkBluetooth", this.isTalkBluetooth);
             editor.commit();
         }
     }

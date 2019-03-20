@@ -8,12 +8,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.speech.tts.TextToSpeech;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -50,8 +53,9 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton powerFab;
     private TextView powerText;
 
-    private Switch switchHeadphones;
-    private Switch switchHeadset;
+    private RecyclerView recyclerView;
+    private OptionsListAdapter mAdapter;
+    private RecyclerView.LayoutManager layoutManager;
 
     private BroadcastReceiver headphoneStateReceiver;
 
@@ -71,8 +75,7 @@ public class MainActivity extends AppCompatActivity {
         this.powerFab = (FloatingActionButton) findViewById(R.id.powerActionButton);
         this.powerText = (TextView) findViewById(R.id.powerText);
 
-        this.switchHeadphones = (Switch) findViewById(R.id.switch_headphones);
-        this.switchHeadset = (Switch) findViewById(R.id.switch_headset);
+        this.recyclerView = (RecyclerView) findViewById(R.id.list_recycler_view);
 
         findViewById(R.id.imageExample).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -145,33 +148,25 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // headphones
-        this.switchHeadphones.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        // setup the list of options
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        // specify an adapter (see also next example)
+        mAdapter = new OptionsListAdapter(this, new OptionsListAdapter.OptionsListAdapterListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                // set this on the state
-                State.GetInstance(MainActivity.this).setIsTalkHeadphones(MainActivity.this.switchHeadphones.isChecked());
+            public void onOptionsListChanged(OptionsListItem item) {
                 // reconstruct the example text
                 constructExampleMessage();
-                if (MainActivity.this.switchHeadphones.isChecked()) {
-                    // and check permissions as they want to use this
+                State state = State.GetInstance(MainActivity.this);
+                if ((item.iconId == R.drawable.ic_baseline_headset_24px ||
+                        item.iconId == R.drawable.ic_baseline_headset_mic_24px) &&
+                        (state.isTalkHeadphones() || state.isTalkHeadset())) {
+                    // are wanting to use headphones, check we have permission now
                     checkHeadsetPermission();
                 }
             }
         });
-        this.switchHeadset.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                // set this on the state
-                State.GetInstance(MainActivity.this).setIsTalkHeadset(MainActivity.this.switchHeadset.isChecked());
-                // reconstruct the example text
-                constructExampleMessage();
-                if (MainActivity.this.switchHeadset.isChecked()) {
-                    // and check permissions as they want to use this
-                    checkHeadsetPermission();
-                }
-            }
-        });
+        recyclerView.setAdapter(mAdapter);
 
         // set all the defaults correctly
         setControlsFromData();
@@ -197,10 +192,6 @@ public class MainActivity extends AppCompatActivity {
         this.switchMessage.setChecked(state.isTalkMessage());
         // and the intro
         this.introText.setText(state.getIntro());
-
-        // when to talk too
-        this.switchHeadphones.setChecked(state.isTalkHeadphones());
-        this.switchHeadset.setChecked(state.isTalkHeadset());
     }
 
     @Override
@@ -241,10 +232,12 @@ public class MainActivity extends AppCompatActivity {
         if (State.GetInstance(this).isTalkActive(this)) {
             // we are active
             this.powerText.setText(R.string.power_on);
+            this.powerFab.setEnabled(true);
         }
         else {
             // we are not active
             this.powerText.setText(R.string.power_off);
+            this.powerFab.setEnabled(false);
         }
     }
 
@@ -455,7 +448,15 @@ public class MainActivity extends AppCompatActivity {
             this.switchContact.setChecked(false);
         }
         if (this.permissionHeadphones == false) {
-            this.switchHeadphones.setChecked(false);
+            // turn off the headphones ones
+            for (OptionsListItemView view : this.mAdapter.getDataset()) {
+                if (view.getData().isHeadphones()) {
+                    // this is for headphones, but they are not allowed
+                    view.getData().setSelected(false);
+                    // and update the state of this
+                    view.updateState();
+                }
+            }
         }
         // and reconstruct the example
         constructExampleMessage();
