@@ -1,14 +1,25 @@
 package uk.co.darkerwaters.smspeak;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 public class State {
 
     public static final String PREFS_NAME = "MyApp_Settings";
+    public static final String LOGTAG = "SMSpeak";
     private final SharedPreferences preferences;
 
     private boolean isTalkTime = true;
@@ -23,6 +34,9 @@ public class State {
     private boolean isTalkHeadphones = true;
     private boolean isTalkHeadset = true;
     private boolean isTalkBluetooth = false;
+
+    private final HashSet<String> bluetoothDevices = new HashSet<String>();
+    private String connectedBtDevice = "";
 
     private static final Object MUTEX = new Object();
     private static State INSTANCE = null;
@@ -64,8 +78,27 @@ public class State {
         }
         if (false == isTalkActive) {
             // need to check the connection status of BT devices then
+            String connectedDevice = getConnectedBtDevice(context);
+            if (this.isTalkBluetooth) {
+                // talk is active if we are connected to some BT device
+                isTalkActive = null != connectedDevice && false == connectedDevice.isEmpty();
+            }
+            else {
+                // check the list for a connected BT device
+                if (null != connectedDevice && false == connectedDevice.isEmpty()) {
+                    // there is a connected device, should we talk (is it in the list?)
+                    isTalkActive = isTalkBtDevice(connectedDevice);
+                }
+            }
         }
+        // return if we should talk
         return isTalkActive;
+    }
+
+    public String getConnectedBtDevice(Context context) {
+        synchronized (this.preferences) {
+            return this.preferences.getString("connectedBtDevice", this.connectedBtDevice);
+        }
     }
 
     public boolean isTalkTime() {
@@ -120,6 +153,31 @@ public class State {
         synchronized (this.preferences) {
             return this.preferences.getBoolean("isTalkBluetooth", this.isTalkBluetooth);
         }
+    }
+
+    public boolean isTalkBtDevice(String deviceName) {
+        boolean returnValue = false;
+        // first load the list of devices into our member list
+        synchronized (this.preferences) {
+            this.bluetoothDevices.clear();
+            int noDevices = this.preferences.getInt("BTDeviceCount", 0);
+            for (int i = 1; i <= noDevices; ++i) {
+                String device = this.preferences.getString("BTDevice" +  i, "");
+                if (device != null && false == device.isEmpty()) {
+                    // this is ok, add to the list
+                    this.bluetoothDevices.add(device);
+                }
+            }
+            for (String device : this.bluetoothDevices) {
+                // check each device
+                if (device.equals(deviceName)) {
+                    // this is the one
+                    returnValue = true;
+                    break;
+                }
+            }
+        }
+        return returnValue;
     }
 
     public void setIsTalkTime(boolean isTalkTime) {
@@ -194,6 +252,28 @@ public class State {
         }
     }
 
+    public void setIsTalkBtDevice(String deviceName, boolean isTalk) {
+        synchronized (this.preferences) {
+            if (isTalk) {
+                // add this device
+                this.bluetoothDevices.add(deviceName);
+            }
+            else {
+                // remove this device
+                this.bluetoothDevices.remove(deviceName);
+            }
+            // and put into the preferences
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putInt("BTDeviceCount", this.bluetoothDevices.size());
+            int i = 1;
+            for (String device : this.bluetoothDevices) {
+                editor.putString("BTDevice" +  i, device);
+                ++i;
+            }
+            editor.commit();
+        }
+    }
+
     public void setIntro(String intro) {
         if (intro == null || intro.isEmpty()) {
             // don't allow this
@@ -203,6 +283,19 @@ public class State {
             this.intro = intro;
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("intro", this.intro);
+            editor.commit();
+        }
+    }
+
+    public void setConnectedBtDevice(String device, boolean isConnected) {
+        if (device == null || false == isConnected) {
+            // no connection
+            device = "";
+        }
+        synchronized (this.preferences) {
+            this.connectedBtDevice = device;
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("connectedBtDevice", this.connectedBtDevice);
             editor.commit();
         }
     }

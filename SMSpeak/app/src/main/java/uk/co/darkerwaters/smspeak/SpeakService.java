@@ -28,15 +28,13 @@ public class SpeakService extends Service implements TextToSpeech.OnInitListener
     private static final DateFormat timeFormat = new SimpleDateFormat("HH:mm");
 
     public static void SpeakMessage(Context context, String senderNum, String contactName, String message) {
-        if (State.GetInstance(context).isTalkActive(context)) {
-            // start the service that will speak this message
-            Intent intent = new Intent(context.getApplicationContext(), SpeakService.class);
-            intent.putExtra("number", senderNum);
-            intent.putExtra("name", contactName);
-            intent.putExtra("message", message);
-            // start the service that will speak this out
-            context.getApplicationContext().startService(intent);
-        }
+        // start the service that will speak this message
+        Intent intent = new Intent(context.getApplicationContext(), SpeakService.class);
+        intent.putExtra("number", senderNum);
+        intent.putExtra("name", contactName);
+        intent.putExtra("message", message);
+        // start the service that will speak this out
+        context.getApplicationContext().startService(intent);
     }
 
     public static String getTimeToRead() {

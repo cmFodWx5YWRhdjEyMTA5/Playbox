@@ -37,7 +37,12 @@ public class OptionsListItemView extends RecyclerView.ViewHolder {
         this.data = data;
         // - replace the contents of the view with that element
         Resources resources = this.parent.getContext().getResources();
-        this.textView.setText(resources.getString(data.name));
+        if (data.name == null) {
+            this.textView.setText(resources.getString(data.nameId));
+        }
+        else {
+            this.textView.setText(data.name);
+        }
         this.iconView.setImageResource(data.iconId);
         // listen for changes in state
         this.stateSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

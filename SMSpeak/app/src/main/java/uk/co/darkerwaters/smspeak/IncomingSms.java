@@ -32,7 +32,6 @@ public class IncomingSms extends BroadcastReceiver {
             if (bundle != null) {
 
                 final Object[] pdusObj = (Object[]) bundle.get("pdus");
-
                 for (int i = 0; i < pdusObj.length; i++) {
 
                     SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdusObj[i]);
@@ -41,21 +40,14 @@ public class IncomingSms extends BroadcastReceiver {
                     String senderNum = phoneNumber;
                     String message = currentMessage.getDisplayMessageBody();
 
-                    Log.i("SMSpeak", "senderNum: "+ senderNum + "; message: " + message);
-
-                    // start the service that will speak this message
-                    SpeakService.SpeakMessage(context, senderNum, getContactName(context, phoneNumber), message);
-
-                    // Show Alert
-                    int duration = Toast.LENGTH_LONG;
-                    Toast toast = Toast.makeText(context, "senderNum: "+ senderNum + ", message: " + message, duration);
-                    toast.show();
-
-                } // end for loop
-            } // bundle is null
-
+                    if (State.GetInstance(context).isTalkActive(context)) {
+                        // start the service that will speak this message
+                        SpeakService.SpeakMessage(context, senderNum, getContactName(context, phoneNumber), message);
+                    }
+                }
+            }
         } catch (Exception e) {
-            Log.e("SmsReceiver", "Exception smsReceiver" +e);
+            Log.e(State.LOGTAG, "Exception smsReceiver" +e);
 
         }
     }
