@@ -19,8 +19,8 @@
 
         <ImageView
             android:id="@+id/userImageView"
-            android:layout_width="128dp"
-            android:layout_height="128dp"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
             android:contentDescription="@string/nav_header_desc"
             android:paddingTop="@dimen/nav_header_vertical_spacing"
             android:scaleType="fitXY"
@@ -40,7 +40,8 @@
             android:id="@+id/sign_in_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom" />
+            android:layout_gravity="bottom"
+            android:visibility="visible" />
     </LinearLayout>
 
 </LinearLayout>

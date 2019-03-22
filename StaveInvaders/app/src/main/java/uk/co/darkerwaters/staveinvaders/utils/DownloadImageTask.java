@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import java.io.InputStream;
 
 import uk.co.darkerwaters.staveinvaders.MainActivity;
+import uk.co.darkerwaters.staveinvaders.MainApplication;
 
 public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
     public final ImageView bmImage;
@@ -26,7 +27,7 @@ public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
             InputStream in = new java.net.URL(this.imageUrl).openStream();
             mIcon11 = BitmapFactory.decodeStream(in);
         } catch (Exception e) {
-            Log.e(MainActivity.TAG, e.getMessage());
+            Log.e(MainApplication.TAG, e.getMessage());
             e.printStackTrace();
         }
         return mIcon11;

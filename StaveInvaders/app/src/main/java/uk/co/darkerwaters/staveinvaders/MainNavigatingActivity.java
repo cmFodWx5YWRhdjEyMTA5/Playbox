@@ -14,8 +14,6 @@ import android.view.View;
 public class MainNavigatingActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    public static final String TAG = "StaveInvaders";
-
     protected View navigationHeader;
     protected NavigationView navigationView;
     protected Toolbar toolbar;

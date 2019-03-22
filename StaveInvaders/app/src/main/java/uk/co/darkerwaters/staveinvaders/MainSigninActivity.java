@@ -29,19 +29,14 @@ import com.google.android.gms.tasks.Task;
 
 import uk.co.darkerwaters.staveinvaders.utils.DownloadImageTask;
 
-public class MainSigninActivity extends MainNavigatingActivity
-        implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MainSigninActivity extends MainNavigatingActivity {
 
-    private static final int REQUEST_CODE_RESOLUTION = 321;
-    private static final int RC_SIGN_IN = 320;
 
     private SignInButton signInButton;
     private ImageView userImage;
     private TextView userTitle;
 
-    private GoogleApiClient mGoogleApiClient = null;
-    private GoogleSignInClient mGoogleSignInClient = null;
-    private GoogleSignInAccount account = null;
+    private SigninState account = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,106 +52,29 @@ public class MainSigninActivity extends MainNavigatingActivity
         this.signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                signIn();
+                if (null != MainSigninActivity.this.account) {
+                    MainSigninActivity.this.account.signin();
+                }
             }
         });
-
-        // sign in to the default account
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build();
-
-        // Build a GoogleSignInClient with the options specified by gso.
-        this.mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        updateControls();
+        // create our accounts
+        this.account = ((MainApplication)getApplication()).getSigninState();
+        this.account.create(this);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-
-        // Check for existing Google Sign In account, if the user is already signed in
-        // the GoogleSignInAccount will be non-null.
-        this.account = GoogleSignIn.getLastSignedInAccount(this);
-        if (null != this.account) {
-            Log.i(TAG, "Google already signed in: " + account.getDisplayName());
-            updateControls();
-        }
-    }
-
-    private void signIn() {
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        if (this.mGoogleApiClient == null) {
-            /**
-             * Create the API client and bind it to an instance variable.
-             * We use this instance as the callback for connection and connection failures.
-             * Since no account name is passed, the user is prompted to choose.
-             */
-            this.mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .addApi(Drive.API)
-                    .addScope(Drive.SCOPE_FILE)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .build();
-        }
-        // connect to the API client so we can do our file things
-        mGoogleApiClient.connect();
+        // sign in to our account when we start up
+        this.account.signin();
+        // update our controls accordingly
+        updateControls();
     }
 
     @Override
     protected void onStop() {
-        // disconnect any APIs
-        if (mGoogleApiClient != null) {
-            // disconnect Google Android Drive API connection.
-            mGoogleApiClient.disconnect();
-            mGoogleApiClient = null;
-        }
+        // DO NOT SIGN OUT - APPLICATION WILL FOR US
         super.onStop();
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        Toast.makeText(getApplicationContext(), "Connected", Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        Toast.makeText(getApplicationContext(), "Connection suspended", Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        // Called whenever the API client fails to connect.
-        Log.i(TAG, "GoogleApiClient connection failed: " + connectionResult.toString());
-
-        if (!connectionResult.hasResolution()) {
-            // show the localized error dialog.
-            GoogleApiAvailability.getInstance().getErrorDialog(this, connectionResult.getErrorCode(), 0).show();
-            return;
-        }
-
-        /**
-         *  The failure has a resolution. Resolve it.
-         *  Called typically when the app is not yet authorized, and an  authorization
-         *  dialog is displayed to the user.
-         */
-
-        try {
-
-            connectionResult.startResolutionForResult(this, REQUEST_CODE_RESOLUTION);
-
-        } catch (IntentSender.SendIntentException e) {
-
-            Log.e(TAG, "Exception while starting resolution activity", e);
-        }
     }
 
     @Override
@@ -168,34 +86,22 @@ public class MainSigninActivity extends MainNavigatingActivity
             case ConnectionResult.SIGN_IN_REQUIRED:
                 //signIn();
                 break;
-            case RC_SIGN_IN:
+            case SigninState.REQUEST_CODE_SIGN_IN:
                 // The Task returned from this call is always completed, no need to attach
                 // a listener.
                 Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-                handleSignInResult(task);
+                this.account.handleSignInResult(task);
                 break;
         }
-    }
-
-    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
-        try {
-            this.account = completedTask.getResult(ApiException.class);
-
-            // Signed in successfully, show authenticated UI.
-            updateControls();
-        } catch (ApiException e) {
-            // The ApiException status code indicates the detailed failure reason.
-            // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            Log.w(TAG, "signInResult:failed code=" + e.getStatusCode() + " " + e.getMessage());
-            updateControls();
-        }
+        // update our controls now then
+        updateControls();
     }
 
     private void updateControls() {
         // reset the image to default
         this.userImage.setImageResource(R.drawable.ic_baseline_account_circle_24px);
         // set the user etc based on the logged in account
-        if (null == this.account) {
+        if (null == this.account || this.account.isSignedin() == false) {
             this.userTitle.setVisibility(View.GONE);
             this.signInButton.setVisibility(View.VISIBLE);
         }
@@ -211,6 +117,5 @@ public class MainSigninActivity extends MainNavigatingActivity
             this.userTitle.setVisibility(View.VISIBLE);
             this.signInButton.setVisibility(View.GONE);
         }
-
     }
 }
