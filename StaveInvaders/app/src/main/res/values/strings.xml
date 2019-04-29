@@ -6,4 +6,9 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
+    <string name="on_screen_keyboard">On-Screen Keyboard</string>
+    <string name="microphone">Microphone</string>
+    <string name="bluetooth_keyboard">Bluetooth Keyboard</string>
+    <string name="usb_keyboard">USB Keyboard</string>
+    <string name="keyboard_connection">Keyboard Connection</string>
 </resources>

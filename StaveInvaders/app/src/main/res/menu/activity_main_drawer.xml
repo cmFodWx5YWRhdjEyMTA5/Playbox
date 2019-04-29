@@ -22,16 +22,24 @@
             android:title="Tools" />
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="@string/keyboard_connection">
         <menu>
             <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
+                android:id="@+id/input_keys"
+                android:icon="@drawable/ic_baseline_keyboard_24px"
+                android:title="@string/on_screen_keyboard" />
             <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
+                android:id="@+id/input_mic"
+                android:icon="@drawable/ic_baseline_mic_24px"
+                android:title="@string/microphone" />
+            <item
+                android:id="@+id/input_bt"
+                android:icon="@drawable/ic_baseline_bluetooth_24px"
+                android:title="@string/bluetooth_keyboard" />
+            <item
+                android:id="@+id/input_usb"
+                android:icon="@drawable/ic_baseline_usb_24px"
+                android:title="@string/usb_keyboard" />
         </menu>
     </item>
 

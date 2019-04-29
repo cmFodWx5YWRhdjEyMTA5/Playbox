@@ -22,6 +22,10 @@ public class Application extends android.app.Application {
         Log.debug("Application initialised...");
     }
 
+    public InputSelector getInputSelector() {
+        return this.input;
+    }
+
     @Override
     public void onTerminate() {
         // close things down

@@ -19,7 +19,7 @@ public class Settings {
     private final String K_ACTIVEINPUT = "input_active";
 
     // the settings - important for defaults
-    private boolean isLogging = false;
+    private boolean isLogging = true;
 
     private boolean isInputKeys = true;
     private boolean isInputMic = true;
