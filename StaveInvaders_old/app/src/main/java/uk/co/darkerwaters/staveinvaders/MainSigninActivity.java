@@ -17,14 +17,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.drive.Drive;
 import com.google.android.gms.tasks.Task;
 
 import uk.co.darkerwaters.staveinvaders.utils.DownloadImageTask;
@@ -91,6 +85,10 @@ public class MainSigninActivity extends MainNavigatingActivity {
                 // a listener.
                 Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
                 this.account.handleSignInResult(task);
+                break;
+            case SigninState.REQUEST_CODE_DRIVE_ACCESS:
+                // have drive access now
+                this.account.getDriveFiles();
                 break;
         }
         // update our controls now then
