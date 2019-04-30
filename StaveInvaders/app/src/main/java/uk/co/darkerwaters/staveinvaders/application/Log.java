@@ -3,7 +3,8 @@ package uk.co.darkerwaters.staveinvaders.application;
 import uk.co.darkerwaters.staveinvaders.Application;
 
 public class Log {
-    private static final String K_APPLICATION = "StaveInvaders";
+    public static final String K_APPLICATION = "StaveInvaders";
+    private static final String K_SEP = ": ";
 
     private static final Object lock = new Object();
     private static Log log = null;
@@ -34,6 +35,12 @@ public class Log {
         return isLogging;
     }
 
+    public static void error(String explanation, Exception contents) {
+        if (isLogging()) {
+            android.util.Log.e(K_APPLICATION, explanation + K_SEP + contents.getMessage());
+        }
+    }
+
     public static void error(Exception contents) {
         if (isLogging()) {
             android.util.Log.e(K_APPLICATION, contents.getMessage());
@@ -43,6 +50,12 @@ public class Log {
     public static void error(String contents) {
         if (isLogging()) {
             android.util.Log.e(K_APPLICATION, contents);
+        }
+    }
+
+    public static void debug(String explanation, Exception contents) {
+        if (isLogging()) {
+            android.util.Log.d(K_APPLICATION, explanation + K_SEP + contents.getMessage());
         }
     }
 
@@ -58,6 +71,12 @@ public class Log {
         }
     }
 
+    public static void info(String explanation, Exception contents) {
+        if (isLogging()) {
+            android.util.Log.i(K_APPLICATION, explanation + K_SEP + contents.getMessage());
+        }
+    }
+
     public static void info(Exception contents) {
         if (isLogging()) {
             android.util.Log.i(K_APPLICATION, contents.getMessage());
@@ -67,6 +86,12 @@ public class Log {
     public static void info(String contents) {
         if (isLogging()) {
             android.util.Log.i(K_APPLICATION, contents);
+        }
+    }
+
+    public static void verbose(String explanation, Exception contents) {
+        if (isLogging()) {
+            android.util.Log.v(K_APPLICATION, explanation + K_SEP + contents.getMessage());
         }
     }
 
@@ -81,5 +106,4 @@ public class Log {
             android.util.Log.v(K_APPLICATION, contents);
         }
     }
-
 }
