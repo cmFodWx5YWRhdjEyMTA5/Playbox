@@ -47,18 +47,6 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
             }
         });
 
-        // setup the action menu item selections
-        Menu menu = this.navigationView.getMenu();
-        if (null != menu) {
-            for (int i = 0; i < menu.size(); ++i) {
-                MenuItem item = menu.getItem(i);
-                ActionProvider actionProvider = MenuItemCompat.getActionProvider(item);
-                if (null != actionProvider && actionProvider instanceof InputOptionSettingsHandler) {
-                    setupInputMenuItem((InputOptionSettingsHandler)actionProvider, item);
-                }
-            }
-        }
-
         // want to listen to changes in the input to show this status on the menu
         InputSelector inputSelector = this.application.getInputSelector();
         if (null != inputSelector) {
@@ -70,10 +58,9 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
     }
 
     private void setupInputMenuItem(InputOptionSettingsHandler actionProvider, MenuItem menuItem) {
-        View view = menuItem.getActionView();
         switch (menuItem.getItemId()) {
             case R.id.input_keys :
-                view.findViewById(R.id.imageButton).setOnClickListener(new View.OnClickListener() {
+                actionProvider.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         // input keys settings shown
@@ -82,7 +69,7 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
                 });
                 break;
             case R.id.input_mic :
-                view.findViewById(R.id.imageButton).setOnClickListener(new View.OnClickListener() {
+                actionProvider.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         // input keys settings shown
@@ -91,22 +78,24 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
                 });
                 break;
             case R.id.input_bt :
-                view.findViewById(R.id.imageButton).setOnClickListener(new View.OnClickListener() {
+                actionProvider.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         // input keys settings shown
                         showSettingsPage(Settings.InputType.bt);
                     }
                 });
+                //TODO show the state of the connection in the menu as a tick or animation
                 break;
             case R.id.input_usb :
-                view.findViewById(R.id.imageButton).setOnClickListener(new View.OnClickListener() {
+                actionProvider.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         // input keys settings shown
                         showSettingsPage(Settings.InputType.usb);
                     }
                 });
+                //TODO show the state of the connection in the menu as a tick or animation
                 break;
         }
     }
@@ -125,6 +114,18 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
 
         // update the selection of the buttons
         setNavButtonSelection(application.getSettings().getActiveInput());
+
+        // setup the action menu item selections
+        Menu menu = this.navigationView.getMenu();
+        if (null != menu) {
+            for (int i = 0; i < menu.size(); ++i) {
+                MenuItem item = menu.getItem(i);
+                ActionProvider actionProvider = MenuItemCompat.getActionProvider(item);
+                if (null != actionProvider && actionProvider instanceof InputOptionSettingsHandler) {
+                    setupInputMenuItem((InputOptionSettingsHandler)actionProvider, item);
+                }
+            }
+        }
     }
 
     private void updateNavSelection(MenuItem item) {
