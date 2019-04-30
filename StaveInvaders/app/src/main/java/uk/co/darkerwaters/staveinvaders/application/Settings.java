@@ -92,9 +92,11 @@ public class Settings {
                 break;
             case usb:
                 this.activeInput = K_INPUTUSB;
+                break;
             case keys:
             default:
                 this.activeInput = K_INPUTKEYS;
+                break;
         }
         this.editor.putString(K_ACTIVEINPUT, this.activeInput);
         return this;

@@ -5,41 +5,41 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
+            android:id="@+id/input_keys"
+            android:title="@string/on_screen_keyboard"
+            android:icon="@drawable/ic_baseline_keyboard_24px"/>
         <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:id="@+id/input_mic"
+            android:icon="@drawable/ic_baseline_mic_24px"
+            android:title="@string/microphone" />
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
+            android:id="@+id/input_bt"
+            android:icon="@drawable/ic_baseline_bluetooth_24px"
+            android:title="@string/bluetooth_keyboard" />
         <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:id="@+id/input_usb"
+            android:icon="@drawable/ic_baseline_usb_24px"
+            android:title="@string/usb_keyboard" />
     </group>
 
     <item android:title="@string/keyboard_connection">
         <menu>
             <item
-                android:id="@+id/input_keys"
-                android:icon="@drawable/ic_baseline_keyboard_24px"
-                android:title="@string/on_screen_keyboard" />
+                android:id="@+id/nav_camera"
+                android:icon="@drawable/ic_menu_camera"
+                android:title="Import" />
             <item
-                android:id="@+id/input_mic"
-                android:icon="@drawable/ic_baseline_mic_24px"
-                android:title="@string/microphone" />
+                android:id="@+id/nav_gallery"
+                android:icon="@drawable/ic_menu_gallery"
+                android:title="Gallery" />
             <item
-                android:id="@+id/input_bt"
-                android:icon="@drawable/ic_baseline_bluetooth_24px"
-                android:title="@string/bluetooth_keyboard" />
+                android:id="@+id/nav_slideshow"
+                android:icon="@drawable/ic_menu_slideshow"
+                android:title="Slideshow" />
             <item
-                android:id="@+id/input_usb"
-                android:icon="@drawable/ic_baseline_usb_24px"
-                android:title="@string/usb_keyboard" />
+                android:id="@+id/nav_manage"
+                android:icon="@drawable/ic_menu_manage"
+                android:title="Tools" />
         </menu>
     </item>
 
