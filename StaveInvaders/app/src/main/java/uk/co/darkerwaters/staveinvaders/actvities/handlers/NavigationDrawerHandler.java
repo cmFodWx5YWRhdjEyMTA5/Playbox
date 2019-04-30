@@ -9,12 +9,15 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import uk.co.darkerwaters.staveinvaders.Application;
+import uk.co.darkerwaters.staveinvaders.Input.Input;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
@@ -57,52 +60,37 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
         syncState();
     }
 
-    private void setupInputMenuItem(InputOptionSettingsHandler actionProvider, MenuItem menuItem) {
-        switch (menuItem.getItemId()) {
+    private Settings.InputType ButtonToType(int id) {
+        switch (id) {
             case R.id.input_keys :
-                actionProvider.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // input keys settings shown
-                        showSettingsPage(Settings.InputType.keys);
-                    }
-                });
-                break;
+                return Settings.InputType.keys;
             case R.id.input_mic :
-                actionProvider.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // input keys settings shown
-                        showSettingsPage(Settings.InputType.mic);
-                    }
-                });
-                break;
+                return Settings.InputType.mic;
             case R.id.input_bt :
-                actionProvider.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // input keys settings shown
-                        showSettingsPage(Settings.InputType.bt);
-                    }
-                });
-                //TODO show the state of the connection in the menu as a tick or animation
-                break;
+                return Settings.InputType.bt;
             case R.id.input_usb :
-                actionProvider.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // input keys settings shown
-                        showSettingsPage(Settings.InputType.usb);
-                    }
-                });
-                //TODO show the state of the connection in the menu as a tick or animation
-                break;
+                return Settings.InputType.usb;
         }
+        return Settings.InputType.keys;
+    }
+
+    private int TypeToButton(Settings.InputType type) {
+        switch (type) {
+            case keys :
+                return R.id.input_keys;
+            case mic :
+                return R.id.input_mic;
+            case bt :
+                return R.id.input_bt;
+            case usb :
+                return R.id.input_usb;
+        }
+        return R.id.input_keys;
     }
 
     private void showSettingsPage(Settings.InputType inputType) {
         //TODO show the correct settings for this type of input
-        Toast.makeText(parent, "Settings page to do", Toast.LENGTH_LONG).show();
+        Toast.makeText(parent, "Settings page to do for " + inputType.toString(), Toast.LENGTH_LONG).show();
         // close the drawer now the item is selected
         closeDrawer();
     }
@@ -113,7 +101,8 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
         super.onDrawerOpened(drawerView);
 
         // update the selection of the buttons
-        setNavButtonSelection(application.getSettings().getActiveInput());
+        int activeButtonId = TypeToButton(application.getSettings().getActiveInput());
+        this.navigationView.setCheckedItem(activeButtonId);
 
         // setup the action menu item selections
         Menu menu = this.navigationView.getMenu();
@@ -122,7 +111,25 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
                 MenuItem item = menu.getItem(i);
                 ActionProvider actionProvider = MenuItemCompat.getActionProvider(item);
                 if (null != actionProvider && actionProvider instanceof InputOptionSettingsHandler) {
-                    setupInputMenuItem((InputOptionSettingsHandler)actionProvider, item);
+                    // handle the clicking of this settings button
+                    final Settings.InputType selectedType = ButtonToType(item.getItemId());
+                    View actionView = item.getActionView();
+                    InputOptionSettingsHandler inputOptionSettingsHandler = (InputOptionSettingsHandler)actionProvider;
+                    inputOptionSettingsHandler.setOnClickListener(actionView, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            // input keys settings shown
+                            showSettingsPage(selectedType);
+                        }
+                    });
+                    if (activeButtonId == item.getItemId()) {
+                        // this is the active button, check this status
+                        //TODO when this is searching, show an animation, else show a tick or something
+                    }
+                    else {
+                        // not active, hide the animation
+                        inputOptionSettingsHandler.hideProgress(actionView);
+                    }
                 }
             }
         }
@@ -130,26 +137,9 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
 
     private void updateNavSelection(MenuItem item) {
         // Handle navigation view item clicks here.
-        int id = item.getItemId();
-        switch (id) {
-            case R.id.input_keys:
-                // change the input type
-                setInputType(Settings.InputType.keys);
-                break;
-            case R.id.input_mic:
-                // change the input type
-                setInputType(Settings.InputType.mic);
-                break;
-            case R.id.input_bt:
-                // change the input type
-                setInputType(Settings.InputType.bt);
-                break;
-            case R.id.input_usb:
-                // change the input type
-                setInputType(Settings.InputType.usb);
-                break;
-        }
-
+        Settings.InputType selectedType = ButtonToType(item.getItemId());
+        // set this as the active type to use
+        this.application.getInputSelector().changeInputType(selectedType);
         // close the drawer now the item is selected
         closeDrawer();
     }
@@ -160,32 +150,11 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
         drawer.closeDrawer(GravityCompat.START);
     }
 
-    private void setInputType(Settings.InputType type) {
-        // set the new input type
-        this.application.getInputSelector().changeInputType(type);
-    }
-
     @Override
     public void onInputTypeChanged(Settings.InputType newType) {
         // called when the input type changes, update the selection to show this new type
-        setNavButtonSelection(newType);
-    }
-
-    public void setNavButtonSelection(Settings.InputType newType) {
-        switch (newType) {
-            case keys:
-                this.navigationView.setCheckedItem(R.id.input_keys);
-                break;
-            case mic:
-                this.navigationView.setCheckedItem(R.id.input_mic);
-                break;
-            case usb:
-                this.navigationView.setCheckedItem(R.id.input_usb);
-                break;
-            case bt:
-                this.navigationView.setCheckedItem(R.id.input_bt);
-                break;
-        }
-
+        int buttonId = TypeToButton(newType);
+        // set this as the checked button
+        this.navigationView.setCheckedItem(buttonId);
     }
 }
