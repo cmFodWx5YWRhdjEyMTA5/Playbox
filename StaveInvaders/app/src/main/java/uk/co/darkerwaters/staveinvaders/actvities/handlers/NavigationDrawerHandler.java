@@ -3,12 +3,16 @@ package uk.co.darkerwaters.staveinvaders.actvities.handlers;
 import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.view.ActionProvider;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
@@ -43,6 +47,18 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
             }
         });
 
+        // setup the action menu item selections
+        Menu menu = this.navigationView.getMenu();
+        if (null != menu) {
+            for (int i = 0; i < menu.size(); ++i) {
+                MenuItem item = menu.getItem(i);
+                ActionProvider actionProvider = MenuItemCompat.getActionProvider(item);
+                if (null != actionProvider && actionProvider instanceof InputOptionSettingsHandler) {
+                    setupInputMenuItem((InputOptionSettingsHandler)actionProvider, item);
+                }
+            }
+        }
+
         // want to listen to changes in the input to show this status on the menu
         InputSelector inputSelector = this.application.getInputSelector();
         if (null != inputSelector) {
@@ -53,6 +69,54 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
         syncState();
     }
 
+    private void setupInputMenuItem(InputOptionSettingsHandler actionProvider, MenuItem menuItem) {
+        View view = menuItem.getActionView();
+        switch (menuItem.getItemId()) {
+            case R.id.input_keys :
+                view.findViewById(R.id.imageButton).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // input keys settings shown
+                        showSettingsPage(Settings.InputType.keys);
+                    }
+                });
+                break;
+            case R.id.input_mic :
+                view.findViewById(R.id.imageButton).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // input keys settings shown
+                        showSettingsPage(Settings.InputType.mic);
+                    }
+                });
+                break;
+            case R.id.input_bt :
+                view.findViewById(R.id.imageButton).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // input keys settings shown
+                        showSettingsPage(Settings.InputType.bt);
+                    }
+                });
+                break;
+            case R.id.input_usb :
+                view.findViewById(R.id.imageButton).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // input keys settings shown
+                        showSettingsPage(Settings.InputType.usb);
+                    }
+                });
+                break;
+        }
+    }
+
+    private void showSettingsPage(Settings.InputType inputType) {
+        //TODO show the correct settings for this type of input
+        Toast.makeText(parent, "Settings page to do", Toast.LENGTH_LONG).show();
+        // close the drawer now the item is selected
+        closeDrawer();
+    }
 
 
     @Override
@@ -86,6 +150,11 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
         }
 
         // close the drawer now the item is selected
+        closeDrawer();
+    }
+
+    private void closeDrawer() {
+        // close the drawer
         DrawerLayout drawer = (DrawerLayout) this.parent.findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
     }
@@ -116,5 +185,6 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
                 this.navigationView.setCheckedItem(R.id.input_bt);
                 break;
         }
+
     }
 }
