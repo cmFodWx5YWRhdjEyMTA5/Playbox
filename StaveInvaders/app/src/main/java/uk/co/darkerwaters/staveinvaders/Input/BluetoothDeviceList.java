@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.staveinvaders.Input;
+package uk.co.darkerwaters.staveinvaders.input;
 
 import android.bluetooth.BluetoothDevice;
 

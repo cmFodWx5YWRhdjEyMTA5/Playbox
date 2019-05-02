@@ -1,7 +1,5 @@
-package uk.co.darkerwaters.staveinvaders.Input;
+package uk.co.darkerwaters.staveinvaders.input;
 
-import android.app.Activity;
-import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.media.midi.MidiDevice;
@@ -20,8 +18,8 @@ import java.util.List;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.application.Log;
-import uk.co.darkerwaters.staveinvaders.notes.Note;
-import uk.co.darkerwaters.staveinvaders.notes.Notes;
+import uk.co.darkerwaters.staveinvaders.notes.Chord;
+import uk.co.darkerwaters.staveinvaders.notes.Chords;
 
 public abstract class InputMidi extends Input {
 
@@ -40,14 +38,26 @@ public abstract class InputMidi extends Input {
         NoteOn,
         NoteOff,
     }
+
+    public interface MidiListener {
+        void midiDeviceConnectivityChanged(MidiDeviceInfo deviceInfo, boolean isConnected);
+        void midiDeviceConnectionChanged(String deviceId, boolean isConnected);
+    }
+
     private MidiCommand runningState = MidiCommand.None;
     private int midiChannel = 0;
     private MidiOutputPort openMidiOutputPort = null;
-    private final Note[] midiNotes;
-    private Note runningNote = null;
+    private final Chord[] midiChords;
+    private Chord runningChord = null;
+
+    protected final List<MidiListener> listeners;
 
     public InputMidi(Application application) {
         super(application);
+
+        // create the listening list
+        this.listeners = new ArrayList<MidiListener>();
+        // and initialise the MIDI stuff here
 
         if (isMidiAvailable()) {
             // do MIDI stuff
@@ -59,40 +69,24 @@ public abstract class InputMidi extends Input {
             Log.error("MIDI IS NOT ENABLED, NO MIDI SUPPORTED");
         }
 
-        // map the notes to their MIDI index (middle C being 60)
-        Notes notes = application.getNotes();
-        // notes in MIDI are indexed from 0 to 127, create a nice lookup array for this purpose.
-        this.midiNotes = new Note[128];
-        // find middle C
-        Note lastNote = notes.getNote("C4");
-        this.midiNotes[60] = lastNote;
-        int middleC = notes.getNoteIndex(this.midiNotes[60].getFrequency());
+        // map the chords to their MIDI index (middle C being 60)
+        Chords chords = application.getSingleChords();
+        // chords in MIDI are indexed from 0 to 127, create a nice lookup array for this purpose.
+        this.midiChords = new Chord[128];
+        // find middle C and add to number 60
+        this.midiChords[60] = chords.getChord("C4");
+        int middleC = chords.getChordIndex(this.midiChords[60].notes[0].getFrequency());
         // ok then, from here we can do down to zero
         int offset = 1;
         for (int i = 59; i >= 0 && offset <= middleC; --i) {
             // put the next note down in our array
-            this.midiNotes[i] = notes.getNote(middleC - offset++);
-            if (this.midiNotes[i].getFrequency() == lastNote.getFrequency()) {
-                // this note is not a different frequency, this is the flat to the sharp
-                // we added last time, ignore this by changing the index to try again
-                ++i;
-            }
-            // remember the last note to compare against
-            lastNote = this.midiNotes[i];
+            this.midiChords[i] = chords.getChord(middleC - offset++);
         }
         // also we can go up to 127
         offset = 1;
-        lastNote = this.midiNotes[60];
-        for (int i = 61; i < 128 && middleC + offset < notes.getNoteCount(); ++i) {
+        for (int i = 61; i < 128 && middleC + offset < chords.getSize(); ++i) {
             // put the next note up in our array
-            this.midiNotes[i] = notes.getNote(middleC + offset++);
-            if (this.midiNotes[i].getFrequency() == lastNote.getFrequency()) {
-                // this note is not a different frequency, this is the sharp to the flat
-                // we added last time, ignore this by changing the index to try again
-                --i;
-            }
-            // remember the last note to compare against
-            lastNote = this.midiNotes[i];
+            this.midiChords[i] = chords.getChord(middleC + offset++);
         }
     }
 
@@ -126,6 +120,18 @@ public abstract class InputMidi extends Input {
         return deviceId == null ? "" : deviceId;
     }
 
+    public boolean addMidiListener(MidiListener listener) {
+        synchronized (listeners) {
+            return listeners.add(listener);
+        }
+    }
+
+    public boolean removeMidiListener(MidiListener listener) {
+        synchronized (listeners) {
+            return listeners.remove(listener);
+        }
+    }
+
     public void initialiseMidi() {
         // setup MIDI on this activity and listen for hot-plugins
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
@@ -135,20 +141,26 @@ public abstract class InputMidi extends Input {
                 @Override
                 public void onDeviceAdded(MidiDeviceInfo device) {
                     super.onDeviceAdded(device);
-                    //TODO inform listeners of this discovery
+                    // inform listeners of this discovery
                     Log.debug("MIDI Device " + GetMidiDeviceId(device) + " discovered");
+                    InputMidi.this.onDeviceAdded(device);
 
                 }
                 @Override
                 public void onDeviceRemoved(MidiDeviceInfo device) {
                     super.onDeviceRemoved(device);
-                    //TODO inform listeners of this
+                    // inform listeners of this
                     Log.debug("MIDI Device " + GetMidiDeviceId(device) + " removed");
+                    InputMidi.this.onDeviceRemoved(device);
                 }
             };
             this.midiManager.registerDeviceCallback(this.callback, new Handler(Looper.getMainLooper()));
         }
     }
+
+    protected abstract void onDeviceAdded(MidiDeviceInfo device);
+
+    protected abstract void onDeviceRemoved(MidiDeviceInfo device);
 
     public void closeOpenMidiConnection() {
         if (null != openMidiOutputPort) {
@@ -156,9 +168,8 @@ public abstract class InputMidi extends Input {
                 openMidiOutputPort.close();
                 openMidiOutputPort = null;
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.error("Failed to close the MIDI connection", e);
             }
-            //TODO inform the listners of this disconnection
         }
     }
 
@@ -198,6 +209,13 @@ public abstract class InputMidi extends Input {
                         });
                         // if here then it worked
                         isConnected = true;
+                        String deviceId = GetMidiDeviceId(midiDevice.getInfo());
+                        // inform listeners
+                        synchronized (listeners) {
+                            for (MidiListener listener : listeners) {
+                                listener.midiDeviceConnectionChanged(deviceId, true);
+                            }
+                        }
                         break;
                     }
                 }
@@ -237,29 +255,29 @@ public abstract class InputMidi extends Input {
             // remember the channel, for interest mostly
             this.midiChannel = (byte) (data & STATUS_CHANNEL_MASK);
             // a new command means a new note
-            this.runningNote = null;
+            this.runningChord = null;
         }
         else if (this.runningState != MidiCommand.None) {
             // have the command, process the accompanying data for this command
-            if (null == this.runningNote) {
+            if (null == this.runningChord) {
                 // this is the first bit of data that follows the command, this is the note
                 // to which it refers
                 int value = data;
                 // the value (integer) is just the data, the index of the note in the array
-                if (value < this.midiNotes.length && value >= 0) {
+                if (value < this.midiChords.length && value >= 0) {
                     // this is valid, use it to get the note
-                    this.runningNote = this.midiNotes[value];
+                    this.runningChord = this.midiChords[value];
                 }
-                if (this.runningNote == null) {
+                if (this.runningChord == null) {
                     // we don't have this note, but something was played, get the closest
-                    Notes notes = this.application.getNotes();
-                    if (value < this.midiNotes.length * 0.5f) {
+                    Chords notes = this.application.getSingleChords();
+                    if (value < this.midiChords.length * 0.5f) {
                         // the note is too low for us, use the least note we have available
-                        this.runningNote = notes.getNote(0);
+                        this.runningChord = notes.getChord(0);
                     }
                     else {
                         // the note is too high for us, use the max note we have available
-                        this.runningNote = notes.getNote(notes.getNoteCount() - 1);
+                        this.runningChord = notes.getChord(notes.getSize() - 1);
                     }
                 }
             }
@@ -270,29 +288,15 @@ public abstract class InputMidi extends Input {
                 // inform people we have detected the hit note, a velocity of 0 is like a NOTE_OFF
                 switch (this.runningState) {
                     case NoteOn:
-                        informNoteDetection(this.runningNote, velocityToProbability > 40f, velocityToProbability);
+                        onNoteDetected(this.runningChord, velocityToProbability > 40f, velocityToProbability);
                         break;
                     case NoteOff:
-                        informNoteDetection(this.runningNote, false, velocityToProbability);
+                        onNoteDetected(this.runningChord, false, velocityToProbability);
                         break;
                 }
                 // no note then, done it here
-                this.runningNote = null;
+                this.runningChord = null;
             }
         }
-    }
-
-    private void informNoteDetection(Note note, boolean isPressed, float probability) {
-        //TODO inform people that the note is interacted with
-        if (note == null) {
-            Log.error("NULL MIDI note depressed");
-        }
-        else if (isPressed) {
-            Log.debug("MIDI note " + this.runningNote.getName() + " depressed with " + probability + " probability");
-        }
-        else {
-            Log.debug("MIDI note " + this.runningNote.getName() + " released");
-        }
-
     }
 }

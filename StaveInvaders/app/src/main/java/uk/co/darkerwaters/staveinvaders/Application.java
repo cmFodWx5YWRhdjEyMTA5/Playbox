@@ -3,6 +3,7 @@ package uk.co.darkerwaters.staveinvaders;
 import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
+import uk.co.darkerwaters.staveinvaders.notes.Chords;
 import uk.co.darkerwaters.staveinvaders.notes.Notes;
 
 public class Application extends android.app.Application {
@@ -11,6 +12,7 @@ public class Application extends android.app.Application {
     private Settings settings = null;
     private InputSelector input = null;
     private Notes notes = null;
+    private Chords singleChords = null;
 
     @Override
     public void onCreate() {
@@ -52,6 +54,10 @@ public class Application extends android.app.Application {
         super.onTerminate();
     }
 
+    public Log getLog() {
+        return this.log;
+    }
+
     public Settings getSettings() {
         // return the settings (exist as long as the application does)
         return this.settings;
@@ -60,6 +66,17 @@ public class Application extends android.app.Application {
     private void clearNotes() {
         synchronized (this) {
             this.notes = null;
+            this.singleChords = null;
+        }
+    }
+
+    public Chords getSingleChords() {
+        synchronized (this) {
+            if (this.singleChords == null) {
+                // create them
+                getNotes();
+            }
+            return this.singleChords;
         }
     }
 
@@ -68,7 +85,10 @@ public class Application extends android.app.Application {
             if (this.notes == null) {
                 this.notes = Notes.CreateNotes(this);
             }
+            if (this.singleChords == null) {
+                this.singleChords = Chords.CreateSingleChords(this.notes);
+            }
+            return this.notes;
         }
-        return this.notes;
     }
 }

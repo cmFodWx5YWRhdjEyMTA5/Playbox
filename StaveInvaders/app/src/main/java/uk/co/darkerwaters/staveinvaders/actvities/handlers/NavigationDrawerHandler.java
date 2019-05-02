@@ -1,6 +1,7 @@
 package uk.co.darkerwaters.staveinvaders.actvities.handlers;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.ActionProvider;
@@ -9,16 +10,14 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import uk.co.darkerwaters.staveinvaders.Application;
-import uk.co.darkerwaters.staveinvaders.Input.Input;
 import uk.co.darkerwaters.staveinvaders.R;
+import uk.co.darkerwaters.staveinvaders.actvities.UsbSetupActivity;
 import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
 
@@ -90,7 +89,22 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
 
     private void showSettingsPage(Settings.InputType inputType) {
         //TODO show the correct settings for this type of input
-        Toast.makeText(parent, "Settings page to do for " + inputType.toString(), Toast.LENGTH_LONG).show();
+        switch(inputType) {
+            case keys:
+                // No settings for this
+                break;
+            case mic:
+                Toast.makeText(parent, "Settings page to do for " + inputType.toString(), Toast.LENGTH_LONG).show();
+                break;
+            case usb:
+                Intent myIntent = new Intent(this.parent, UsbSetupActivity.class);
+                //myIntent.putExtra("instrument", item.getName()); //Optional parameters
+                this.parent.startActivity(myIntent);
+                break;
+            case bt:
+                Toast.makeText(parent, "Settings page to do for " + inputType.toString(), Toast.LENGTH_LONG).show();
+                break;
+        }
         // close the drawer now the item is selected
         closeDrawer();
     }

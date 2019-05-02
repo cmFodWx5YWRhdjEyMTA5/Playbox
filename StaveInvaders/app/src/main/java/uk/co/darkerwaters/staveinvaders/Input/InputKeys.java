@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.staveinvaders.Input;
+package uk.co.darkerwaters.staveinvaders.input;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.application.Log;

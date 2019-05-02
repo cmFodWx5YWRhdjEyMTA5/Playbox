@@ -1,12 +1,18 @@
-package uk.co.darkerwaters.staveinvaders.Input;
+package uk.co.darkerwaters.staveinvaders.input;
 
 import android.bluetooth.BluetoothDevice;
+import android.media.midi.MidiDeviceInfo;
 import android.os.Build;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.application.Log;
 
 public class InputBluetooth extends InputMidi {
+
+    public interface BluetoothListener {
+        void midiBtScanStatusChange(boolean isScanning);
+        void midiBtDeviceDiscovered(BluetoothDevice device);
+    }
 
     public InputBluetooth(Application application) {
         super(application);
@@ -17,6 +23,16 @@ public class InputBluetooth extends InputMidi {
     @Override
     public void shutdown() {
         Log.debug("input type bluetooth shutdown");
+
+    }
+
+    @Override
+    protected void onDeviceAdded(MidiDeviceInfo device) {
+
+    }
+
+    @Override
+    protected void onDeviceRemoved(MidiDeviceInfo device) {
 
     }
 

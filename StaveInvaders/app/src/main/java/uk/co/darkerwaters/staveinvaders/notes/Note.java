@@ -55,24 +55,8 @@ public class Note {
         return this.name.contains("#");
     }
 
-    public char getSharpPrimative() {
-        char notePrimative = 0;
-        if (this.name.contains("#")) {
-            notePrimative = this.name.charAt(0);
-        }
-        return notePrimative;
-    }
-
     public boolean isFlat() {
         return this.name.contains("b");
-    }
-
-    public char getFlatPrimative() {
-        char notePrimative = 0;
-        if (this.name.contains("b")) {
-            notePrimative = this.name.charAt(0);
-        }
-        return notePrimative;
     }
 
     public int getNotePrimativeIndex() {
@@ -94,6 +78,10 @@ public class Note {
             default:
                 return -1;
         }
+    }
+
+    public char getNotePrimative() {
+        return this.name.charAt(0);
     }
 
     public int getNoteScaleIndex() {

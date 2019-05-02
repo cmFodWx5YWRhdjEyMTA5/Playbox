@@ -11,4 +11,10 @@
     <string name="bluetooth_keyboard">Bluetooth Keyboard</string>
     <string name="usb_keyboard">USB Keyboard</string>
     <string name="keyboard_connection">Keyboard Connection</string>
+    <string name="config_usb">Configure USB</string>
+    <string name="scan_usb">Scan...</string>
+    <string name="no_device">No device detected</string>
+    <string name="no_midi_available">Sorry, your phone does not support MIDI</string>
+    <string name="connect_usb">Connect instrument via\nUSB-OTG adapter:</string>
+    <string name="midi_connect_help">Try to scan for USB in your phone\'s device connection settings...</string>
 </resources>

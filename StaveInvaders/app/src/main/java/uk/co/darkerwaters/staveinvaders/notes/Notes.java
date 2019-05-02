@@ -2,6 +2,8 @@ package uk.co.darkerwaters.staveinvaders.notes;
 
 import android.content.Context;
 
+import java.util.ArrayList;
+
 import uk.co.darkerwaters.staveinvaders.R;
 
 public class Notes {
@@ -13,37 +15,39 @@ public class Notes {
         String[] frequency_resources = context.getResources().getStringArray(R.array.piano_note_frequencies);
         String[] nameArray = context.getResources().getStringArray(R.array.piano_note_names);
 
-        Notes notes = new Notes(frequency_resources.length);
+        ArrayList<Note> noteList = new ArrayList<Note>(frequency_resources.length* 2);
         float lower, upper, frequency;
-        for (int index = 0; index < notes.notes.length; ++index) {
+        for (int index = 0; index < frequency_resources.length; ++index) {
             frequency = Float.parseFloat(frequency_resources[index]);
             if (index > 0) {
-                lower = frequency - ((frequency - notes.notes[index-1].frequency) / 2.0f);
+                lower = frequency - (frequency - (Float.parseFloat(frequency_resources[index-1])) / 2.0f);
             }
             else {
                 // balance the first note range from the upper range
                 lower = frequency - ((Float.parseFloat(frequency_resources[index+1]) - frequency) / 2.0f);
             }
-            if (index < notes.notes.length - 1) {
+            if (index < frequency_resources.length - 1) {
                 // not over the end
                 upper = frequency + ((Float.parseFloat(frequency_resources[index+1]) - frequency) / 2.0f);
             }
             else {
                 // are at the end now - balance the range according to the lower
-                upper = frequency + ((frequency - notes.notes[index-1].frequency) / 2.0f);
+                upper = frequency + (frequency - (Float.parseFloat(frequency_resources[index-1])) / 2.0f);
             }
             // this note might be more than one (a sharp can be a flat too!)
             for (String noteName : nameArray[index].split("/")) {
                 // for each note name, create a note that represents the frequency
-                notes.notes[index] = new Note(noteName, frequency, lower, upper);
+                noteList.add(new Note(noteName, frequency, lower, upper));
             }
         }
+        // create the notes from this list
+        Notes notes = new Notes(noteList.toArray(new Note[noteList.size()]));
         return notes;
     }
 
-    private Notes(int noteCount) {
+    private Notes(Note[] array) {
         // create the list (private constructor so just done in the static creation function)
-        this.notes = new Note[noteCount];
+        this.notes = array;
         //created okay
     }
 
@@ -84,9 +88,5 @@ public class Notes {
             }
         }
         return -1;
-    }
-
-    public NoteRange getFullRange() {
-        return new NoteRange(getNote(0), getNote(getNoteCount() - 1));
     }
 }

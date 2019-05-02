@@ -1,17 +1,14 @@
-package uk.co.darkerwaters.staveinvaders.Input;
+package uk.co.darkerwaters.staveinvaders.input;
 
-import android.media.midi.MidiDevice;
 import android.media.midi.MidiDeviceInfo;
-import android.media.midi.MidiManager;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.application.Log;
+import uk.co.darkerwaters.staveinvaders.application.Settings;
 
 public class InputUsb extends InputMidi {
 
@@ -88,8 +85,14 @@ public class InputUsb extends InputMidi {
                     this.activeConnectionId = GetMidiDeviceId(item);
                     // and open the device
                     openMidiDevice(item);
-                    // if here then it didn't throw - we ar connected
+                    // if here then it didn't throw - we are connected
                     isConnected = true;
+                    // inform listeners of this
+                    synchronized (listeners) {
+                        for (MidiListener listener : listeners) {
+                            listener.midiDeviceConnectivityChanged(item, true);
+                        }
+                    }
                 } catch (Exception e) {
                     // inform the dev but just carry on and return out false
                     Log.error("Error connecting USB device", e);
@@ -97,5 +100,46 @@ public class InputUsb extends InputMidi {
             }
         }
         return isConnected;
+    }
+
+    @Override
+    protected void onDeviceAdded(MidiDeviceInfo device) {
+        //TODO MIDI device was added, we will connect to this straight away
+
+    }
+
+    @Override
+    protected void onDeviceRemoved(MidiDeviceInfo device) {
+        // MIDI device was removed, if this was what we are connected to then
+        // we want to reconnect straight away if we can
+        if (activeConnectionId.equals(GetMidiDeviceId(device))) {
+            // just removed the USB device that we are using, stop using it
+            closeOpenMidiConnection();
+            // set the state to be keyboard now we disconnected
+            this.application.getSettings().setActiveInput(Settings.InputType.keys);
+            // try to reconnect as it might just be a little glitch
+            getConnectedUsbDevices();
+            if (null != this.defaultUsbDevice) {
+                // quick - connect to this, this will do the rest as when connected it will do a load
+                // of different stuff
+                connectToDevice(this.defaultUsbDevice);
+            }
+        }
+    }
+
+    @Override
+    public void closeOpenMidiConnection() {
+        // remember the connection we are about to close
+        String deviceDisconnected = this.activeConnectionId;
+        // and close this connection
+        super.closeOpenMidiConnection();
+        // no active connection now
+        this.activeConnectionId = new String();
+        // inform the listners of this disconnection
+        synchronized (this.listeners) {
+            for (MidiListener listener : this.listeners) {
+                listener.midiDeviceConnectionChanged(deviceDisconnected, false);
+            }
+        }
     }
 }
