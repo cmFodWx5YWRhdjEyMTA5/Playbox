@@ -1,7 +1,7 @@
 package uk.co.darkerwaters.staveinvaders.actvities;
 
-import android.bluetooth.BluetoothDevice;
 import android.content.res.Resources;
+import android.media.midi.MidiDevice;
 import android.media.midi.MidiDeviceInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -25,14 +25,16 @@ import uk.co.darkerwaters.staveinvaders.input.Input;
 import uk.co.darkerwaters.staveinvaders.input.InputMidi;
 import uk.co.darkerwaters.staveinvaders.input.InputUsb;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
-import uk.co.darkerwaters.staveinvaders.views.PianoPlaying;
+import uk.co.darkerwaters.staveinvaders.notes.Range;
 import uk.co.darkerwaters.staveinvaders.views.PianoTouchable;
 import uk.co.darkerwaters.staveinvaders.views.PianoView;
 
 public class UsbSetupActivity extends AppCompatActivity implements
         InputSelector.InputListener,
         PianoView.IPianoViewListener,
-        UsbItemAdapter.MidiListListener {
+        UsbItemAdapter.MidiListListener,
+        InputMidi.MidiListener,
+        InputUsb.UsbInputListener {
 
     private PianoTouchable piano = null;
     private TextView pianoRangeText = null;
@@ -63,7 +65,7 @@ public class UsbSetupActivity extends AppCompatActivity implements
 
         // show the range of the piano
         this.piano.setIsAllowTouch(false);
-        this.pianoRangeText.setText(piano.getRangeText());
+        setPianoRange(this.piano.getDefaultNoteRange());
 
         Resources r = getResources();
         int tenPixels = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, r.getDisplayMetrics()));
@@ -125,6 +127,8 @@ public class UsbSetupActivity extends AppCompatActivity implements
             // try to help them
             this.deviceLabel.setVisibility(View.VISIBLE);
             this.deviceLabel.setText(R.string.midi_connect_help);
+            // reset the piano view, no connection here
+            setPianoRange(this.piano.getDefaultNoteRange());
         }
         else {
             this.deviceLabel.setVisibility(View.GONE);
@@ -152,6 +156,11 @@ public class UsbSetupActivity extends AppCompatActivity implements
         this.application.getInputSelector().addListener(this);
         // change to be USB for sure
         setInputToUsb();
+        // also we need to listen to USB and MIDI messages
+        if (null != this.inputUsb) {
+            this.inputUsb.addListener(this);
+            this.inputUsb.addMidiListener(this);
+        }
         // and discover devices to refresh our list
         runOnUiThread(new Runnable() {
             @Override
@@ -167,8 +176,28 @@ public class UsbSetupActivity extends AppCompatActivity implements
         // remove us as a listener
         this.piano.removeListener(this);
         this.application.getInputSelector().removeListener(this);
+        if (null != this.inputUsb) {
+            this.inputUsb.removeListener(this);
+            this.inputUsb.removeMidiListener(this);
+        }
 
         super.onPause();
+    }
+
+    private void setPianoRange(Range range) {
+        if (null != range) {
+            this.piano.setNoteRange(range, null);
+        }
+        // update the text and view now on the main thread
+        UsbSetupActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // invalidate the view to display it okay
+                piano.invalidate();
+                // show the range of the piano
+                UsbSetupActivity.this.pianoRangeText.setText(piano.getRangeText());
+            }
+        });
     }
 
     @Override
@@ -177,20 +206,47 @@ public class UsbSetupActivity extends AppCompatActivity implements
         super.onDestroy();
     }
 
+
+    @Override
+    public void onMidiDeviceDiscovered(MidiDeviceInfo device) {
+        // this changes our list, redo the list here
+        discoverDevices();
+    }
+
+    @Override
+    public void onMidiDeviceRemoved(MidiDeviceInfo device) {
+        // this changes our list, redo the list here
+        discoverDevices();
+    }
+
+    @Override
+    public void onMidiDeviceOpened(MidiDeviceInfo device) {
+        // detecting this from the USB, ignore
+    }
+
+    @Override
+    public void onMidiDeviceConnected(MidiDeviceInfo device) {
+        // detecting this from the USB, ignore
+    }
+
+    @Override
+    public void usbDeviceConnectionClosed(String deviceDisconnected) {
+        // this changes the status display, just update the display of devices
+        this.listView.getAdapter().notifyDataSetChanged();
+    }
+
+    @Override
+    public void usbDeviceConnectionOpened(MidiDevice item) {
+        // this changes the status display, just update the display of devices
+        this.listView.getAdapter().notifyDataSetChanged();
+    }
+
     @Override
     public void onNoteDetected(Settings.InputType type, Chord chord, boolean isDetection, float probability) {
         // add to our range of notes we can detect
         if (isDetection && probability > 1f) {
             addDetectedPitch(chord);
-            UsbSetupActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    // invalidate the view to display it okay
-                    piano.invalidate();
-                    // show the range of the piano
-                    UsbSetupActivity.this.pianoRangeText.setText(piano.getRangeText());
-                }
-            });
+            setPianoRange(null);
         }
     }
 

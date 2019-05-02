@@ -1,5 +1,6 @@
 package uk.co.darkerwaters.staveinvaders.input;
 
+import android.media.midi.MidiDevice;
 import android.media.midi.MidiDeviceInfo;
 import android.os.Build;
 
@@ -16,8 +17,18 @@ public class InputUsb extends InputMidi {
     private List<MidiDeviceInfo> usbDevices = new ArrayList<MidiDeviceInfo>();
     private String activeConnectionId = "";
 
+    private final List<UsbInputListener> listeners;
+
+    public interface UsbInputListener {
+        void usbDeviceConnectionClosed(String deviceDisconnected);
+        void usbDeviceConnectionOpened(MidiDevice item);
+    }
+
     public InputUsb(Application application) {
         super(application);
+
+        // create the listening list
+        this.listeners = new ArrayList<UsbInputListener>();
 
         // on creation we want to search for USB devices and connect to the default
         initialiseConnection();
@@ -33,6 +44,18 @@ public class InputUsb extends InputMidi {
             // quick - connect to this, this will do the rest as when connected it will do a load
             // of different stuff
             connectToDevice(this.defaultUsbDevice);
+        }
+    }
+
+    public boolean addListener(UsbInputListener listener) {
+        synchronized (listeners) {
+            return listeners.add(listener);
+        }
+    }
+
+    public boolean removeListener(UsbInputListener listener) {
+        synchronized (listeners) {
+            return listeners.remove(listener);
         }
     }
 
@@ -81,18 +104,10 @@ public class InputUsb extends InputMidi {
             else {
                 // things can go badly wrong in the depths of MIDI and BT so try/catch it
                 try {
-                    // store that we are trying a USB connection here
-                    this.activeConnectionId = GetMidiDeviceId(item);
                     // and open the device
                     openMidiDevice(item);
                     // if here then it didn't throw - we are connected
                     isConnected = true;
-                    // inform listeners of this
-                    synchronized (listeners) {
-                        for (MidiListener listener : listeners) {
-                            listener.midiDeviceConnectivityChanged(item, true);
-                        }
-                    }
                 } catch (Exception e) {
                     // inform the dev but just carry on and return out false
                     Log.error("Error connecting USB device", e);
@@ -100,6 +115,19 @@ public class InputUsb extends InputMidi {
             }
         }
         return isConnected;
+    }
+
+    @Override
+    protected void onMidiDeviceConnected(MidiDevice midiDevice) {
+        super.onMidiDeviceConnected(midiDevice);
+        // if here then we just connected a midi device, remember all this
+        this.activeConnectionId = GetMidiDeviceId(midiDevice.getInfo());
+        // inform listeners of this
+        synchronized (listeners) {
+            for (UsbInputListener listener : listeners) {
+                listener.usbDeviceConnectionOpened(midiDevice);
+            }
+        }
     }
 
     @Override
@@ -137,8 +165,8 @@ public class InputUsb extends InputMidi {
         this.activeConnectionId = new String();
         // inform the listners of this disconnection
         synchronized (this.listeners) {
-            for (MidiListener listener : this.listeners) {
-                listener.midiDeviceConnectionChanged(deviceDisconnected, false);
+            for (UsbInputListener listener : listeners) {
+                listener.usbDeviceConnectionClosed(deviceDisconnected);
             }
         }
     }

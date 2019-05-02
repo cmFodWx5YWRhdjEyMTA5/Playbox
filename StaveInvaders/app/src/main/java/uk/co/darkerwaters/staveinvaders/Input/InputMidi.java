@@ -40,8 +40,10 @@ public abstract class InputMidi extends Input {
     }
 
     public interface MidiListener {
-        void midiDeviceConnectivityChanged(MidiDeviceInfo deviceInfo, boolean isConnected);
-        void midiDeviceConnectionChanged(String deviceId, boolean isConnected);
+        void onMidiDeviceDiscovered(MidiDeviceInfo device);
+        void onMidiDeviceRemoved(MidiDeviceInfo device);
+        void onMidiDeviceOpened(MidiDeviceInfo device);
+        void onMidiDeviceConnected(MidiDeviceInfo device);
     }
 
     private MidiCommand runningState = MidiCommand.None;
@@ -142,6 +144,11 @@ public abstract class InputMidi extends Input {
                 public void onDeviceAdded(MidiDeviceInfo device) {
                     super.onDeviceAdded(device);
                     // inform listeners of this discovery
+                    synchronized (listeners) {
+                        for (MidiListener listener : listeners) {
+                            listener.onMidiDeviceDiscovered(device);
+                        }
+                    }
                     Log.debug("MIDI Device " + GetMidiDeviceId(device) + " discovered");
                     InputMidi.this.onDeviceAdded(device);
 
@@ -150,6 +157,11 @@ public abstract class InputMidi extends Input {
                 public void onDeviceRemoved(MidiDeviceInfo device) {
                     super.onDeviceRemoved(device);
                     // inform listeners of this
+                    synchronized (listeners) {
+                        for (MidiListener listener : listeners) {
+                            listener.onMidiDeviceRemoved(device);
+                        }
+                    }
                     Log.debug("MIDI Device " + GetMidiDeviceId(device) + " removed");
                     InputMidi.this.onDeviceRemoved(device);
                 }
@@ -173,13 +185,18 @@ public abstract class InputMidi extends Input {
         }
     }
 
-    protected void openMidiDevice(MidiDeviceInfo item) {
+    protected void openMidiDevice(final MidiDeviceInfo item) {
         this.midiManager.openDevice(item, new MidiManager.OnDeviceOpenedListener() {
             @Override
             public void onDeviceOpened(MidiDevice midiDevice) {
                 // once we have opened the device we will be good to go
                 String deviceId = GetMidiDeviceId(midiDevice.getInfo());
-                //TODO inform people we are connected to a MIDI device
+                //inform people we are connected to a MIDI device
+                synchronized (listeners) {
+                    for (MidiListener listener : listeners) {
+                        listener.onMidiDeviceOpened(item);
+                    }
+                }
                 // annoyingly a message from connecting BT MIDI will fire this as well as USB
                 Log.debug("MIDI Device " + deviceId + " opened");
                 // connect to this then, to listen to it
@@ -194,7 +211,8 @@ public abstract class InputMidi extends Input {
         boolean isConnected = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && midiDevice != null) {
             // find the first output port and use it to connect
-            for (MidiDeviceInfo.PortInfo port : midiDevice.getInfo().getPorts()) {
+            MidiDeviceInfo midiDeviceInfo = midiDevice.getInfo();
+            for (MidiDeviceInfo.PortInfo port : midiDeviceInfo.getPorts()) {
                 if (port.getType() == MidiDeviceInfo.PortInfo.TYPE_OUTPUT) {
                     // this is an output port - connect to this
                     openMidiOutputPort = midiDevice.openOutputPort(port.getPortNumber());
@@ -209,19 +227,23 @@ public abstract class InputMidi extends Input {
                         });
                         // if here then it worked
                         isConnected = true;
-                        String deviceId = GetMidiDeviceId(midiDevice.getInfo());
-                        // inform listeners
-                        synchronized (listeners) {
-                            for (MidiListener listener : listeners) {
-                                listener.midiDeviceConnectionChanged(deviceId, true);
-                            }
-                        }
+                        // inform people this worked
+                        onMidiDeviceConnected(midiDevice);
                         break;
                     }
                 }
             }
         }
         return isConnected;
+    }
+
+    protected void onMidiDeviceConnected(MidiDevice midiDevice) {
+        // inform listeners
+        synchronized (listeners) {
+            for (MidiListener listener : listeners) {
+                listener.onMidiDeviceConnected(midiDevice.getInfo());
+            }
+        }
     }
 
     private void processMidiData(byte[] data, int offset, int count, long timestamp) {

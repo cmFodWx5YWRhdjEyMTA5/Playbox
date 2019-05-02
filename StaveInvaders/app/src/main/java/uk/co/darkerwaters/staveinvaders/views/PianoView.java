@@ -94,10 +94,14 @@ public class PianoView extends View {
         this.letterPaint.setColor(getResources().getColor(R.color.colorLaser));
         this.letterPaint.setAntiAlias(true);
 
-        // and initialise the notes we are going to show on the piano, do the whole range...
+        // and initialise the notes we are going to show on the piano
+        Range defaultRange = getDefaultNoteRange();
+        setNoteRange(defaultRange.getStart().root().getFrequency(), defaultRange.getEnd().root().getFrequency(), false);
+    }
+
+    public Range getDefaultNoteRange() {
         Chords notes = this.application.getSingleChords();
-        // start and end a middling range
-        setNoteRange(notes.getChord("C3").root().getFrequency(), notes.getChord("B5").root().getFrequency(), false);
+        return new Range(notes.getChord("C3"), notes.getChord("B5"));
     }
 
     public void closeView() {
