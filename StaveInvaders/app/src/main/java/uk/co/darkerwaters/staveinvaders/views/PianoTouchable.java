@@ -29,6 +29,7 @@ public class PianoTouchable extends PianoPlaying {
 
     private final ArrayList<PlayableKey> playableKeys = new ArrayList<PlayableKey>();
     private boolean isCreatePlayableKeys = false;
+    private boolean isAllowTouch = true;
 
     private class PlayableKey {
         final RectF bounds;
@@ -49,6 +50,12 @@ public class PianoTouchable extends PianoPlaying {
 
     public PianoTouchable(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+    }
+
+    public void setIsAllowTouch(boolean isAllowTouch) {
+        this.isAllowTouch = isAllowTouch;
+        // reset any keys to create if just turned on
+        resetPlayableKeys();
     }
 
     @Override
@@ -153,7 +160,8 @@ public class PianoTouchable extends PianoPlaying {
                 this.playableKeys.clear();
             }
         }
-        this.isCreatePlayableKeys = true;
+        // reset the flag to create playable (touchable keys) if not allowed then will not
+        this.isCreatePlayableKeys = isAllowTouch;
     }
 
     @Override

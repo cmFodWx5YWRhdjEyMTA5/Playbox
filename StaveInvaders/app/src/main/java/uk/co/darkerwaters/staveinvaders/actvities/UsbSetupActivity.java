@@ -62,6 +62,7 @@ public class UsbSetupActivity extends AppCompatActivity implements
         this.detectButton = (Button) findViewById(R.id.button_detect_usb);
 
         // show the range of the piano
+        this.piano.setIsAllowTouch(false);
         this.pianoRangeText.setText(piano.getRangeText());
 
         Resources r = getResources();
