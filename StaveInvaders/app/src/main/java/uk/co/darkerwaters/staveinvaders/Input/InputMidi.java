@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.darkerwaters.staveinvaders.Application;
+import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
 import uk.co.darkerwaters.staveinvaders.notes.Chords;
@@ -30,7 +31,7 @@ public abstract class InputMidi extends Input {
     private static final byte STATUS_NOTE_OFF = (byte) 0x80;
     private static final byte STATUS_NOTE_ON = (byte) 0x90;
 
-    protected final MidiManager midiManager;
+    protected MidiManager midiManager;
     private MidiManager.DeviceCallback callback = null;
 
     private enum MidiCommand {
@@ -59,17 +60,6 @@ public abstract class InputMidi extends Input {
 
         // create the listening list
         this.listeners = new ArrayList<MidiListener>();
-        // and initialise the MIDI stuff here
-
-        if (isMidiAvailable()) {
-            // do MIDI stuff
-            this.midiManager = (MidiManager) application.getSystemService(Context.MIDI_SERVICE);
-            initialiseMidi();
-        }
-        else {
-            this.midiManager = null;
-            Log.error("MIDI IS NOT ENABLED, NO MIDI SUPPORTED");
-        }
 
         // map the chords to their MIDI index (middle C being 60)
         Chords chords = application.getSingleChords();
@@ -89,6 +79,22 @@ public abstract class InputMidi extends Input {
         for (int i = 61; i < 128 && middleC + offset < chords.getSize(); ++i) {
             // put the next note up in our array
             this.midiChords[i] = chords.getChord(middleC + offset++);
+        }
+    }
+
+    @Override
+    public void initialiseConnection() {
+        super.initialiseConnection();
+        // initialise this connection here
+        if (isMidiAvailable()) {
+            // do MIDI stuff
+            this.midiManager = (MidiManager) application.getSystemService(Context.MIDI_SERVICE);
+            initialiseMidi();
+        }
+        else {
+            this.midiManager = null;
+            Log.error("MIDI IS NOT ENABLED, NO MIDI SUPPORTED");
+            setStatus(InputSelector.Status.error);
         }
     }
 
@@ -218,6 +224,8 @@ public abstract class InputMidi extends Input {
                     openMidiOutputPort = midiDevice.openOutputPort(port.getPortNumber());
                     if (null != openMidiOutputPort) {
                         // got the port OK - connect to it
+                        setStatus(InputSelector.Status.connecting);
+                        // and connect
                         openMidiOutputPort.connect(new MidiReceiver() {
                             @Override
                             public void onSend(byte[] data, int offset, int count, long timestamp) throws IOException {
@@ -258,6 +266,8 @@ public abstract class InputMidi extends Input {
     }
 
     private void processMidiData(byte data, long timestamp) {
+        // we are doing something, connection active - inform the listeners
+        this.signalIsProcessing();
         // one at a time we will be processing the data and commands, check for a new command
         if ((byte)(data & COMMAND_BYTE_MASK) == COMMAND_BYTE_MASK) {
             // this is the command, the MASK means that it is

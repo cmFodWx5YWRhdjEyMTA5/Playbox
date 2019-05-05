@@ -1,6 +1,7 @@
 package uk.co.darkerwaters.staveinvaders.application;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.input.Input;
@@ -16,8 +17,11 @@ public class InputSelector {
     private Settings.InputType activeInputType;
     private Input activeInput = null;
 
+    private Status status = Status.unknown;
+
     private final ArrayList<InputTypeListener> inputTypeListeners;
     private final ArrayList<InputListener> inputListeners;
+    private final ArrayList<InputStatusListener> inputStatusListeners;
 
     public interface InputTypeListener {
         public void onInputTypeChanged(Settings.InputType newType);
@@ -27,14 +31,26 @@ public class InputSelector {
         public void onNoteDetected(Settings.InputType type, Chord chord, boolean isDetection, float probability);
     }
 
+    public interface InputStatusListener {
+        public void onStatusChanged(Input source, Status oldStatus, Status newStatus);
+        public void onInputProcessingData(Input source, Status status);
+    }
+
+    public enum Status {
+        unknown,
+        connecting,
+        connected,
+        disconnecting,
+        disconnected,
+        error,
+    }
+
     public InputSelector(Application application) {
         this.application = application;
         this.inputTypeListeners = new ArrayList<InputTypeListener>();
         this.inputListeners = new ArrayList<InputListener>();
-
-        // get the current active input type, and initialise it
-        this.activeInputType = this.application.getSettings().getActiveInput();
-        createInputClass();
+        this.inputStatusListeners = new ArrayList<InputStatusListener>();
+        this.activeInputType = null;
     }
 
     public void disconnect() {
@@ -49,16 +65,44 @@ public class InputSelector {
         synchronized (this.inputListeners) {
             this.inputListeners.clear();
         }
+        synchronized (this.inputStatusListeners) {
+            this.inputStatusListeners.clear();
+        }
         // shut it all down
         shutdownActiveInput();
     }
 
-    private void informListenersOfChange() {
+    private void informListenersOfTypeChange() {
         synchronized (this.inputTypeListeners) {
             for (InputTypeListener listener : this.inputTypeListeners) {
                 listener.onInputTypeChanged(this.activeInputType);
             }
         }
+    }
+
+    public void setStatus(Status status) {
+        Status oldStatus = this.status;
+        // set the status
+        this.status = status;
+        if (oldStatus != this.status) {
+            synchronized (this.inputStatusListeners) {
+                for (InputStatusListener listener : this.inputStatusListeners) {
+                    listener.onStatusChanged(this.activeInput, oldStatus, status);
+                }
+            }
+        }
+    }
+
+    public void signalIsProcessing() {
+        synchronized (this.inputStatusListeners) {
+            for (InputStatusListener listener : this.inputStatusListeners) {
+                listener.onInputProcessingData(this.activeInput, this.status);
+            }
+        }
+    }
+
+    public Status getStatus() {
+        return this.status;
     }
 
     public boolean addListener(InputTypeListener listener) {
@@ -94,6 +138,18 @@ public class InputSelector {
         }
     }
 
+    public boolean addListener(InputStatusListener listener) {
+        synchronized (this.inputStatusListeners) {
+            return this.inputStatusListeners.add(listener);
+        }
+    }
+
+    public boolean removeListener(InputStatusListener listener) {
+        synchronized (this.inputStatusListeners) {
+            return this.inputStatusListeners.remove(listener);
+        }
+    }
+
     private void shutdownActiveInput() {
         if (null != this.activeInput) {
             this.activeInput.shutdown();
@@ -102,12 +158,25 @@ public class InputSelector {
     }
 
     public void changeInputType(Settings.InputType newType) {
-        // set this on the settings
-        this.application.getSettings().setActiveInput(newType).commitChanges();
-        // and change here
-        this.activeInputType = newType;
-        // and create the corresponding class for this
-        createInputClass();
+        if (newType.equals(this.activeInputType)) {
+            // no change
+        }
+        else {
+            Log.debug("Changing input type from " + this.activeInputType + " to " + newType);
+            // set this on the settings
+            this.application.getSettings().setActiveInput(newType).commitChanges();
+            // and change here
+            this.activeInputType = newType;
+            // and create the corresponding class for this
+            createInputClass();
+            synchronized (this.inputTypeListeners) {
+                for (InputTypeListener listener : this.inputTypeListeners) {
+                    listener.onInputTypeChanged(this.activeInputType);
+                }
+            }
+            // and set it up
+            this.activeInput.initialiseConnection();
+        }
     }
 
     public Input getActiveInput() {

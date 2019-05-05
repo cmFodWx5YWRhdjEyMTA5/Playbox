@@ -5,6 +5,8 @@ import android.media.midi.MidiDeviceInfo;
 import android.os.Build;
 
 import uk.co.darkerwaters.staveinvaders.Application;
+import uk.co.darkerwaters.staveinvaders.R;
+import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Log;
 
 public class InputBluetooth extends InputMidi {
@@ -18,6 +20,28 @@ public class InputBluetooth extends InputMidi {
         super(application);
         // constructor for the input type, set everything up here
         Log.debug("input type bluetooth initialised");
+    }
+
+    @Override
+    public void initialiseConnection() {
+        super.initialiseConnection();
+        // not implemented yet
+        setStatus(InputSelector.Status.error);
+    }
+
+    @Override
+    public int getStatusDrawable(InputSelector.Status status) {
+        switch (status) {
+            case connecting:
+                return R.drawable.ic_baseline_bluetooth_searching_24px;
+            case connected:
+                return R.drawable.ic_baseline_bluetooth_connected_24px;
+            case disconnected:
+            case unknown:
+                return R.drawable.ic_baseline_bluetooth_24px;
+        }
+        // if here then let the base class decide
+        return super.getStatusDrawable(status);
     }
 
     @Override

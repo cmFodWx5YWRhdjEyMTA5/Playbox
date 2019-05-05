@@ -22,6 +22,8 @@ public class Application extends android.app.Application {
         this.log = Log.CreateLog(this);
         this.settings = new Settings(this);
         this.input = new InputSelector(this);
+        // set the input type to set this up
+        this.input.changeInputType(getSettings().getActiveInput());
 
         Log.debug("Application initialised...");
     }
