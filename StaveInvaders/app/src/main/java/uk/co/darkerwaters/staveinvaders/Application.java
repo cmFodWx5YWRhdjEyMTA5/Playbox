@@ -1,5 +1,9 @@
 package uk.co.darkerwaters.staveinvaders;
 
+import android.app.Activity;
+import android.content.Context;
+
+import uk.co.darkerwaters.staveinvaders.actvities.MainActivity;
 import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
@@ -13,6 +17,7 @@ public class Application extends android.app.Application {
     private InputSelector input = null;
     private Notes notes = null;
     private Chords singleChords = null;
+    private MainActivity mainActivity = null;
 
     @Override
     public void onCreate() {
@@ -22,8 +27,6 @@ public class Application extends android.app.Application {
         this.log = Log.CreateLog(this);
         this.settings = new Settings(this);
         this.input = new InputSelector(this);
-        // set the input type to set this up
-        this.input.changeInputType(getSettings().getActiveInput());
 
         Log.debug("Application initialised...");
     }
@@ -92,5 +95,16 @@ public class Application extends android.app.Application {
             }
             return this.notes;
         }
+    }
+
+    public void setMainActivity(MainActivity activity) {
+        // set the activity to use to set things up
+        this.mainActivity = activity;
+        // set the input type to set this up
+        this.input.changeInputType(getSettings().getActiveInput());
+    }
+
+    public MainActivity getMainActivity() {
+        return this.mainActivity;
     }
 }

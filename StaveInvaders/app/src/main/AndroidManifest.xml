@@ -33,6 +33,7 @@
                 android:resource="@xml/device_filter" />
         </activity>
         <activity android:name=".actvities.UsbSetupActivity" />
+        <activity android:name=".actvities.BtSetupActivity" />
     </application>
 
 </manifest>

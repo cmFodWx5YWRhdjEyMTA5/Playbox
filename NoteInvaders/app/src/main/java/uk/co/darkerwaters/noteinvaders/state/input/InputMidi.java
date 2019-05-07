@@ -462,14 +462,14 @@ public class InputMidi extends InputConnection {
         return this.defaultUsbDevice;
     }
 
-    public BluetoothDevice getDefaultBtDevice() {
-        return btDevices.getDefaultDevice();
-    }
-
     public int getNoUsbDevices() {
         synchronized (this.usbDevices) {
             return this.usbDevices.size();
         }
+    }
+
+    public BluetoothDevice getDefaultBtDevice() {
+        return btDevices.getDefaultDevice();
     }
 
     public int getNoBtDevices() {

@@ -17,6 +17,12 @@
     <string name="no_midi_available">Sorry, your phone does not support MIDI</string>
     <string name="connect_usb">Connect instrument via\nUSB-OTG adapter:</string>
     <string name="midi_connect_help">Try to detect USB OTG devices in your phone\'s device connection settings...</string>
+    <string name="no_ble_available">Sorry Bluetooth Low Energy is not available on your phone</string>
+    <string name="midi_ble_connect_help">Try turning on BT and scanning again...</string>
+    <string name="config_ble">Configure BT-LE</string>
+    <string name="connect_ble">Connect instrument via Bluetooth LE:</string>
+    <string name="scan_bt">Scan for devices...</string>
+    <string name="scan_bt_stop">Stop...</string>
     <string name="unknown">unknown</string>
     <string name="connecting">connecting</string>
     <string name="connected">connected</string>

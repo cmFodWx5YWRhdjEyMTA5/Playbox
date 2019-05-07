@@ -21,8 +21,8 @@ import uk.co.darkerwaters.staveinvaders.notes.Chord;
 
 public class InputConnectionStatus extends Fragment {
 
-    private final static int K_PROGRESS_REDUCTION_INTERVAL = 100;
-    private final static int K_PROGRESS_REDUCTION_AMOUNT = 10;
+    private final static int K_PROGRESS_REDUCTION_INTERVAL = 50;
+    private final static int K_PROGRESS_REDUCTION_AMOUNT = 1;
 
     private InputSelector.InputStatusListener statusListener = null;
     private InputSelector.InputTypeListener typeListener = null;
@@ -120,7 +120,9 @@ public class InputConnectionStatus extends Fragment {
         this.inputListener = new InputSelector.InputListener() {
             @Override
             public void onNoteDetected(Settings.InputType type, Chord chord, boolean isDetection, float probability) {
-                showDataIsProcessing(100);
+                if (isDetection) {
+                    showDataIsProcessing(25);
+                }
             }
         };
         // add all these listeners
@@ -139,8 +141,11 @@ public class InputConnectionStatus extends Fragment {
                 InputSelector.Status status = inputSelector.getStatus();
                 if (null != image) {
                     // set the image
-                    image.setImageResource(inputSelector.getActiveInput().getStatusDrawable(status));
-                    typeText.setText(getInputAsString(inputSelector.getActiveInputType()));
+                    Input activeInput = inputSelector.getActiveInput();
+                    if (null != activeInput) {
+                        image.setImageResource(activeInput.getStatusDrawable(status));
+                        typeText.setText(getInputAsString(inputSelector.getActiveInputType()));
+                    }
                     statusText.setText(getStatusAsString(status));
                     progress.setProgress(progressToShow);
                 }

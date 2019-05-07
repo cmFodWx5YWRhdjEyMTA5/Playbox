@@ -19,6 +19,7 @@ public class Settings {
     private final String K_ACTIVEINPUT = "input_active";
 
     private final String K_LASTCONNECTEDUSBDEVICE = "last_connected_device_usb";
+    private final String K_LASTCONNECTEDBTDEVICE = "last_connected_device_bt";
 
     // the settings - important for defaults
     private boolean isLogging = true;
@@ -31,6 +32,7 @@ public class Settings {
     private String activeInput = K_INPUTKEYS;
 
     private String lastConnectedUsbDevice = "";
+    private String lastConnectedBtDevice = "";
 
     public enum InputType {
         keys,
@@ -130,6 +132,17 @@ public class Settings {
     public Settings setLastConnectedUsbDevice(String device) {
         this.lastConnectedUsbDevice = device;
         this.editor.putString(K_LASTCONNECTEDUSBDEVICE, this.lastConnectedUsbDevice);
+        return this;
+    }
+
+    public String getLastConnectedBtDevice() {
+        this.lastConnectedBtDevice = this.preferences.getString(K_LASTCONNECTEDBTDEVICE, this.lastConnectedBtDevice);
+        return this.lastConnectedBtDevice;
+    }
+
+    public Settings setLastConnectedBtDevice(String device) {
+        this.lastConnectedBtDevice = device;
+        this.editor.putString(K_LASTCONNECTEDBTDEVICE, this.lastConnectedBtDevice);
         return this;
     }
 

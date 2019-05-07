@@ -128,6 +128,8 @@ public class InputUsb extends InputMidi {
                     openMidiDevice(item);
                     // if here then it didn't throw - we are connected
                     isConnected = true;
+                    // remember this was the last connected device
+                    application.getSettings().setLastConnectedUsbDevice(GetMidiDeviceId(item));
                     // ensure we are connected then
                     setStatus(InputSelector.Status.connected);
                 } catch (Exception e) {
@@ -157,9 +159,6 @@ public class InputUsb extends InputMidi {
     @Override
     protected void onDeviceAdded(MidiDeviceInfo device) {
         //TODO MIDI device was added, we will connect to this straight away
-
-        // ensure we are trying to connect then
-        setStatus(InputSelector.Status.connecting);
     }
 
     @Override
@@ -169,8 +168,6 @@ public class InputUsb extends InputMidi {
         if (activeConnectionId.equals(GetMidiDeviceId(device))) {
             // just removed the USB device that we are using, stop using it
             closeOpenMidiConnection();
-            // set the state to be keyboard now we disconnected
-            this.application.getSettings().setActiveInput(Settings.InputType.keys);
             // try to reconnect as it might just be a little glitch
             getConnectedUsbDevices();
             if (null != this.defaultUsbDevice) {

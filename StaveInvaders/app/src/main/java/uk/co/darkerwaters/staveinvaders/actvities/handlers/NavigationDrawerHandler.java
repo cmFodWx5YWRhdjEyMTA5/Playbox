@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
+import uk.co.darkerwaters.staveinvaders.actvities.BtSetupActivity;
 import uk.co.darkerwaters.staveinvaders.actvities.UsbSetupActivity;
 import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
@@ -89,24 +90,32 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
 
     private void showSettingsPage(Settings.InputType inputType) {
         //TODO show the correct settings for this type of input
+        Intent myIntent;
         switch(inputType) {
             case keys:
                 // No settings for this
+                myIntent = null;
                 break;
             case mic:
                 Toast.makeText(parent, "Settings page to do for " + inputType.toString(), Toast.LENGTH_LONG).show();
+                myIntent = null;
                 break;
             case usb:
-                Intent myIntent = new Intent(this.parent, UsbSetupActivity.class);
-                //myIntent.putExtra("instrument", item.getName()); //Optional parameters
-                this.parent.startActivity(myIntent);
+                myIntent = new Intent(this.parent, UsbSetupActivity.class);
                 break;
             case bt:
-                Toast.makeText(parent, "Settings page to do for " + inputType.toString(), Toast.LENGTH_LONG).show();
+                myIntent = new Intent(this.parent, BtSetupActivity.class);
+                break;
+            default:
+                myIntent = null;
                 break;
         }
-        // close the drawer now the item is selected
-        closeDrawer();
+        if (null != myIntent) {
+            // show the new activity to setup this in more detail
+            this.parent.startActivity(myIntent);
+            // close the drawer now the item is selected
+            closeDrawer();
+        }
     }
 
 

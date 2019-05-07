@@ -31,8 +31,12 @@ public abstract class InputMidi extends Input {
     private static final byte STATUS_NOTE_OFF = (byte) 0x80;
     private static final byte STATUS_NOTE_ON = (byte) 0x90;
 
+    private static final long TIMESTAMP_INFORM_INTERVAL = 1000l;
+
     protected MidiManager midiManager;
     private MidiManager.DeviceCallback callback = null;
+
+    private long lastInformTime = 0l;
 
     private enum MidiCommand {
         None,
@@ -189,6 +193,7 @@ public abstract class InputMidi extends Input {
                 Log.error("Failed to close the MIDI connection", e);
             }
         }
+        setStatus(InputSelector.Status.disconnected);
     }
 
     protected void openMidiDevice(final MidiDeviceInfo item) {
@@ -211,9 +216,7 @@ public abstract class InputMidi extends Input {
         }, new Handler(Looper.getMainLooper()));
     }
 
-    private boolean connectToDevice(MidiDevice midiDevice) {
-        // close any existing connection
-        closeOpenMidiConnection();
+    protected boolean connectToDevice(MidiDevice midiDevice) {
         boolean isConnected = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && midiDevice != null) {
             // find the first output port and use it to connect
@@ -245,6 +248,10 @@ public abstract class InputMidi extends Input {
         return isConnected;
     }
 
+    public boolean isConnectionActive() {
+        return this.openMidiOutputPort != null;
+    }
+
     protected void onMidiDeviceConnected(MidiDevice midiDevice) {
         // inform listeners
         synchronized (listeners) {
@@ -267,7 +274,13 @@ public abstract class InputMidi extends Input {
 
     private void processMidiData(byte data, long timestamp) {
         // we are doing something, connection active - inform the listeners
-        this.signalIsProcessing();
+        long informTime = System.currentTimeMillis();
+        if (this.lastInformTime > informTime || informTime - this.lastInformTime > TIMESTAMP_INFORM_INTERVAL) {
+            // time to send an update
+            this.signalIsProcessing();
+            this.lastInformTime = informTime;
+        }
+
         // one at a time we will be processing the data and commands, check for a new command
         if ((byte)(data & COMMAND_BYTE_MASK) == COMMAND_BYTE_MASK) {
             // this is the command, the MASK means that it is
