@@ -31,7 +31,8 @@ public class InputConnectionStatus extends Fragment {
     private Application application = null;
 
     private ImageView image;
-    private TextView text;
+    private TextView typeText;
+    private TextView statusText;
     private ProgressBar progress;
 
     private int progressToShow = 0;
@@ -57,7 +58,8 @@ public class InputConnectionStatus extends Fragment {
 
         // get our controls
         this.image = inflated.findViewById(R.id.input_conn_image);
-        this.text = inflated.findViewById(R.id.input_conn_text);
+        this.typeText = inflated.findViewById(R.id.input_conn_text);
+        this.statusText = inflated.findViewById(R.id.input_conn_status);
         this.progress = inflated.findViewById(R.id.input_conn_progress);
 
         // create the reduction thread
@@ -138,11 +140,44 @@ public class InputConnectionStatus extends Fragment {
                 if (null != image) {
                     // set the image
                     image.setImageResource(inputSelector.getActiveInput().getStatusDrawable(status));
-                    text.setText(status.toString());
+                    typeText.setText(getInputAsString(inputSelector.getActiveInputType()));
+                    statusText.setText(getStatusAsString(status));
                     progress.setProgress(progressToShow);
                 }
             }
         });
+    }
+
+    private int getInputAsString(Settings.InputType input) {
+        switch (input) {
+            case keys:
+                return R.string.on_screen_keyboard;
+            case usb:
+                return R.string.usb_keyboard;
+            case bt:
+                return R.string.bluetooth_keyboard;
+            case mic:
+                return R.string.microphone;
+            default:
+                return R.string.unknown;
+        }
+    }
+
+    private int getStatusAsString(InputSelector.Status status) {
+        switch (status) {
+            case unknown:
+                return R.string.unknown;
+            case connecting:
+                return R.string.connecting;
+            case connected:
+                return R.string.connected;
+            case disconnecting:
+                return R.string.disconnecting;
+            case disconnected:
+                return R.string.disconnected;
+            case error: default:
+                return R.string.error;
+        }
     }
 
     private void showDataIsProcessing(int percentage) {

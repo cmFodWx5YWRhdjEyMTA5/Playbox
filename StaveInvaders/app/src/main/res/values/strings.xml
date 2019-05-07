@@ -17,8 +17,11 @@
     <string name="no_midi_available">Sorry, your phone does not support MIDI</string>
     <string name="connect_usb">Connect instrument via\nUSB-OTG adapter:</string>
     <string name="midi_connect_help">Try to detect USB OTG devices in your phone\'s device connection settings...</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="Keyboard">keyboard</string>
+    <string name="unknown">unknown</string>
+    <string name="connecting">connecting</string>
+    <string name="connected">connected</string>
+    <string name="disconnecting">disconnecting</string>
+    <string name="disconnected">disconnected</string>
+    <string name="error">error</string>
+    <string name="connection_status_help">The status of the current connection</string>
 </resources>

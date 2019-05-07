@@ -183,6 +183,8 @@ public class InputSelector {
         return this.activeInput;
     }
 
+    public Settings.InputType getActiveInputType() { return this.activeInputType; }
+
     private void createInputClass() {
         // shutdown the current input
         shutdownActiveInput();
