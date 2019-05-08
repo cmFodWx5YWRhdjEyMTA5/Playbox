@@ -53,7 +53,7 @@ public class BtSetupActivity extends BaseSetupActivity implements
         //this.listView.addItemDecoration(new SelectableItemActivity.GridSpacingItemDecoration(1, tenPixels, true));
         this.listView.setItemAnimator(new DefaultItemAnimator());
         // set the adapter
-        this.listView.setAdapter(new BtItemAdapter(this));
+        this.listView.setAdapter(new BtItemAdapter(this.application, this));
 
         // when BT is being setup then we want to be sure it is the active connection type
         setInputToBt();
@@ -67,7 +67,7 @@ public class BtSetupActivity extends BaseSetupActivity implements
                 public void onClick(View view) {
                     if (inputBt.isBtScanning()) {
                         // stop scanning
-                        inputBt.stopBluetoothScanning(null);
+                        inputBt.stopBluetoothScanning();
                     }
                     else {
                         // scan
@@ -84,7 +84,7 @@ public class BtSetupActivity extends BaseSetupActivity implements
     private void setInputToBt() {
         this.application.getInputSelector().changeInputType(Settings.InputType.bt);
         Input activeInput = this.application.getInputSelector().getActiveInput();
-        if (activeInput == null || false == activeInput instanceof InputBluetooth) {
+        if (false == activeInput instanceof InputBluetooth) {
             // there is no input
             Log.error("Active INPUT is not BT despite us setting it to be, it is " + activeInput);
         }

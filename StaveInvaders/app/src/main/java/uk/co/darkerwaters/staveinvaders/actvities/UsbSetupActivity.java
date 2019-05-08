@@ -4,7 +4,6 @@ import android.content.res.Resources;
 import android.media.midi.MidiDevice;
 import android.media.midi.MidiDeviceInfo;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,19 +14,13 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.actvities.handlers.UsbItemAdapter;
-import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
 import uk.co.darkerwaters.staveinvaders.input.Input;
 import uk.co.darkerwaters.staveinvaders.input.InputMidi;
 import uk.co.darkerwaters.staveinvaders.input.InputUsb;
-import uk.co.darkerwaters.staveinvaders.notes.Chord;
-import uk.co.darkerwaters.staveinvaders.notes.Range;
-import uk.co.darkerwaters.staveinvaders.views.PianoTouchable;
-import uk.co.darkerwaters.staveinvaders.views.PianoView;
 
 public class UsbSetupActivity extends BaseSetupActivity implements
         UsbItemAdapter.MidiListListener,
@@ -107,13 +100,11 @@ public class UsbSetupActivity extends BaseSetupActivity implements
             this.inputUsb.connectToDevice(defaultUsbDevice);
         }
         // show this list of devices
-        this.listView.setAdapter(new UsbItemAdapter(connectedDevices, this));
+        this.listView.setAdapter(new UsbItemAdapter(connectedDevices, this.application,this));
         if (connectedDevices.size() == 0) {
             // try to help them
             this.deviceLabel.setVisibility(View.VISIBLE);
             this.deviceLabel.setText(R.string.midi_connect_help);
-            // reset the piano view, no connection here
-            setPianoRange(this.piano.getDefaultNoteRange());
         }
         else {
             this.deviceLabel.setVisibility(View.GONE);

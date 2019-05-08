@@ -20,23 +20,15 @@ public abstract class BaseSetupActivity extends AppCompatActivity implements
         InputMidi.MidiListener {
 
     protected PianoTouchable piano = null;
-    private TextView pianoRangeText = null;
-
     protected Application application;
-
-    private float minPitchDetected = -1f;
-    private float maxPitchDetected = -1f;
 
     protected void initialiseSetupActivity() {
         // get the application for reference
         this.application = (Application) this.getApplication();
 
         this.piano = (PianoTouchable) findViewById(R.id.microphone_setup_piano);
-        this.pianoRangeText = (TextView) findViewById(R.id.piano_range_text);
-
-        // show the range of the piano
         this.piano.setIsAllowTouch(false);
-        setPianoRange(this.piano.getDefaultNoteRange());
+        this.piano.setIsDrawNoteName(false);
     }
 
     @Override
@@ -57,22 +49,6 @@ public abstract class BaseSetupActivity extends AppCompatActivity implements
         super.onPause();
     }
 
-    protected void setPianoRange(Range range) {
-        if (null != range) {
-            this.piano.setNoteRange(range, null);
-        }
-        // update the text and view now on the main thread
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                // invalidate the view to display it okay
-                piano.invalidate();
-                // show the range of the piano
-                pianoRangeText.setText(piano.getRangeText());
-            }
-        });
-    }
-
     @Override
     protected void onDestroy() {
         this.piano.closeView();
@@ -82,27 +58,16 @@ public abstract class BaseSetupActivity extends AppCompatActivity implements
     @Override
     public void onNoteDetected(Settings.InputType type, Chord chord, boolean isDetection, float probability) {
         // add to our range of notes we can detect
-        if (isDetection && probability > 1f) {
-            addDetectedPitch(chord);
-            setPianoRange(null);
-        }
-    }
-
-    private void addDetectedPitch(Chord chord) {
-        if (null != chord) {
-            float pitch = chord.getLowest().getFrequency();
-            // add to the range of pitch we can detect
-            if (minPitchDetected < 0 || pitch < minPitchDetected) {
-                minPitchDetected = pitch;
-            }
-            pitch = chord.getHighest().getFrequency();
-            if (maxPitchDetected < 0 || pitch > maxPitchDetected) {
-                maxPitchDetected = pitch;
-            }
+        if (isDetection && probability > 50f) {
             // depress this chord
             this.piano.depressNote(chord);
-            // set the detected pitch on the piano we are showing
-            this.piano.setNoteRange(minPitchDetected, maxPitchDetected, null);
+            // invalidate the view, the piano released a note
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    piano.invalidate();
+                }
+            });
         }
     }
 

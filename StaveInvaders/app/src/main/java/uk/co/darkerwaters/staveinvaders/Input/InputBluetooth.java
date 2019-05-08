@@ -4,6 +4,11 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
+import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -13,32 +18,33 @@ import android.media.midi.MidiManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.ParcelUuid;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Log;
-import uk.co.darkerwaters.staveinvaders.application.Settings;
 
 public class InputBluetooth extends InputMidi {
 
     public static final int REQUEST_ENABLE_BT = 123;
     public static final int REQUEST_ENABLE_PERMISSIONS = 122;
-    private static final String BT_OVER_LE_UUID = "03B80E5A-EDE8-4B33-A751-6CE34EC4C700";
     public static final int K_BT_SCAN_PERIOD = 10000;
 
-    private BluetoothManager bluetoothManager = null;
-    private BluetoothAdapter.LeScanCallback btScanCallback = null;
-    private volatile boolean isBtScanning = false;
+    private static final String BT_OVER_LE_UUID = "03B80E5A-EDE8-4B33-A751-6CE34EC4C700";
 
-    private String activeConnectionId = new String();
-    private String activeMidiConnectionId = new String();
+    private BluetoothManager bluetoothManager = null;
+    private ScanCallback btScanCallback = null;
+    private volatile boolean isBtScanning = false;
+    private BluetoothLeScanner btLeScanner = null;
+
+    private String activeConnectionId = "";
+    private String activeMidiConnectionId = "";
 
     private static final BluetoothDeviceList btDevices = new BluetoothDeviceList();
 
@@ -147,20 +153,13 @@ public class InputBluetooth extends InputMidi {
         return isConnected;
     }
 
-    public boolean stopBluetoothScanning(BluetoothAdapter adapter) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            if (null == adapter) {
-                // no adapter, get it
-                if (null != this.bluetoothManager) {
-                    // there is a manager, get the adapter and do the scan
-                    adapter = this.bluetoothManager.getAdapter();
-                }
-            }
-            if (null != adapter && adapter.isEnabled()) {
-                adapter.stopLeScan(btScanCallback);
-                isBtScanning = false;
-            }
+    public boolean stopBluetoothScanning() {
+        // stop scanning
+        if (null != this.btLeScanner && null != btScanCallback) {
+            this.btLeScanner.stopScan(btScanCallback);
+            this.btScanCallback = null;
         }
+        this.isBtScanning = false;
         // inform the listeners of this change
         synchronized (bluetoothListeners) {
             for (BluetoothListener listener : bluetoothListeners) {
@@ -179,30 +178,49 @@ public class InputBluetooth extends InputMidi {
             // there is a manager, get the adapter and do the scan
             BluetoothAdapter adapter = this.bluetoothManager.getAdapter();
             if (null != adapter && adapter.isEnabled()) {
+                // finally we can start the scan on this adapter, just looking for BLE MIDI devices
                 // if we are already scanning, stop already
                 if (this.isBtScanning()) {
                     // stop the old scanning
-                    stopBluetoothScanning(adapter);
+                    stopBluetoothScanning();
                 }
+                // get the active scanner we want to use
+                this.btLeScanner = adapter.getBluetoothLeScanner();
                 // create the callback we need for being informed of devices found
-                btScanCallback = new BluetoothAdapter.LeScanCallback() {
+                btScanCallback = new ScanCallback() {
                     @Override
-                    public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
-                        // add this to the list of BT devices
+                    public void onScanResult(int callbackType, ScanResult result) {
+                        super.onScanResult(callbackType, result);
+                        processDevice(result.getDevice());
+                    }
+                    private void processDevice(BluetoothDevice device) {
+                        // add to the list
                         btDevices.add(device);
                         // inform the listeners of this new device available
                         onBtDeviceDiscovered(device);
                     }
+                    @Override
+                    public void onBatchScanResults(List<ScanResult> results) {
+                        super.onBatchScanResults(results);
+                        for (ScanResult result : results) {
+                            processDevice(result.getDevice());
+                        }
+                    }
+                    @Override
+                    public void onScanFailed(int errorCode) {
+                        super.onScanFailed(errorCode);
+                        Log.error("BTLE Scanning error code encountered \"" + errorCode + "\".");
+                    }
                 };
-                // Stops scanning after a pre-defined scan period.
+                // start scanning and stop after a pre-defined scan period.
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         // stop without passing the adapter, will get it again - more current
-                        stopBluetoothScanning(null);
+                        stopBluetoothScanning();
                     }
                 }, K_BT_SCAN_PERIOD);
-
+                // do we want to inform of existing found devices
                 if (isIncludePrevious) {
                     // send a message for each device we already have
                     for (BluetoothDevice device : btDevices.getAll()) {
@@ -210,12 +228,15 @@ public class InputBluetooth extends InputMidi {
                         onBtDeviceDiscovered(device);
                     }
                 }
-
-                // finally we can start the scan on this adapter, just looking for BLE MIDI devices
-                if (adapter.startLeScan(new UUID[] {UUID.fromString(BT_OVER_LE_UUID)}, btScanCallback)) {
-                    // this is scanning, remember this
-                    this.isBtScanning = true;
-                }
+                // and start scanning
+                ScanSettings settings = new ScanSettings.Builder()
+                        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                        .build();
+                ArrayList<ScanFilter> filters = new ArrayList<ScanFilter>();
+                filters.add(new ScanFilter.Builder().setServiceUuid(ParcelUuid.fromString(BT_OVER_LE_UUID)).build());
+                // scan with these generic settings
+                this.btLeScanner.startScan(filters, settings, btScanCallback);
+                this.isBtScanning = true;
             }
         }
         // inform the listeners of this change in status
@@ -261,14 +282,6 @@ public class InputBluetooth extends InputMidi {
         return this.isBtScanning;
     }
 
-    public BluetoothDevice getDefaultBtDevice() {
-        return btDevices.getDefaultDevice();
-    }
-
-    public int getNoBtDevices() {
-        return btDevices.size();
-    }
-
     public boolean connectToDevice(final BluetoothDevice item) {
         boolean isConnected = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && null != item) {
@@ -306,7 +319,7 @@ public class InputBluetooth extends InputMidi {
                     isConnected = true;
                 } catch (Exception e) {
                     // inform the dev but just carry on and return out false
-                    e.printStackTrace();
+                    Log.error("Failed to open BT", e);
                 }
             }
         }
@@ -319,7 +332,7 @@ public class InputBluetooth extends InputMidi {
         super.shutdown();
         Log.debug("input type bluetooth shutdown");
         // stop any BT scanning that might be running
-        stopBluetoothScanning(null);
+        stopBluetoothScanning();
     }
 
     public String getActiveMidiConnection() {
@@ -332,14 +345,7 @@ public class InputBluetooth extends InputMidi {
 
     @Override
     protected void onDeviceAdded(MidiDeviceInfo device) {
-        /*//  found a device, connect to this if the default
-        if (null != device) {
-            String deviceId = GetMidiDeviceId(device);
-            if (this.application.getSettings().getLastConnectedBtDevice().equals(deviceId)) {
-                // this is the last default - connect to this
-                connectToDevice(device);
-            }
-        }*/
+        //  found a device, will connect to this if the default
     }
 
     @Override

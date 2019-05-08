@@ -13,12 +13,16 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
+import uk.co.darkerwaters.staveinvaders.input.InputBluetooth;
+import uk.co.darkerwaters.staveinvaders.input.InputMidi;
 
 public class BtItemAdapter extends RecyclerView.Adapter<BtItemAdapter.ViewHolder> {
 
     private final List<BluetoothDevice> itemList;
     private final BtListListener listener;
+    private final Application application;
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView title, subtitle;
@@ -39,8 +43,9 @@ public class BtItemAdapter extends RecyclerView.Adapter<BtItemAdapter.ViewHolder
         void onBtListItemClicked(BluetoothDevice item);
     }
 
-    public BtItemAdapter(BtListListener listener) {
+    public BtItemAdapter(Application application, BtListListener listener) {
         this.itemList = new ArrayList<BluetoothDevice>();
+        this.application = application;
         this.listener = listener;
     }
 
@@ -92,13 +97,13 @@ public class BtItemAdapter extends RecyclerView.Adapter<BtItemAdapter.ViewHolder
         // set the data on the holder
         holder.title.setText(holder.item.getName());
         holder.subtitle.setText(holder.item.getAddress());
-        //TODO fade in the holder if selected
-        /*if (InputMidi.GetMidiDeviceId(holder.item).equals(NoteInvaders.getAppContext().getMidiDeviceId())) {
+        // fade in the holder if selected
+        if (InputBluetooth.GetMidiDeviceId(holder.item).equals(this.application.getSettings().getLastConnectedBtDevice())) {
             holder.selected.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.fade_in));
         }
         else {
             holder.selected.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.fade));
-        }*/
+        }
     }
 
     @Override
