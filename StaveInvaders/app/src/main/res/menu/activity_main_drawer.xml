@@ -4,50 +4,52 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
+
+    <group>
         <item
-            android:id="@+id/input_keys"
-            android:title="@string/on_screen_keyboard"
-            android:icon="@drawable/ic_baseline_keyboard_24px"/>
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_baseline_home_24px"
+            android:title="@string/home" />
         <item
-            android:id="@+id/input_mic"
-            app:showAsAction="ifRoom"
-            app:actionProviderClass="uk.co.darkerwaters.staveinvaders.actvities.handlers.InputOptionSettingsHandler"
-            android:icon="@drawable/ic_baseline_mic_24px"
-            android:title="@string/microphone" />
+            android:id="@+id/nav_history"
+            android:icon="@drawable/ic_baseline_history_24px"
+            android:title="@string/history" />
         <item
-            android:id="@+id/input_bt"
-            app:showAsAction="ifRoom"
-            app:actionProviderClass="uk.co.darkerwaters.staveinvaders.actvities.handlers.InputOptionSettingsHandler"
-            android:icon="@drawable/ic_baseline_bluetooth_24px"
-            android:title="@string/bluetooth_keyboard" />
-        <item
-            android:id="@+id/input_usb"
-            app:showAsAction="ifRoom"
-            app:actionProviderClass="uk.co.darkerwaters.staveinvaders.actvities.handlers.InputOptionSettingsHandler"
-            android:icon="@drawable/ic_baseline_usb_24px"
-            android:title="@string/usb_keyboard" />
+            android:id="@+id/nav_attributions"
+            android:icon="@drawable/ic_baseline_collections_24px"
+            android:title="@string/attributions" />
     </group>
 
-    <item android:title="@string/keyboard_connection">
+    <item
+        android:id="@+id/connection_group"
+        android:title="@string/keyboard_connection">
         <menu>
-            <item
-                android:id="@+id/nav_camera"
-                android:icon="@drawable/ic_menu_camera"
-                android:title="Import" />
-            <item
-                android:id="@+id/nav_gallery"
-                android:icon="@drawable/ic_menu_gallery"
-                android:title="Gallery" />
-            <item
-                android:id="@+id/nav_slideshow"
-                android:icon="@drawable/ic_menu_slideshow"
-                android:title="Slideshow" />
-            <item
-                android:id="@+id/nav_manage"
-                android:icon="@drawable/ic_menu_manage"
-                android:title="Tools" />
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/input_keys"
+                    android:icon="@drawable/ic_baseline_keyboard_24px"
+                    android:title="@string/on_screen_keyboard" />
+                <item
+                    android:id="@+id/input_mic"
+                    android:icon="@drawable/ic_baseline_mic_24px"
+                    android:title="@string/microphone"
+                    app:actionProviderClass="uk.co.darkerwaters.staveinvaders.actvities.handlers.InputOptionSettingsHandler"
+                    app:showAsAction="ifRoom" />
+                <item
+                    android:id="@+id/input_bt"
+                    android:icon="@drawable/ic_baseline_bluetooth_24px"
+                    android:title="@string/bluetooth_keyboard"
+                    app:actionProviderClass="uk.co.darkerwaters.staveinvaders.actvities.handlers.InputOptionSettingsHandler"
+                    app:showAsAction="ifRoom" />
+                <item
+                    android:id="@+id/input_usb"
+                    android:icon="@drawable/ic_baseline_usb_24px"
+                    android:title="@string/usb_keyboard"
+                    app:actionProviderClass="uk.co.darkerwaters.staveinvaders.actvities.handlers.InputOptionSettingsHandler"
+                    app:showAsAction="ifRoom" />
+            </group>
         </menu>
     </item>
+
 
 </menu>

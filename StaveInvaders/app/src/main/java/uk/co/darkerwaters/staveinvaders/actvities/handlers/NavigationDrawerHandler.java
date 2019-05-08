@@ -18,6 +18,7 @@ import android.widget.Toast;
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.actvities.BtSetupActivity;
+import uk.co.darkerwaters.staveinvaders.actvities.MainActivity;
 import uk.co.darkerwaters.staveinvaders.actvities.UsbSetupActivity;
 import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
@@ -89,7 +90,6 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
     }
 
     private void showSettingsPage(Settings.InputType inputType) {
-        //TODO show the correct settings for this type of input
         Intent myIntent;
         switch(inputType) {
             case keys:
@@ -98,6 +98,7 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
                 break;
             case mic:
                 Toast.makeText(parent, "Settings page to do for " + inputType.toString(), Toast.LENGTH_LONG).show();
+                //TODO show the correct settings for this type of input
                 myIntent = null;
                 break;
             case usb:
@@ -129,40 +130,60 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
 
         // setup the action menu item selections
         Menu menu = this.navigationView.getMenu();
-        if (null != menu) {
-            for (int i = 0; i < menu.size(); ++i) {
-                MenuItem item = menu.getItem(i);
-                ActionProvider actionProvider = MenuItemCompat.getActionProvider(item);
-                if (null != actionProvider && actionProvider instanceof InputOptionSettingsHandler) {
-                    // handle the clicking of this settings button
-                    final Settings.InputType selectedType = ButtonToType(item.getItemId());
-                    View actionView = item.getActionView();
-                    InputOptionSettingsHandler inputOptionSettingsHandler = (InputOptionSettingsHandler)actionProvider;
-                    inputOptionSettingsHandler.setOnClickListener(actionView, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            // input keys settings shown
-                            showSettingsPage(selectedType);
-                        }
-                    });
-                    if (activeButtonId == item.getItemId()) {
-                        // this is the active button, check this status
-                        //TODO when this is searching, show an animation, else show a tick or something
+        setupActionProvider(menu.findItem(R.id.input_keys), activeButtonId);
+        setupActionProvider(menu.findItem(R.id.input_mic), activeButtonId);
+        setupActionProvider(menu.findItem(R.id.input_bt), activeButtonId);
+        setupActionProvider(menu.findItem(R.id.input_usb), activeButtonId);
+    }
+
+    private void setupActionProvider(MenuItem item, int activeButtonId) {
+        if (null != item) {
+            ActionProvider actionProvider = MenuItemCompat.getActionProvider(item);
+            if (null != actionProvider && actionProvider instanceof InputOptionSettingsHandler) {
+                // handle the clicking of this settings button
+                final Settings.InputType selectedType = ButtonToType(item.getItemId());
+                View actionView = item.getActionView();
+                InputOptionSettingsHandler inputOptionSettingsHandler = (InputOptionSettingsHandler) actionProvider;
+                inputOptionSettingsHandler.setOnClickListener(actionView, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // input keys settings shown
+                        showSettingsPage(selectedType);
                     }
-                    else {
-                        // not active, hide the animation
-                        inputOptionSettingsHandler.hideProgress(actionView);
-                    }
+                });
+                if (activeButtonId == item.getItemId()) {
+                    // this is the active button, check this status
+                    //TODO when this is searching, show an animation, else show a tick or something
+                } else {
+                    // not active, hide the animation
+                    inputOptionSettingsHandler.hideProgress(actionView);
                 }
             }
         }
     }
 
     private void updateNavSelection(MenuItem item) {
-        // Handle navigation view item clicks here.
-        Settings.InputType selectedType = ButtonToType(item.getItemId());
-        // set this as the active type to use
-        this.application.getInputSelector().changeInputType(selectedType);
+        switch (item.getItemId()) {
+            case R.id.nav_home:
+                // go home
+                Intent myIntent = new Intent(this.parent, MainActivity.class);
+                this.parent.startActivity(myIntent);
+                break;
+            case R.id.nav_history:
+                //TODO show the history
+                Toast.makeText(parent, "history page todo", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.nav_attributions:
+                //TODO show the attributions view
+                Toast.makeText(parent, "attributions page todo", Toast.LENGTH_LONG).show();
+                break;
+            default:
+                // Handle navigation view item clicks here.
+                Settings.InputType selectedType = ButtonToType(item.getItemId());
+                // set this as the active type to use
+                this.application.getInputSelector().changeInputType(selectedType);
+                break;
+        }
         // close the drawer now the item is selected
         closeDrawer();
     }

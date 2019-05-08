@@ -1,8 +1,12 @@
 package uk.co.darkerwaters.staveinvaders.actvities;
 
+import android.app.Activity;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -13,11 +17,15 @@ import android.view.MenuItem;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
+import uk.co.darkerwaters.staveinvaders.actvities.cards.NoteGameCard;
+import uk.co.darkerwaters.staveinvaders.actvities.handlers.MainRecyclerAdapter;
 import uk.co.darkerwaters.staveinvaders.actvities.handlers.NavigationDrawerHandler;
 
 public class MainActivity extends AppCompatActivity {
 
     private NavigationDrawerHandler navigationActor = null;
+    private GridLayoutManager layoutManager;
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +50,23 @@ public class MainActivity extends AppCompatActivity {
         // create the nav listener
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         this.navigationActor = new NavigationDrawerHandler(this, drawer, toolbar);
+
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+
+        int span = 1;
+        switch(getResources().getConfiguration().orientation) {
+            case Configuration.ORIENTATION_LANDSCAPE:
+                span = 2;
+                break;
+
+        }
+        layoutManager = new GridLayoutManager(MainActivity.this, span);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(new MainRecyclerAdapter(
+                new MainRecyclerAdapter.Card[] {
+                        new NoteGameCard(),
+                        new NoteGameCard(),
+                        new NoteGameCard()}));
     }
 
     @Override
