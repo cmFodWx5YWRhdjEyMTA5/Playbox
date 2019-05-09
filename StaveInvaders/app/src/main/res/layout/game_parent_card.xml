@@ -50,7 +50,7 @@
         <uk.co.darkerwaters.staveinvaders.views.GameProgressView
             android:id="@+id/gameProgress"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
+            android:layout_height="80dp"
             android:layout_below="@+id/item_image"
             android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
