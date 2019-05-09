@@ -1,0 +1,165 @@
+{
+  "name": "Treble Scales",
+  "id" : "treble_scales",
+  "image": "games/scales.jpg",
+  "description": "Learn scales on the treble clef",
+  "class": "uk.co.darkerwaters.noteinvaders.games.Scales",
+  "children": [
+    {
+      "name": "C Major",
+      "id" : "scales_treble_c",
+      "notes": [
+        "t:C4:c:1",
+        "t:D4:d:2",
+        "t:E4:e:3",
+        "t:F4:f:1",
+        "t:G4:g:2",
+        "t:A4:a:3",
+        "t:B4:b:4",
+        "t:C5:b:5"]
+    },
+    {
+      "name": "D Major",
+      "id" : "scales_treble_d",
+      "notes" : [
+        "t:D4:d:1",
+        "t:E4:e:2",
+        "t:F#4:f:3",
+        "t:G4:g:1",
+        "t:A4:a:2",
+        "t:B4:b:3",
+        "t:C#5:c:4",
+        "t:D5:d:5"]
+    },
+    {
+      "name": "E Major",
+      "id" : "scales_treble_e",
+      "notes" : [
+        "t:E4:e:1",
+        "t:F#4:f:2",
+        "t:G#4:g:3",
+        "t:A4:a:1",
+        "t:B4:b:2",
+        "t:C#5:c:3",
+        "t:D#5:d:4",
+        "t:E5:e:5"]
+    },
+    {
+      "name": "F Major",
+      "id" : "scales_treble_f",
+      "notes" : [
+        "t:F4:f:1",
+        "t:G4:g:2",
+        "t:A4:a:3",
+        "t:Bb4:b:4",
+        "t:C5:c:1",
+        "t:D5:d:2",
+        "t:E5:e:3",
+        "t:F5:f:4"]
+    },
+    {
+      "name": "G Major",
+      "id" : "scales_treble_g",
+      "notes" : [
+        "t:G4:g:1",
+        "t:A4:a:2",
+        "t:B4:b:3",
+        "t:C5:c:1",
+        "t:D5:d:2",
+        "t:E5:e:3",
+        "t:F#5:f:4",
+        "t:G5:g:5"]
+    },
+    {
+      "name": "A Major",
+      "id" : "scales_treble_a",
+      "notes" : [
+        "t:A4:a:1",
+        "t:B4:b:2",
+        "t:C#5:c:3",
+        "t:D5:d:1",
+        "t:E5:e:2",
+        "t:F#5:f:3",
+        "t:G#5:g:4",
+        "t:A5:a:5"]
+    },
+    {
+      "name": "B Major",
+      "id" : "scales_treble_b",
+      "notes" : [
+        "t:B3:b:1",
+        "t:C#4:c:2",
+        "t:D#4:d:3",
+        "t:E4:e:1",
+        "t:F#4:f:2",
+        "t:G#4:g:3",
+        "t:A#4:a:4",
+        "t:B4:b:5"]
+    },
+    {
+      "name": "C# / Dᵇ Major",
+      "id" : "scales_treble_c_sharp",
+      "notes": [
+        "t:Db4:d:2",
+        "t:Eb4:e:3",
+        "t:F4:f:1",
+        "t:Gb4:g:2",
+        "t:Ab4:a:3",
+        "t:Bb4:b:4",
+        "t:C5:c:1",
+        "t:Db5:d:2"]
+    },
+    {
+      "name": "D# / Eᵇ Major",
+      "id" : "scales_treble_d_sharp",
+      "notes": [
+        "t:Eb4:e:3",
+        "t:F4:f:1",
+        "t:G4:g:2",
+        "t:Ab4:a:3",
+        "t:Bb4:b:4",
+        "t:C5:c:1",
+        "t:D5:d:2",
+        "t:Eb5:e:3"]
+    },
+    {
+      "name": "F# /Gᵇ Major",
+      "id" : "scales_treble_f_sharp",
+      "notes": [
+        "t:F#4:f:2",
+        "t:G#4:g:3",
+        "t:A#4:a:4",
+        "t:B4:b:1",
+        "t:C#5:c:2",
+        "t:D#5:d:3",
+        "t:F5:f:1",
+        "t:F#5:f:2"]
+    },
+    {
+      "name": "G# / Aᵇ Major",
+      "id" : "scales_treble_g_sharp",
+      "notes": [
+        "t:Ab4:a:3",
+        "t:Bb4:c:4",
+        "t:C5:c:1",
+        "t:Db5:d:2",
+        "t:Eb5:e:3",
+        "t:F5:f:1",
+        "t:G5:g:2",
+        "t:Ab5:a:3"]
+    },
+    {
+      "name": "A# / Bᵇ Major",
+      "id" : "scales_treble_a_sharp",
+      "notes": [
+        "t:Bb3:b:4",
+        "t:C4:c:1",
+        "t:D4:d:2",
+        "t:Eb4:e:3",
+        "t:F4:f:1",
+        "t:G4:g:2",
+        "t:A4:a:3",
+        "t:Bb4:b:4"]
+    }
+  ]
+}

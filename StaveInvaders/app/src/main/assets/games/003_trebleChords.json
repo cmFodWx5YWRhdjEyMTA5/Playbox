@@ -1,0 +1,220 @@
+{
+  "name": "Treble Chord Attack",
+  "id" : "treble_chord_attack",
+  "image": "games/c_chord.jpg",
+  "description": "Learn chords on the treble clef",
+  "class": "uk.co.darkerwaters.noteinvaders.games.RandomAttack",
+  "children": [
+    {
+      "name": "C Family Majors",
+      "id" : "treble_chord_attack_c_majors",
+      "notes": [
+        "t:C4,E4,G4:C",
+        "t:F4,A4,C5:F",
+        "t:G4,B4,D5:G"
+      ]
+    },
+    {
+      "name": "C Family Minors",
+      "id" : "treble_chord_attack_c_minors",
+      "image": "temp.png",
+      "notes": [
+        "t:D4,F4,A4:Dm",
+        "t:E4,G4,B4:Em",
+        "t:A4,C5,E5:Am"
+      ]
+    },
+    {
+      "name": "C Family Complete",
+      "id" : "treble_chord_attack_c_complete",
+      "notes": [
+        "t:C4,E4,G4:C",
+        "t:D4,F4,A4:Dm",
+        "t:E4,G4,B4:Em",
+        "t:F4,A4,C5:F",
+        "t:G4,B4,D5:G",
+        "t:A4,C5,E5:Am",
+        "t:B4,D5,F5:Bᵒ"
+      ]
+    },
+    {
+      "name": "Majors D.E.A",
+      "id" : "treble_chord_attack_dea_majors",
+      "notes": [
+        "t:D4,F#4,A4:D",
+        "t:E4,G#4,B4:E",
+        "t:A4,C#5,E5:A"
+      ]
+    },
+    {
+      "name": "Majors",
+      "id" : "treble_chord_attack_majors",
+      "notes": [
+        "t:C4,E4,G4:C",
+        "t:D4,F#4,A4:D",
+        "t:E4,G#4,B4:E",
+        "t:F4,A4,C5:F",
+        "t:G4,B4,D5:G",
+        "t:A4,C#5,E5:A",
+        "t:B4,D#5,F#5:B"
+      ]
+    },
+    {
+      "name": "A's",
+      "id" : "treble_chord_attack_a_variations",
+      "notes": [
+        "t:Ab4,C5,Eb5:Aᵇ",
+        "t:Ab4,B4,Eb5:Aᵇm",
+        "t:A4,C#5,E5:A",
+        "t:A4,C5,E5:Am"
+      ]
+    },
+    {
+      "name": "B's",
+      "id" : "treble_chord_attack_b_variations",
+      "notes": [
+        "t:B3,D4,F4:Bᵒ",
+        "t:Bb3,D4,F4:Bᵇ",
+        "t:Bb3,Db4,F4:Bᵇm",
+        "t:B3,D#4,F#4:B",
+        "t:B3,D4,F#4:Bm"
+      ]
+    },
+    {
+      "name": "C's",
+      "id" : "treble_chord_attack_c_variations",
+      "notes": [
+        "t:C4,E4,G4:C",
+        "t:C4,Eb4,G4:Cm"
+      ]
+    },
+    {
+      "name": "D's",
+      "id" : "treble_chord_attack_d_variations",
+      "notes": [
+        "t:Db4,F4,Ab4:Dᵇ",
+        "t:Db4,E4,Ab4:Dᵇm",
+        "t:D4,F#4,A4:D",
+        "t:D4,F4,A4:Dm"
+      ]
+    },
+    {
+      "name": "E's",
+      "id" : "treble_chord_attack_e_variations",
+      "notes": [
+        "t:Eb4,G4,Bb4:Eᵇ",
+        "t:Eb4,Gb4,Bb4:Eᵇm",
+        "t:E4,G#4,B4:E",
+        "t:E4,G4,B4:Em"
+      ]
+    },
+    {
+      "name": "F's",
+      "id" : "treble_chord_attack_f_variations",
+      "notes": [
+        "t:F4,A4,C5:F",
+        "t:F4,Ab4,C5:Fm"
+      ]
+    },
+    {
+      "name": "G's",
+      "id" : "treble_chord_attack_g_variations",
+      "notes": [
+        "t:Gb4,Bb4,Db5:Gᵇ",
+        "t:Gb4,A4,Db5:Gᵇm",
+        "t:G4,B4,D5:G",
+        "t:G4,Bb4,D5:Gm"
+      ]
+    },
+    {
+      "name": "A Inversions",
+      "id" : "treble_chord_attack_a_majors_inv",
+      "notes": [
+        "t:A4,C#5,E5:A",
+        "t:E4,A4,C#5:A",
+        "t:C#4,E4,A4:A"
+      ]
+    },
+    {
+      "name": "B Inversions",
+      "id" : "treble_chord_attack_b_majors_inv",
+      "notes": [
+        "t:B4,D#5,F#5:B",
+        "t:F#4,B4,D#5:B",
+        "t:D#4,F#4,B4:B"
+      ]
+    },
+    {
+      "name": "C Inversions",
+      "id" : "treble_chord_attack_c_majors_inv",
+      "notes": [
+        "t:C5,E5,G5:C",
+        "t:G4,C5,E5:C",
+        "t:E4,G4,C5:C"
+      ]
+    },
+    {
+      "name": "D Inversions",
+      "id" : "treble_chord_attack_d_majors_inv",
+      "image": "temp.png",
+      "notes": [
+        "t:D5,F#5,A5:D",
+        "t:A4,D5,F#5:D",
+        "t:F#4,A4,D5:D"
+      ]
+    },
+    {
+      "name": "E Inversions",
+      "id" : "treble_chord_attack_e_majors_inv",
+      "notes": [
+        "t:E5,G#5,B5:E",
+        "t:B4,E5,G#5:E",
+        "t:G#4,B4,E5:E"
+      ]
+    },
+    {
+      "name": "F Inversions",
+      "id" : "treble_chord_attack_f_majors_inv",
+      "notes": [
+        "t:F4,A4,C5:F",
+        "t:C4,F4,A4:F",
+        "t:A3,C4,F4:F"
+      ]
+    },
+    {
+      "name": "G Inversions",
+      "id" : "treble_chord_attack_g_majors_inv",
+      "notes": [
+        "t:G4,B4,D5:G",
+        "t:D4,G4,B4:G",
+        "t:B3,D4,G4:G"
+      ]
+    },
+    {
+      "name": "Major M7ths",
+      "id" : "treble_chord_attack_majors_M7",
+      "notes": [
+        "t:B3,E4,G4:CM7",
+        "t:Db4,F#4,A4:DM7",
+        "t:Eb4,G#4,B4:EM7",
+        "t:E4,A4,C5:FM7",
+        "t:Gb4,B4,D5:GM7",
+        "t:Ab4,C#5,E5:AM7",
+        "t:Bb4,D#5,F#5:BM7"
+      ]
+    },
+    {
+      "name": "Major 7ths",
+      "id" : "treble_chord_attack_majors_7",
+      "notes": [
+        "t:Bb3,E4,G4:C7",
+        "t:C4,F#4,A4:D7",
+        "t:D4,G#4,B4:E7",
+        "t:Eb4,A4,C5:F7",
+        "t:F4,B4,D5:G7",
+        "t:G4,C#5,E5:A7",
+        "t:A4,D#5,F#5:B7"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "name": "Bass Scales",
+  "id" : "bass_scales",
+  "image": "games/scales.jpg",
+  "description": "Learn scales on the bass clef",
+  "class": "uk.co.darkerwaters.noteinvaders.games.Scales",
+  "children": [
+    {
+      "name": "C Major",
+      "id" : "scales_bass_c",
+      "notes": [
+        "b:C2:c:5",
+        "b:D2:d:4",
+        "b:E2:e:3",
+        "b:F2:f:2",
+        "b:G2:g:1",
+        "b:A2:a:3",
+        "b:B2:b:2",
+        "b:C3:b:1"]
+    },
+    {
+      "name": "D Major",
+      "id" : "scales_bass_d",
+      "notes" : [
+        "b:D2:d:5",
+        "b:E2:e:4",
+        "b:F#2:f:3",
+        "b:G2:g:2",
+        "b:A2:a:1",
+        "b:B2:b:3",
+        "b:C#3:c:2",
+        "b:D3:d:1" ]
+    },
+    {
+      "name": "E Major",
+      "id" : "scales_bass_e",
+      "notes" : [
+        "b:E2:e:5",
+        "b:F#2:f:4",
+        "b:G#2:g:3",
+        "b:A2:a:2",
+        "b:B2:b:1",
+        "b:C#3:c:3",
+        "b:D#3:d:2",
+        "b:E3:e:1"]
+    },
+    {
+      "name": "F Major",
+      "id" : "scales_bass_f",
+      "notes" : [
+        "b:F2:f:5",
+        "b:G2:g:4",
+        "b:A2:a:3",
+        "b:Bb2:b:2",
+        "b:C3:c:1",
+        "b:D3:d:3",
+        "b:E3:e:2",
+        "b:F3:f:1"]
+    },
+    {
+      "name": "G Major",
+      "id" : "scales_bass_g",
+      "notes" : [
+        "b:G2:g:5",
+        "b:A2:a:4",
+        "b:B2:b:3",
+        "b:C3:c:2",
+        "b:D3:d:1",
+        "b:E3:e:3",
+        "b:F#3:f:2",
+        "b:G3:g:1"]
+    },
+    {
+      "name": "A Major",
+      "id" : "scales_bass_a",
+      "notes" : [
+        "b:A2:a:5",
+        "b:B2:b:4",
+        "b:C#3:c:3",
+        "b:D3:d:2",
+        "b:E3:e:1",
+        "b:F#3:f:3",
+        "b:G#3:g:2",
+        "b:A3:a:1"]
+    },
+    {
+      "name": "B Major",
+      "id" : "scales_bass_b",
+      "notes" : [
+        "b:B2:b:4",
+        "b:C#3:c:3",
+        "b:D#3:d:2",
+        "b:E3:e:1",
+        "b:F#3:f:4",
+        "b:G#3:g:3",
+        "b:A#3:a:2",
+        "b:B3:b:1"]
+    },
+    {
+      "name": "C# / Dᵇ Major",
+      "id" : "scales_bass_c_sharp",
+      "notes": [
+        "b:Db2:d:3",
+        "b:Eb2:e:2",
+        "b:F2:f:1",
+        "b:Gb2:g:4",
+        "b:Ab2:a:3",
+        "b:Bb2:b:2",
+        "b:C3:c:1",
+        "b:Db3:d:3"]
+    },
+    {
+      "name": "D# / Eᵇ Major",
+      "id" : "scales_bass_d_sharp",
+      "notes": [
+        "b:Eb2:e:3",
+        "b:F2:f:2",
+        "b:G2:g:1",
+        "b:Ab2:a:4",
+        "b:Bb2:b:3",
+        "b:C3:c:2",
+        "b:D3:d:1",
+        "b:Eb3:e:3"]
+    },
+    {
+      "name": "F# /Gᵇ Major",
+      "id" : "scales_bass_f_sharp",
+      "notes": [
+        "b:F#2:f:4",
+        "b:G#2:g:3",
+        "b:A#2:a:2",
+        "b:B2:b:1",
+        "b:C#3:c:4",
+        "b:D#3:d:3",
+        "b:F3:f:2",
+        "b:F#3:f:1"]
+    },
+    {
+      "name": "G# / Aᵇ Major",
+      "id" : "scales_bass_g_sharp",
+      "notes": [
+        "b:Ab2:a:3",
+        "b:Bb2:b:2",
+        "b:C3:c:1",
+        "b:Db3:d:4",
+        "b:Eb3:e:3",
+        "b:F3:f:2",
+        "b:G3:g:1",
+        "b:Ab3:a:3"]
+    },
+    {
+      "name": "A# / Bᵇ Major",
+      "id" : "scales_bass_a_sharp",
+      "notes": [
+        "b:Bb2:b:3",
+        "b:C3:c:2",
+        "b:D3:d:1",
+        "b:Eb3:e:4",
+        "b:F3:f:3",
+        "b:G3:g:2",
+        "b:A3:a:1",
+        "b:Bb3:b:3"]
+    }
+  ]
+}

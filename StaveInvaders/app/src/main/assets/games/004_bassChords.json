@@ -1,0 +1,218 @@
+{
+  "name": "Bass Chord Attack",
+  "id" : "bass_chord_attack",
+  "image": "games/c_chord.jpg",
+  "description": "Learn chords on the bass clef",
+  "class": "uk.co.darkerwaters.noteinvaders.games.RandomAttack",
+  "children": [
+    {
+      "name": "C Family Majors",
+      "id" : "bass_chord_attack_c_majors",
+      "notes": [
+        "b:C2,E2,G2:C",
+        "b:F2,A2,C3:F",
+        "b:G2,B2,D3:G"
+      ]
+    },
+    {
+      "name": "C Family Minors",
+      "id" : "bass_chord_attack_c_minors",
+      "notes": [
+        "b:D2,F2,A2:Dm",
+        "b:E2,G2,B2:Em",
+        "b:A2,C3,E3:Am"
+      ]
+    },
+    {
+      "name": "C Family Complete",
+      "id" : "bass_chord_attack_c_complete",
+      "notes": [
+        "b:C2,E2,G2:C",
+        "b:D2,F2,A2:Dm",
+        "b:E2,G2,B2:Em",
+        "b:F2,A2,C3:F",
+        "b:G2,B2,D3:G",
+        "b:A2,C3,E3:Am",
+        "b:B2,D3,F3:Bᵒ"
+      ]
+    },
+    {
+      "name": "Majors D.E.A",
+      "id" : "bass_chord_attack_dea_majors",
+      "notes": [
+        "b:D2,F#2,A2:D",
+        "b:E2,G#2,B2:E",
+        "b:A2,C#3,E3:A"
+      ]
+    },
+    {
+      "name": "Majors",
+      "id" : "bass_chord_attack_majors",
+      "notes": [
+        "b:C2,E2,G2:C",
+        "b:D2,F#2,A2:D",
+        "b:E2,G#2,B2:E",
+        "b:F2,A2,C3:F",
+        "b:G2,B2,D3:G",
+        "b:A2,C#3,E3:A",
+        "b:B2,D#3,F#3:B"
+      ]
+    },
+    {
+      "name": "A's",
+      "id" : "bass_chord_attack_a_variations",
+      "notes": [
+        "b:Ab2,C3,Eb3:Aᵇ",
+        "b:Ab2,B2,Eb3:Aᵇm",
+        "b:A2,C#3,E3:A",
+        "b:A2,C3,E3:Am"
+      ]
+    },
+    {
+      "name": "B's",
+      "id" : "bass_chord_attack_b_variations",
+      "notes": [
+        "b:B2,D3,F3:Bᵒ",
+        "b:Bb2,D3,F3:Bᵇ",
+        "b:Bb2,Db3,F3:Bᵇm",
+        "b:B2,D#3,F#3:B",
+        "b:B2,D3,F#3:Bm"
+      ]
+    },
+    {
+      "name": "C's",
+      "id" : "bass_chord_attack_c_variations",
+      "notes": [
+        "b:C2,E2,G2:C",
+        "b:C2,Eb2,G2:Cm"
+      ]
+    },
+    {
+      "name": "D's",
+      "id" : "bass_chord_attack_d_variations",
+      "notes": [
+        "b:Db2,F2,Ab2:Dᵇ",
+        "b:Db2,E2,Ab2:Dᵇm",
+        "b:D2,F#2,A2:D",
+        "b:D2,F2,A2:Dm"
+      ]
+    },
+    {
+      "name": "E's",
+      "id" : "bass_chord_attack_e_variations",
+      "notes": [
+        "b:Eb2,G2,Bb2:Eᵇ",
+        "b:Eb2,Gb2,Bb2:Eᵇm",
+        "b:E2,G#2,B2:E",
+        "b:E2,G2,B2:Em"
+      ]
+    },
+    {
+      "name": "F's",
+      "id" : "bass_chord_attack_f_variations",
+      "notes": [
+        "b:F2,A2,C3:F",
+        "b:F2,Ab2,C3:Fm"
+      ]
+    },
+    {
+      "name": "G's",
+      "id" : "bass_chord_attack_g_variations",
+      "notes": [
+        "b:Gb2,Bb2,Db3:Gᵇ",
+        "b:Gb2,A2,Db3:Gᵇm",
+        "b:G2,B2,D3:G",
+        "b:G2,Bb2,D3:Gm"
+      ]
+    },
+    {
+      "name": "A Inversions",
+      "id" : "bass_chord_attack_a_majors_inv",
+      "notes": [
+        "b:A2,C#3,E3:A",
+        "b:E2,A2,C#3:A",
+        "b:C#2,E2,A2:A"
+      ]
+    },
+    {
+      "name": "B Inversions",
+      "id" : "bass_chord_attack_b_majors_inv",
+      "notes": [
+        "b:B2,D#3,F#3:B",
+        "b:F#2,B2,D#3:B",
+        "b:D#2,F#2,B2:B"
+      ]
+    },
+    {
+      "name": "C Inversions",
+      "id" : "bass_chord_attack_c_majors_inv",
+      "notes": [
+        "b:C3,E3,G3:C",
+        "b:G2,C3,E3:C",
+        "b:E2,G2,C3:C"
+      ]
+    },
+    {
+      "name": "D Inversions",
+      "id" : "bass_chord_attack_d_majors_inv",
+      "notes": [
+        "b:D3,F#3,A3:D",
+        "b:A2,D3,F#3:D",
+        "b:F#2,A2,D3:D"
+        ]
+    },
+    {
+      "name": "E Inversions",
+      "id" : "bass_chord_attack_e_majors_inv",
+      "notes": [
+        "b:E3,G#3,B3:E",
+        "b:B2,E3,G#3:E",
+        "b:G#2,B2,E3:E"
+      ]
+    },
+    {
+      "name": "F Inversions",
+      "id" : "bass_chord_attack_f_majors_inv",
+      "notes": [
+        "b:F3,A3,C4:F",
+        "b:C3,F3,A3:F",
+        "b:A2,C3,F3:F"
+      ]
+    },
+    {
+      "name": "G Inversions",
+      "id" : "bass_chord_attack_g_majors_inv",
+      "notes": [
+        "b:G3,B3,D4:G",
+        "b:D3,G3,B3:G",
+        "b:B2,D3,G3:G"
+      ]
+    },
+    {
+      "name": "Major M7ths",
+      "id" : "bass_chord_attack_majors_M7",
+      "notes": [
+        "b:Db2,F#2,A2:DM7",
+        "b:Eb2,G#2,B2:EM7",
+        "b:E2,A2,C3:FM7",
+        "b:Gb2,B2,D3:GM7",
+        "b:Ab2,C#3,E3:AM7",
+        "b:Bb2,D#3,F#3:BM7",
+        "b:B2,E3,G3:CM7"
+      ]
+    },
+    {
+      "name": "Major 7ths",
+      "id" : "bass_chord_attack_majors_7",
+      "notes": [
+        "b:C2,F#2,A2:D7",
+        "b:D2,G#2,B2:E7",
+        "b:Eb2,A2,C3:F7",
+        "b:F2,B2,D3:G7",
+        "b:G2,C#3,E3:A7",
+        "b:A2,D#3,F#3:B7",
+        "b:Bb2,E3,G3:C7"
+      ]
+    }
+  ]
+}

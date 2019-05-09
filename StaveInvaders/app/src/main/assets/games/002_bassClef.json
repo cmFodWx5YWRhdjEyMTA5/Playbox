@@ -1,0 +1,100 @@
+{
+  "name": "Bass Clef Attack",
+  "id" : "random_attack_bass",
+  "image": "games/bass.jpg",
+  "description": "Learn individual notes on the bass clef",
+  "class": "uk.co.darkerwaters.noteinvaders.games.RandomAttack",
+  "children": [
+
+    {
+      "name": "1st 5",
+      "id" : "random_attack_bass_first_5",
+      "notes": [
+        "b:F3:f",
+        "b:G3:g",
+        "b:A3:a",
+        "b:B3:b",
+        "b:C4:c"
+      ]
+    },
+    {
+      "name": "1st 7",
+      "id" : "random_attack_bass_first_7",
+      "notes": [
+        "b:D3:d",
+        "b:E3:e",
+        "b:F3:f",
+        "b:G3:g",
+        "b:A3:a",
+        "b:B3:b",
+        "b:C4:c"
+      ]
+    },
+    {
+      "name": "Bass FACE (Gaps-)",
+      "id" : "random_attack_bass_face",
+      "notes": [
+        "b:F2:f",
+        "b:A2:a",
+        "b:C3:c",
+        "b:E3:e"
+      ]
+    },
+    {
+      "name": "gaps (ACE'G)",
+      "id" : "random_attack_bass_aceg",
+      "notes": [
+        "b:A2:a",
+        "b:C3:c",
+        "b:E3:e",
+        "b:G3:g"
+      ]
+    },
+    {
+      "name": "Good Boy Deserves Favor Again (lines)",
+      "id" : "random_attack_bass_gbdfa",
+      "notes": [
+        "b:G2:g",
+        "b:B2:b",
+        "b:D3:d",
+        "b:F3:f",
+        "b:A3:a"
+      ]
+    },
+    {
+      "name": "gaps+ (FACE'GB)",
+      "id" : "random_attack_bass_face_gb",
+      "notes": [
+        "b:F2:f",
+        "b:A2:a",
+        "b:C3:c",
+        "b:E3:e",
+        "b:G3:g",
+        "b:B3:b"
+      ]
+    },
+    {
+      "name": "Every Good Boy Deserves Favor+ (lines+)",
+      "id" : "random_attack_bass_egbdf_plus",
+      "notes": [
+        "b:E2:e",
+        "b:G2:g",
+        "b:B2:b",
+        "b:D3:d",
+        "b:F3:f",
+        "b:A3:a",
+        "b:C4:c"
+      ]
+    },
+    {
+      "name": "Important Placeholders (C+F)",
+      "id" : "random_attack_bass_placeholders",
+      "notes": [
+        "b:F2:f",
+        "b:C3:c",
+        "b:F3:f",
+        "b:C4:c"
+      ]
+    }
+  ]
+}

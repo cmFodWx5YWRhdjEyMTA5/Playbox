@@ -1,0 +1,63 @@
+{
+  "name": "Treble Cycle of Fifths",
+  "id" : "treble_cycle_fifths",
+  "image": "games/cycle_fifths.jpg",
+  "description": "Learn the cycle of fifths on the treble clef",
+  "class": "uk.co.darkerwaters.noteinvaders.games.Scales",
+  "children": [
+    {
+      "name": "Cycle Root - Middle",
+      "id" : "cycle_fifths_treble_root_middle",
+      "notes": [
+        "t:E5,G#5,B5:E",
+        "t:E5,A5,C#6:A",
+        "t:D5,F#5,A5:D",
+        "t:D5,G5,B5:G",
+        "t:C5,E5,G5:C",
+        "t:C5,F5,A5:F",
+        "t:Bb4,D5,F5:Bᵇ",
+        "t:Bb4,Eb5,G5:Eᵇ",
+        "t:Ab4,C5,Eb5:Aᵇ",
+        "t:Ab4,Db5,F5:Dᵇ",
+        "t:F#4,A#4,C#5:F#",
+        "t:F#4,B4,D#5:B"
+      ]
+    },
+    {
+      "name": "Cycle Backwards - Middle",
+      "id" : "cycle_fifths_treble_back_middle",
+      "notes": [
+        "t:G#4,B4,E5:E",
+        "t:A4,C#5,E5:A",
+        "t:F#4,A4,D5:D",
+        "t:G4,B4,D5:G",
+        "t:E4,G4,C5:C",
+        "t:F4,A4,C5:F",
+        "t:D4,F4,Bb4:Bᵇ",
+        "t:Eb4,G4,Bb4:Eᵇ",
+        "t:C4,Eb4,Ab4:Aᵇ",
+        "t:Db4,F4,Ab4:Dᵇ",
+        "t:A#3,C#4,F#4:F#",
+        "t:B3,D#4,F#4:B"
+      ]
+    },
+    {
+      "name": "Cycle Middle - Backwards",
+      "id" : "cycle_fifths_treble_middle_back",
+      "notes": [
+        "t:B4,E5,G#5:E",
+        "t:C#5,E5,A5:A",
+        "t:A4,D5,F#5:D",
+        "t:B4,D5,G5:G",
+        "t:G4,C5,E5:C",
+        "t:A4,C5,F5:F",
+        "t:F4,Bb4,D5:Bᵇ",
+        "t:G4,Bb4,Eb5:Eᵇ",
+        "t:Eb4,Ab4,C5:Aᵇ",
+        "t:F4,Ab4,Db5:Dᵇ",
+        "t:C#4,F#4,A#4:F#",
+        "t:D#4,F#4,B4:B"
+      ]
+    }
+  ]
+}

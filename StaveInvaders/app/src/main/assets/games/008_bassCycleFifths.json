@@ -1,0 +1,63 @@
+{
+  "name": "BassCycle of Fifths",
+  "id" : "bass_cycle_fifths",
+  "image": "games/cycle_fifths.jpg",
+  "description": "Learn the cycle of fifths on the bass clef",
+  "class": "uk.co.darkerwaters.noteinvaders.games.Scales",
+  "children": [
+    {
+      "name": "Cycle Root - Middle",
+      "id" : "cycle_fifths_bass_root_middle",
+      "notes": [
+        "b:E3,G#3,B3:E",
+        "b:E3,A3,C#4:A",
+        "b:D3,F#3,A3:D",
+        "b:D3,G3,B3:G",
+        "b:C3,E3,G3:C",
+        "b:C3,F3,A3:F",
+        "b:Bb2,D3,F3:Bᵇ",
+        "b:Bb2,Eb3,G3:Eᵇ",
+        "b:Ab2,C3,Eb3:Aᵇ",
+        "b:Ab2,Db3,F3:Dᵇ",
+        "b:F#2,A#2,C#3:F#",
+        "b:F#2,B2,D#3:B"
+      ]
+    },
+    {
+      "name": "Cycle Backwards - Middle",
+      "id" : "cycle_fifths_bass_back_middle",
+      "notes": [
+        "b:G#3,B3,E4:E",
+        "b:A3,C#4,E4:A",
+        "b:F#3,A3,D4:D",
+        "b:G3,B3,D4:G",
+        "b:E3,G3,C4:C",
+        "b:F3,A3,C4:F",
+        "b:D3,F3,Bb3:Bᵇ",
+        "b:Eb3,G3,Bb3:Eᵇ",
+        "b:C3,Eb3,Ab3:Aᵇ",
+        "b:Db3,F3,Ab3:Dᵇ",
+        "b:A#2,C#3,F#3:F#",
+        "b:B2,D#3,F#3:B"
+      ]
+    },
+    {
+      "name": "Cycle Middle - Backwards",
+      "id" : "cycle_fifths_bass_middle_back",
+      "notes": [
+        "b:B2,E3,G#3:E",
+        "b:C#3,E3,A3:A",
+        "b:A2,D3,F#3:D",
+        "b:B2,D3,G3:G",
+        "b:G2,C3,E2:C",
+        "b:A2,C3,F3:F",
+        "b:F2,Bb2,D3:Bᵇ",
+        "b:G2,Bb2,Eb3:Eᵇ",
+        "b:Eb2,Ab2,C3:Aᵇ",
+        "b:F2,Ab2,Db3:Dᵇ",
+        "b:C#2,F#2,A#2:F#",
+        "b:D#2,F#2,B2:B"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "name": "Treble Clef Attack",
+  "id" : "random_attack_treble",
+  "image": "games/treble.jpg",
+  "description": "Learn individual notes on the treble clef",
+  "class": "uk.co.darkerwaters.noteinvaders.games.RandomAttack",
+  "children": [
+    {
+      "name": "1st 5",
+      "id" : "random_attack_treble_first_5",
+      "notes": [
+        "t:C4:c",
+        "t:D4:d",
+        "t:E4:e",
+        "t:F4:f",
+        "t:G4:g"
+      ]
+    },
+    {
+      "name": "1st 7",
+      "id" : "random_attack_treble_first_7",
+      "notes": [
+        "t:C4:c",
+        "t:D4:d",
+        "t:E4:e",
+        "t:F4:f",
+        "t:G4:g",
+        "t:A4:a",
+        "t:B4:b"
+      ]
+    },
+    {
+      "name": "gaps (FACE)",
+      "id" : "random_attack_treble_face",
+      "notes": [
+        "t:F4:f",
+        "t:A4:a",
+        "t:C5:c",
+        "t:E5:e"
+      ]
+    },
+    {
+      "name": "Every Good Boy Deserves Favor (lines)",
+      "id" : "random_attack_treble_egbdf",
+      "notes": [
+        "t:E4:e",
+        "t:G4:g",
+        "t:B4:b",
+        "t:D5:d",
+        "t:F5:f"
+      ]
+    },
+    {
+      "name": "gaps+ (D'FACE'G)",
+      "id" : "random_attack_treble_face_plus",
+      "notes": [
+        "t:D4:d",
+        "t:F4:f",
+        "t:A4:a",
+        "t:C5:c",
+        "t:E5:e",
+        "t:G5:g"
+      ]
+    },
+    {
+      "name": "Every Good Boy Deserves Favor+ (+lines+)",
+      "id" : "random_attack_treble_egbdf_plus",
+      "notes": [
+        "t:C4:c",
+        "t:E4:e",
+        "t:G4:g",
+        "t:B4:b",
+        "t:D5:d",
+        "t:F5:f",
+        "t:A5:a"
+      ]
+    },
+    {
+      "name": "Important Placeholders (C+G)",
+      "id" : "random_attack_treble_placeholders",
+      "notes": [
+        "t:C4:c",
+        "t:G4:g",
+        "t:C5:c",
+        "t:G5:g",
+        "t:C6:c"
+      ]
+    }
+  ]
+}

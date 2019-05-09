@@ -1,6 +1,5 @@
 package uk.co.darkerwaters.staveinvaders.actvities;
 
-import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -17,9 +16,10 @@ import android.view.MenuItem;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
-import uk.co.darkerwaters.staveinvaders.actvities.cards.NoteGameCard;
-import uk.co.darkerwaters.staveinvaders.actvities.handlers.MainRecyclerAdapter;
+import uk.co.darkerwaters.staveinvaders.actvities.handlers.GameRecyclerAdapter;
 import uk.co.darkerwaters.staveinvaders.actvities.handlers.NavigationDrawerHandler;
+import uk.co.darkerwaters.staveinvaders.games.Game;
+import uk.co.darkerwaters.staveinvaders.games.GameList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,7 +33,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // set this on the application
-        ((Application)getApplication()).setMainActivity(this);
+        Application application = (Application)getApplication();
+        application.setMainActivity(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -62,11 +63,7 @@ public class MainActivity extends AppCompatActivity {
         }
         layoutManager = new GridLayoutManager(MainActivity.this, span);
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(new MainRecyclerAdapter(
-                new MainRecyclerAdapter.Card[] {
-                        new NoteGameCard(),
-                        new NoteGameCard(),
-                        new NoteGameCard()}));
+        recyclerView.setAdapter(new GameRecyclerAdapter(GameList.loadGamesFromAssets(application, this)));
     }
 
     @Override
