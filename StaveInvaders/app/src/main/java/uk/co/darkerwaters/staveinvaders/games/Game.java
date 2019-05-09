@@ -138,6 +138,11 @@ public class Game {
         return result;
     }
 
+    public float getGameProgress() {
+        // return the current progress acheived by this game
+        return (float) Math.random();
+    }
+
     public Range getNoteRange() {
         // go through all the notes to find the lowest and highest of them all
         Range range = new Range((Chord)null, (Chord)null);

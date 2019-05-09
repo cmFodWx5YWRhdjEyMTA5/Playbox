@@ -14,22 +14,25 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import uk.co.darkerwaters.staveinvaders.R;
+import uk.co.darkerwaters.staveinvaders.views.GameProgressView;
 
-public class GameCardHolder extends RecyclerView.ViewHolder {
+public class GameParentCardHolder extends RecyclerView.ViewHolder {
 
     private final View parent;
 
     private final TextView itemTitle;
     private final ImageView itemImage;
     private final TextView itemDetail;
+    private final GameProgressView progressView;
 
-    public GameCardHolder(@NonNull View itemView) {
+    public GameParentCardHolder(@NonNull View itemView) {
         super(itemView);
         this.parent = itemView;
         // card is created, find all our children views and stuff here
         this.itemImage = (ImageView)this.parent.findViewById(R.id.item_image);
         this.itemTitle = (TextView)this.parent.findViewById(R.id.item_title);
         this.itemDetail = (TextView)this.parent.findViewById(R.id.item_detail);
+        this.progressView = (GameProgressView)this.parent.findViewById(R.id.gameProgress);
     }
 
     public void initialiseCard(Game card) {
@@ -42,6 +45,8 @@ public class GameCardHolder extends RecyclerView.ViewHolder {
         else {
             this.itemImage.setImageResource(R.drawable.piano);
         }
+        // and the progress view
+        this.progressView.setViewData(card);
     }
 
     public Bitmap getBitmapFromAssets(String fileName, Context context) {

@@ -16,9 +16,8 @@ import android.view.MenuItem;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
-import uk.co.darkerwaters.staveinvaders.actvities.handlers.GameRecyclerAdapter;
+import uk.co.darkerwaters.staveinvaders.actvities.handlers.GameParentRecyclerAdapter;
 import uk.co.darkerwaters.staveinvaders.actvities.handlers.NavigationDrawerHandler;
-import uk.co.darkerwaters.staveinvaders.games.Game;
 import uk.co.darkerwaters.staveinvaders.games.GameList;
 
 public class MainActivity extends AppCompatActivity {
@@ -63,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         }
         layoutManager = new GridLayoutManager(MainActivity.this, span);
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(new GameRecyclerAdapter(GameList.loadGamesFromAssets(application, this)));
+        recyclerView.setAdapter(new GameParentRecyclerAdapter(GameList.loadGamesFromAssets(application, this)));
     }
 
     @Override
