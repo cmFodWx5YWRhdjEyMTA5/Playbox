@@ -139,8 +139,27 @@ public class Game {
     }
 
     public float getGameProgress() {
-        // return the current progress acheived by this game
+        //TODO return the current progress acheived by this game
         return (float) Math.random();
+    }
+
+    public boolean getIsGamePassed() {
+        //TODO return if this game progress is enough to move on
+        int i = 0;
+        if (this.parent != null) {
+            for (Game sibling : this.parent.children) {
+                if (this == sibling) {
+                    break;
+                } else {
+                    // move the counter
+                    ++i;
+                }
+            }
+            return i <= (int) (this.parent.children.length * 0.5f);
+        }
+        else {
+            return false;
+        }
     }
 
     public Range getNoteRange() {

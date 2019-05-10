@@ -1,6 +1,7 @@
 package uk.co.darkerwaters.staveinvaders.games;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,11 +14,13 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.io.InputStream;
 
+import uk.co.darkerwaters.staveinvaders.actvities.GameSelectActivity;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.views.GameProgressView;
 
 public class GameParentCardHolder extends RecyclerView.ViewHolder {
 
+    public static final String K_SELECTED_CARD_FULL_NAME = "selected_parent";
     private final View parent;
 
     private final TextView itemTitle;
@@ -35,7 +38,7 @@ public class GameParentCardHolder extends RecyclerView.ViewHolder {
         this.progressView = (GameProgressView)this.parent.findViewById(R.id.gameProgress);
     }
 
-    public void initialiseCard(Game card) {
+    public void initialiseCard(final Game card) {
 
         this.itemTitle.setText(card.name);
         this.itemDetail.setText(card.description == null ? card.getFullName() : card.description);
@@ -47,9 +50,20 @@ public class GameParentCardHolder extends RecyclerView.ViewHolder {
         }
         // and the progress view
         this.progressView.setViewData(card);
+
+        // also handle the click here, show the active game for this parent
+        final Context context = this.parent.getContext();
+        this.parent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, GameSelectActivity.class);
+                intent.putExtra(K_SELECTED_CARD_FULL_NAME, card.getFullName());
+                context.startActivity(intent);
+            }
+        });
     }
 
-    public Bitmap getBitmapFromAssets(String fileName, Context context) {
+    public static Bitmap getBitmapFromAssets(String fileName, Context context) {
         // Custom method to get assets folder image as bitmap
         AssetManager am = context.getAssets();
         InputStream is = null;
