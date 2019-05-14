@@ -17,9 +17,19 @@ import uk.co.darkerwaters.staveinvaders.notes.Range;
 
 public class PianoTouchable extends PianoPlaying {
 
+    private static final Integer K_INITIAL_NOTE_DEPRESSION_COUNT = 10;
+    private static final Integer K_NOTE_DEPRESSION_COUNTER_INTERVAL = 100;
+
     private final ArrayList<PlayableKey> playableKeys = new ArrayList<PlayableKey>();
     private boolean isCreatePlayableKeys = false;
     private boolean isAllowTouch = true;
+
+    private Map<Chord, Integer> noteDepressionCount;
+
+    private Thread reductionThread = null;
+    private boolean isThreadStarted = false;
+    private volatile boolean isStopThread = false;
+    private final Object waitingObject = new Object();
 
     private class PlayableKey {
         final RectF bounds;
@@ -49,13 +59,71 @@ public class PianoTouchable extends PianoPlaying {
     }
 
     @Override
-    protected void init(Context context) {
-        // initialise this view
-        super.init(context);
+    protected void initialiseView(Context context) {
+        super.initialiseView(context);
+
+        Chords chords = this.application.getSingleChords();
+        this.noteDepressionCount = new HashMap<Chord, Integer>(chords.getSize());
+        for (int i = 0; i < chords.getSize(); ++i) {
+            Chord chord = chords.getChord(i);
+            // also initialise the count in the map
+            synchronized (this.noteDepressionCount) {
+                this.noteDepressionCount.put(chord, 0);
+            }
+        }
+
+        // fire up the thread that will remove key depressions in time
+        if (false == this.isThreadStarted) {
+            this.isStopThread = false;
+            this.reductionThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    performThreadedReduction();
+                }
+            });
+            // start the reducer thread
+            this.reductionThread.start();
+            this.isThreadStarted = true;
+        }
+    }
+
+    private void performThreadedReduction() {
+        while (false == isStopThread) {
+            synchronized (this.noteDepressionCount) {
+                for (Map.Entry<Chord, Integer> depressionCount :this.noteDepressionCount.entrySet()) {
+                    Integer value = depressionCount.getValue();
+                    if (value > 0) {
+                        value = value - 1;
+                        depressionCount.setValue(value);
+                        if (value == 0) {
+                            // this was just released, release the note
+                            releaseNote(depressionCount.getKey());
+                        }
+                    }
+                }
+            }
+            try {
+                synchronized (this.waitingObject) {
+                    this.waitingObject.wait(K_NOTE_DEPRESSION_COUNTER_INTERVAL);
+                }
+            } catch (InterruptedException e) {
+                // fine, will exit the thread
+            }
+        }
     }
 
     @Override
     public void closeView() {
+        // stop the thread from reducing notes
+        if (this.isThreadStarted) {
+            this.isThreadStarted = false;
+            // and our thread while we are here
+            this.isStopThread = true;
+            synchronized (this.waitingObject) {
+                this.waitingObject.notifyAll();
+            }
+            this.reductionThread = null;
+        }
         // close this view
         super.closeView();
     }
@@ -66,6 +134,16 @@ public class PianoTouchable extends PianoPlaying {
         resetPlayableKeys();
         // and change the size
         super.onSizeChanged(w, h, oldw, oldh);
+    }
+
+    @Override
+    public void depressNote(Chord chord) {
+        // set the depression count
+        synchronized (this.noteDepressionCount) {
+            this.noteDepressionCount.put(chord, K_INITIAL_NOTE_DEPRESSION_COUNT);
+        }
+        // and let the base do it's thing
+        super.depressNote(chord);
     }
 
     @Override

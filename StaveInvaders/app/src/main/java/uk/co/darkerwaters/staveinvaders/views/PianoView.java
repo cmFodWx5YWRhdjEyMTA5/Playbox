@@ -17,17 +17,13 @@ import uk.co.darkerwaters.staveinvaders.notes.Chord;
 import uk.co.darkerwaters.staveinvaders.notes.Chords;
 import uk.co.darkerwaters.staveinvaders.notes.Range;
 
-public class PianoView extends View {
+public class PianoView extends BaseView {
 
     public interface IPianoViewListener {
         void pianoViewSizeChanged(int w, int h, int oldw, int oldh);
         void noteReleased(Chord chord);
         void noteDepressed(Chord chord);
     }
-
-    private Paint whitePaint;
-    private Paint blackPaint;
-    private Paint letterPaint;
 
     private int whiteKeyCount = 0;
     private int initialWhiteKey = 0;
@@ -40,8 +36,6 @@ public class PianoView extends View {
 
     protected final List<IPianoViewListener> listeners = new ArrayList<IPianoViewListener>();
 
-    protected final Application application;
-
     private final static float[] sharpOffsets = {
             0.4f,           // A
             Float.NaN,      // B
@@ -53,48 +47,19 @@ public class PianoView extends View {
 
     public PianoView(Context context) {
         super(context);
-        // get our application here
-        this.application = (Application) ((Activity)context).getApplication();
-        // and initialise the data on this view
-        init(context);
     }
 
     public PianoView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        // get our application here
-        this.application = (Application) ((Activity)context).getApplication();
-        // and initialise the data on this view
-        init(context);
     }
 
     public PianoView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        // get our application here
-        this.application = (Application) ((Activity)context).getApplication();
-        // and initialise the data on this view
-        init(context);
     }
 
-    protected void init(final Context context) {
-        // Initialize new paints to draw the keys
-        this.whitePaint = new Paint();
-        this.whitePaint.setStyle(Paint.Style.STROKE);
-        this.whitePaint.setStrokeWidth(2);
-        this.whitePaint.setColor(Color.BLACK);
-        this.whitePaint.setAntiAlias(true);
-        // and for the black keys
-        this.blackPaint = new Paint();
-        this.blackPaint.setStyle(Paint.Style.FILL);
-        this.blackPaint.setColor(Color.BLACK);
-        this.blackPaint.setAntiAlias(true);
-        // and to draw the letters
-        this.letterPaint = new Paint();
-        this.letterPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        this.letterPaint.setStrokeWidth(getResources().getDimension(R.dimen.letter_stroke));
-        this.letterPaint.setColor(getResources().getColor(R.color.colorLaser));
-        this.letterPaint.setAntiAlias(true);
-
-        // and initialise the notes we are going to show on the piano
+    @Override
+    protected void initialiseView(Context context) {
+        // initialise the notes we are going to show on the piano
         Range defaultRange = getDefaultNoteRange();
         setNoteRange(defaultRange.getStart().root().getFrequency(), defaultRange.getEnd().root().getFrequency(), false);
     }
@@ -240,24 +205,12 @@ public class PianoView extends View {
         this.invalidate();
     }
 
-    private int getContentWidth() {
-        return getWidth() - getPaddingLeft() - getPaddingRight();
-    }
-
-    private int getContentHeight() {
-        return getHeight() - getPaddingTop() - getPaddingBottom();
-    }
-
-    private int getStartX() {
-        return getPaddingLeft();
-    }
-
-    private int getKeyWidth() {
+    private int getKeyWidth(ViewBounds bounds) {
         if (this.whiteKeyCount == 0) {
             return 5;
         }
         else {
-            return getContentWidth() / this.whiteKeyCount;
+            return (int)(bounds.contentWidth / this.whiteKeyCount);
         }
     }
 
@@ -270,13 +223,9 @@ public class PianoView extends View {
 
         if (this.whiteKeyCount > 0) {
             // allocations per draw cycle.
-            int paddingLeft = getPaddingLeft();
-            int paddingTop = getPaddingTop();
-            int paddingBottom = getPaddingBottom();
+            ViewBounds bounds = new ViewBounds();
 
-            int contentHeight = getContentHeight();
-
-            float keyWidth = getKeyWidth();
+            float keyWidth = (this.whiteKeyCount == 0 ? 5f : bounds.contentWidth / this.whiteKeyCount);
             float sharpWidth = keyWidth * 0.4f;
 
             // get the notes and draw them then...
@@ -286,16 +235,17 @@ public class PianoView extends View {
             // first let's go through the keys and draw in all the white ones
             int keyIndex = 0;
             int noteIndex = this.startNoteIndex;
-            letterPaint.setTextSize(keyWidth * 0.6f);
+            Assets assets = getAssets();
+            assets.letterPaint.setTextSize(keyWidth * 0.6f);
             while (keyIndex < this.whiteKeyCount && noteIndex < notes.getSize()) {
                 // loop through the notes finding all the white ones
                 Chord currentNote = notes.getChord(noteIndex++);
                 if (false == currentNote.hasSharp()) {
                     // this is a white key, draw this
-                    RectF keyRect = new RectF(paddingLeft + (keyIndex * keyWidth),
-                            paddingTop,
-                            paddingLeft + ((keyIndex + 1) * keyWidth),
-                            contentHeight - paddingBottom);
+                    RectF keyRect = new RectF(bounds.paddingLeft + (keyIndex * keyWidth),
+                            bounds.paddingTop,
+                            bounds.paddingLeft + ((keyIndex + 1) * keyWidth),
+                            bounds.contentHeight - bounds.paddingBottom);
                     // draw this white key
                     drawKey(canvas, keyRect, currentNote);
 
@@ -303,7 +253,7 @@ public class PianoView extends View {
                         canvas.drawText(isShowPrimatives ? "" + currentNote.root().getNotePrimative() : currentNote.getTitle(),
                                 keyRect.left + (keyWidth * 0.175f),
                                 keyRect.bottom - (keyWidth * 0.5f),
-                                letterPaint);
+                                assets.letterPaint);
                     }
                     // move on our white key counter
                     ++keyIndex;
@@ -322,12 +272,12 @@ public class PianoView extends View {
                     Chord blackNote = notes.getChord(noteIndex);
                     if (blackNote.hasSharp() && false == Float.isNaN(sharpOffsets[blackIndex])) {
                         // this is a sharp, draw this note now
-                        blackLeft = paddingLeft + ((keyIndex + 1) * keyWidth) - (sharpWidth * sharpOffsets[blackIndex]);
+                        blackLeft = bounds.paddingLeft + ((keyIndex + 1) * keyWidth) - (sharpWidth * sharpOffsets[blackIndex]);
                         // create the rect for this
                         RectF keyRect = new RectF(blackLeft,
-                                paddingTop,
+                                bounds.paddingTop,
                                 blackLeft + sharpWidth,
-                                (contentHeight * 0.7f) - paddingBottom);
+                                (bounds.contentHeight * 0.7f) - bounds.paddingBottom);
                         // draw it
                         drawKey(canvas, keyRect, blackNote);
                     }
@@ -345,10 +295,10 @@ public class PianoView extends View {
     protected void drawKey(Canvas canvas, RectF keyRect, Chord keyNote) {
         // just draw the note in here
         if (false == keyNote.hasFlat() && false == keyNote.hasSharp()) {
-            canvas.drawRect(keyRect, whitePaint);
+            canvas.drawRect(keyRect, getAssets().whitePaint);
         }
         else {
-            canvas.drawRect(keyRect, blackPaint);
+            canvas.drawRect(keyRect, getAssets().blackPaint);
         }
     }
 

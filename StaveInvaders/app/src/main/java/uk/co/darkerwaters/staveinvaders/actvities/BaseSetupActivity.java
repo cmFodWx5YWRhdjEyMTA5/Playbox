@@ -1,8 +1,6 @@
 package uk.co.darkerwaters.staveinvaders.actvities;
 
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.TextView;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
@@ -10,8 +8,7 @@ import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
 import uk.co.darkerwaters.staveinvaders.input.InputMidi;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
-import uk.co.darkerwaters.staveinvaders.notes.Range;
-import uk.co.darkerwaters.staveinvaders.views.PianoTouchable;
+import uk.co.darkerwaters.staveinvaders.views.PianoPlaying;
 import uk.co.darkerwaters.staveinvaders.views.PianoView;
 
 public abstract class BaseSetupActivity extends AppCompatActivity implements
@@ -19,15 +16,14 @@ public abstract class BaseSetupActivity extends AppCompatActivity implements
         PianoView.IPianoViewListener,
         InputMidi.MidiListener {
 
-    protected PianoTouchable piano = null;
+    protected PianoPlaying piano = null;
     protected Application application;
 
     protected void initialiseSetupActivity() {
         // get the application for reference
         this.application = (Application) this.getApplication();
 
-        this.piano = (PianoTouchable) findViewById(R.id.microphone_setup_piano);
-        this.piano.setIsAllowTouch(false);
+        this.piano = (PianoPlaying) findViewById(R.id.microphone_setup_piano);
         this.piano.setIsDrawNoteName(false);
     }
 

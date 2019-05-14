@@ -40,7 +40,7 @@ public class Chords {
         return new Chords(soundlist.toArray(new Chord[soundlist.size()]));
     }
 
-    private Chords(Chord[] chords) {
+    public Chords(Chord[] chords) {
         // create the list (private constructor so just done in the static creation function)
         this.chords = Arrays.copyOf(chords, chords.length);
         //created okay
@@ -76,6 +76,15 @@ public class Chords {
         return result;
     }
 
+    public int getChordIndex(String title) {
+        for (int i = 0; i < this.chords.length; ++i) {
+            if (this.chords[i].title.equals(title)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public int getChordIndex(float frequency) {
         for (int i = 0; i < this.chords.length; ++i) {
             if (this.chords[i].isNoteContained(frequency)) {
@@ -83,5 +92,11 @@ public class Chords {
             }
         }
         return -1;
+    }
+
+    public Chord replace(int i, Chord chord) {
+        Chord replaced = this.chords[i];
+        this.chords[i] = chord;
+        return replaced;
     }
 }
