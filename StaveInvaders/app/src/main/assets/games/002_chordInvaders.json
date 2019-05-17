@@ -1,0 +1,303 @@
+{
+  "name": "Chord Invaders",
+  "id" : "chord_attack",
+  "image": "games/c_chord.jpg",
+  "description": "Learn chords as they randomly appear",
+  "class": "uk.co.darkerwaters.staveinvaders.games.PlayRandomAttack",
+  "children": [
+    {
+      "name": "C Family Majors",
+      "id" : "chord_attack_c_majors",
+      "notes": [
+        "t:C4,E4,G4:C",
+        "t:F4,A4,C5:F",
+        "t:G4,B4,D5:G",
+        "b:C2,E2,G2:C",
+        "b:F2,A2,C3:F",
+        "b:G2,B2,D3:G"
+      ]
+    },
+    {
+      "name": "C Family Minors",
+      "id" : "chord_attack_c_minors",
+      "image": "temp.png",
+      "notes": [
+        "t:D4,F4,A4:Dm",
+        "t:E4,G4,B4:Em",
+        "t:A4,C5,E5:Am",
+        "b:D2,F2,A2:Dm",
+        "b:E2,G2,B2:Em",
+        "b:A2,C3,E3:Am"
+      ]
+    },
+    {
+      "name": "C Family Complete",
+      "id" : "chord_attack_c_complete",
+      "notes": [
+        "t:C4,E4,G4:C",
+        "t:D4,F4,A4:Dm",
+        "t:E4,G4,B4:Em",
+        "t:F4,A4,C5:F",
+        "t:G4,B4,D5:G",
+        "t:A4,C5,E5:Am",
+        "t:B4,D5,F5:Bᵒ",
+        "b:C2,E2,G2:C",
+        "b:D2,F2,A2:Dm",
+        "b:E2,G2,B2:Em",
+        "b:F2,A2,C3:F",
+        "b:G2,B2,D3:G",
+        "b:A2,C3,E3:Am",
+        "b:B2,D3,F3:Bᵒ"
+      ]
+    },
+    {
+      "name": "Majors D.E.A",
+      "id" : "chord_attack_dea_majors",
+      "notes": [
+        "t:D4,F#4,A4:D",
+        "t:E4,G#4,B4:E",
+        "t:A4,C#5,E5:A",
+        "b:D2,F#2,A2:D",
+        "b:E2,G#2,B2:E",
+        "b:A2,C#3,E3:A"
+      ]
+    },
+    {
+      "name": "Majors",
+      "id" : "chord_attack_majors",
+      "notes": [
+        "t:C4,E4,G4:C",
+        "t:D4,F#4,A4:D",
+        "t:E4,G#4,B4:E",
+        "t:F4,A4,C5:F",
+        "t:G4,B4,D5:G",
+        "t:A4,C#5,E5:A",
+        "t:B4,D#5,F#5:B",
+        "b:C2,E2,G2:C",
+        "b:D2,F#2,A2:D",
+        "b:E2,G#2,B2:E",
+        "b:F2,A2,C3:F",
+        "b:G2,B2,D3:G",
+        "b:A2,C#3,E3:A",
+        "b:B2,D#3,F#3:B"
+      ]
+    },
+    {
+      "name": "A's",
+      "id" : "chord_attack_a_variations",
+      "notes": [
+        "t:Ab4,C5,Eb5:Aᵇ",
+        "t:Ab4,B4,Eb5:Aᵇm",
+        "t:A4,C#5,E5:A",
+        "t:A4,C5,E5:Am",
+        "b:Ab2,C3,Eb3:Aᵇ",
+        "b:Ab2,B2,Eb3:Aᵇm",
+        "b:A2,C#3,E3:A",
+        "b:A2,C3,E3:Am"
+      ]
+    },
+    {
+      "name": "B's",
+      "id" : "chord_attack_b_variations",
+      "notes": [
+        "t:B3,D4,F4:Bᵒ",
+        "t:Bb3,D4,F4:Bᵇ",
+        "t:Bb3,Db4,F4:Bᵇm",
+        "t:B3,D#4,F#4:B",
+        "t:B3,D4,F#4:Bm",
+        "b:B2,D3,F3:Bᵒ",
+        "b:Bb2,D3,F3:Bᵇ",
+        "b:Bb2,Db3,F3:Bᵇm",
+        "b:B2,D#3,F#3:B",
+        "b:B2,D3,F#3:Bm"
+      ]
+    },
+    {
+      "name": "C's",
+      "id" : "chord_attack_c_variations",
+      "notes": [
+        "t:C4,E4,G4:C",
+        "t:C4,Eb4,G4:Cm",
+        "b:C2,E2,G2:C",
+        "b:C2,Eb2,G2:Cm"
+      ]
+    },
+    {
+      "name": "D's",
+      "id" : "chord_attack_d_variations",
+      "notes": [
+        "t:Db4,F4,Ab4:Dᵇ",
+        "t:Db4,E4,Ab4:Dᵇm",
+        "t:D4,F#4,A4:D",
+        "t:D4,F4,A4:Dm",
+        "b:Db2,F2,Ab2:Dᵇ",
+        "b:Db2,E2,Ab2:Dᵇm",
+        "b:D2,F#2,A2:D",
+        "b:D2,F2,A2:Dm"
+      ]
+    },
+    {
+      "name": "E's",
+      "id" : "chord_attack_e_variations",
+      "notes": [
+        "t:Eb4,G4,Bb4:Eᵇ",
+        "t:Eb4,Gb4,Bb4:Eᵇm",
+        "t:E4,G#4,B4:E",
+        "t:E4,G4,B4:Em",
+        "b:Eb2,G2,Bb2:Eᵇ",
+        "b:Eb2,Gb2,Bb2:Eᵇm",
+        "b:E2,G#2,B2:E",
+        "b:E2,G2,B2:Em"
+      ]
+    },
+    {
+      "name": "F's",
+      "id" : "chord_attack_f_variations",
+      "notes": [
+        "t:F4,A4,C5:F",
+        "t:F4,Ab4,C5:Fm",
+        "b:F2,A2,C3:F",
+        "b:F2,Ab2,C3:Fm"
+      ]
+    },
+    {
+      "name": "G's",
+      "id" : "chord_attack_g_variations",
+      "notes": [
+        "t:Gb4,Bb4,Db5:Gᵇ",
+        "t:Gb4,A4,Db5:Gᵇm",
+        "t:G4,B4,D5:G",
+        "t:G4,Bb4,D5:Gm",
+        "b:Gb2,Bb2,Db3:Gᵇ",
+        "b:Gb2,A2,Db3:Gᵇm",
+        "b:G2,B2,D3:G",
+        "b:G2,Bb2,D3:Gm"
+      ]
+    },
+    {
+      "name": "A Inversions",
+      "id" : "chord_attack_a_majors_inv",
+      "notes": [
+        "t:A4,C#5,E5:A",
+        "t:E4,A4,C#5:A",
+        "t:C#4,E4,A4:A",
+        "b:A2,C#3,E3:A",
+        "b:E2,A2,C#3:A",
+        "b:C#2,E2,A2:A"
+      ]
+    },
+    {
+      "name": "B Inversions",
+      "id" : "chord_attack_b_majors_inv",
+      "notes": [
+        "t:B4,D#5,F#5:B",
+        "t:F#4,B4,D#5:B",
+        "t:D#4,F#4,B4:B",
+        "b:B2,D#3,F#3:B",
+        "b:F#2,B2,D#3:B",
+        "b:D#2,F#2,B2:B"
+      ]
+    },
+    {
+      "name": "C Inversions",
+      "id" : "chord_attack_c_majors_inv",
+      "notes": [
+        "t:C5,E5,G5:C",
+        "t:G4,C5,E5:C",
+        "t:E4,G4,C5:C",
+        "b:C3,E3,G3:C",
+        "b:G2,C3,E3:C",
+        "b:E2,G2,C3:C"
+      ]
+    },
+    {
+      "name": "D Inversions",
+      "id" : "chord_attack_d_majors_inv",
+      "image": "temp.png",
+      "notes": [
+        "t:D5,F#5,A5:D",
+        "t:A4,D5,F#5:D",
+        "t:F#4,A4,D5:D",
+        "b:D3,F#3,A3:D",
+        "b:A2,D3,F#3:D",
+        "b:F#2,A2,D3:D"
+      ]
+    },
+    {
+      "name": "E Inversions",
+      "id" : "chord_attack_e_majors_inv",
+      "notes": [
+        "t:E5,G#5,B5:E",
+        "t:B4,E5,G#5:E",
+        "t:G#4,B4,E5:E",
+        "b:E3,G#3,B3:E",
+        "b:B2,E3,G#3:E",
+        "b:G#2,B2,E3:E"
+      ]
+    },
+    {
+      "name": "F Inversions",
+      "id" : "chord_attack_f_majors_inv",
+      "notes": [
+        "t:F4,A4,C5:F",
+        "t:C4,F4,A4:F",
+        "t:A3,C4,F4:F",
+        "b:F3,A3,C4:F",
+        "b:C3,F3,A3:F",
+        "b:A2,C3,F3:F"
+      ]
+    },
+    {
+      "name": "G Inversions",
+      "id" : "chord_attack_g_majors_inv",
+      "notes": [
+        "t:G4,B4,D5:G",
+        "t:D4,G4,B4:G",
+        "t:B3,D4,G4:G",
+        "b:G3,B3,D4:G",
+        "b:D3,G3,B3:G",
+        "b:B2,D3,G3:G"
+      ]
+    },
+    {
+      "name": "Major M7ths",
+      "id" : "chord_attack_majors_M7",
+      "notes": [
+        "t:B3,E4,G4:CM7",
+        "t:Db4,F#4,A4:DM7",
+        "t:Eb4,G#4,B4:EM7",
+        "t:E4,A4,C5:FM7",
+        "t:Gb4,B4,D5:GM7",
+        "t:Ab4,C#5,E5:AM7",
+        "t:Bb4,D#5,F#5:BM7",
+        "b:Db2,F#2,A2:DM7",
+        "b:Eb2,G#2,B2:EM7",
+        "b:E2,A2,C3:FM7",
+        "b:Gb2,B2,D3:GM7",
+        "b:Ab2,C#3,E3:AM7",
+        "b:Bb2,D#3,F#3:BM7",
+        "b:B2,E3,G3:CM7"
+      ]
+    },
+    {
+      "name": "Major 7ths",
+      "id" : "chord_attack_majors_7",
+      "notes": [
+        "t:Bb3,E4,G4:C7",
+        "t:C4,F#4,A4:D7",
+        "t:D4,G#4,B4:E7",
+        "t:Eb4,A4,C5:F7",
+        "t:F4,B4,D5:G7",
+        "t:G4,C#5,E5:A7",
+        "t:A4,D#5,F#5:B7",
+        "b:C2,F#2,A2:D7",
+        "b:D2,G#2,B2:E7",
+        "b:Eb2,A2,C3:F7",
+        "b:F2,B2,D3:G7",
+        "b:G2,C#3,E3:A7",
+        "b:A2,D#3,F#3:B7",
+        "b:Bb2,E3,G3:C7"
+      ]
+    }
+  ]
+}

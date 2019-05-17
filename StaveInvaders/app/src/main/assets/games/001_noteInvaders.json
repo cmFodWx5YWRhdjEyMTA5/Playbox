@@ -1,0 +1,128 @@
+{
+  "name": "Note Attack",
+  "id" : "random_attack_notes",
+  "image": "games/space_invaders.jpg",
+  "description": "Learn notes as they randomly appear",
+  "class": "uk.co.darkerwaters.staveinvaders.games.PlayRandomAttack",
+  "children": [
+    {
+      "name": "1st 5",
+      "id" : "note_attack_first_5",
+      "notes": [
+        "t:C4:c",
+        "t:D4:d",
+        "t:E4:e",
+        "t:F4:f",
+        "t:G4:g",
+        "b:F3:f",
+        "b:G3:g",
+        "b:A3:a",
+        "b:B3:b",
+        "b:C4:c"
+      ]
+    },
+    {
+      "name": "1st 7",
+      "id" : "note_attack_first_7",
+      "notes": [
+        "t:C4:c",
+        "t:D4:d",
+        "t:E4:e",
+        "t:F4:f",
+        "t:G4:g",
+        "t:A4:a",
+        "t:B4:b",
+        "b:D3:d",
+        "b:E3:e",
+        "b:F3:f",
+        "b:G3:g",
+        "b:A3:a",
+        "b:B3:b",
+        "b:C4:c"
+      ]
+    },
+    {
+      "name": "gaps (FACE)",
+      "id" : "note_attack_face",
+      "notes": [
+        "t:F4:f",
+        "t:A4:a",
+        "t:C5:c",
+        "t:E5:e",
+        "b:F2:f",
+        "b:A2:a",
+        "b:C3:c",
+        "b:E3:e"
+      ]
+    },
+    {
+      "name": "Every Good Boy Deserves Favor (lines)",
+      "id" : "note_attack_egbdf",
+      "notes": [
+        "t:E4:e",
+        "t:G4:g",
+        "t:B4:b",
+        "t:D5:d",
+        "t:F5:f",
+        "b:G2:g",
+        "b:B2:b",
+        "b:D3:d",
+        "b:F3:f",
+        "b:A3:a"
+      ]
+    },
+    {
+      "name": "gaps+ (D'FACE'G)",
+      "id" : "note_attack_face_plus",
+      "notes": [
+        "t:D4:d",
+        "t:F4:f",
+        "t:A4:a",
+        "t:C5:c",
+        "t:E5:e",
+        "t:G5:g",
+        "b:F2:f",
+        "b:A2:a",
+        "b:C3:c",
+        "b:E3:e",
+        "b:G3:g",
+        "b:B3:b"
+      ]
+    },
+    {
+      "name": "Every Good Boy Deserves Favor+ (+lines+)",
+      "id" : "note_attack_egbdf_plus",
+      "notes": [
+        "t:C4:c",
+        "t:E4:e",
+        "t:G4:g",
+        "t:B4:b",
+        "t:D5:d",
+        "t:F5:f",
+        "t:A5:a",
+        "b:E2:e",
+        "b:G2:g",
+        "b:B2:b",
+        "b:D3:d",
+        "b:F3:f",
+        "b:A3:a",
+        "b:C4:c"
+      ]
+    },
+    {
+      "name": "Important Placeholders (C+G)",
+      "id" : "note_attack_placeholders",
+      "notes": [
+        "t:C4:c",
+        "t:G4:g",
+        "t:C5:c",
+        "t:G5:g",
+        "t:C6:c",
+        "b:F2:f",
+        "b:C3:c",
+        "b:F3:f",
+        "b:C4:c"
+      ]
+    }
+  ]
+}

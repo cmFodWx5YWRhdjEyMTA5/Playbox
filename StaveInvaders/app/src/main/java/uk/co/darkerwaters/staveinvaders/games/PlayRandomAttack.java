@@ -11,8 +11,6 @@ import uk.co.darkerwaters.staveinvaders.views.MusicView;
 
 public class PlayRandomAttack extends GamePlayer {
 
-    private final Random random = new Random();
-
     public PlayRandomAttack(Application application, Game game) {
         super(application, game);
     }

@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import uk.co.darkerwaters.staveinvaders.R;
@@ -32,6 +33,8 @@ public class GameSelectActivity extends AppCompatActivity {
 
     private TextView gameTitle;
 
+    private RadioGroup radioClefs;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +45,8 @@ public class GameSelectActivity extends AppCompatActivity {
 
         this.gameTitle = findViewById(R.id.game_title);
         this.musicView = findViewById(R.id.musicView);
+
+        this.radioClefs = findViewById(R.id.radioGroupClefs);
 
         Intent intent = getIntent();
         String parentGameName = intent.getStringExtra(GameParentCardHolder.K_SELECTED_CARD_FULL_NAME);
@@ -70,6 +75,7 @@ public class GameSelectActivity extends AppCompatActivity {
             this.progressView.setViewData(parentGame);
         }
 
+        // do the next and previous buttons
         this.prevButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -82,14 +88,45 @@ public class GameSelectActivity extends AppCompatActivity {
                 changeSelectedGame(+1);
             }
         });
+
+        // do the bass and treble button listeners
+        this.radioClefs.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                // set the available clefs on the game
+                switch (i) {
+                    case R.id.radioTrebleClef:
+                        setAvailableClefs(new MusicView.Clefs[] {MusicView.Clefs.treble});
+                        break;
+                    case R.id.radioBassClef:
+                        setAvailableClefs(new MusicView.Clefs[] {MusicView.Clefs.bass});
+                        break;
+                    case R.id.radioMixedClefs:
+                        setAvailableClefs(new MusicView.Clefs[] {MusicView.Clefs.treble, MusicView.Clefs.bass});
+                        break;
+                }
+            }
+        });
+        //TODO hide the checks if they are not available in the settings
+
+        // set the data
         setSelectedGameData();
         // and enable the buttons
         enableNextAndBackButtons();
     }
 
+    private void setAvailableClefs(MusicView.Clefs[] clefs) {
+        //TODO set this on the application so remembers the choice and updates the game, music view etc
+
+    }
+
+
     private void setSelectedGameData() {
         gameTitle.setText(this.selectedGame.name);
         progressView.setSelectedChild(this.selectedGame);
+
+        //TODO set the check item to match that set and available in the application
+        this.radioClefs.check(R.id.radioTrebleClef);
         // set this on the music view
         musicView.setActiveGame(this.selectedGame);
         // and update the views

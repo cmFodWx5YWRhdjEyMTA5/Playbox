@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.List;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.application.Log;
@@ -160,6 +161,16 @@ public class Game {
         else {
             return false;
         }
+    }
+
+    public GameEntry[] getClefEntries(MusicView.Clefs clef) {
+        List<GameEntry> entries = new ArrayList<GameEntry>();
+        for (GameEntry entry : this.entries) {
+            if (entry.clef == clef) {
+                entries.add(entry);
+            }
+        }
+        return entries.toArray(new GameEntry[0]);
     }
 
     public Range getNoteRange() {
