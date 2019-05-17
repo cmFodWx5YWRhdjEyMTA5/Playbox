@@ -5,6 +5,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import uk.co.darkerwaters.staveinvaders.Application;
@@ -13,6 +15,7 @@ import uk.co.darkerwaters.staveinvaders.notes.Chord;
 import uk.co.darkerwaters.staveinvaders.notes.Note;
 import uk.co.darkerwaters.staveinvaders.notes.Notes;
 import uk.co.darkerwaters.staveinvaders.notes.Range;
+import uk.co.darkerwaters.staveinvaders.views.MusicView;
 
 public class Game {
 
@@ -28,20 +31,17 @@ public class Game {
         public final String name;
         public final Chord chord;
         public final String fingering;
-        public final boolean isTreble;
-        public final boolean isBass;
+        public final MusicView.Clefs clef;
 
         GameEntry(Notes notes, String fileData) {
             // create the entry from the JSON data
             String[] entries = fileData.split(":");
             if (entries[0].equals("t")) {
                 // this is treble
-                isTreble = true;
-                isBass = false;
+                clef = MusicView.Clefs.treble;
             }
             else {
-                isTreble = false;
-                isBass = true;
+                clef = MusicView.Clefs.bass;
             }
             this.chord = createChord(notes, entries[1]);
             if (entries.length > 2) {
@@ -181,7 +181,7 @@ public class Game {
         return range;
     }
 
-    public GamePlayer getGamePlayer() {
+    public GamePlayer getGamePlayer(Application application) {
         String className = getGameClass();
         if (className != null && className.isEmpty() == false) {
             Class<?> loadedClass = null;
@@ -193,11 +193,16 @@ public class Game {
             Object classCreated = null;
             if (null != loadedClass) {
                 try {
-                    classCreated = loadedClass.newInstance();
+                    Constructor<?> constructor = loadedClass.getConstructor(Application.class, Game.class);
+                    classCreated = constructor.newInstance(application, this);
                 } catch (InstantiationException e) {
-                    e.printStackTrace();
+                    Log.error("Failed to instantiate game class \"" + className + "\"", e);
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    Log.error("Failed to access game class \"" + className + "\"", e);
+                } catch (NoSuchMethodException e) {
+                    Log.error("Failed to find app, game constructor \"" + className + "\"", e);
+                } catch (InvocationTargetException e) {
+                    Log.error("Failed to invoke game constructor \"" + className + "\"", e);
                 }
             }
             if (null != classCreated && classCreated instanceof GamePlayer) {

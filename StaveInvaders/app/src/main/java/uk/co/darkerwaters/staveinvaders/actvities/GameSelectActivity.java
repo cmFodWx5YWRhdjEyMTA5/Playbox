@@ -16,6 +16,7 @@ import uk.co.darkerwaters.staveinvaders.games.Game;
 import uk.co.darkerwaters.staveinvaders.games.GameList;
 import uk.co.darkerwaters.staveinvaders.games.GameParentCardHolder;
 import uk.co.darkerwaters.staveinvaders.views.GameProgressView;
+import uk.co.darkerwaters.staveinvaders.views.MusicView;
 
 public class GameSelectActivity extends AppCompatActivity {
 
@@ -23,6 +24,7 @@ public class GameSelectActivity extends AppCompatActivity {
     private Game selectedGame = null;
 
     private GameProgressView progressView;
+    private MusicView musicView;
     private int gameIndex = -1;
 
     private ImageButton nextButton;
@@ -39,6 +41,7 @@ public class GameSelectActivity extends AppCompatActivity {
         this.prevButton = findViewById(R.id.prevButton);
 
         this.gameTitle = findViewById(R.id.game_title);
+        this.musicView = findViewById(R.id.musicView);
 
         Intent intent = getIntent();
         String parentGameName = intent.getStringExtra(GameParentCardHolder.K_SELECTED_CARD_FULL_NAME);
@@ -87,7 +90,11 @@ public class GameSelectActivity extends AppCompatActivity {
     private void setSelectedGameData() {
         gameTitle.setText(this.selectedGame.name);
         progressView.setSelectedChild(this.selectedGame);
+        // set this on the music view
+        musicView.setActiveGame(this.selectedGame);
+        // and update the views
         progressView.invalidate();
+        musicView.invalidate();
     }
 
     private void changeSelectedGame(int change) {

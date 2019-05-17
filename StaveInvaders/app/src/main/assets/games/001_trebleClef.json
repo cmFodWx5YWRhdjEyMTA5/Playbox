@@ -3,7 +3,7 @@
   "id" : "random_attack_treble",
   "image": "games/treble.jpg",
   "description": "Learn individual notes on the treble clef",
-  "class": "uk.co.darkerwaters.noteinvaders.games.RandomAttack",
+  "class": "uk.co.darkerwaters.staveinvaders.games.PlayRandomAttack",
   "children": [
     {
       "name": "1st 5",

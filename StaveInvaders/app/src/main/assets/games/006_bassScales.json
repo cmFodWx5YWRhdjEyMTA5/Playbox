@@ -3,7 +3,7 @@
   "id" : "bass_scales",
   "image": "games/scales.jpg",
   "description": "Learn scales on the bass clef",
-  "class": "uk.co.darkerwaters.noteinvaders.games.Scales",
+  "class": "uk.co.darkerwaters.staveinvaders.games.PlayScales",
   "children": [
     {
       "name": "C Major",

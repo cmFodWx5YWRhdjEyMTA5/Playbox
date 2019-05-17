@@ -15,11 +15,16 @@ import java.util.List;
 
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.application.Log;
+import uk.co.darkerwaters.staveinvaders.games.Game;
+import uk.co.darkerwaters.staveinvaders.games.GameList;
+import uk.co.darkerwaters.staveinvaders.games.GameNote;
+import uk.co.darkerwaters.staveinvaders.games.GamePlayer;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
 import uk.co.darkerwaters.staveinvaders.notes.Chords;
 import uk.co.darkerwaters.staveinvaders.notes.Note;
 
 public class MusicView extends BaseView {
+
     // there are 2 of many things (treble and bass)
     public enum Clefs {
         treble(0, "B4"),
@@ -41,6 +46,7 @@ public class MusicView extends BaseView {
         }
     }
 
+    private final static float K_VIEW_DURATION_SECONDS = 10f;
     private final static int K_LINES_ON_VIEW = 5;
     private final static int K_LINES_ABOVEBELOW = 2;
     private final static int K_NOTES_BELOW = 9;
@@ -59,16 +65,7 @@ public class MusicView extends BaseView {
 
     private long lastDrawn = 0l;
 
-    private MusicViewNoteProvider noteProvider;
-
-    class DrawnNote {
-        final Chord chord;
-        final float xPosition;
-        DrawnNote(Chord chord, float xPosition) {
-            this.chord = chord;
-            this.xPosition = xPosition;
-        }
-    }
+    private GamePlayer noteProvider = null;
 
     private class Animator {
         volatile float clefYOffset = 0f;
@@ -85,14 +82,12 @@ public class MusicView extends BaseView {
                 // animate any movements here
                 final Handler handler = new Handler(Looper.getMainLooper());
                 while (isRunning) {
-                    if (clefYOffset != clefYTarget) {
-                        handler.post(new Runnable() {
+                    handler.post(new Runnable() {
                             @Override
                             public void run() {
                                 invalidate();
                             }
                         });
-                    }
                     try {
                         Thread.sleep(K_ANIMATION_DELAY);
                     }
@@ -154,11 +149,18 @@ public class MusicView extends BaseView {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
+    public void setActiveGame(Game game) {
+        if (null == game) {
+            this.noteProvider = null;
+        }
+        else {
+            this.noteProvider = game.getGamePlayer(this.application);
+        }
+    }
+
     @Override
     protected void initialiseView(Context context) {
         // initialise this view and everything we need to use on it
-        //TODO create specific note providers for the selected game
-        this.noteProvider = new MusicViewNoteProvider(this.application);
         // create the notes that
         // represent the notes we are drawing, there will be one or three (flats and sharps)
         Chords singleChords = this.application.getSingleChords();
@@ -249,18 +251,28 @@ public class MusicView extends BaseView {
         if (null == this.animator) {
             // start animating
             this.animator = new Animator(bounds);
+            this.animator.clefYTarget = -bounds.contentHeight * 0.5f;
         }
         this.animator.updateAnimations(timeElapsed);
         // also update the provider
         if (null != this.noteProvider) {
-            noteProvider.updateNotes(this, timeElapsed);
+            this.noteProvider.updateNotes(timeElapsed / 1000f, K_VIEW_DURATION_SECONDS);
         }
         this.lastDrawn = currentTime;
 
         // draw the active clef lines on the view
         float lineCount = K_LINES_ON_VIEW + (K_LINES_ABOVEBELOW * 2);
         float spaceCount = lineCount + 1;
+        int noteCount = (int)((lineCount * 2f) + 1f);
+        if (this.clefNotes[Clefs.bass.val].getSize() != noteCount) {
+            Log.error("There are incorrect number of notes in the bass list");
+        }
+        if (this.clefNotes[Clefs.treble.val].getSize() != noteCount) {
+            Log.error("There are incorrect number of notes in the bass list");
+        }
         float lineHeight = bounds.contentHeight / spaceCount;
+        // the height of a note (in a space or on a line) will be half this then
+        float noteHeight = lineHeight * 0.5f;
 
         float clefHeight = lineHeight * K_LINES_ON_VIEW;
         float clefWidth = clefHeight * 0.5f;
@@ -272,56 +284,6 @@ public class MusicView extends BaseView {
                     bounds.drawingRight,
                     bounds.drawingTop + iLine * lineHeight,
                     assets.blackPaint);
-        }
-
-        // draw all the notes in here
-        float noteRadius = lineHeight * 0.3f;
-        for (DrawnNote note : this.noteProvider.getNotesToDraw(this)) {
-            float stickX;
-            float yPosition = bounds.contentHeight * 0.5f;
-            float xPosition = note.xPosition * bounds.contentWidth - noteRadius * 1.2f;
-            if (Build.VERSION.SDK_INT >= 21) {
-                // there is a function to draw it a little oval-like, do this
-                canvas.drawOval(xPosition,
-                        yPosition - noteRadius,
-                        xPosition + noteRadius * 1.2f,
-                        yPosition + noteRadius,
-                        assets.blackPaint);
-                stickX = xPosition + noteRadius * 1.2f;
-            }
-            else {
-                // fall back to drawing a circle then
-                canvas.drawCircle(xPosition, yPosition, noteRadius, assets.blackPaint);
-                stickX = xPosition + noteRadius;
-            }
-            // draw the stick up from the note
-            canvas.drawLine(stickX, yPosition, stickX, yPosition - lineHeight * 1.5f, assets.blackPaint);
-            /*// and the title if we are showing this helpful thing
-            if (isDrawNoteName && noteTitle != null && noteTitle.isEmpty() == false) {
-                Paint.FontMetrics fontMetrics = letterPaint.getFontMetrics();
-                float letterWidth = letterPaint.measureText(noteTitle);
-                float xText = xPosition - letterWidth * 0.5f;
-                float yText = yPosition - noteRadius * 2f;
-                canvas.drawRect(xText, yText + fontMetrics.top, xText + letterWidth, yText + fontMetrics.bottom, letterBackPaint);
-                canvas.drawText(noteTitle, xText, yText, letterPaint);
-            }
-            if (leftNotation != 0) {
-                // there is a little left notation, draw this in now
-                canvas.drawText("" + leftNotation, xPosition - noteRadius * 3.5f, yPosition, letterPaint);
-            }*/
-        }
-
-
-        // get the active clef we are drawing the notes for
-        Clefs activeClef = this.noteProvider.getActiveClef();
-        switch (activeClef) {
-            case treble:
-                // the treble clef should have a zero offset to draw the correct diagram in
-                this.animator.clefYTarget = 0;
-                break;
-            case bass:
-                // the bass clef should be offset to draw the bass in (via the animator)
-                this.animator.clefYTarget = -bounds.contentHeight;
         }
 
         // draw in the clef signs here, might be half-way through an animation or whatever here
@@ -337,9 +299,91 @@ public class MusicView extends BaseView {
         this.bassDrawable.draw(canvas);
         canvas.restore();
 
+        // calculate the area we want to draw the notes on here
+        float noteAreaLeft = bounds.drawingLeft + clefWidth;
+        // draw all the notes in here
+        float noteRadius = noteHeight * 0.8f;
+        float secondsToPixels = (bounds.drawingRight - noteAreaLeft) / K_VIEW_DURATION_SECONDS;
+        if (null != this.noteProvider) {
+            for (GameNote note : this.noteProvider.getNotesToDraw(K_VIEW_DURATION_SECONDS)) {
+                float stickX;
+                float xPosition = noteAreaLeft + (note.getSeconds() * secondsToPixels) - (noteRadius * 1.2f);
 
+                // for each note in the chord, find the position on the clef to draw it
+                Game.GameEntry toDraw = note.getChord();
+                float topYPosition = -1f;
+                for (Note noteToDraw : toDraw.chord.notes) {
+                    // for each note to draw, find it's location and draw it
+                    int noteToDrawIndex = this.clefNotes[toDraw.clef.val].getChordIndex(noteToDraw.getFrequency());
+                    if (noteToDrawIndex >= 0) {
+                        // this is a valid index, get the yPosition for this note
+                        noteToDrawIndex = noteCount - 1 - noteToDrawIndex;
+                        float yPosition = (bounds.drawingTop - noteHeight) + (noteToDrawIndex * noteHeight);
+                        if (topYPosition == -1f) {
+                            topYPosition = yPosition;
+                        }
+                        else {
+                            topYPosition = Math.min(topYPosition, yPosition);
+                        }
+                        if (Build.VERSION.SDK_INT >= 21) {
+                            // there is a function to draw it a little oval-like, do this
+                            canvas.drawOval(xPosition - noteRadius * 1.2f,
+                                    yPosition - noteRadius,
+                                    xPosition + noteRadius * 1.2f,
+                                    yPosition + noteRadius,
+                                    assets.blackPaint);
+                            stickX = xPosition + noteRadius * 1.2f;
+                        } else {
+                            // fall back to drawing a circle then
+                            canvas.drawCircle(xPosition, yPosition, noteRadius, assets.blackPaint);
+                            stickX = xPosition + noteRadius;
+                        }
+                        // draw the stick up from the note
+                        canvas.drawLine(stickX, yPosition, stickX, yPosition - lineHeight * 1.5f, assets.blackPaint);
+                        if (noteToDrawIndex % 2 != 0) {
+                            // this is a lined note, do we need to add a line
+                            if (noteToDrawIndex <= K_LINES_ABOVEBELOW * 2 ||
+                                noteToDrawIndex >= noteCount - K_LINES_ABOVEBELOW * 2) {
+                                // add the line as below or above the mass of lines
+                                canvas.drawLine(xPosition - noteRadius * 2f, yPosition, xPosition + noteRadius * 2f, yPosition, assets.blackPaint);
+                            }
+                        }
+                    }
+                }
+                // and the title if we are showing this helpful thing
+                if (toDraw.name != null && toDraw.name.isEmpty() == false) {
+                    Paint.FontMetrics fontMetrics = assets.letterPaint.getFontMetrics();
+                    float letterWidth = assets.letterPaint.measureText(toDraw.name);
+                    float xText = xPosition - letterWidth * 0.5f;
+                    float yText = topYPosition - noteRadius * 2f;
+                    //canvas.drawRect(xText, yText + fontMetrics.top, xText + letterWidth, yText + fontMetrics.bottom, assets.whitePaint);
+                    canvas.drawText(toDraw.name, xText, yText, assets.letterPaint);
+                }
+                if (toDraw.fingering != null && toDraw.fingering.isEmpty() == false) {
+                    // there is a little left notation, draw this in now
+                    canvas.drawText("" + toDraw.fingering, xPosition - noteRadius * 3.5f, topYPosition, assets.letterPaint);
+                }
+            }
+
+
+            // get the active clef we are drawing the notes for
+            Clefs activeClef = this.noteProvider.getActiveClef();
+            switch (activeClef) {
+                case treble:
+                    // the treble clef should have a zero offset to draw the correct diagram in
+                    this.animator.clefYTarget = 0;
+                    break;
+                case bass:
+                    // the bass clef should be offset to draw the bass in (via the animator)
+                    this.animator.clefYTarget = -bounds.contentHeight;
+            }
+        }
+
+        /*
+        // DEVELOPER OPTION TO SHOW VIEW BOUNDS
         canvas.drawLine(0, 0, canvas.getWidth(), canvas.getHeight(), getAssets().blackPaint);
         canvas.drawLine(canvas.getWidth(), 0, 0, canvas.getHeight(), getAssets().blackPaint);
+        */
     }
 
     @Override

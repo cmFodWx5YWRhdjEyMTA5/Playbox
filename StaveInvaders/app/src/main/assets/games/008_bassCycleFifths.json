@@ -3,7 +3,7 @@
   "id" : "bass_cycle_fifths",
   "image": "games/cycle_fifths.jpg",
   "description": "Learn the cycle of fifths on the bass clef",
-  "class": "uk.co.darkerwaters.noteinvaders.games.Scales",
+  "class": "uk.co.darkerwaters.staveinvaders.games.PlayScales",
   "children": [
     {
       "name": "Cycle Root - Middle",

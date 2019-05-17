@@ -38,6 +38,12 @@ public class GameList {
         }
     }
 
+    public static Game[] getGames() {
+        synchronized (LoadedGames) {
+            return LoadedGames.toArray(new Game[0]);
+        }
+    }
+
     public static Game[] loadGamesFromAssets(Application application, Context context) {
         clearLoadedGames();
         // we want to load all the games from our 'games' folder in 'assets'

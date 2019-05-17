@@ -3,7 +3,7 @@
   "id" : "random_attack_bass",
   "image": "games/bass.jpg",
   "description": "Learn individual notes on the bass clef",
-  "class": "uk.co.darkerwaters.noteinvaders.games.RandomAttack",
+  "class": "uk.co.darkerwaters.staveinvaders.games.PlayRandomAttack",
   "children": [
 
     {
