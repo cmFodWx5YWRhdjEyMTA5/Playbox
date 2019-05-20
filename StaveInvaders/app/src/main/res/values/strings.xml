@@ -39,4 +39,6 @@
     <string name="clef_mixed">Mixed</string>
     <string name="clef_bass">Bass</string>
     <string name="clef_treble">Treble</string>
+    <string name="treble_score_title">Top Treble Tempo</string>
+    <string name="bass_score_title">Top Bass Tempo</string>
 </resources>

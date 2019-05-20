@@ -6,6 +6,7 @@ import android.content.Context;
 import uk.co.darkerwaters.staveinvaders.actvities.MainActivity;
 import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Log;
+import uk.co.darkerwaters.staveinvaders.application.Scores;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
 import uk.co.darkerwaters.staveinvaders.notes.Chords;
 import uk.co.darkerwaters.staveinvaders.notes.Notes;
@@ -14,6 +15,7 @@ public class Application extends android.app.Application {
 
     private Log log = null;
     private Settings settings = null;
+    private Scores scores = null;
     private InputSelector input = null;
     private Notes notes = null;
     private Chords singleChords = null;
@@ -26,6 +28,7 @@ public class Application extends android.app.Application {
         // create the log and the settings so can access our state
         this.log = Log.CreateLog(this);
         this.settings = new Settings(this);
+        this.scores = new Scores(this);
         this.input = new InputSelector(this);
 
         Log.debug("Application initialised...");
@@ -51,6 +54,7 @@ public class Application extends android.app.Application {
         Log.debug("Application terminated...");
         // set everything to null, no longer around
         this.settings = null;
+        this.scores = null;
         this.input = null;
         clearNotes();
         this.log = null;
@@ -66,6 +70,11 @@ public class Application extends android.app.Application {
     public Settings getSettings() {
         // return the settings (exist as long as the application does)
         return this.settings;
+    }
+
+    public Scores getScores() {
+        // return the active scores
+        return this.scores;
     }
 
     private void clearNotes() {

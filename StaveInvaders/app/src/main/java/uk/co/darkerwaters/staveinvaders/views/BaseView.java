@@ -49,6 +49,7 @@ public abstract class BaseView extends View {
             this.letterPaint.setStrokeWidth(getResources().getDimension(R.dimen.letter_stroke));
             this.letterPaint.setColor(getResources().getColor(R.color.secondaryTextColor));
             this.letterPaint.setAntiAlias(true);
+            this.letterPaint.setTextAlign(Paint.Align.CENTER);
             this.letterPaint.setTextSize(36f);
 
             this.whitePaint = new Paint();

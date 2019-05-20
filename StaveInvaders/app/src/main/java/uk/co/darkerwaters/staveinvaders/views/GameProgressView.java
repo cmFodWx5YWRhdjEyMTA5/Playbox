@@ -11,7 +11,11 @@ import android.graphics.Shader;
 import android.util.AttributeSet;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import uk.co.darkerwaters.staveinvaders.R;
+import uk.co.darkerwaters.staveinvaders.application.Scores;
 import uk.co.darkerwaters.staveinvaders.games.Game;
 
 /**
@@ -74,17 +78,33 @@ public class GameProgressView extends BaseView {
         // draw the outline of the view
         canvas.drawRoundRect(bounds.paddingLeft, bounds.paddingTop, bounds.contentWidth, bounds.contentHeight, bounds.border, bounds.border, assets.backgroundPaint);
 
-        // draw the game count
-        String gameCount = "0/" + this.game.children.length;
-        float letterLeft = bounds.drawingRight - assets.letterPaint.measureText(gameCount);
-        assets.letterPaint.setTextScaleX(1f);
-        canvas.drawText(gameCount, letterLeft, bounds.drawingBottom, assets.letterPaint);
+        // show the scores for the currently selected clefs
+        MusicView.Clefs[] selectedClefs = this.application.getSettings().getSelectedClefs();
 
+        // draw the game count, how many are passed?
+        int gamesPassed = 0;
+        for (int i = 0; i < this.game.children.length; ++i) {
+            // get the passed game count for this clef
+            boolean isPassed = true;
+            for (MusicView.Clefs clef : selectedClefs) {
+                if (false == this.game.children[i].getIsGamePassed(clef)) {
+                    // this game is not passed
+                    isPassed = false;
+                    break;
+                }
+            }
+            if (isPassed) {
+                // this game was passed on the active clefs, add
+                ++gamesPassed;
+            }
+        }
+        String gameCount = gamesPassed + "/" + this.game.children.length;
+        float letterLeft = bounds.drawingRight - assets.letterPaint.measureText(gameCount) * 0.5f;
 
         Rect textBounds = new Rect();
         assets.outlinePaint.getTextBounds(gameCount, 0, gameCount.length() - 1, textBounds);
 
-        float graphRight = letterLeft - bounds.border;
+        float graphRight = bounds.drawingRight - bounds.border;
         float graphLeft = bounds.drawingLeft + assets.outlinePaint.getTextSize();
         float graphTop = bounds.drawingTop + (isDrawBpmValues ? textBounds.height() : 0);
         float graphBottom = bounds.drawingBottom - (bounds.border * 2.5f);
@@ -111,22 +131,16 @@ public class GameProgressView extends BaseView {
         canvas.drawPath(axisPath, xAxisPaint);
 
         // now draw the parts of the graph to display
-        if (this.game.children.length > 0) {
+        if (this.game.children.length > 0 && selectedClefs.length > 0) {
             // draw all the child progress in
             float entryWidth = (graphRight - graphLeft) / this.game.children.length;
             for (int i = 0; i < this.game.children.length; ++i) {
-                float progress = this.game.children[i].getGameProgress();
-                float barHeight = (graphBottom - graphTop) * progress;
-                if (barHeight <= 0f) {
-                    // show a line of nothing
-                    barHeight = assets.backgroundPaint.getStrokeWidth();
-                }
-
+                // create the rect for the bar
                 RectF barRect = new RectF(graphLeft + i * entryWidth,
-                        graphBottom - barHeight,
-                        graphLeft + i * entryWidth + (0.8f * entryWidth),
+                        graphTop,
+                        graphLeft + i * entryWidth + 0.8f * entryWidth,
                         graphBottom);
-                // create the shader
+                // create the shader for the bar
                 this.barPaint.setShader(new LinearGradient(
                         barRect.left,
                         barRect.bottom,
@@ -135,22 +149,42 @@ public class GameProgressView extends BaseView {
                         getResources().getColor(R.color.secondaryDarkColor),
                         getResources().getColor(R.color.secondaryLightColor),
                         Shader.TileMode.MIRROR));
-
-                canvas.drawRoundRect(barRect, bounds.border, bounds.border, this.barPaint);
+                float barWidth = barRect.width() / selectedClefs.length;
+                int topTempo = 0;
+                float topBarHeight = 0f;
+                for (int j = 0; j < selectedClefs.length; ++j) {
+                    // for each clef, draw the bar
+                    float progress = this.game.children[i].getGameProgress(selectedClefs[j]);
+                    float barHeight = barRect.height() * progress;
+                    topBarHeight = Math.max(barHeight, topBarHeight);
+                    topTempo = Math.max(this.game.children[i].getGameTopTempo(selectedClefs[j]), topTempo);
+                    if (barHeight <= 0f) {
+                        // show a line of nothing
+                        barHeight = assets.backgroundPaint.getStrokeWidth();
+                    }
+                    RectF clefRect = new RectF(barRect.left + (barWidth * j),
+                            barRect.bottom - barHeight,
+                            barRect.left + (barWidth * (j + 1)),
+                            barRect.bottom);
+                    canvas.drawRoundRect(clefRect, bounds.border, bounds.border, this.barPaint);
+                }
                 if (this.game.children[i] == this.selectedChild) {
                     // this is the selected child game
                     barRect.top = graphTop;
                     canvas.drawRoundRect(barRect, bounds.border, bounds.border, assets.highlightPaint);
+                    // and to the level at which we would pass the bar
+                    float passLine = barRect.bottom - Scores.K_PASS_BPM_FACTOR * barRect.height();
+                    canvas.drawLine(barRect.left, passLine, barRect.right, passLine, assets.blackPaint);
                 }
 
                 if (isDrawBpmValues) {
                     //draw the top BPM in on top of the bar here
-                    String progressText = "" + (int) (progress * 600f) / 10;//this.game.getTopTempo();
+                    String progressText = Integer.toString(topTempo);
                     assets.letterPaint.setTextScaleX(1f);
                     assets.letterPaint.setTextScaleX(Math.min(barRect.width() / assets.letterPaint.measureText(progressText), 1f));
                     canvas.drawText(progressText,
-                            barRect.left,
-                            barRect.top - textBounds.height() * 0.5f,
+                            barRect.centerX(),
+                            topBarHeight - textBounds.height() * 0.5f,
                             assets.letterPaint);
                 }
             }
@@ -168,6 +202,9 @@ public class GameProgressView extends BaseView {
                     assets.outlinePaint.getTextSize(), assets.outlinePaint);
             canvas.restore();
         }
+        // draw the number of passed games in on top
+        assets.letterPaint.setTextScaleX(1f);
+        canvas.drawText(gameCount, letterLeft, bounds.drawingBottom, assets.letterPaint);
 
     }
 

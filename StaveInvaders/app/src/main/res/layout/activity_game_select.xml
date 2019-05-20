@@ -75,11 +75,11 @@
         android:layout_width="0dp"
         android:layout_height="80dp"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/connection_status"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/treble_progress_layout" />
 
     <RadioGroup
         android:id="@+id/radioGroupClefs"
@@ -115,5 +115,67 @@
             android:layout_weight="1"
             android:text="@string/clef_mixed" />
     </RadioGroup>
+
+    <LinearLayout
+        android:id="@+id/treble_progress_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/musicView">
+
+        <view
+            android:id="@+id/treble_progress_view"
+            class="uk.co.darkerwaters.staveinvaders.views.ClefsProgressView"
+            android:layout_width="120dp"
+            android:layout_height="120dp" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/treble_score_title" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/bass_progress_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/musicView">
+
+        <view
+            android:id="@+id/bass_progress_view"
+            class="uk.co.darkerwaters.staveinvaders.views.ClefsProgressView"
+            android:layout_width="120dp"
+            android:layout_height="120dp" />
+
+        <TextView
+            android:id="@+id/bass_progress_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/bass_score_title" />
+    </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/playActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:clickable="true"
+        app:fabSize="auto"
+        app:layout_constraintBottom_toBottomOf="@+id/bass_progress_layout"
+        app:layout_constraintEnd_toStartOf="@+id/bass_progress_layout"
+        app:layout_constraintStart_toEndOf="@+id/treble_progress_layout"
+        app:layout_constraintTop_toTopOf="@+id/treble_progress_layout"
+        app:srcCompat="@android:drawable/ic_media_play" />
 
 </android.support.constraint.ConstraintLayout>

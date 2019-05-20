@@ -165,7 +165,6 @@ public abstract class GamePlayer {
                 newClef = this.permittedClefs.iterator().next();
             }
             if (null != newClef) {
-                Log.debug("Changing clef to be " + newClef.name());
                 // set the new active clef
                 setActiveClef(newClef);
                 // and the new change time
