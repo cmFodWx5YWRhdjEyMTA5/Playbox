@@ -2,7 +2,11 @@ package uk.co.darkerwaters.staveinvaders.application;
 
 import android.content.SharedPreferences;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import uk.co.darkerwaters.staveinvaders.Application;
+import uk.co.darkerwaters.staveinvaders.views.MusicView;
 
 public class Settings {
     private final SharedPreferences preferences;
@@ -21,6 +25,10 @@ public class Settings {
     private final String K_LASTCONNECTEDUSBDEVICE = "last_connected_device_usb";
     private final String K_LASTCONNECTEDBTDEVICE = "last_connected_device_bt";
 
+    private final String K_ISHIDEBASS = "isHideBass";
+    private final String K_ISHIDETREBLE = "isHideTreble";
+    private final String K_SELECTEDCLEF = "selectedClef";
+
     // the settings - important for defaults
     private boolean isLogging = true;
 
@@ -33,6 +41,11 @@ public class Settings {
 
     private String lastConnectedUsbDevice = "";
     private String lastConnectedBtDevice = "";
+
+    private boolean isHideTreble = false;
+    private boolean isHideBass = false;
+
+    private String selectedClefs = MusicView.Clefs.treble.name();
 
     public enum InputType {
         keys,
@@ -104,6 +117,32 @@ public class Settings {
         return this;
     }
 
+    public MusicView.Clefs[] getSelectedClefs() {
+        this.selectedClefs = this.preferences.getString(K_SELECTEDCLEF, this.selectedClefs);
+        String[] clefStrings = this.selectedClefs.split(",");
+        MusicView.Clefs[] toReturn = new MusicView.Clefs[clefStrings.length];
+        for (int i = 0; i < clefStrings.length; ++i) {
+            // get the enum from the string representation
+            toReturn[i] = MusicView.Clefs.valueOf(MusicView.Clefs.class, clefStrings[i]);
+        }
+        return toReturn;
+    }
+
+    public Settings setSelectedClefs(MusicView.Clefs[] clefs) {
+        StringBuilder builder = new StringBuilder();
+        for (MusicView.Clefs clef : clefs) {
+            builder.append(clef.name());
+            builder.append(",");
+        }
+        // remove the trailing comma
+        if (builder.length() > 0) {
+            builder.deleteCharAt(builder.length() - 1);
+        }
+        this.selectedClefs = builder.toString();
+        this.editor.putString(K_SELECTEDCLEF, this.selectedClefs);
+        return this;
+    }
+
     public boolean getIsInputKeys() {
         this.isInputKeys = this.preferences.getBoolean(K_INPUTKEYS, this.isInputKeys);
         return this.isInputKeys;
@@ -143,6 +182,39 @@ public class Settings {
     public Settings setLastConnectedBtDevice(String device) {
         this.lastConnectedBtDevice = device;
         this.editor.putString(K_LASTCONNECTEDBTDEVICE, this.lastConnectedBtDevice);
+        return this;
+    }
+
+    public boolean getIsHideClef(MusicView.Clefs clef) {
+        boolean toReturn = false;
+        switch (clef) {
+            case treble: {
+                this.isHideTreble = this.preferences.getBoolean(K_ISHIDETREBLE, this.isHideTreble);
+                toReturn = this.isHideTreble;
+                break;
+            }
+            case bass: {
+                this.isHideBass = this.preferences.getBoolean(K_ISHIDEBASS, this.isHideBass);
+                toReturn = this.isHideBass;
+                break;
+            }
+        }
+        return toReturn;
+    }
+
+    public Settings setIsHideClef(MusicView.Clefs clef, boolean isHideClef) {
+        switch (clef) {
+            case treble: {
+                this.isHideTreble = isHideClef;
+                this.editor.putBoolean(K_ISHIDETREBLE, this.isHideTreble);
+                break;
+            }
+            case bass: {
+                this.isHideBass = isHideClef;
+                this.editor.putBoolean(K_ISHIDEBASS, this.isHideBass);
+                break;
+            }
+        }
         return this;
     }
 

@@ -11,8 +11,14 @@ import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.application.Log;
+import uk.co.darkerwaters.staveinvaders.application.Settings;
 import uk.co.darkerwaters.staveinvaders.games.Game;
 import uk.co.darkerwaters.staveinvaders.games.GameList;
 import uk.co.darkerwaters.staveinvaders.games.GameParentCardHolder;
@@ -34,11 +40,13 @@ public class GameSelectActivity extends AppCompatActivity {
     private TextView gameTitle;
 
     private RadioGroup radioClefs;
+    private Application application;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_select);
+        this.application = (Application) this.getApplication();
 
         this.nextButton = findViewById(R.id.nextButton);
         this.prevButton = findViewById(R.id.prevButton);
@@ -107,7 +115,6 @@ public class GameSelectActivity extends AppCompatActivity {
                 }
             }
         });
-        //TODO hide the checks if they are not available in the settings
 
         // set the data
         setSelectedGameData();
@@ -116,17 +123,51 @@ public class GameSelectActivity extends AppCompatActivity {
     }
 
     private void setAvailableClefs(MusicView.Clefs[] clefs) {
-        //TODO set this on the application so remembers the choice and updates the game, music view etc
-
+        // set this on the application so remembers the choice and updates the game, music view etc
+        Settings settings = application.getSettings();
+        settings.setSelectedClefs(clefs).commitChanges();
+        // hide the checks if they are not available in the settings
+        if (settings.getIsHideClef(MusicView.Clefs.treble)) {
+            // hide it all as there is no choice to make
+            this.radioClefs.setVisibility(View.GONE);
+            // and set the selected clef to be bass, treble cannot be selected, nor can both
+            settings.setSelectedClefs(new MusicView.Clefs[] {MusicView.Clefs.bass});
+            // set the check item to match that set and available in the application
+            this.radioClefs.check(R.id.radioBassClef);
+        }
+        else if (settings.getIsHideClef(MusicView.Clefs.bass)) {
+            // hide it all as there is no choice to make
+            this.radioClefs.setVisibility(View.GONE);
+            // and set the selected clef to be treble, bass cannot be selected, nor can both
+            settings.setSelectedClefs(new MusicView.Clefs[]{MusicView.Clefs.treble});
+        }
+        MusicView.Clefs[] selectedClefs = settings.getSelectedClefs();
+        // set the check item to match that set and available in the application
+        if (selectedClefs.length == 2) {
+            // both are selected
+            this.radioClefs.check(R.id.radioMixedClefs);
+        }
+        else if (selectedClefs.length == 1) {
+            switch (selectedClefs[0]) {
+                case treble:
+                    this.radioClefs.check(R.id.radioTrebleClef);
+                    break;
+                case bass:
+                    this.radioClefs.check(R.id.radioBassClef);
+                    break;
+            }
+        }
+        // set these on the music view
+        musicView.setPermittedClefs(selectedClefs);
     }
 
 
     private void setSelectedGameData() {
         gameTitle.setText(this.selectedGame.name);
         progressView.setSelectedChild(this.selectedGame);
-
-        //TODO set the check item to match that set and available in the application
-        this.radioClefs.check(R.id.radioTrebleClef);
+        // set the clefs available properly
+        MusicView.Clefs[] selectedClefs = this.application.getSettings().getSelectedClefs();
+        setAvailableClefs(selectedClefs);
         // set this on the music view
         musicView.setActiveGame(this.selectedGame);
         // and update the views

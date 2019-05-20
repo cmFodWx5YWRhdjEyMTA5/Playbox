@@ -59,6 +59,7 @@ public class MusicView extends BaseView {
 
     // the notes we are drawing on the clefs
     private Chords[] clefNotes;
+    private List<Clefs> permittedClefs;
 
     private VectorDrawableCompat trebleDrawable;
     private VectorDrawableCompat bassDrawable;
@@ -149,12 +150,42 @@ public class MusicView extends BaseView {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
+    public boolean setPermittedClef(MusicView.Clefs clef, boolean isPermitted) {
+        boolean result;
+        if (isPermitted) {
+            result = this.permittedClefs.add(clef);
+        }
+        else {
+            result = this.permittedClefs.remove(clef);
+        }
+        // and return the result
+        return result;
+    }
+
+    public void setPermittedClefs(Clefs[] permittedClefs) {
+        // remove them all
+        this.permittedClefs.clear();
+        // put back those permitted
+        for (Clefs clef : permittedClefs) {
+            setPermittedClef(clef, true);
+        }
+        // and change the note provider if that is set
+        if (null != this.noteProvider) {
+            this.noteProvider.setPermittedClef(Clefs.treble, this.permittedClefs.contains(Clefs.treble));
+            this.noteProvider.setPermittedClef(Clefs.bass, this.permittedClefs.contains(Clefs.bass));
+        }
+    }
+
     public void setActiveGame(Game game) {
         if (null == game) {
             this.noteProvider = null;
         }
         else {
+            // get the game player for this game and setup the clefs
             this.noteProvider = game.getGamePlayer(this.application);
+            // need to set the permitted clefs on this provider to match that selected here on this view
+            this.noteProvider.setPermittedClef(Clefs.treble, this.permittedClefs.contains(Clefs.treble));
+            this.noteProvider.setPermittedClef(Clefs.bass, this.permittedClefs.contains(Clefs.bass));
             // re-animate the appearance of the notes for nice
             stopAnimation();
         }
@@ -167,6 +198,10 @@ public class MusicView extends BaseView {
         // represent the notes we are drawing, there will be one or three (flats and sharps)
         Chords singleChords = this.application.getSingleChords();
         this.clefNotes = new Chords[Clefs.values().length];
+        // by default both clefs are active
+        this.permittedClefs = new ArrayList<Clefs>(2);
+        this.permittedClefs.add(Clefs.treble);
+        this.permittedClefs.add(Clefs.bass);
 
         for (int iClef = 0; iClef < this.clefNotes.length; ++iClef) {
             // for each clef, create the list of notes

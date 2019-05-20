@@ -99,8 +99,8 @@ public abstract class GamePlayer {
         else {
             result = this.permittedClefs.remove(clef);
         }
-        // reset the change time
-        this.nextSheduledChangeTime = System.currentTimeMillis() + K_HELP_CHANGE_TIME;
+        // reset the change time to be now
+        this.nextSheduledChangeTime = System.currentTimeMillis();
         // and return the result
         return result;
     }
