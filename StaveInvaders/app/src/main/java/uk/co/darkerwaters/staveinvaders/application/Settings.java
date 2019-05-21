@@ -14,6 +14,7 @@ public class Settings {
     private final SharedPreferences.Editor editor;
 
     private final String K_ISLOGGING = "isLogging";
+    private final String K_ISSHOWMENURIGHT = "isShowMenuRight";
 
     private final String K_INPUTKEYS = "input_keyboard";
     private final String K_INPUTMIC = "input_mic";
@@ -73,6 +74,10 @@ public class Settings {
         this.isLogging = isLogging;
         this.editor.putBoolean(K_ISLOGGING, this.isLogging);
         return this;
+    }
+
+    public boolean getShowMenuRight() {
+        return this.preferences.getBoolean(K_ISSHOWMENURIGHT, false);
     }
 
     public InputType getActiveInput() {

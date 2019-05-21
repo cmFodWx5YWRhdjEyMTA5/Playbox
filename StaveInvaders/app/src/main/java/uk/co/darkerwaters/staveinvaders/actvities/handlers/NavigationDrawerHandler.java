@@ -19,6 +19,7 @@ import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.actvities.BtSetupActivity;
 import uk.co.darkerwaters.staveinvaders.actvities.MainActivity;
+import uk.co.darkerwaters.staveinvaders.actvities.SettingsActivity;
 import uk.co.darkerwaters.staveinvaders.actvities.UsbSetupActivity;
 import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
@@ -163,10 +164,11 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
     }
 
     private void updateNavSelection(MenuItem item) {
+        Intent myIntent;
         switch (item.getItemId()) {
             case R.id.nav_home:
                 // go home
-                Intent myIntent = new Intent(this.parent, MainActivity.class);
+                myIntent = new Intent(this.parent, MainActivity.class);
                 this.parent.startActivity(myIntent);
                 break;
             case R.id.nav_history:
@@ -176,6 +178,11 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
             case R.id.nav_attributions:
                 //TODO show the attributions view
                 Toast.makeText(parent, "attributions page todo", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.nav_settings:
+                // show settings
+                myIntent = new Intent(this.parent, SettingsActivity.class);
+                this.parent.startActivity(myIntent);
                 break;
             default:
                 // Handle navigation view item clicks here.

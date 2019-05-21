@@ -41,4 +41,6 @@
     <string name="clef_treble">Treble</string>
     <string name="treble_score_title">Top Treble Tempo</string>
     <string name="bass_score_title">Top Bass Tempo</string>
+    <string name="hide_treble">Hide treble clef</string>
+    <string name="hide_bass">Hide bass clef</string>
 </resources>

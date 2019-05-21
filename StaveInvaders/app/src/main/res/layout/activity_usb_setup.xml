@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".actvities.BtSetupActivity">
+    tools:context=".actvities.UsbSetupActivity">
 
     <view
         android:id="@+id/microphone_setup_piano"
