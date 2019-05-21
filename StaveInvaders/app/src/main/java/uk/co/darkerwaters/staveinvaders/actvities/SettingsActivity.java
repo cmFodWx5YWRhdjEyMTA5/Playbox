@@ -31,7 +31,7 @@ public class SettingsActivity extends AppCompatActivity {
         this.hideTreble.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                application.getSettings().setIsHideClef(MusicView.Clefs.treble, b);
+                application.getSettings().setIsHideClef(MusicView.Clefs.treble, b).commitChanges();
                 if (b && hideBass.isChecked()) {
                     // cannot hide both
                     hideBass.setChecked(false);
@@ -41,7 +41,7 @@ public class SettingsActivity extends AppCompatActivity {
         this.hideBass.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                application.getSettings().setIsHideClef(MusicView.Clefs.bass, b);
+                application.getSettings().setIsHideClef(MusicView.Clefs.bass, b).commitChanges();
                 if (b && hideTreble.isChecked()) {
                     // cannot hide both
                     hideTreble.setChecked(false);

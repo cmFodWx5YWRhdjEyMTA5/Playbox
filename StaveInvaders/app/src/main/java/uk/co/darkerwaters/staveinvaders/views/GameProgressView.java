@@ -2,6 +2,7 @@ package uk.co.darkerwaters.staveinvaders.views;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -55,6 +56,9 @@ public class GameProgressView extends BaseView {
         this.barPaint = new Paint();
         this.barPaint.setAntiAlias(true);
         this.barPaint.setStyle(Paint.Style.FILL);
+        this.barPaint.setColor(getResources().getColor(R.color.primaryColor));
+        this.barPaint.setShadowLayer(12, 6, 6, getResources().getColor(R.color.primaryDarkColor));
+        setLayerType(LAYER_TYPE_SOFTWARE, this.barPaint);
 
         this.xAxisPaint = new Paint();
         this.xAxisPaint.setAntiAlias(true);
@@ -102,33 +106,15 @@ public class GameProgressView extends BaseView {
         float letterLeft = bounds.drawingRight - assets.letterPaint.measureText(gameCount) * 0.5f;
 
         Rect textBounds = new Rect();
-        assets.outlinePaint.getTextBounds(gameCount, 0, gameCount.length() - 1, textBounds);
+        assets.letterPaint.getTextBounds(gameCount, 0, gameCount.length() - 1, textBounds);
 
         float graphRight = bounds.drawingRight - bounds.border;
-        float graphLeft = bounds.drawingLeft + assets.outlinePaint.getTextSize();
+        float graphLeft = bounds.drawingLeft + assets.letterPaint.getTextSize();
         float graphTop = bounds.drawingTop + (isDrawBpmValues ? textBounds.height() : 0);
         float graphBottom = bounds.drawingBottom - (bounds.border * 2.5f);
-        //canvas.drawLine(graphLeft, graphBottom, graphRight, graphBottom, outlinePaint);
-        //canvas.drawLine(graphLeft, graphBottom, graphLeft, graphTop, outlinePaint);
 
-        // create the path for the x-axis path to draw
-        Path axisPath = new Path();
-        axisPath.moveTo(graphLeft + bounds.border, graphBottom);
-        axisPath.lineTo(graphRight, graphBottom);
-        axisPath.lineTo(graphRight, graphBottom + bounds.border * 2f);
-        axisPath.lineTo(graphLeft + bounds.border, graphBottom);
-        // and the shader to draw this nicely
-        this.xAxisPaint.setShader(new LinearGradient(graphLeft,
-                graphBottom,
-                graphRight,
-                graphBottom + bounds.border,
-                getResources().getColor(R.color.secondaryLightColor),
-                getResources().getColor(R.color.secondaryDarkColor),
-                Shader.TileMode.MIRROR));
         // draw around the graph here
-        canvas.drawRoundRect(graphLeft, graphTop, graphRight, graphBottom, bounds.border, bounds.border, assets.outlinePaint);
-        // and draw the faded triangle
-        canvas.drawPath(axisPath, xAxisPaint);
+        //canvas.drawRoundRect(graphLeft, graphTop, graphRight, graphBottom, bounds.border, bounds.border, assets.outlinePaint);
 
         // now draw the parts of the graph to display
         if (this.game.children.length > 0 && selectedClefs.length > 0) {
@@ -140,15 +126,6 @@ public class GameProgressView extends BaseView {
                         graphTop,
                         graphLeft + i * entryWidth + 0.8f * entryWidth,
                         graphBottom);
-                // create the shader for the bar
-                this.barPaint.setShader(new LinearGradient(
-                        barRect.left,
-                        barRect.bottom,
-                        barRect.right,
-                        barRect.top,
-                        getResources().getColor(R.color.secondaryDarkColor),
-                        getResources().getColor(R.color.secondaryLightColor),
-                        Shader.TileMode.MIRROR));
                 float barWidth = barRect.width() / selectedClefs.length;
                 int topTempo = 0;
                 float topBarHeight = 0f;
@@ -190,16 +167,15 @@ public class GameProgressView extends BaseView {
             }
 
             // draw the graph titles here
-            assets.outlinePaint.setTextScaleX(1f);
             canvas.drawText(xAxisTitle,
-                    (bounds.contentWidth - assets.outlinePaint.measureText(xAxisTitle)) * 0.5f,
+                    (bounds.contentWidth - assets.letterPaint.measureText(xAxisTitle)) * 0.5f,
                     bounds.contentHeight - bounds.border * 0.5f,
-                    assets.outlinePaint);
+                    assets.letterPaint);
             canvas.save();
             canvas.rotate(-90f, 0, 0);
             canvas.drawText(yAxisTitle,
-                    (bounds.contentHeight + assets.outlinePaint.measureText(xAxisTitle)) * -0.5f,
-                    assets.outlinePaint.getTextSize(), assets.outlinePaint);
+                    (bounds.contentHeight + assets.letterPaint.measureText(xAxisTitle)) * -0.25f,
+                    assets.letterPaint.getTextSize(), assets.letterPaint);
             canvas.restore();
         }
         // draw the number of passed games in on top

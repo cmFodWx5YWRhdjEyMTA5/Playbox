@@ -35,7 +35,7 @@
     <string name="history">History</string>
     <string name="attributions">Attributions</string>
     <string name="xAxis">level</string>
-    <string name="yAxis">beats</string>
+    <string name="yAxis">tempo</string>
     <string name="clef_mixed">Mixed</string>
     <string name="clef_bass">Bass</string>
     <string name="clef_treble">Treble</string>
