@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.staveinvaders.games;
+package uk.co.darkerwaters.staveinvaders.actvities.fragments;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,10 +13,18 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Set;
 
+import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.actvities.GameSelectActivity;
 import uk.co.darkerwaters.staveinvaders.R;
+import uk.co.darkerwaters.staveinvaders.application.Settings;
+import uk.co.darkerwaters.staveinvaders.games.Game;
+import uk.co.darkerwaters.staveinvaders.views.CircleProgressView;
+import uk.co.darkerwaters.staveinvaders.views.ClefProgressView;
 import uk.co.darkerwaters.staveinvaders.views.GameProgressView;
+import uk.co.darkerwaters.staveinvaders.views.LevelProgressView;
+import uk.co.darkerwaters.staveinvaders.views.MusicView;
 
 public class GameParentCardHolder extends RecyclerView.ViewHolder {
 
@@ -27,6 +35,9 @@ public class GameParentCardHolder extends RecyclerView.ViewHolder {
     private final ImageView itemImage;
     private final TextView itemDetail;
     private final GameProgressView progressView;
+    private final ClefProgressView trebleProgressView;
+    private final LevelProgressView levelsProgressView;
+    private final ClefProgressView bassProgressView;
 
     public GameParentCardHolder(@NonNull View itemView) {
         super(itemView);
@@ -36,9 +47,26 @@ public class GameParentCardHolder extends RecyclerView.ViewHolder {
         this.itemTitle = (TextView)this.parent.findViewById(R.id.item_title);
         this.itemDetail = (TextView)this.parent.findViewById(R.id.item_detail);
         this.progressView = (GameProgressView)this.parent.findViewById(R.id.gameProgress);
+
+        this.trebleProgressView = this.parent.findViewById(R.id.treble_progress_view);
+        this.levelsProgressView = this.parent.findViewById(R.id.levels_progress_view);
+        this.bassProgressView = this.parent.findViewById(R.id.bass_progress_view);
     }
 
-    public void initialiseCard(final Game card) {
+    public void initialiseCard(final Application application, final Game card) {
+
+        // hide the old game progress view
+        this.progressView.setVisibility(View.GONE);
+        Settings settings = application.getSettings();
+        // hide the treble / bass accordingly
+        if (settings.getIsHideClef(MusicView.Clefs.treble)) {
+            // hide treble
+            this.parent.findViewById(R.id.treble_progress_layout).setVisibility(View.INVISIBLE);
+        }
+        if (settings.getIsHideClef(MusicView.Clefs.bass)) {
+            // hide bass
+            this.parent.findViewById(R.id.bass_progress_layout).setVisibility(View.INVISIBLE);
+        }
 
         this.itemTitle.setText(card.name);
         this.itemDetail.setText(card.description == null ? card.getFullName() : card.description);
@@ -50,6 +78,13 @@ public class GameParentCardHolder extends RecyclerView.ViewHolder {
         }
         // and the progress view
         this.progressView.setViewData(card);
+
+        // set the progress on the bass and treble views
+        this.trebleProgressView.setProgress(card, MusicView.Clefs.treble);
+        this.bassProgressView.setProgress(card, MusicView.Clefs.bass);
+
+        // and the levels too
+        this.levelsProgressView.setProgress(card);
 
         // also handle the click here, show the active game for this parent
         final Context context = this.parent.getContext();

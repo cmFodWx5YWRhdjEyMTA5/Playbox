@@ -5,17 +5,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.games.Game;
-import uk.co.darkerwaters.staveinvaders.games.GameParentCardHolder;
+import uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder;
 
 public class GameParentRecyclerAdapter extends RecyclerView.Adapter<GameParentCardHolder> {
 
     // create the cards here
     private final Game[] cards;
+    private final Application application;
 
-    public GameParentRecyclerAdapter(Game[] cards) {
+    public GameParentRecyclerAdapter(Application application, Game[] cards) {
         // create the list of cards to show here
+        this.application = application;
         this.cards = cards;
     }
 
@@ -31,7 +34,7 @@ public class GameParentRecyclerAdapter extends RecyclerView.Adapter<GameParentCa
     @Override
     public void onBindViewHolder(GameParentCardHolder viewHolder, int i) {
         // initialise the card holder here
-        viewHolder.initialiseCard(this.cards[i]);
+        viewHolder.initialiseCard(this.application, this.cards[i]);
     }
 
     @Override

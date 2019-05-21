@@ -24,12 +24,20 @@ public class GameList {
             for (Game game : LoadedGames) {
                 if (game.getFullName().equals(fullName)) {
                     // here it is
-                    foundGame = game;
-                    break;
+                    return game;
+                }
+                else {
+                    // try the children
+                    for (Game child : game.children) {
+                        if (child.getFullName().equals(fullName)) {
+                            // here it is
+                            return child;
+                        }
+                    }
                 }
             }
         }
-        return foundGame;
+        return null;
     }
 
     public static void clearLoadedGames() {

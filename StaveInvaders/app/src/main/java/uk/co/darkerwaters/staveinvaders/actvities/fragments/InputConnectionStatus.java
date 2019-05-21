@@ -2,6 +2,7 @@ package uk.co.darkerwaters.staveinvaders.actvities.fragments;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -13,6 +14,8 @@ import android.widget.TextView;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
+import uk.co.darkerwaters.staveinvaders.actvities.MainActivity;
+import uk.co.darkerwaters.staveinvaders.actvities.SettingsActivity;
 import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
@@ -85,6 +88,20 @@ public class InputConnectionStatus extends Fragment {
         // start this thread to do the work here
         this.progressReductionThread.start();
 
+        // listen for a click on this view
+        View.OnClickListener clickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // show the main activity and expand the drawer to let them select something else
+                Intent myIntent = new Intent(InputConnectionStatus.this.getContext(), MainActivity.class);
+                myIntent.putExtra(MainActivity.K_OPEN_DRAWER, true);
+                // and start this activity with the open drawer
+                InputConnectionStatus.this.startActivity(myIntent);
+            }
+        };
+        this.image.setOnClickListener(clickListener);
+        this.typeText.setOnClickListener(clickListener);
+        this.statusText.setOnClickListener(clickListener);
         // and update the view
         updateDisplay();
 

@@ -25,6 +25,15 @@ import uk.co.darkerwaters.staveinvaders.notes.Note;
 
 public class MusicView extends BaseView {
 
+    protected ViewBounds bounds;
+    protected float clefWidth;
+    protected int lineCount;
+    protected int spaceCount;
+    protected int noteCount;
+    protected float lineHeight;
+    protected float noteHeight;
+    protected float clefHeight;
+
     // there are 2 of many things (treble and bass)
     public enum Clefs {
         treble(0, "B4"),
@@ -176,7 +185,7 @@ public class MusicView extends BaseView {
         }
     }
 
-    public void setActiveGame(Game game) {
+    public GamePlayer setActiveGame(Game game) {
         if (null == game) {
             this.noteProvider = null;
         }
@@ -189,6 +198,7 @@ public class MusicView extends BaseView {
             // re-animate the appearance of the notes for nice
             stopAnimation();
         }
+        return this.noteProvider;
     }
 
     @Override
@@ -274,7 +284,7 @@ public class MusicView extends BaseView {
         super.onDraw(canvas);
 
         // draw in the bounds allocated to us
-        ViewBounds bounds = new ViewBounds();
+        this.bounds = new ViewBounds();
         Assets assets = getAssets();
 
         // calculate the draw time
@@ -298,21 +308,21 @@ public class MusicView extends BaseView {
         this.lastDrawn = currentTime;
 
         // draw the active clef lines on the view
-        float lineCount = K_LINES_ON_VIEW + (K_LINES_ABOVEBELOW * 2);
-        float spaceCount = lineCount + 1;
-        int noteCount = (int)((lineCount * 2f) + 1f);
+        this.lineCount = K_LINES_ON_VIEW + (K_LINES_ABOVEBELOW * 2);
+        this.spaceCount = lineCount + 1;
+        this.noteCount = (int)((lineCount * 2f) + 1f);
         if (this.clefNotes[Clefs.bass.val].getSize() != noteCount) {
             Log.error("There are incorrect number of notes in the bass list");
         }
         if (this.clefNotes[Clefs.treble.val].getSize() != noteCount) {
             Log.error("There are incorrect number of notes in the bass list");
         }
-        float lineHeight = bounds.contentHeight / spaceCount;
+        this.lineHeight = bounds.contentHeight / spaceCount;
         // the height of a note (in a space or on a line) will be half this then
-        float noteHeight = lineHeight * 0.5f;
+        this.noteHeight = lineHeight * 0.5f;
 
-        float clefHeight = lineHeight * K_LINES_ON_VIEW;
-        float clefWidth = clefHeight * 0.5f;
+        this.clefHeight = lineHeight * K_LINES_ON_VIEW;
+        this.clefWidth = clefHeight * 0.5f;
 
         for (int iLine = K_LINES_ABOVEBELOW; iLine < lineCount - K_LINES_ABOVEBELOW; ++iLine) {
             // for each line, draw them in
@@ -337,7 +347,7 @@ public class MusicView extends BaseView {
         canvas.restore();
 
         // get the active clef we are drawing the notes for
-        Clefs currentClef = this.noteProvider.getCurrentClef();
+        Clefs currentClef = this.noteProvider == null ? Clefs.treble : this.noteProvider.getCurrentClef();
         switch (currentClef) {
             case treble:
                 // the treble clef should have a zero offset to draw the correct diagram in
@@ -356,16 +366,15 @@ public class MusicView extends BaseView {
         float noteAnimationOffset = this.animator != null ? (this.animator.clefYOffset - this.animator.clefYTarget) : 0;
         if (null != this.noteProvider) {
             for (GameNote note : this.noteProvider.getNotesToDraw(K_VIEW_DURATION_SECONDS)) {
-                if (note.getChord().clef != currentClef) {
+                Game.GameEntry toDraw = note.getChord();
+                if (null == toDraw || toDraw.clef != currentClef) {
                     // not drawing this clef at this time, don't draw this note, or any subsequent ones
                     break;
                 }
                 else {
                     float stickX;
                     float xPosition = noteAreaLeft + (note.getSeconds() * secondsToPixels) - (noteRadius * 1.2f);
-
                     // for each note in the chord, find the position on the clef to draw it
-                    Game.GameEntry toDraw = note.getChord();
                     float topYPosition = -1f;
                     for (Note noteToDraw : toDraw.chord.notes) {
                         // for each note to draw, find it's location and draw it

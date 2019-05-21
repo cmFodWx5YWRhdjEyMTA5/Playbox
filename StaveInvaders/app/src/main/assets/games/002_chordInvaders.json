@@ -20,7 +20,6 @@
     {
       "name": "C Family Minors",
       "id" : "chord_attack_c_minors",
-      "image": "temp.png",
       "notes": [
         "t:D4,F4,A4:Dm",
         "t:E4,G4,B4:Em",
@@ -213,7 +212,6 @@
     {
       "name": "D Inversions",
       "id" : "chord_attack_d_majors_inv",
-      "image": "temp.png",
       "notes": [
         "t:D5,F#5,A5:D",
         "t:A4,D5,F#5:D",

@@ -32,6 +32,7 @@ public class GameProgressView extends BaseView {
     private String yAxisTitle;
 
     private boolean isDrawBpmValues = false;
+    private boolean isDrawLevelCount = false;
 
     private Game selectedChild = null;
 
@@ -110,7 +111,7 @@ public class GameProgressView extends BaseView {
 
         float graphRight = bounds.drawingRight - bounds.border;
         float graphLeft = bounds.drawingLeft + assets.letterPaint.getTextSize();
-        float graphTop = bounds.drawingTop + (isDrawBpmValues ? textBounds.height() : 0);
+        float graphTop = bounds.drawingTop + (isDrawBpmValues ? textBounds.height() * 0.5f : 0);
         float graphBottom = bounds.drawingBottom - (bounds.border * 2.5f);
 
         // draw around the graph here
@@ -127,14 +128,19 @@ public class GameProgressView extends BaseView {
                         graphLeft + i * entryWidth + 0.8f * entryWidth,
                         graphBottom);
                 float barWidth = barRect.width() / selectedClefs.length;
-                int topTempo = 0;
+                int minTempo = -1;
                 float topBarHeight = 0f;
                 for (int j = 0; j < selectedClefs.length; ++j) {
                     // for each clef, draw the bar
                     float progress = this.game.children[i].getGameProgress(selectedClefs[j]);
                     float barHeight = barRect.height() * progress;
                     topBarHeight = Math.max(barHeight, topBarHeight);
-                    topTempo = Math.max(this.game.children[i].getGameTopTempo(selectedClefs[j]), topTempo);
+                    if (minTempo < 0) {
+                        minTempo = this.game.children[i].getGameTopTempo(selectedClefs[j]);
+                    }
+                    else {
+                        minTempo = Math.min(this.game.children[i].getGameTopTempo(selectedClefs[j]), minTempo);
+                    }
                     if (barHeight <= 0f) {
                         // show a line of nothing
                         barHeight = assets.backgroundPaint.getStrokeWidth();
@@ -156,12 +162,12 @@ public class GameProgressView extends BaseView {
 
                 if (isDrawBpmValues) {
                     //draw the top BPM in on top of the bar here
-                    String progressText = Integer.toString(topTempo);
+                    String progressText = Integer.toString(minTempo);
                     assets.letterPaint.setTextScaleX(1f);
                     assets.letterPaint.setTextScaleX(Math.min(barRect.width() / assets.letterPaint.measureText(progressText), 1f));
                     canvas.drawText(progressText,
                             barRect.centerX(),
-                            topBarHeight - textBounds.height() * 0.5f,
+                            barRect.bottom - topBarHeight,// - textBounds.height() * 0.5f,
                             assets.letterPaint);
                 }
             }
@@ -180,7 +186,10 @@ public class GameProgressView extends BaseView {
         }
         // draw the number of passed games in on top
         assets.letterPaint.setTextScaleX(1f);
-        canvas.drawText(gameCount, letterLeft, bounds.drawingBottom, assets.letterPaint);
+
+        if (this.isDrawLevelCount) {
+            canvas.drawText(gameCount, letterLeft, bounds.drawingBottom, assets.letterPaint);
+        }
 
     }
 

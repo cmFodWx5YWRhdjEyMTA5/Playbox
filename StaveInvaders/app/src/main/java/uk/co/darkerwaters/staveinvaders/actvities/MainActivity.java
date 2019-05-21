@@ -3,6 +3,7 @@ package uk.co.darkerwaters.staveinvaders.actvities;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
@@ -23,6 +24,8 @@ import uk.co.darkerwaters.staveinvaders.games.GameList;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String K_OPEN_DRAWER = "open_drawer";
+
     private NavigationDrawerHandler navigationActor = null;
     private GridLayoutManager layoutManager;
     private RecyclerView recyclerView;
@@ -40,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         // create the nav listener
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         this.navigationActor = new NavigationDrawerHandler(this, drawer, toolbar);
 
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
@@ -54,7 +57,18 @@ public class MainActivity extends AppCompatActivity {
         }
         layoutManager = new GridLayoutManager(MainActivity.this, span);
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(new GameParentRecyclerAdapter(GameList.loadGamesFromAssets(application, this)));
+        recyclerView.setAdapter(new GameParentRecyclerAdapter(application, GameList.loadGamesFromAssets(application, this)));
+
+        // if we are sent a message to open the drawer, open it
+        boolean isOpenDrawer = this.getIntent().getBooleanExtra(K_OPEN_DRAWER, false);
+        if (isOpenDrawer) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    drawer.openDrawer(GravityCompat.START, true);
+                }
+            }, 250);
+        }
     }
 
     @Override

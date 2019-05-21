@@ -2,10 +2,12 @@ package uk.co.darkerwaters.staveinvaders.views;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 
-public class ClefsProgressView extends BaseView {
+public class CircleProgressView extends BaseView {
 
     private final static float K_START_ANGLE = 90f;
 
@@ -13,15 +15,15 @@ public class ClefsProgressView extends BaseView {
     private float progress = 0.33f;
     private String progressText = "60";
 
-    public ClefsProgressView(Context context) {
+    public CircleProgressView(Context context) {
         super(context);
     }
 
-    public ClefsProgressView(Context context, AttributeSet attrs) {
+    public CircleProgressView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public ClefsProgressView(Context context, AttributeSet attrs, int defStyle) {
+    public CircleProgressView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
@@ -75,10 +77,12 @@ public class ClefsProgressView extends BaseView {
 
         // finally the text in the middle
         float textSize = assets.letterPaint.getTextSize();
-        assets.letterPaint.setTextSize(mOval.height() * 0.5f);
+        assets.letterPaint.setTextSize(mOval.height() / progressText.length());
+        Rect textBounds = new Rect();
+        assets.letterPaint.getTextBounds(progressText, 0, progressText.length(), textBounds);
         canvas.drawText(progressText,
                 mOval.centerX(),
-                mOval.top + (mOval.height() * 0.7f),
+                mOval.centerY() + textBounds.height() * 0.5f,
                 assets.letterPaint);
         assets.letterPaint.setTextSize(textSize);
     }

@@ -17,7 +17,7 @@ public abstract class GamePlayer {
     public static final long K_HELP_CHANGE_TIME = 5000l;
     public static final long K_MIN_CHANGE_TIME = 10000l;
     public static final int K_CHANGE_TIME_SEC_ADD = 5;
-    public static final float K_CLEF_CHANGE_FREEBEE_SEC = 2.5f;
+    public static final float K_CLEF_CHANGE_FREEBEE_SEC = 5f;
 
     protected final Application application;
     protected final Game game;
@@ -35,7 +35,7 @@ public abstract class GamePlayer {
     protected final Random random = new Random();
 
     private final List<GameNote> activeNotes = new ArrayList<GameNote>();
-    private boolean insertTimeGap = true;
+    private float insertTimeGap = 0.0f;
 
     public GamePlayer(Application application, Game game) {
         this.application = application;
@@ -87,8 +87,12 @@ public abstract class GamePlayer {
             this.activeClef = clef;
             // when there is a change we want to give the player a change to see it before
             // it arrives, insert a little gap here then
-            this.insertTimeGap = true;
+            insertTimeGap(K_CLEF_CHANGE_FREEBEE_SEC);
         }
+    }
+
+    public void insertTimeGap(float timeGapSeconds) {
+        this.insertTimeGap += timeGapSeconds;
     }
 
     public boolean setPermittedClef(MusicView.Clefs clef, boolean isPermitted) {
@@ -114,8 +118,10 @@ public abstract class GamePlayer {
         MusicView.Clefs currentClef = this.activeClef;
         for (GameNote note : this.activeNotes) {
             // in the list of notes, the current clef is the one on the first we come across
-            currentClef = note.getChord().clef;
-            break;
+            if (null != note && null != note.getChord()) {
+                currentClef = note.getChord().clef;
+                break;
+            }
         }
         return currentClef;
     }
@@ -182,15 +188,15 @@ public abstract class GamePlayer {
 
         // do we need any more notes in our list we will return now we have changed times?
         float lastNoteSeconds = getLastNoteSeconds(durationSeconds);
-        while (lastNoteSeconds < durationSeconds) {
+        while (lastNoteSeconds <= durationSeconds + 1) {
             // we need another at the correct interval from the last, add one here
             // 60 BPM == 1 bps so we want a note a second in this example, 1 over this to
             // return the seconds to the next note then please 1 / 2 == 0.5
             float seconds = lastNoteSeconds + (1 / getBeatsPerSecond());
-            if (this.insertTimeGap) {
+            if (this.insertTimeGap > 0f) {
                 // add a gap in here
-                seconds += K_CLEF_CHANGE_FREEBEE_SEC;
-                this.insertTimeGap = false;
+                seconds += this.insertTimeGap;
+                this.insertTimeGap = 0f;
             }
             // get the next note to draw
             this.activeNotes.add(new GameNote(getNextNote(this.activeClef, seconds), seconds));
@@ -227,7 +233,7 @@ public abstract class GamePlayer {
     private float getLastNoteSeconds(float durationSeconds) {
         if (this.activeNotes.isEmpty()) {
             // there are none
-            return 0f;
+            return durationSeconds;
         }
         else {
             return this.activeNotes.get(this.activeNotes.size() - 1).getSeconds();
@@ -235,4 +241,10 @@ public abstract class GamePlayer {
     }
 
 
+    public void startNewGame() {
+        // start a new game, stop help
+        setIsHelpOn(false);
+        // clear the notes
+        this.activeNotes.clear();
+    }
 }

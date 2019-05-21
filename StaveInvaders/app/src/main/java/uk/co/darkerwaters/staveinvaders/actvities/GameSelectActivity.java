@@ -6,29 +6,34 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.application.Log;
-import uk.co.darkerwaters.staveinvaders.application.Scores;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
 import uk.co.darkerwaters.staveinvaders.games.Game;
 import uk.co.darkerwaters.staveinvaders.games.GameList;
-import uk.co.darkerwaters.staveinvaders.games.GameParentCardHolder;
-import uk.co.darkerwaters.staveinvaders.views.ClefsProgressView;
+import uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder;
+import uk.co.darkerwaters.staveinvaders.views.ClefProgressView;
 import uk.co.darkerwaters.staveinvaders.views.GameProgressView;
 import uk.co.darkerwaters.staveinvaders.views.MusicView;
+
+import static uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder.K_SELECTED_CARD_FULL_NAME;
 
 public class GameSelectActivity extends AppCompatActivity {
 
     private Game parentGame = null;
     private Game selectedGame = null;
 
+    private ImageView imageViewTitlebar;
+    private TextView imageTitle;
+
     private GameProgressView progressView;
-    private ClefsProgressView trebleProgressView;
-    private ClefsProgressView bassProgressView;
+    private ClefProgressView trebleProgressView;
+    private ClefProgressView bassProgressView;
 
     private FloatingActionButton playActionButton;
 
@@ -52,6 +57,8 @@ public class GameSelectActivity extends AppCompatActivity {
         setContentView(R.layout.activity_game_select);
         this.application = (Application) this.getApplication();
 
+        this.imageTitle = findViewById(R.id.imageViewTitle);
+        this.imageViewTitlebar = findViewById(R.id.imageViewTitlebar);
         this.nextButton = findViewById(R.id.nextButton);
         this.prevButton = findViewById(R.id.prevButton);
         this.playActionButton = findViewById(R.id.playActionButton);
@@ -66,7 +73,7 @@ public class GameSelectActivity extends AppCompatActivity {
         this.bassProgress = findViewById(R.id.bass_progress_layout);
 
         Intent intent = getIntent();
-        String parentGameName = intent.getStringExtra(GameParentCardHolder.K_SELECTED_CARD_FULL_NAME);
+        String parentGameName = intent.getStringExtra(K_SELECTED_CARD_FULL_NAME);
         this.parentGame = GameList.findLoadedGame(parentGameName);
         if (null == this.parentGame) {
             Log.error("Game name of " + parentGameName + " does not correspond to a game");
@@ -143,16 +150,11 @@ public class GameSelectActivity extends AppCompatActivity {
     }
 
     private void playSelectedGame() {
-        //TODO play the selected game
-        Scores.Score score = this.application.getScores().getScore(this.selectedGame);
-        for (MusicView.Clefs clef : application.getSettings().getSelectedClefs()) {
-            score.setTopBpm(clef, 100);
-        }
-        score.setTopBpm(MusicView.Clefs.treble, 100);
-        score.setTopBpm(MusicView.Clefs.bass, 60);
-        this.application.getScores().setScore(score);
-        // update the view
-        setAvailableClefs(application.getSettings().getSelectedClefs());
+        // play the selected game by showing the game activity
+        Intent intent = new Intent(this, GamePlayActivity.class);
+        intent.putExtra(K_SELECTED_CARD_FULL_NAME, this.selectedGame.getFullName());
+        // and start the activity
+        startActivity(intent);
     }
 
     private boolean isGamePassed(Game game) {
@@ -218,13 +220,9 @@ public class GameSelectActivity extends AppCompatActivity {
         // update the game progress view
         this.progressView.invalidate();
         // and the progress views
-        float progress = this.selectedGame.getGameProgress(MusicView.Clefs.treble);
-        int topBpm = this.selectedGame.getGameTopTempo(MusicView.Clefs.treble);
-        this.trebleProgressView.setProgress(progress, Integer.toString(topBpm));
+        this.trebleProgressView.setProgress(this.selectedGame, MusicView.Clefs.treble);
         // and bass
-        progress = this.selectedGame.getGameProgress(MusicView.Clefs.bass);
-        topBpm = this.selectedGame.getGameTopTempo(MusicView.Clefs.bass);
-        this.bassProgressView.setProgress(progress, Integer.toString(topBpm));
+        this.bassProgressView.setProgress(this.selectedGame, MusicView.Clefs.bass);
         // and enable the buttons
         enableNextAndBackButtons();
     }
@@ -241,6 +239,24 @@ public class GameSelectActivity extends AppCompatActivity {
         // and update the views
         progressView.invalidate();
         musicView.invalidate();
+
+        // and load the image for the title bar
+        setTitleImage(this.selectedGame);
+    }
+
+    private void setTitleImage(Game game) {
+        // set the title
+        this.imageTitle.setText(game.name);
+        if (null != game.image && false == game.image.isEmpty()) {
+            // set the image
+            this.imageViewTitlebar.setImageBitmap(GameParentCardHolder.getBitmapFromAssets(game.image, this));
+        }
+        else if (null != game.parent) {
+            setTitleImage(game.parent);
+        }
+        else {
+            this.imageViewTitlebar.setImageResource(R.drawable.piano);
+        }
     }
 
     private boolean changeSelectedGame(int change) {
