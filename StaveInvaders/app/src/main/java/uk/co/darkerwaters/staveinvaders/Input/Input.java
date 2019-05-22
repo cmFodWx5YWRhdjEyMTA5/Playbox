@@ -9,6 +9,8 @@ import uk.co.darkerwaters.staveinvaders.notes.Chord;
 public abstract class Input {
     protected final Application application;
 
+    public final static float K_DETECTION_PROBABILITY_THRESHOLD = 50f;
+
     public Input(Application application) {
         this.application = application;
     }

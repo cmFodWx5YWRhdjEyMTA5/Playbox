@@ -19,6 +19,7 @@ public abstract class BaseView extends View {
         protected final Paint outlinePaint;
         protected final Paint letterPaint;
         protected final Paint highlightPaint;
+        protected final Paint objectPaint;
 
         protected final Paint whitePaint;
         protected final Paint blackPaint;
@@ -51,6 +52,13 @@ public abstract class BaseView extends View {
             this.letterPaint.setAntiAlias(true);
             this.letterPaint.setTextAlign(Paint.Align.CENTER);
             this.letterPaint.setTextSize(36f);
+
+            this.objectPaint = new Paint();
+            this.objectPaint.setAntiAlias(true);
+            this.objectPaint.setStyle(Paint.Style.FILL);
+            this.objectPaint.setColor(getResources().getColor(R.color.primaryColor));
+            this.objectPaint.setShadowLayer(12, 6, 6, getResources().getColor(R.color.primaryDarkColor));
+            setLayerType(LAYER_TYPE_SOFTWARE, this.objectPaint);
 
             this.whitePaint = new Paint();
             this.whitePaint.setStyle(Paint.Style.STROKE);

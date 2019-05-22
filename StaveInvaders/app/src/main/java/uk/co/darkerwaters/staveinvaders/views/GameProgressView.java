@@ -25,7 +25,6 @@ import uk.co.darkerwaters.staveinvaders.games.Game;
 public class GameProgressView extends BaseView {
 
     private Paint xAxisPaint;
-    private Paint barPaint;
 
     private Game game;
     private String xAxisTitle;
@@ -53,13 +52,6 @@ public class GameProgressView extends BaseView {
         // initialise the extras this view requires
         this.xAxisTitle = getResources().getText(R.string.xAxis).toString();
         this.yAxisTitle = getResources().getText(R.string.yAxis).toString();
-
-        this.barPaint = new Paint();
-        this.barPaint.setAntiAlias(true);
-        this.barPaint.setStyle(Paint.Style.FILL);
-        this.barPaint.setColor(getResources().getColor(R.color.primaryColor));
-        this.barPaint.setShadowLayer(12, 6, 6, getResources().getColor(R.color.primaryDarkColor));
-        setLayerType(LAYER_TYPE_SOFTWARE, this.barPaint);
 
         this.xAxisPaint = new Paint();
         this.xAxisPaint.setAntiAlias(true);
@@ -149,7 +141,7 @@ public class GameProgressView extends BaseView {
                             barRect.bottom - barHeight,
                             barRect.left + (barWidth * (j + 1)),
                             barRect.bottom);
-                    canvas.drawRoundRect(clefRect, bounds.border, bounds.border, this.barPaint);
+                    canvas.drawRoundRect(clefRect, bounds.border, bounds.border, assets.objectPaint);
                 }
                 if (this.game.children[i] == this.selectedChild) {
                     // this is the selected child game

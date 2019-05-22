@@ -228,6 +228,25 @@ public abstract class GamePlayer {
         }
     }
 
+    public boolean destroyNote(Game.GameEntry entry) {
+        // destroy the specified entry, hit!
+        GameNote toRemove = null;
+        for (GameNote note : this.activeNotes) {
+            if (note.getChord() == entry) {
+                // this is the one to destroy
+                toRemove = note;
+                break;
+            }
+        }
+        boolean isRemoved = false;
+        if (null != toRemove) {
+            isRemoved = this.activeNotes.remove(toRemove);
+        }
+        //TODO log the success of this note destruction
+
+        return isRemoved;
+    }
+
     protected abstract Game.GameEntry getNextNote(MusicView.Clefs activeClef, float seconds);
 
     private float getLastNoteSeconds(float durationSeconds) {

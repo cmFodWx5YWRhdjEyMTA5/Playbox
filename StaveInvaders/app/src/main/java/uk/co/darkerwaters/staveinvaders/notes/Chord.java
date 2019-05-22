@@ -116,6 +116,18 @@ public class Chord {
         return isContained;
     }
 
+    public int findNoteIndex(Note test) {
+        int foundIndex = -1;
+        for (int i = 0; i < notes.length; ++i) {
+            if (notes[i].frequency >= test.lower && notes[i].frequency <= test.upper) {
+                // here it is
+                foundIndex = i;
+                break;
+            }
+        }
+        return foundIndex;
+    }
+
     public int getNumberContained(Chord toTest) {
         int count = 0;
         for (Note test : toTest.notes) {

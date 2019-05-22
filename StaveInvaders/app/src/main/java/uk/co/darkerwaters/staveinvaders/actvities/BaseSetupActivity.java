@@ -6,6 +6,7 @@ import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
+import uk.co.darkerwaters.staveinvaders.input.Input;
 import uk.co.darkerwaters.staveinvaders.input.InputMidi;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
 import uk.co.darkerwaters.staveinvaders.views.PianoPlaying;
@@ -54,7 +55,7 @@ public abstract class BaseSetupActivity extends AppCompatActivity implements
     @Override
     public void onNoteDetected(Settings.InputType type, Chord chord, boolean isDetection, float probability) {
         // add to our range of notes we can detect
-        if (isDetection && probability > 50f) {
+        if (isDetection && probability > Input.K_DETECTION_PROBABILITY_THRESHOLD) {
             // depress this chord
             this.piano.depressNote(chord);
             // invalidate the view, the piano released a note
