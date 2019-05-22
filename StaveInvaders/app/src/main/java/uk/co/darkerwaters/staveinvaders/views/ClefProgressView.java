@@ -1,11 +1,9 @@
 package uk.co.darkerwaters.staveinvaders.views;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.RectF;
 import android.util.AttributeSet;
-import android.view.View;
 
+import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.games.Game;
 
 public class ClefProgressView extends CircleProgressView {
@@ -29,7 +27,7 @@ public class ClefProgressView extends CircleProgressView {
 
     }
 
-    public void setProgress(Game game, MusicView.Clefs clef) {
+    public void setProgress(Game game, Clef clef) {
         // set the progress for this game
         float progress = game.getGameProgress(clef);
         int tempo = game.getGameTopTempo(clef);

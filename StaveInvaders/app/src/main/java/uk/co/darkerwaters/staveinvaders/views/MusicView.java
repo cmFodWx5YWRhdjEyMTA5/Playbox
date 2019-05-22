@@ -15,6 +15,7 @@ import java.util.List;
 
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.application.Log;
+import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.games.Game;
 import uk.co.darkerwaters.staveinvaders.games.GameNote;
 import uk.co.darkerwaters.staveinvaders.games.GamePlayer;
@@ -34,27 +35,6 @@ public class MusicView extends BaseView {
     protected float lineHeight;
     protected float noteHeight;
     protected float clefHeight;
-
-    // there are 2 of many things (treble and bass)
-    public enum Clefs {
-        treble(0, "B4"),
-        bass(1, "D3");
-
-        public final int val;
-        public final String middleNoteName;
-        Clefs(int val, String middleNoteName) {
-            this.val = val;
-            this.middleNoteName = middleNoteName;
-        }
-        public static Clefs get(int val) {
-            for (Clefs stave : Clefs.values()) {
-                if (stave.val == val) {
-                    return stave;
-                }
-            }
-            return null;
-        }
-    }
 
     private class MusicViewBounds extends ViewBounds {
         MusicViewBounds() {
@@ -91,7 +71,7 @@ public class MusicView extends BaseView {
 
     // the notes we are drawing on the clefs
     private Chords[] clefNotes;
-    private List<Clefs> permittedClefs;
+    private List<Clef> permittedClefs;
 
     private VectorDrawableCompat trebleDrawable;
     private VectorDrawableCompat bassDrawable;
@@ -182,7 +162,7 @@ public class MusicView extends BaseView {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    public boolean setPermittedClef(MusicView.Clefs clef, boolean isPermitted) {
+    public boolean setPermittedClef(Clef clef, boolean isPermitted) {
         boolean result;
         if (isPermitted) {
             result = this.permittedClefs.add(clef);
@@ -194,17 +174,17 @@ public class MusicView extends BaseView {
         return result;
     }
 
-    public void setPermittedClefs(Clefs[] permittedClefs) {
+    public void setPermittedClefs(Clef[] permittedClefs) {
         // remove them all
         this.permittedClefs.clear();
         // put back those permitted
-        for (Clefs clef : permittedClefs) {
+        for (Clef clef : permittedClefs) {
             setPermittedClef(clef, true);
         }
         // and change the note provider if that is set
         if (null != this.noteProvider) {
-            this.noteProvider.setPermittedClef(Clefs.treble, this.permittedClefs.contains(Clefs.treble));
-            this.noteProvider.setPermittedClef(Clefs.bass, this.permittedClefs.contains(Clefs.bass));
+            this.noteProvider.setPermittedClef(Clef.treble, this.permittedClefs.contains(Clef.treble));
+            this.noteProvider.setPermittedClef(Clef.bass, this.permittedClefs.contains(Clef.bass));
         }
     }
 
@@ -216,8 +196,8 @@ public class MusicView extends BaseView {
             // get the game player for this game and setup the clefs
             this.noteProvider = game.getGamePlayer(this.application);
             // need to set the permitted clefs on this provider to match that selected here on this view
-            this.noteProvider.setPermittedClef(Clefs.treble, this.permittedClefs.contains(Clefs.treble));
-            this.noteProvider.setPermittedClef(Clefs.bass, this.permittedClefs.contains(Clefs.bass));
+            this.noteProvider.setPermittedClef(Clef.treble, this.permittedClefs.contains(Clef.treble));
+            this.noteProvider.setPermittedClef(Clef.bass, this.permittedClefs.contains(Clef.bass));
             // re-animate the appearance of the notes for nice
             stopAnimation();
         }
@@ -230,15 +210,15 @@ public class MusicView extends BaseView {
         // create the notes that
         // represent the notes we are drawing, there will be one or three (flats and sharps)
         Chords singleChords = this.application.getSingleChords();
-        this.clefNotes = new Chords[Clefs.values().length];
+        this.clefNotes = new Chords[Clef.values().length];
         // by default both clefs are active
-        this.permittedClefs = new ArrayList<Clefs>(2);
-        this.permittedClefs.add(Clefs.treble);
-        this.permittedClefs.add(Clefs.bass);
+        this.permittedClefs = new ArrayList<Clef>(2);
+        this.permittedClefs.add(Clef.treble);
+        this.permittedClefs.add(Clef.bass);
 
         for (int iClef = 0; iClef < this.clefNotes.length; ++iClef) {
             // for each clef, create the list of notes
-            Clefs clef = Clefs.get(iClef);
+            Clef clef = Clef.get(iClef);
             // find the middle note in the list of single notes
             int iMiddle = singleChords.getChordIndex(clef.middleNoteName);
             // now get all the notes down from here and add to the list
@@ -340,10 +320,10 @@ public class MusicView extends BaseView {
         this.lineCount = K_LINES_ON_VIEW + (K_LINES_ABOVEBELOW * 2);
         this.spaceCount = lineCount + 1;
         this.noteCount = (int)((lineCount * 2f) + 1f);
-        if (this.clefNotes[Clefs.bass.val].getSize() != noteCount) {
+        if (this.clefNotes[Clef.bass.val].getSize() != noteCount) {
             Log.error("There are incorrect number of notes in the bass list");
         }
-        if (this.clefNotes[Clefs.treble.val].getSize() != noteCount) {
+        if (this.clefNotes[Clef.treble.val].getSize() != noteCount) {
             Log.error("There are incorrect number of notes in the bass list");
         }
         this.lineHeight = bounds.drawingHeight / spaceCount;
@@ -376,7 +356,7 @@ public class MusicView extends BaseView {
         canvas.restore();
 
         // get the active clef we are drawing the notes for
-        Clefs currentClef = getCurrentClef();
+        Clef currentClef = getCurrentClef();
         switch (currentClef) {
             case treble:
                 // the treble clef should have a zero offset to draw the correct diagram in
@@ -452,11 +432,11 @@ public class MusicView extends BaseView {
         */
     }
 
-    protected Clefs getCurrentClef() {
-        return this.noteProvider == null ? Clefs.treble : this.noteProvider.getCurrentClef();
+    protected Clef getCurrentClef() {
+        return this.noteProvider == null ? Clef.treble : this.noteProvider.getCurrentClef();
     }
 
-    protected float getYPosition(Clefs clef, Note noteToDraw) {
+    protected float getYPosition(Clef clef, Note noteToDraw) {
         int noteToDrawIndex = this.clefNotes[clef.val].getChordIndex(noteToDraw.getFrequency());
         float yPosition = -1f;
         if (noteToDrawIndex >= 0) {

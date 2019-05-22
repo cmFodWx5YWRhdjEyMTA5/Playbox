@@ -14,10 +14,10 @@ import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.application.Scores;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
+import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.notes.Note;
 import uk.co.darkerwaters.staveinvaders.notes.Notes;
 import uk.co.darkerwaters.staveinvaders.notes.Range;
-import uk.co.darkerwaters.staveinvaders.views.MusicView;
 
 public class Game {
 
@@ -34,17 +34,17 @@ public class Game {
         public final String name;
         public final Chord chord;
         public final String fingering;
-        public final MusicView.Clefs clef;
+        public final Clef clef;
 
         GameEntry(Notes notes, String fileData) {
             // create the entry from the JSON data
             String[] entries = fileData.split(":");
             if (entries[0].equals("t")) {
                 // this is treble
-                clef = MusicView.Clefs.treble;
+                clef = Clef.treble;
             }
             else {
-                clef = MusicView.Clefs.bass;
+                clef = Clef.bass;
             }
             this.chord = createChord(notes, entries[1]);
             if (entries.length > 2) {
@@ -142,23 +142,23 @@ public class Game {
         return result;
     }
 
-    public float getGameProgress(MusicView.Clefs clef) {
+    public float getGameProgress(Clef clef) {
         // return the current progress acheived by this game
         return (float) getGameTopTempo(clef) / Scores.K_MAX_BPM;
     }
 
-    public int getGameTopTempo(MusicView.Clefs clef) {
+    public int getGameTopTempo(Clef clef) {
         // return the current top tempo acheived by this game
         Scores.Score score = this.application.getScores().getScore(this);
         return score.getTopBpm(clef);
     }
 
-    public boolean getIsGamePassed(MusicView.Clefs clef) {
+    public boolean getIsGamePassed(Clef clef) {
         // return if this game progress is enough to move on
         return getGameTopTempo(clef) >= Scores.K_PASS_BPM;
     }
 
-    public GameEntry[] getClefEntries(MusicView.Clefs clef) {
+    public GameEntry[] getClefEntries(Clef clef) {
         List<GameEntry> entries = new ArrayList<GameEntry>();
         for (GameEntry entry : this.entries) {
             if (entry.clef == clef) {

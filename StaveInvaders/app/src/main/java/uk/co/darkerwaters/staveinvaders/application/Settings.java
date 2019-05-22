@@ -2,11 +2,8 @@ package uk.co.darkerwaters.staveinvaders.application;
 
 import android.content.SharedPreferences;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import uk.co.darkerwaters.staveinvaders.Application;
-import uk.co.darkerwaters.staveinvaders.views.MusicView;
+import uk.co.darkerwaters.staveinvaders.notes.Clef;
 
 public class Settings {
     private final SharedPreferences preferences;
@@ -46,7 +43,7 @@ public class Settings {
     private boolean isHideTreble = false;
     private boolean isHideBass = false;
 
-    private String selectedClefs = MusicView.Clefs.treble.name();
+    private String selectedClefs = Clef.treble.name();
 
     public enum InputType {
         keys,
@@ -122,20 +119,20 @@ public class Settings {
         return this;
     }
 
-    public MusicView.Clefs[] getSelectedClefs() {
+    public Clef[] getSelectedClefs() {
         this.selectedClefs = this.preferences.getString(K_SELECTEDCLEF, this.selectedClefs);
         String[] clefStrings = this.selectedClefs.split(",");
-        MusicView.Clefs[] toReturn = new MusicView.Clefs[clefStrings.length];
+        Clef[] toReturn = new Clef[clefStrings.length];
         for (int i = 0; i < clefStrings.length; ++i) {
             // get the enum from the string representation
-            toReturn[i] = MusicView.Clefs.valueOf(MusicView.Clefs.class, clefStrings[i]);
+            toReturn[i] = Clef.valueOf(Clef.class, clefStrings[i]);
         }
         return toReturn;
     }
 
-    public Settings setSelectedClefs(MusicView.Clefs[] clefs) {
+    public Settings setSelectedClefs(Clef[] clefs) {
         StringBuilder builder = new StringBuilder();
-        for (MusicView.Clefs clef : clefs) {
+        for (Clef clef : clefs) {
             builder.append(clef.name());
             builder.append(",");
         }
@@ -190,7 +187,7 @@ public class Settings {
         return this;
     }
 
-    public boolean getIsHideClef(MusicView.Clefs clef) {
+    public boolean getIsHideClef(Clef clef) {
         boolean toReturn = false;
         switch (clef) {
             case treble: {
@@ -207,7 +204,7 @@ public class Settings {
         return toReturn;
     }
 
-    public Settings setIsHideClef(MusicView.Clefs clef, boolean isHideClef) {
+    public Settings setIsHideClef(Clef clef, boolean isHideClef) {
         switch (clef) {
             case treble: {
                 this.isHideTreble = isHideClef;

@@ -13,18 +13,16 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Set;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.actvities.GameSelectActivity;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
+import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.games.Game;
-import uk.co.darkerwaters.staveinvaders.views.CircleProgressView;
 import uk.co.darkerwaters.staveinvaders.views.ClefProgressView;
 import uk.co.darkerwaters.staveinvaders.views.GameProgressView;
 import uk.co.darkerwaters.staveinvaders.views.LevelProgressView;
-import uk.co.darkerwaters.staveinvaders.views.MusicView;
 
 public class GameParentCardHolder extends RecyclerView.ViewHolder {
 
@@ -59,11 +57,11 @@ public class GameParentCardHolder extends RecyclerView.ViewHolder {
         this.progressView.setVisibility(View.GONE);
         Settings settings = application.getSettings();
         // hide the treble / bass accordingly
-        if (settings.getIsHideClef(MusicView.Clefs.treble)) {
+        if (settings.getIsHideClef(Clef.treble)) {
             // hide treble
             this.parent.findViewById(R.id.treble_progress_layout).setVisibility(View.INVISIBLE);
         }
-        if (settings.getIsHideClef(MusicView.Clefs.bass)) {
+        if (settings.getIsHideClef(Clef.bass)) {
             // hide bass
             this.parent.findViewById(R.id.bass_progress_layout).setVisibility(View.INVISIBLE);
         }
@@ -80,8 +78,8 @@ public class GameParentCardHolder extends RecyclerView.ViewHolder {
         this.progressView.setViewData(card);
 
         // set the progress on the bass and treble views
-        this.trebleProgressView.setProgress(card, MusicView.Clefs.treble);
-        this.bassProgressView.setProgress(card, MusicView.Clefs.bass);
+        this.trebleProgressView.setProgress(card, Clef.treble);
+        this.bassProgressView.setProgress(card, Clef.bass);
 
         // and the levels too
         this.levelsProgressView.setProgress(card);

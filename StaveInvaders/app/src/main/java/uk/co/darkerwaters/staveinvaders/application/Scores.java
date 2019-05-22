@@ -3,8 +3,8 @@ package uk.co.darkerwaters.staveinvaders.application;
 import android.content.SharedPreferences;
 
 import uk.co.darkerwaters.staveinvaders.Application;
+import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.games.Game;
-import uk.co.darkerwaters.staveinvaders.views.MusicView;
 
 public class Scores {
 
@@ -35,7 +35,7 @@ public class Scores {
 
         Score(Game game) {
             this.game = game;
-            this.topBpm = new int[MusicView.Clefs.values().length];
+            this.topBpm = new int[Clef.values().length];
             for (int i = 0; i < this.topBpm.length; ++i) {
                 this.topBpm[i] = 0;
             }
@@ -45,12 +45,12 @@ public class Scores {
             return this.game;
         }
 
-        public void setTopBpm(MusicView.Clefs clef, int bpm) {
+        public void setTopBpm(Clef clef, int bpm) {
             // set this
             this.topBpm[clef.val] = bpm;
         }
 
-        public int getTopBpm(MusicView.Clefs clef) {
+        public int getTopBpm(Clef clef) {
             return this.topBpm[clef.val];
         }
     }
@@ -59,7 +59,7 @@ public class Scores {
         // get the score for this game, create the class
         Score score = new Score(game);
         // and set the data on this score class
-        for (MusicView.Clefs clef : MusicView.Clefs.values()) {
+        for (Clef clef : Clef.values()) {
             int topBpm = this.preferences.getInt(game.getFullName() + clef.name(), 0);
             score.setTopBpm(clef, topBpm);
         }
@@ -69,7 +69,7 @@ public class Scores {
 
     public void setScore(Score score) {
         // set the score in the preferences
-        for (MusicView.Clefs clef : MusicView.Clefs.values()) {
+        for (Clef clef : Clef.values()) {
             // put the score in for each clef against the name of the game
             this.editor.putInt(score.getGame().getFullName() + clef.name(), score.getTopBpm(clef));
         }

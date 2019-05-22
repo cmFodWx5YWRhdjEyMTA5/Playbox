@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.darkerwaters.staveinvaders.application.Settings;
+import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.games.Game;
 
 public class LevelProgressView extends CircleProgressView {
@@ -33,21 +34,21 @@ public class LevelProgressView extends CircleProgressView {
     public void setProgress(Game game) {
         // show the levels complete on both clefs
         Settings settings = this.application.getSettings();
-        List<MusicView.Clefs> clefs = new ArrayList<MusicView.Clefs>(2);
-        if (!settings.getIsHideClef(MusicView.Clefs.treble)) {
+        List<Clef> clefs = new ArrayList<Clef>(2);
+        if (!settings.getIsHideClef(Clef.treble)) {
             // are doing treble
-            clefs.add(MusicView.Clefs.treble);
+            clefs.add(Clef.treble);
         }
-        if (!settings.getIsHideClef(MusicView.Clefs.bass)) {
+        if (!settings.getIsHideClef(Clef.bass)) {
             // are doing bass
-            clefs.add(MusicView.Clefs.bass);
+            clefs.add(Clef.bass);
         }
         // draw the game count, how many are passed?
         int gamesPassed = 0;
         int gamesAvailable = 0;
         for (int i = 0; i < game.children.length; ++i) {
             // get the passed game count for the non-hidden clefs
-            for (MusicView.Clefs clef : clefs) {
+            for (Clef clef : clefs) {
                 // this is a game
                 ++gamesAvailable;
                 if (game.children[i].getIsGamePassed(clef)) {

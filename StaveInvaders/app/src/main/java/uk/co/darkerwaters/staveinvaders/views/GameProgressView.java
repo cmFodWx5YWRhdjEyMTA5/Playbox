@@ -2,21 +2,14 @@ package uk.co.darkerwaters.staveinvaders.views;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.LinearGradient;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.Shader;
 import android.util.AttributeSet;
-import android.view.View;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.application.Scores;
+import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.games.Game;
 
 /**
@@ -76,14 +69,14 @@ public class GameProgressView extends BaseView {
         canvas.drawRoundRect(bounds.paddingLeft, bounds.paddingTop, bounds.viewWidth, bounds.viewHeight, bounds.borderX, bounds.borderY, assets.backgroundPaint);
 
         // show the scores for the currently selected clefs
-        MusicView.Clefs[] selectedClefs = this.application.getSettings().getSelectedClefs();
+        Clef[] selectedClefs = this.application.getSettings().getSelectedClefs();
 
         // draw the game count, how many are passed?
         int gamesPassed = 0;
         for (int i = 0; i < this.game.children.length; ++i) {
             // get the passed game count for this clef
             boolean isPassed = true;
-            for (MusicView.Clefs clef : selectedClefs) {
+            for (Clef clef : selectedClefs) {
                 if (false == this.game.children[i].getIsGamePassed(clef)) {
                     // this game is not passed
                     isPassed = false;

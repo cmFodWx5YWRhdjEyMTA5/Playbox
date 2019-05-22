@@ -8,8 +8,7 @@ import java.util.Random;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.application.Log;
-import uk.co.darkerwaters.staveinvaders.notes.Chords;
-import uk.co.darkerwaters.staveinvaders.views.MusicView;
+import uk.co.darkerwaters.staveinvaders.notes.Clef;
 
 public abstract class GamePlayer {
 
@@ -25,9 +24,9 @@ public abstract class GamePlayer {
     private int beatsPerMinute = K_DEFAULT_BPM;
     private boolean isHelpOn = true;
 
-    private MusicView.Clefs activeClef;
-    private HashSet<MusicView.Clefs> permittedClefs = new HashSet<MusicView.Clefs>(2);
-    private HashSet<MusicView.Clefs> availableClefs = new HashSet<MusicView.Clefs>(2);
+    private Clef activeClef;
+    private HashSet<Clef> permittedClefs = new HashSet<Clef>(2);
+    private HashSet<Clef> availableClefs = new HashSet<Clef>(2);
 
     private long lastChangeTime = 0l;
     private long nextSheduledChangeTime = 0l;
@@ -53,10 +52,10 @@ public abstract class GamePlayer {
         }
         else {
             // just go with treble for now
-            this.activeClef = MusicView.Clefs.treble;
+            this.activeClef = Clef.treble;
         }
         // by default the permitted are all those available
-        for (MusicView.Clefs clef : this.availableClefs) {
+        for (Clef clef : this.availableClefs) {
             setPermittedClef(clef, true);
         }
     }
@@ -81,7 +80,7 @@ public abstract class GamePlayer {
         return this.isHelpOn;
     }
 
-    public void setActiveClef(MusicView.Clefs clef) {
+    public void setActiveClef(Clef clef) {
         if (clef != this.activeClef) {
             // this is a change, change it
             this.activeClef = clef;
@@ -95,7 +94,7 @@ public abstract class GamePlayer {
         this.insertTimeGap += timeGapSeconds;
     }
 
-    public boolean setPermittedClef(MusicView.Clefs clef, boolean isPermitted) {
+    public boolean setPermittedClef(Clef clef, boolean isPermitted) {
         boolean result;
         if (isPermitted) {
             result = this.permittedClefs.add(clef);
@@ -109,13 +108,13 @@ public abstract class GamePlayer {
         return result;
     }
 
-    public MusicView.Clefs getActiveClef() {
+    public Clef getActiveClef() {
         return this.activeClef;
     }
 
-    public MusicView.Clefs getCurrentClef() {
+    public Clef getCurrentClef() {
         // there might be notes from the old one
-        MusicView.Clefs currentClef = this.activeClef;
+        Clef currentClef = this.activeClef;
         for (GameNote note : this.activeNotes) {
             // in the list of notes, the current clef is the one on the first we come across
             if (null != note && null != note.getChord()) {
@@ -152,8 +151,8 @@ public abstract class GamePlayer {
         if (System.currentTimeMillis() > this.nextSheduledChangeTime) {
             // we are due a change on the permitted clefs
             boolean isActiveFound = false;
-            MusicView.Clefs newClef = null;
-            for (MusicView.Clefs clef : this.permittedClefs) {
+            Clef newClef = null;
+            for (Clef clef : this.permittedClefs) {
                 if (isActiveFound == false ) {
                     // not found the active one yet, is this it?
                     if (clef == this.activeClef) {
@@ -247,7 +246,7 @@ public abstract class GamePlayer {
         return isRemoved;
     }
 
-    protected abstract Game.GameEntry getNextNote(MusicView.Clefs activeClef, float seconds);
+    protected abstract Game.GameEntry getNextNote(Clef activeClef, float seconds);
 
     private float getLastNoteSeconds(float durationSeconds) {
         if (this.activeNotes.isEmpty()) {

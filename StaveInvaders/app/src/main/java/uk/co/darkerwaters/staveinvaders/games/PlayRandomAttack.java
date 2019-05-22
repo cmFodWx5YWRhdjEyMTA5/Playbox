@@ -1,13 +1,7 @@
 package uk.co.darkerwaters.staveinvaders.games;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 import uk.co.darkerwaters.staveinvaders.Application;
-import uk.co.darkerwaters.staveinvaders.application.Log;
-import uk.co.darkerwaters.staveinvaders.notes.Chords;
-import uk.co.darkerwaters.staveinvaders.views.MusicView;
+import uk.co.darkerwaters.staveinvaders.notes.Clef;
 
 public class PlayRandomAttack extends GamePlayer {
 
@@ -15,7 +9,7 @@ public class PlayRandomAttack extends GamePlayer {
         super(application, game);
     }
 
-    protected  Game.GameEntry getNextNote(MusicView.Clefs activeClef, float seconds) {
+    protected  Game.GameEntry getNextNote(Clef activeClef, float seconds) {
         // find the next random node in the list
         if (this.game.entries.length == 0) {
             return null;

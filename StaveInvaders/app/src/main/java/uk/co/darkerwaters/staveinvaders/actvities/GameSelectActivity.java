@@ -14,6 +14,7 @@ import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
+import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.games.Game;
 import uk.co.darkerwaters.staveinvaders.games.GameList;
 import uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder;
@@ -117,13 +118,13 @@ public class GameSelectActivity extends AppCompatActivity {
                 // set the available clefs on the game
                 switch (i) {
                     case R.id.radioTrebleClef:
-                        setAvailableClefs(new MusicView.Clefs[] {MusicView.Clefs.treble});
+                        setAvailableClefs(new Clef[] {Clef.treble});
                         break;
                     case R.id.radioBassClef:
-                        setAvailableClefs(new MusicView.Clefs[] {MusicView.Clefs.bass});
+                        setAvailableClefs(new Clef[] {Clef.bass});
                         break;
                     case R.id.radioMixedClefs:
-                        setAvailableClefs(new MusicView.Clefs[] {MusicView.Clefs.treble, MusicView.Clefs.bass});
+                        setAvailableClefs(new Clef[] {Clef.treble, Clef.bass});
                         break;
                 }
                 setTopGameSelected();
@@ -160,8 +161,8 @@ public class GameSelectActivity extends AppCompatActivity {
     private boolean isGamePassed(Game game) {
         // get the selected clefs and see if we passed them all
         boolean isPassed = true;
-        MusicView.Clefs[] selectedClefs = application.getSettings().getSelectedClefs();
-        for (MusicView.Clefs clef : selectedClefs) {
+        Clef[] selectedClefs = application.getSettings().getSelectedClefs();
+        for (Clef clef : selectedClefs) {
             if (false == game.getIsGamePassed(clef)) {
                 // this was not passed
                 isPassed = false;
@@ -171,26 +172,26 @@ public class GameSelectActivity extends AppCompatActivity {
         return isPassed;
     }
 
-    private void setAvailableClefs(MusicView.Clefs[] clefs) {
+    private void setAvailableClefs(Clef[] clefs) {
         // set this on the application so remembers the choice and updates the game, music view etc
         Settings settings = application.getSettings();
         settings.setSelectedClefs(clefs).commitChanges();
         // hide the checks if they are not available in the settings
-        if (settings.getIsHideClef(MusicView.Clefs.treble)) {
+        if (settings.getIsHideClef(Clef.treble)) {
             // hide it all as there is no choice to make
             this.radioClefs.setVisibility(View.GONE);
             // and set the selected clef to be bass, treble cannot be selected, nor can both
-            settings.setSelectedClefs(new MusicView.Clefs[] {MusicView.Clefs.bass});
+            settings.setSelectedClefs(new Clef[] {Clef.bass});
             // set the check item to match that set and available in the application
             this.radioClefs.check(R.id.radioBassClef);
         }
-        else if (settings.getIsHideClef(MusicView.Clefs.bass)) {
+        else if (settings.getIsHideClef(Clef.bass)) {
             // hide it all as there is no choice to make
             this.radioClefs.setVisibility(View.GONE);
             // and set the selected clef to be treble, bass cannot be selected, nor can both
-            settings.setSelectedClefs(new MusicView.Clefs[]{MusicView.Clefs.treble});
+            settings.setSelectedClefs(new Clef[]{Clef.treble});
         }
-        MusicView.Clefs[] selectedClefs = settings.getSelectedClefs();
+        Clef[] selectedClefs = settings.getSelectedClefs();
         // set the check item to match that set and available in the application
         if (selectedClefs.length == 2) {
             // both are selected
@@ -220,9 +221,9 @@ public class GameSelectActivity extends AppCompatActivity {
         // update the game progress view
         this.progressView.invalidate();
         // and the progress views
-        this.trebleProgressView.setProgress(this.selectedGame, MusicView.Clefs.treble);
+        this.trebleProgressView.setProgress(this.selectedGame, Clef.treble);
         // and bass
-        this.bassProgressView.setProgress(this.selectedGame, MusicView.Clefs.bass);
+        this.bassProgressView.setProgress(this.selectedGame, Clef.bass);
         // and enable the buttons
         enableNextAndBackButtons();
     }
@@ -232,7 +233,7 @@ public class GameSelectActivity extends AppCompatActivity {
         gameTitle.setText(this.selectedGame.name);
         progressView.setSelectedChild(this.selectedGame);
         // set the clefs available properly
-        MusicView.Clefs[] selectedClefs = this.application.getSettings().getSelectedClefs();
+        Clef[] selectedClefs = this.application.getSettings().getSelectedClefs();
         setAvailableClefs(selectedClefs);
         // set this on the music view
         musicView.setActiveGame(this.selectedGame);
