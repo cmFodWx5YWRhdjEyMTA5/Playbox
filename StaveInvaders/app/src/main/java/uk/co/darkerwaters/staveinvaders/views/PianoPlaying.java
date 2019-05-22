@@ -1,5 +1,6 @@
 package uk.co.darkerwaters.staveinvaders.views;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -80,22 +81,56 @@ public class PianoPlaying extends PianoView {
         }
     }
 
+    public void releaseAllNotes() {
+        // release everything
+        Chord[] notesReleased;
+        synchronized (this.depressedNotes) {
+            notesReleased = this.depressedNotes.toArray(new Chord[0]);
+            this.depressedNotes.clear();
+        }
+        // and inform the listeners
+        synchronized (this.listeners) {
+            for (Chord released : notesReleased) {
+                for (IPianoViewListener listener : this.listeners) {
+                    listener.noteReleased(released);
+                }
+            }
+        }
+        // and invalidate this view
+        invalidateOurselves();
+    }
+
     public void releaseNote(Chord note) {
         // release this specified note
         synchronized (this.depressedNotes) {
+            List<Chord> toRemove = new ArrayList<Chord>();
             for (Chord chord : this.depressedNotes) {
                 if (chord.equals(note)) {
                     // this is it
-                    this.depressedNotes.remove(note);
-                    break;
+                    toRemove.add(chord);
                 }
             }
+            this.depressedNotes.removeAll(toRemove);
         }
         // and inform the listeners
         synchronized (this.listeners) {
             for (IPianoViewListener listener : this.listeners) {
                 listener.noteReleased(note);
             }
+        }
+        // and invalidate this view
+        invalidateOurselves();
+    }
+
+    private void invalidateOurselves() {
+        Context context = getContext();
+        if (null != context && context instanceof Activity) {
+            ((Activity)context).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    invalidate();
+                }
+            });
         }
     }
 

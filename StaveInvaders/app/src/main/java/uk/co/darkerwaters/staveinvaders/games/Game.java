@@ -144,7 +144,7 @@ public class Game {
 
     public float getGameProgress(Clef clef) {
         // return the current progress acheived by this game
-        return (float) getGameTopTempo(clef) / Scores.K_MAX_BPM;
+        return (float) getGameTopTempo(clef) / GameScore.K_MAX_BPM;
     }
 
     public int getGameTopTempo(Clef clef) {
@@ -155,7 +155,7 @@ public class Game {
 
     public boolean getIsGamePassed(Clef clef) {
         // return if this game progress is enough to move on
-        return getGameTopTempo(clef) >= Scores.K_PASS_BPM;
+        return getGameTopTempo(clef) >= GameScore.K_PASS_BPM;
     }
 
     public GameEntry[] getClefEntries(Clef clef) {
@@ -169,19 +169,33 @@ public class Game {
     }
 
     public Range getNoteRange() {
+        return getNoteRange(new Clef[] {Clef.treble, Clef.bass});
+    }
+
+    public Range getNoteRange(Clef[] selectedClefs) {
         // go through all the notes to find the lowest and highest of them all
         Range range = new Range((Chord)null, (Chord)null);
         for (int i = 0; i < this.entries.length; ++i) {
-            Chord playable= this.entries[i].chord;
-            Note lowest = playable.getLowest();
-            if (range.getStart() == null || lowest.getFrequency() < range.getStart().getHighest().getFrequency()) {
-                // this is before the current start
-                range.setStart(new Chord(new Note[]{lowest}));
+            // only look at entries for the selected clefs
+            Chord playable = null;
+            for (int j = 0; j < selectedClefs.length; ++j) {
+                if (selectedClefs[j] == this.entries[i].clef) {
+                    // this is good
+                    playable = this.entries[i].chord;
+                    break;
+                }
             }
-            Note highest = playable.getHighest();
-            if (range.getEnd() == null || highest.getFrequency() > range.getEnd().getHighest().getFrequency()) {
-                // this is after the current end
-                range.setEnd(new Chord(new Note[]{highest}));
+            if (null != playable) {
+                Note lowest = playable.getLowest();
+                if (range.getStart() == null || lowest.getFrequency() < range.getStart().getHighest().getFrequency()) {
+                    // this is before the current start
+                    range.setStart(new Chord(new Note[]{lowest}));
+                }
+                Note highest = playable.getHighest();
+                if (range.getEnd() == null || highest.getFrequency() > range.getEnd().getHighest().getFrequency()) {
+                    // this is after the current end
+                    range.setEnd(new Chord(new Note[]{highest}));
+                }
             }
         }
         return range;

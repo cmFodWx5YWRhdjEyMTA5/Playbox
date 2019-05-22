@@ -39,7 +39,7 @@
                 app:layout_constraintTop_toTopOf="@+id/musicView" />
         </android.support.constraint.ConstraintLayout>
 
-        <uk.co.darkerwaters.staveinvaders.views.PianoView
+        <uk.co.darkerwaters.staveinvaders.views.PianoTouchable
             android:id="@+id/pianoView"
             android:layout_weight="2"
             android:layout_width="match_parent"

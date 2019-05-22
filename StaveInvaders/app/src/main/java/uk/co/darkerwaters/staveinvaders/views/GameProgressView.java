@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.application.Scores;
+import uk.co.darkerwaters.staveinvaders.games.GameScore;
 import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.games.Game;
 
@@ -141,7 +142,7 @@ public class GameProgressView extends BaseView {
                     barRect.top = graphTop;
                     canvas.drawRoundRect(barRect, bounds.borderX, bounds.borderY, assets.highlightPaint);
                     // and to the level at which we would pass the bar
-                    float passLine = barRect.bottom - Scores.K_PASS_BPM_FACTOR * barRect.height();
+                    float passLine = barRect.bottom - GameScore.K_PASS_BPM_FACTOR * barRect.height();
                     canvas.drawLine(barRect.left, passLine, barRect.right, passLine, assets.blackPaint);
                 }
 

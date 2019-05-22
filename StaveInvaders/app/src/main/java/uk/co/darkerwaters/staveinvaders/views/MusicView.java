@@ -195,9 +195,11 @@ public class MusicView extends BaseView {
         else {
             // get the game player for this game and setup the clefs
             this.noteProvider = game.getGamePlayer(this.application);
-            // need to set the permitted clefs on this provider to match that selected here on this view
-            this.noteProvider.setPermittedClef(Clef.treble, this.permittedClefs.contains(Clef.treble));
-            this.noteProvider.setPermittedClef(Clef.bass, this.permittedClefs.contains(Clef.bass));
+            if (null != this.noteProvider) {
+                // need to set the permitted clefs on this provider to match that selected here on this view
+                this.noteProvider.setPermittedClef(Clef.treble, this.permittedClefs.contains(Clef.treble));
+                this.noteProvider.setPermittedClef(Clef.bass, this.permittedClefs.contains(Clef.bass));
+            }
             // re-animate the appearance of the notes for nice
             stopAnimation();
         }

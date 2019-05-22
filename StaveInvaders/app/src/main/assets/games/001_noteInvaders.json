@@ -123,6 +123,46 @@
         "b:F3:f",
         "b:C4:c"
       ]
+    },
+    {
+      "name": "Everything",
+      "id" : "note_attack_everything",
+      "notes": [
+        "t:A3:a",
+        "t:B3:b",
+        "t:C4:c",
+        "t:D4:d",
+        "t:E4:e",
+        "t:F4:f",
+        "t:G4:g",
+        "t:A4:a",
+        "t:B4:b",
+        "t:C5:c",
+        "t:D5:d",
+        "t:E5:e",
+        "t:F5:f",
+        "t:G5:g",
+        "t:A5:a",
+        "t:B5:b",
+        "t:C6:c",
+        "b:C2:c",
+        "b:D2:d",
+        "b:E2:e",
+        "b:F2:f",
+        "b:G2:g",
+        "b:A2:a",
+        "b:B2:b",
+        "b:C3:c",
+        "b:D3:d",
+        "b:E3:e",
+        "b:F3:f",
+        "b:G3:g",
+        "b:A3:a",
+        "b:B3:b",
+        "b:C4:c",
+        "b:D4:d",
+        "b:E4:e"
+      ]
     }
   ]
 }

@@ -47,7 +47,6 @@ public class ClefProgressView extends CircleProgressView {
                 tempo /= noPassed;
             }
         }
-
         super.setProgress(progress, Integer.toString(tempo));
     }
 }

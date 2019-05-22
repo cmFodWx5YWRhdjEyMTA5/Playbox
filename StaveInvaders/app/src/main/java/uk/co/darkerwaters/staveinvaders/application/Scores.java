@@ -8,13 +8,6 @@ import uk.co.darkerwaters.staveinvaders.games.Game;
 
 public class Scores {
 
-    public static final int[] K_BPMS = {20,40,60,80,100,130,150,180};
-    public static final int K_MIN_BPM = K_BPMS[0];
-    public static final int K_MAX_BPM = K_BPMS[K_BPMS.length - 1];
-
-    public static final int K_PASS_BPM = 100;
-    public static final float K_PASS_BPM_FACTOR = 0.50f;
-
     private final SharedPreferences preferences;
     private final Application application;
     private final SharedPreferences.Editor editor;

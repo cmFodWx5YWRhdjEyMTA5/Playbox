@@ -20,19 +20,19 @@ public class Notes {
         for (int index = 0; index < frequency_resources.length; ++index) {
             frequency = Float.parseFloat(frequency_resources[index]);
             if (index > 0) {
-                lower = frequency - (frequency - (Float.parseFloat(frequency_resources[index-1])) / 2.0f);
+                lower = frequency - ((frequency - Float.parseFloat(frequency_resources[index-1])) * 0.5f);
             }
             else {
                 // balance the first note range from the upper range
-                lower = frequency - ((Float.parseFloat(frequency_resources[index+1]) - frequency) / 2.0f);
+                lower = frequency - (Float.parseFloat(frequency_resources[index+1]) - frequency) * 0.5f;
             }
             if (index < frequency_resources.length - 1) {
                 // not over the end
-                upper = frequency + ((Float.parseFloat(frequency_resources[index+1]) - frequency) / 2.0f);
+                upper = frequency + (Float.parseFloat(frequency_resources[index+1]) - frequency) * 0.5f;
             }
             else {
                 // are at the end now - balance the range according to the lower
-                upper = frequency + (frequency - (Float.parseFloat(frequency_resources[index-1])) / 2.0f);
+                upper = frequency + (frequency - Float.parseFloat(frequency_resources[index-1])) * 0.5f;
             }
             // this note might be more than one (a sharp can be a flat too!)
             for (String noteName : nameArray[index].split("/")) {

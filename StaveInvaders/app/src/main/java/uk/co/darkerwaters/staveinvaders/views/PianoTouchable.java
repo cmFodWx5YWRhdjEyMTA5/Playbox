@@ -10,12 +10,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import uk.co.darkerwaters.staveinvaders.application.InputSelector;
+import uk.co.darkerwaters.staveinvaders.application.Settings;
+import uk.co.darkerwaters.staveinvaders.input.InputKeys;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
 import uk.co.darkerwaters.staveinvaders.notes.Chords;
 import uk.co.darkerwaters.staveinvaders.notes.Note;
 import uk.co.darkerwaters.staveinvaders.notes.Range;
 
-public class PianoTouchable extends PianoPlaying {
+public class PianoTouchable extends PianoPlaying implements InputSelector.InputTypeListener {
 
     private static final Integer K_INITIAL_NOTE_DEPRESSION_COUNT = 10;
     private static final Integer K_NOTE_DEPRESSION_COUNTER_INTERVAL = 100;
@@ -59,8 +62,24 @@ public class PianoTouchable extends PianoPlaying {
     }
 
     @Override
+    public void onInputTypeChanged(Settings.InputType newType) {
+        // when the input type changes, reset our touchable keys as might be active / or not
+        resetPlayableKeys();
+    }
+
+    public boolean getIsAllowTouch() {
+        InputSelector inputSelector = this.application.getInputSelector();
+        return this.isAllowTouch && null != inputSelector &&
+                inputSelector.getActiveInputType() == Settings.InputType.keys;
+    }
+
+    @Override
     protected void initialiseView(Context context) {
         super.initialiseView(context);
+
+        // listen to changes in input type
+        InputSelector inputSelector = this.application.getInputSelector();
+        inputSelector.addListener(this);
 
         Chords chords = this.application.getSingleChords();
         this.noteDepressionCount = new HashMap<Chord, Integer>(chords.getSize());
@@ -114,6 +133,11 @@ public class PianoTouchable extends PianoPlaying {
 
     @Override
     public void closeView() {
+        // remove as a listener
+        InputSelector inputSelector = this.application.getInputSelector();
+        if (null != inputSelector) {
+            inputSelector.removeListener(this);
+        }
         // stop the thread from reducing notes
         if (this.isThreadStarted) {
             this.isThreadStarted = false;
@@ -144,6 +168,24 @@ public class PianoTouchable extends PianoPlaying {
         }
         // and let the base do it's thing
         super.depressNote(chord);
+        // also - we are acting as an input device, inform the input manager of this action
+        InputSelector inputSelector = this.application.getInputSelector();
+        if (getIsAllowTouch() && null != inputSelector) {
+            // inform the input selector that a key was pressed here then
+            inputSelector.onNoteDetected(inputSelector.getActiveInput(), chord, true, 100f);
+        }
+    }
+
+    @Override
+    public void releaseNote(Chord note) {
+        // let the base do its thing
+        super.releaseNote(note);
+        // also - we are acting as an input device, inform the input manager of this action
+        InputSelector inputSelector = this.application.getInputSelector();
+        if (getIsAllowTouch() && null != inputSelector) {
+            // inform the input selector that a key was pressed here then
+            inputSelector.onNoteDetected(inputSelector.getActiveInput(), note, false, 0f);
+        }
     }
 
     @Override
@@ -169,7 +211,7 @@ public class PianoTouchable extends PianoPlaying {
             }
         }
         // reset the flag to create playable (touchable keys) if not allowed then will not
-        this.isCreatePlayableKeys = isAllowTouch;
+        this.isCreatePlayableKeys = getIsAllowTouch();
     }
 
     @Override

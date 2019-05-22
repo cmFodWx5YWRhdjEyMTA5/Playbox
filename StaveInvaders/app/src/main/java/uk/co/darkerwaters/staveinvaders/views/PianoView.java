@@ -19,10 +19,36 @@ import uk.co.darkerwaters.staveinvaders.notes.Range;
 
 public class PianoView extends BaseView {
 
+    private static final float K_VIEW_HEIGHT_FACTOR = 3f;
+
+    private PianoViewBounds bounds = null;
+
     public interface IPianoViewListener {
         void pianoViewSizeChanged(int w, int h, int oldw, int oldh);
         void noteReleased(Chord chord);
         void noteDepressed(Chord chord);
+    }
+
+    private class PianoViewBounds extends ViewBounds {
+        PianoViewBounds() {
+            super();
+        }
+
+        @Override
+        float calculateYBorder() {
+            // this is overridden because on this view we want to make sure we
+            // are super skinny, the width of drawing needs to be a lot more
+            // than the height to show it properly
+            if (this.viewWidth < this.viewHeight * K_VIEW_HEIGHT_FACTOR) {
+                // we are not wide enough, increase the Y border to shrink it down
+                float requiredHeight = this.viewWidth / K_VIEW_HEIGHT_FACTOR;
+                return (this.viewHeight - requiredHeight) * 0.5f;
+            }
+            else {
+                // just a little more than the base
+                return this.viewHeight * 0.15f;
+            }
+        }
     }
 
     private int whiteKeyCount = 0;
@@ -223,9 +249,9 @@ public class PianoView extends BaseView {
 
         if (this.whiteKeyCount > 0) {
             // allocations per draw cycle.
-            ViewBounds bounds = new ViewBounds();
+            this.bounds = new PianoViewBounds();
 
-            float keyWidth = (this.whiteKeyCount == 0 ? 5f : bounds.viewWidth / this.whiteKeyCount);
+            float keyWidth = (this.whiteKeyCount == 0 ? 5f : bounds.drawingWidth / this.whiteKeyCount);
             float sharpWidth = keyWidth * 0.4f;
 
             // get the notes and draw them then...
@@ -242,17 +268,17 @@ public class PianoView extends BaseView {
                 Chord currentNote = notes.getChord(noteIndex++);
                 if (false == currentNote.hasSharp()) {
                     // this is a white key, draw this
-                    RectF keyRect = new RectF(bounds.paddingLeft + (keyIndex * keyWidth),
-                            bounds.paddingTop,
-                            bounds.paddingLeft + ((keyIndex + 1) * keyWidth),
-                            bounds.viewHeight - bounds.paddingBottom);
+                    RectF keyRect = new RectF(bounds.drawingLeft + (keyIndex * keyWidth),
+                            bounds.drawingTop,
+                            bounds.drawingLeft + ((keyIndex + 1) * keyWidth),
+                            bounds.drawingBottom);
                     // draw this white key
                     drawKey(canvas, keyRect, currentNote);
 
                     if (isDrawNoteNames) {
                         canvas.drawText(isShowPrimatives ? "" + currentNote.root().getNotePrimative() : currentNote.getTitle(),
-                                keyRect.left + (keyWidth * 0.175f),
-                                keyRect.bottom - (keyWidth * 0.5f),
+                                keyRect.left + (keyWidth * 0.5f),
+                                keyRect.bottom - (keyWidth * 0.3f),
                                 assets.letterPaint);
                     }
                     // move on our white key counter
@@ -272,12 +298,12 @@ public class PianoView extends BaseView {
                     Chord blackNote = notes.getChord(noteIndex);
                     if (blackNote.hasSharp() && false == Float.isNaN(sharpOffsets[blackIndex])) {
                         // this is a sharp, draw this note now
-                        blackLeft = bounds.paddingLeft + ((keyIndex + 1) * keyWidth) - (sharpWidth * sharpOffsets[blackIndex]);
+                        blackLeft = bounds.drawingLeft + ((keyIndex + 1) * keyWidth) - (sharpWidth * sharpOffsets[blackIndex]);
                         // create the rect for this
                         RectF keyRect = new RectF(blackLeft,
-                                bounds.paddingTop,
+                                bounds.drawingTop,
                                 blackLeft + sharpWidth,
-                                (bounds.viewHeight * 0.7f) - bounds.paddingBottom);
+                                bounds.drawingTop + (bounds.drawingHeight * 0.7f));
                         // draw it
                         drawKey(canvas, keyRect, blackNote);
                     }

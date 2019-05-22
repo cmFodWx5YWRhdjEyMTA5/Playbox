@@ -75,11 +75,22 @@ public class CircleProgressView extends BaseView {
                 this.progress * 360f, false, assets.highlightPaint);
         assets.highlightPaint.setStrokeWidth(strokeWidth);
 
-        // finally the text in the middle
+        // finally the text in the middle,
+        String boundsText = progressText;
+        // we want to be at least 3 long for height calculation
+        switch (boundsText.length()) {
+            case 0 :
+                boundsText = "0";
+            case 1 :
+                boundsText = boundsText.charAt(0) + boundsText;
+            case 2 :
+                boundsText = boundsText + boundsText.charAt(1);
+        }
         float textSize = assets.letterPaint.getTextSize();
-        assets.letterPaint.setTextSize(mOval.height() / progressText.length());
+        assets.letterPaint.setTextSize(mOval.height() / boundsText.length());
         Rect textBounds = new Rect();
-        assets.letterPaint.getTextBounds(progressText, 0, progressText.length(), textBounds);
+
+        assets.letterPaint.getTextBounds(boundsText, 0, boundsText.length(), textBounds);
         canvas.drawText(progressText,
                 mOval.centerX(),
                 mOval.centerY() + textBounds.height() * 0.5f,

@@ -12,15 +12,19 @@ import uk.co.darkerwaters.staveinvaders.application.Settings;
 import uk.co.darkerwaters.staveinvaders.games.Game;
 import uk.co.darkerwaters.staveinvaders.games.GameList;
 import uk.co.darkerwaters.staveinvaders.games.GamePlayer;
+import uk.co.darkerwaters.staveinvaders.games.GameScore;
+import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.views.CircleProgressView;
 import uk.co.darkerwaters.staveinvaders.views.GameProgressView;
 import uk.co.darkerwaters.staveinvaders.views.MusicView;
 import uk.co.darkerwaters.staveinvaders.views.MusicViewPlaying;
+import uk.co.darkerwaters.staveinvaders.views.PianoPlaying;
+import uk.co.darkerwaters.staveinvaders.views.PianoTouchable;
 import uk.co.darkerwaters.staveinvaders.views.PianoView;
 
 import static uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder.K_SELECTED_CARD_FULL_NAME;
 
-public class GamePlayActivity extends AppCompatActivity {
+public class GamePlayActivity extends AppCompatActivity implements GamePlayer.GamePlayerListener {
 
     private static final long K_PLAY_COUNTDOWN = 5000l;
     private Application application;
@@ -29,7 +33,7 @@ public class GamePlayActivity extends AppCompatActivity {
 
     private CircleProgressView progressView;
     private MusicViewPlaying musicView;
-    private PianoView pianoView;
+    private PianoTouchable pianoView;
 
     private volatile boolean isPerformCountdown = true;
     private GamePlayer gamePlayer;
@@ -61,6 +65,11 @@ public class GamePlayActivity extends AppCompatActivity {
         musicView.setPermittedClefs(settings.getSelectedClefs());
         // create the game player and setup the music view accordingly
         this.gamePlayer = this.musicView.setActiveGame(this.selectedGame);
+        this.gamePlayer.addListener(this);
+
+        // and the piano
+        this.pianoView.setNoteRange(this.selectedGame.getNoteRange(settings.getSelectedClefs()), true);
+        this.pianoView.setIsAllowTouch(true);
     }
 
     @Override
@@ -135,5 +144,32 @@ public class GamePlayActivity extends AppCompatActivity {
             // turn help off, this sets us playing the game
             this.gamePlayer.startNewGame();
         }
+    }
+
+    @Override
+    public void onGameScoreChanged(GameScore score) {
+
+    }
+
+    @Override
+    public void onGameStateChanged() {
+
+    }
+
+    @Override
+    public void onGameTempoChanged(int tempo) {
+
+    }
+
+    @Override
+    public void onGameClefChanged(Clef clef) {
+        // set the range on the piano view accordingly
+        this.pianoView.setNoteRange(this.selectedGame.getNoteRange(new Clef[] {clef}), true);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                pianoView.invalidate();
+            }
+        });
     }
 }

@@ -56,7 +56,6 @@ public class MusicViewPlaying extends MusicView implements InputSelector.InputLi
 
     private Target target = null;
     private final List<Target> hitTargets = new ArrayList<Target>();
-    private boolean isHitTargetCheating = false;
 
     private final List<Note> detectedNotes = new ArrayList<Note>();
 
@@ -88,16 +87,6 @@ public class MusicViewPlaying extends MusicView implements InputSelector.InputLi
         this.laserPaint.setAlpha(150);
 
         this.application.getInputSelector().addListener(this);
-
-        //cheating!
-        //TODO remove this screen press cheat
-        setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // shoot at the current target
-                isHitTargetCheating = true;
-            }
-        });
     }
 
     @Override
@@ -113,21 +102,6 @@ public class MusicViewPlaying extends MusicView implements InputSelector.InputLi
         this.target = null;
         // let the base class draw things
         super.drawView(timeElapsed, assets, canvas);
-
-        if (this.isHitTargetCheating && null != this.target) {
-            // shoot dead accurately at the current target
-            synchronized (this.detectedNotes) {
-                for (Note note : this.target.entry.chord.notes) {
-                    this.detectedNotes.add(note);
-                }
-            }
-        }
-        else {
-            synchronized (this.detectedNotes) {
-                this.detectedNotes.clear();
-            }
-        }
-        this.isHitTargetCheating = false;
 
         Chord attempt;
         synchronized (this.detectedNotes) {
@@ -252,7 +226,7 @@ public class MusicViewPlaying extends MusicView implements InputSelector.InputLi
     }
 
     private void onTargetDestroyed() {
-        //handle the destroying of targets
+        // handle the destroying of targets
         if (null != this.noteProvider &&
                 null != this.target &&
                 this.noteProvider.destroyNote(this.target.entry)) {
@@ -260,9 +234,19 @@ public class MusicViewPlaying extends MusicView implements InputSelector.InputLi
             synchronized (this.hitTargets) {
                 this.hitTargets.add(this.target);
             }
+            // remove the notes we used from the list of detected
+            removeNotesFromDetected(this.target.entry.chord);
+
         }
         // the target is no longer valid, have killed it
         this.target = null;
+    }
+
+    private void onMissfire(Chord chord) {
+        // handle the scoring of this
+        if (null != this.noteProvider && null != this.target) {
+            this.noteProvider.registerMisfire(this.target.entry, chord);
+        }
     }
 
     @Override
@@ -286,6 +270,23 @@ public class MusicViewPlaying extends MusicView implements InputSelector.InputLi
         }
     }
 
+    private boolean removeNotesFromDetected(Chord chord) {
+        boolean retVal;
+        synchronized (this.detectedNotes) {
+            // remove all the notes in chord from the list of detected notes
+            List<Note> toRemove = new ArrayList<Note>();
+            for (Note note : chord.notes) {
+                for (Note detected : this.detectedNotes) {
+                    if (detected.equals(note)) {
+                        toRemove.add(detected);
+                    }
+                }
+            }
+            retVal = this.detectedNotes.removeAll(toRemove);
+        }
+        return retVal;
+    }
+
     @Override
     public void onNoteDetected(Settings.InputType type, Chord chord, boolean isDetection, float probability) {
         // as a note is pressed, build our chord of notes we are firing at
@@ -301,8 +302,10 @@ public class MusicViewPlaying extends MusicView implements InputSelector.InputLi
             }
             else {
                 // this is a release, remove these notes
-                for (Note note : chord.notes) {
-                    this.detectedNotes.remove(note);
+                if (removeNotesFromDetected(chord)) {
+                    // this was removed, so it was not removed when it hit something
+                    // this is a missfire then
+                    onMissfire(chord);
                 }
             }
         }

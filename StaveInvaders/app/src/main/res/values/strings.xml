@@ -43,7 +43,7 @@
     <string name="bass_score_title">Top Tempo</string>
     <string name="hide_treble">Hide treble clef</string>
     <string name="hide_bass">Hide bass clef</string>
-    <string name="levels">Levels Copmlete</string>
-    <string name="treble_parent_score_title">Avg Tempo</string>
-    <string name="bass_parent_score_title">Avg Tempo</string>
+    <string name="levels">Levels Complete</string>
+    <string name="treble_parent_score_title">Average\nTempo</string>
+    <string name="bass_parent_score_title">Average\nTempo</string>
 </resources>
