@@ -210,7 +210,7 @@ public class PianoView extends BaseView {
             return 5;
         }
         else {
-            return (int)(bounds.contentWidth / this.whiteKeyCount);
+            return (int)(bounds.viewWidth / this.whiteKeyCount);
         }
     }
 
@@ -225,7 +225,7 @@ public class PianoView extends BaseView {
             // allocations per draw cycle.
             ViewBounds bounds = new ViewBounds();
 
-            float keyWidth = (this.whiteKeyCount == 0 ? 5f : bounds.contentWidth / this.whiteKeyCount);
+            float keyWidth = (this.whiteKeyCount == 0 ? 5f : bounds.viewWidth / this.whiteKeyCount);
             float sharpWidth = keyWidth * 0.4f;
 
             // get the notes and draw them then...
@@ -245,7 +245,7 @@ public class PianoView extends BaseView {
                     RectF keyRect = new RectF(bounds.paddingLeft + (keyIndex * keyWidth),
                             bounds.paddingTop,
                             bounds.paddingLeft + ((keyIndex + 1) * keyWidth),
-                            bounds.contentHeight - bounds.paddingBottom);
+                            bounds.viewHeight - bounds.paddingBottom);
                     // draw this white key
                     drawKey(canvas, keyRect, currentNote);
 
@@ -277,7 +277,7 @@ public class PianoView extends BaseView {
                         RectF keyRect = new RectF(blackLeft,
                                 bounds.paddingTop,
                                 blackLeft + sharpWidth,
-                                (bounds.contentHeight * 0.7f) - bounds.paddingBottom);
+                                (bounds.viewHeight * 0.7f) - bounds.paddingBottom);
                         // draw it
                         drawKey(canvas, keyRect, blackNote);
                     }

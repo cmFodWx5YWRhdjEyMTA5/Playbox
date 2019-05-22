@@ -24,6 +24,8 @@ import uk.co.darkerwaters.staveinvaders.notes.Note;
 
 public class MusicView extends BaseView {
 
+    private static final float K_VIEW_HEIGHT_FACTOR = 3f;
+
     protected ViewBounds bounds;
     protected float clefWidth;
     protected int lineCount;
@@ -54,7 +56,29 @@ public class MusicView extends BaseView {
         }
     }
 
-    private final static float K_VIEW_DURATION_SECONDS = 10f;
+    private class MusicViewBounds extends ViewBounds {
+        MusicViewBounds() {
+            super();
+        }
+
+        @Override
+        float calculateYBorder() {
+            // this is overridden because on this view we want to make sure we
+            // are super skinny, the width of drawing needs to be a lot more
+            // than the height to show it properly
+            if (this.viewWidth < this.viewHeight * K_VIEW_HEIGHT_FACTOR) {
+                // we are not wide enough, increase the Y border to shrink it down
+                float requiredHeight = this.viewWidth / K_VIEW_HEIGHT_FACTOR;
+                return (this.viewHeight - requiredHeight) * 0.5f;
+            }
+            else {
+                // just a little more than the base
+                return this.viewHeight * 0.15f;
+            }
+        }
+    }
+
+    private final static float K_VIEW_DURATION_SECONDS = 8f;
     private final static int K_LINES_ON_VIEW = 5;
     private final static int K_LINES_ABOVEBELOW = 2;
     private final static int K_NOTES_BELOW = 9;
@@ -109,7 +133,7 @@ public class MusicView extends BaseView {
 
         Animator(ViewBounds bounds) {
             // setup the speeds
-            this.clefSpeed = bounds.contentHeight / K_CLEFANIMATIONSECONDS;
+            this.clefSpeed = bounds.viewHeight / K_CLEFANIMATIONSECONDS;
             // start the thread
             this.animationThread.start();
         }
@@ -283,7 +307,8 @@ public class MusicView extends BaseView {
         super.onDraw(canvas);
 
         // draw in the bounds allocated to us
-        this.bounds = new ViewBounds();
+        this.bounds = new MusicViewBounds();
+
         Assets assets = getAssets();
 
         // calculate the draw time
@@ -303,7 +328,7 @@ public class MusicView extends BaseView {
         if (null == this.animator) {
             // start animating
             this.animator = new Animator(bounds);
-            this.animator.clefYTarget = -bounds.contentHeight * 0.5f;
+            this.animator.clefYTarget = -bounds.viewHeight * 0.5f;
         }
         this.animator.updateAnimations(timeElapsed);
         // also update the provider
@@ -321,7 +346,7 @@ public class MusicView extends BaseView {
         if (this.clefNotes[Clefs.treble.val].getSize() != noteCount) {
             Log.error("There are incorrect number of notes in the bass list");
         }
-        this.lineHeight = bounds.contentHeight / spaceCount;
+        this.lineHeight = bounds.drawingHeight / spaceCount;
         // the height of a note (in a space or on a line) will be half this then
         this.noteHeight = lineHeight * 0.5f;
 
@@ -345,7 +370,7 @@ public class MusicView extends BaseView {
         this.trebleDrawable.setBounds(0, 0, (int) clefWidth, (int) clefHeight);
         this.trebleDrawable.draw(canvas);
         // move down the height of the view and draw in the bass clef
-        canvas.translate(24, lineHeight * 0.25f + bounds.contentHeight);
+        canvas.translate(24, lineHeight * 0.25f + bounds.viewHeight);
         this.bassDrawable.setBounds(0, 0, (int) (clefWidth * 0.6f), (int) (clefHeight * 0.6f));
         this.bassDrawable.draw(canvas);
         canvas.restore();
@@ -359,7 +384,7 @@ public class MusicView extends BaseView {
                 break;
             case bass:
                 // the bass clef should be offset to draw the bass in (via the animator)
-                this.animator.clefYTarget = -bounds.contentHeight;
+                this.animator.clefYTarget = -bounds.viewHeight;
         }
 
         // calculate the area we want to draw the notes on here
@@ -405,16 +430,16 @@ public class MusicView extends BaseView {
                     }
                     // and the title if we are showing this helpful thing
                     if (toDraw.name != null && toDraw.name.isEmpty() == false) {
-                        Paint.FontMetrics fontMetrics = assets.letterPaint.getFontMetrics();
-                        float letterWidth = assets.letterPaint.measureText(toDraw.name);
-                        float xText = xPosition - letterWidth * 0.5f;
                         float yText = topYPosition - noteRadius * 2f;
-                        //canvas.drawRect(xText, yText + fontMetrics.top, xText + letterWidth, yText + fontMetrics.bottom, assets.whitePaint);
-                        canvas.drawText(toDraw.name, xText, yText, assets.letterPaint);
+                        /*Paint.FontMetrics fontMetrics = assets.letterPaint.getFontMetrics();
+                        float letterWidth = assets.letterPaint.measureText(toDraw.name);
+                        canvas.drawRect(xText, yText + fontMetrics.top, xPosition + letterWidth, yText + fontMetrics.bottom, assets.whitePaint);
+                        */
+                        canvas.drawText(toDraw.name, xPosition, yText, assets.letterPaint);
                     }
                     if (toDraw.fingering != null && toDraw.fingering.isEmpty() == false) {
-                        // there is a little left notation, draw this in now
-                        canvas.drawText("" + toDraw.fingering, xPosition - noteRadius * 3.5f, topYPosition, assets.letterPaint);
+                        // there is a little notation, draw this in now
+                        canvas.drawText("" + toDraw.fingering, xPosition, this.bounds.drawingBottom, assets.letterPaint);
                     }
                 }
             }

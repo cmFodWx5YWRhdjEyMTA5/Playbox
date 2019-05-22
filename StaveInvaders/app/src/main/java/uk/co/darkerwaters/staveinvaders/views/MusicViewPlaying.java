@@ -144,7 +144,7 @@ public class MusicViewPlaying extends MusicView implements InputSelector.InputLi
         // remember where we are shooting from
         float gunWidth = clefWidth * 0.5f;
         float startX = this.bounds.drawingLeft + 0.5f * gunWidth;
-        float startY = this.bounds.contentHeight - 0.5f * gunWidth;
+        float startY = this.bounds.viewHeight - 0.5f * gunWidth;
 
         Target[] targets;
         synchronized (this.hitTargets) {
@@ -220,14 +220,14 @@ public class MusicViewPlaying extends MusicView implements InputSelector.InputLi
 
         // now we can draw our gun and handle all that business
         canvas.drawOval(this.bounds.drawingLeft,
-                this.bounds.contentHeight - gunWidth,
+                this.bounds.viewHeight - gunWidth,
                 this.bounds.drawingLeft + gunWidth,
-                this.bounds.contentHeight,
+                this.bounds.viewHeight,
                 assets.objectPaint);
         canvas.drawRoundRect(this.bounds.drawingLeft,
-                this.bounds.contentHeight - gunWidth * 0.5f,
+                this.bounds.viewHeight - gunWidth * 0.5f,
                 this.bounds.drawingLeft + gunWidth,
-                this.bounds.contentHeight,
+                this.bounds.viewHeight,
                 5f, 5f,
                 assets.objectPaint);
     }

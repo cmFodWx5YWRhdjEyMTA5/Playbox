@@ -79,15 +79,19 @@ public abstract class BaseView extends View {
         final float paddingRight;
         final float paddingBottom;
 
-        final float contentWidth;
-        final float contentHeight;
+        final float viewWidth;
+        final float viewHeight;
 
-        final float border;
+        final float borderX;
+        final float borderY;
 
         final float drawingRight;
         final float drawingLeft;
         final float drawingTop;
         final float drawingBottom;
+
+        final float drawingHeight;
+        final float drawingWidth;
 
         ViewBounds() {
 
@@ -96,15 +100,27 @@ public abstract class BaseView extends View {
             paddingRight = getPaddingRight();
             paddingBottom = getPaddingBottom();
 
-            contentWidth = getContentWidth();
-            contentHeight = getContentHeight();
+            viewWidth = getContentWidth();
+            viewHeight = getContentHeight();
 
-            border = contentHeight * 0.1f;
+            borderX = calculateXBorder();
+            borderY = calculateYBorder();
 
-            drawingRight = contentWidth - (paddingLeft + border);
-            drawingLeft = paddingLeft + border;
-            drawingTop = paddingTop + border;
-            drawingBottom = contentHeight - (paddingBottom + border);
+            drawingRight = viewWidth - (paddingLeft + borderX);
+            drawingLeft = paddingLeft + borderX;
+            drawingTop = paddingTop + borderY;
+            drawingBottom = viewHeight - (paddingBottom + borderY);
+
+            drawingHeight = drawingBottom - drawingTop;
+            drawingWidth = drawingRight - drawingLeft;
+        }
+
+        float calculateXBorder() {
+            return this.viewHeight * 0.1f;
+        }
+
+        float calculateYBorder() {
+            return this.viewHeight * 0.1f;
         }
 
         int getContentWidth() {

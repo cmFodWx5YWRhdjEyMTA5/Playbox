@@ -54,7 +54,7 @@ public class CircleProgressView extends BaseView {
         Assets assets = getAssets();
         ViewBounds bounds = new ViewBounds();
         // the arc is a fraction of the width of the oval...
-        float scoreStroke = Math.min(bounds.contentWidth, bounds.contentHeight) * 0.1f;
+        float scoreStroke = Math.min(bounds.viewWidth, bounds.viewHeight) * 0.1f;
         // set the oval to fill the view (square normally)
         mOval = new RectF(
                 bounds.drawingLeft + (scoreStroke * 0.5f),

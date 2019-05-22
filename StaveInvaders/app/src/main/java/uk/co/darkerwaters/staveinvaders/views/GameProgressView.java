@@ -73,7 +73,7 @@ public class GameProgressView extends BaseView {
         ViewBounds bounds = new ViewBounds();
 
         // draw the outline of the view
-        canvas.drawRoundRect(bounds.paddingLeft, bounds.paddingTop, bounds.contentWidth, bounds.contentHeight, bounds.border, bounds.border, assets.backgroundPaint);
+        canvas.drawRoundRect(bounds.paddingLeft, bounds.paddingTop, bounds.viewWidth, bounds.viewHeight, bounds.borderX, bounds.borderY, assets.backgroundPaint);
 
         // show the scores for the currently selected clefs
         MusicView.Clefs[] selectedClefs = this.application.getSettings().getSelectedClefs();
@@ -101,10 +101,10 @@ public class GameProgressView extends BaseView {
         Rect textBounds = new Rect();
         assets.letterPaint.getTextBounds(gameCount, 0, gameCount.length() - 1, textBounds);
 
-        float graphRight = bounds.drawingRight - bounds.border;
+        float graphRight = bounds.drawingRight - bounds.borderX;
         float graphLeft = bounds.drawingLeft + assets.letterPaint.getTextSize();
         float graphTop = bounds.drawingTop + (isDrawBpmValues ? textBounds.height() * 0.5f : 0);
-        float graphBottom = bounds.drawingBottom - (bounds.border * 2.5f);
+        float graphBottom = bounds.drawingBottom - (bounds.borderY * 2.5f);
 
         // draw around the graph here
         //canvas.drawRoundRect(graphLeft, graphTop, graphRight, graphBottom, bounds.border, bounds.border, assets.outlinePaint);
@@ -141,12 +141,12 @@ public class GameProgressView extends BaseView {
                             barRect.bottom - barHeight,
                             barRect.left + (barWidth * (j + 1)),
                             barRect.bottom);
-                    canvas.drawRoundRect(clefRect, bounds.border, bounds.border, assets.objectPaint);
+                    canvas.drawRoundRect(clefRect, bounds.borderX, bounds.borderY, assets.objectPaint);
                 }
                 if (this.game.children[i] == this.selectedChild) {
                     // this is the selected child game
                     barRect.top = graphTop;
-                    canvas.drawRoundRect(barRect, bounds.border, bounds.border, assets.highlightPaint);
+                    canvas.drawRoundRect(barRect, bounds.borderX, bounds.borderY, assets.highlightPaint);
                     // and to the level at which we would pass the bar
                     float passLine = barRect.bottom - Scores.K_PASS_BPM_FACTOR * barRect.height();
                     canvas.drawLine(barRect.left, passLine, barRect.right, passLine, assets.blackPaint);
@@ -166,13 +166,13 @@ public class GameProgressView extends BaseView {
 
             // draw the graph titles here
             canvas.drawText(xAxisTitle,
-                    (bounds.contentWidth - assets.letterPaint.measureText(xAxisTitle)) * 0.5f,
-                    bounds.contentHeight - bounds.border * 0.5f,
+                    (bounds.viewWidth - assets.letterPaint.measureText(xAxisTitle)) * 0.5f,
+                    bounds.viewHeight - bounds.borderY * 0.5f,
                     assets.letterPaint);
             canvas.save();
             canvas.rotate(-90f, 0, 0);
             canvas.drawText(yAxisTitle,
-                    (bounds.contentHeight + assets.letterPaint.measureText(xAxisTitle)) * -0.25f,
+                    (bounds.viewHeight + assets.letterPaint.measureText(xAxisTitle)) * -0.25f,
                     assets.letterPaint.getTextSize(), assets.letterPaint);
             canvas.restore();
         }
