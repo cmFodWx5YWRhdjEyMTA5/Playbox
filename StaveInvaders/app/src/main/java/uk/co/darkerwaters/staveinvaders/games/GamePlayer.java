@@ -237,6 +237,10 @@ public abstract class GamePlayer implements GameProgressListener {
         return this.progresser.isGameActive();
     }
 
+    public boolean isHelpLettersShowing() {
+        return this.progresser.getIsHelpOn();
+    }
+
     public GameNote[] getNotesToDraw() {
         if (false == isGameActive()) {
             // just return all the notes divided by the interval over which we can draw

@@ -422,12 +422,15 @@ public class MusicView extends BaseView {
                     }
                     // and the title if we are showing this helpful thing
                     if (toDraw.name != null && toDraw.name.isEmpty() == false) {
-                        float yText = topYPosition - noteRadius * 2f;
-                        /*Paint.FontMetrics fontMetrics = assets.letterPaint.getFontMetrics();
-                        float letterWidth = assets.letterPaint.measureText(toDraw.name);
-                        canvas.drawRect(xText, yText + fontMetrics.top, xPosition + letterWidth, yText + fontMetrics.bottom, assets.whitePaint);
-                        */
-                        canvas.drawText(toDraw.name, xPosition, yText, assets.letterPaint);
+                        // there is a name, should we draw it
+                        if (false == this.noteProvider.isGameActive() || this.noteProvider.isHelpLettersShowing()) {
+                            float yText = topYPosition - noteRadius * 2f;
+                            /*Paint.FontMetrics fontMetrics = assets.letterPaint.getFontMetrics();
+                            float letterWidth = assets.letterPaint.measureText(toDraw.name);
+                            canvas.drawRect(xText, yText + fontMetrics.top, xPosition + letterWidth, yText + fontMetrics.bottom, assets.whitePaint);
+                            */
+                            canvas.drawText(toDraw.name, xPosition, yText, assets.letterPaint);
+                        }
                     }
                     if (toDraw.fingering != null && toDraw.fingering.isEmpty() == false) {
                         // there is a little notation, draw this in now

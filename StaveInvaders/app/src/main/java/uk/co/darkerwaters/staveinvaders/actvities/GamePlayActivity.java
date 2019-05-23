@@ -211,5 +211,7 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
     @Override
     public void onGameProgressLevelChanged(int tempo, boolean isHelpOn) {
         // TODO handle the level change by showing something on the screen...
+
+        // and update the child views to show the letters, or not
     }
 }
