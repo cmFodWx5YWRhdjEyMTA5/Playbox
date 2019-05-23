@@ -173,7 +173,7 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
         // start the game
         if (null != this.gamePlayer) {
             // turn help off, this sets us playing the game
-            this.gamePlayer.startNewGame(60, true);
+            this.gamePlayer.startNewGame(this.startingTempo, this.startingWithHelpOn);
         }
     }
 

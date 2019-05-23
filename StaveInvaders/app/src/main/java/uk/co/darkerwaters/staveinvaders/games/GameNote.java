@@ -5,15 +5,15 @@ import uk.co.darkerwaters.staveinvaders.notes.Chord;
 public class GameNote {
 
     private final Game.GameEntry entry;
-    private float seconds;
+    private float offsetBeats;
 
-    public GameNote(Game.GameEntry entry, float seconds) {
+    public GameNote(Game.GameEntry entry, float offsetBeats) {
         this.entry = entry;
-        this.seconds = seconds;
+        this.offsetBeats = offsetBeats;
     }
 
-    public float getSeconds() {
-        return this.seconds;
+    public float getOffsetBeats() {
+        return this.offsetBeats;
     }
 
     public Game.GameEntry getChord() {
@@ -21,7 +21,7 @@ public class GameNote {
     }
 
     public float adjustTime(float delta) {
-        this.seconds += delta;
-        return this.seconds;
+        this.offsetBeats += delta;
+        return this.offsetBeats;
     }
 }

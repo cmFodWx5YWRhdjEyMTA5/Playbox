@@ -11,13 +11,14 @@ import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.games.GameProgress.GameProgressListener;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
 import uk.co.darkerwaters.staveinvaders.notes.Clef;
+import uk.co.darkerwaters.staveinvaders.views.MusicView;
 
 public abstract class GamePlayer implements GameProgressListener {
 
     public static final long K_HELP_CHANGE_TIME = 5000l;
     public static final long K_MIN_CHANGE_TIME = 10000l;
-    public static final int K_CHANGE_TIME_SEC_ADD = 5;
-    public static final float K_CLEF_CHANGE_FREEBEE_SEC = 5f;
+    public static final int K_CHANGE_TIME_BEATS_ADD = 5;
+    public static final float K_CLEF_CHANGE_FREEBEE_BEATS = 5f;
 
     public interface GamePlayerListener {
         void onGameClefChanged(Clef clef);
@@ -76,7 +77,7 @@ public abstract class GamePlayer implements GameProgressListener {
             this.activeClef = clef;
             // when there is a change we want to give the player a change to see it before
             // it arrives, insert a little gap here then
-            insertTimeGap(K_CLEF_CHANGE_FREEBEE_SEC);
+            insertTimeGap(K_CLEF_CHANGE_FREEBEE_BEATS);
         }
     }
 
@@ -92,8 +93,8 @@ public abstract class GamePlayer implements GameProgressListener {
         }
     }
 
-    public void insertTimeGap(float timeGapSeconds) {
-        this.insertTimeGap += timeGapSeconds;
+    public void insertTimeGap(float timeGapBeats) {
+        this.insertTimeGap += timeGapBeats;
     }
 
     public boolean setPermittedClef(Clef clef, boolean isPermitted) {
@@ -131,12 +132,12 @@ public abstract class GamePlayer implements GameProgressListener {
         return this.progresser.getBeatsPerSecond();
     }
 
-    private void offsetNotes(float secondsDelta) {
+    private void offsetNotes(float beatsDelta) {
         // update our list of notes
         List<GameNote> toRemove = new ArrayList<GameNote>();
         for (GameNote note : this.activeNotes) {
             // remove the time from the note
-            if (note.adjustTime(secondsDelta) < 0f) {
+            if (note.adjustTime(beatsDelta) < 0f) {
                 // this has dropped below zero
                 toRemove.add(note);
                 // handle this failure to hit this note
@@ -147,9 +148,9 @@ public abstract class GamePlayer implements GameProgressListener {
         this.activeNotes.removeAll(toRemove);
     }
 
-    public void updateNotes(float secondsElapsed, float durationSeconds) {
+    public void updateNotes(float beatsElapsed) {
         // offset the notes the correct time
-        offsetNotes(-secondsElapsed);
+        offsetNotes(-beatsElapsed);
 
         // check the clef is correct
         if (false == permittedClefs.contains(this.activeClef) && false == permittedClefs.isEmpty()) {
@@ -188,27 +189,25 @@ public abstract class GamePlayer implements GameProgressListener {
                     this.nextSheduledChangeTime = System.currentTimeMillis() + K_HELP_CHANGE_TIME;
                 } else {
                     // schedule a new change, allowing for the current ones to clear from the list
-                    this.nextSheduledChangeTime = System.currentTimeMillis() + K_MIN_CHANGE_TIME + (this.random.nextInt(K_CHANGE_TIME_SEC_ADD) * 1000l);
+                    this.nextSheduledChangeTime = System.currentTimeMillis() + K_MIN_CHANGE_TIME + (this.random.nextInt(K_CHANGE_TIME_BEATS_ADD) * 1000l);
                 }
             }
         }
 
         // do we need any more notes in our list we will return now we have changed times?
-        float lastNoteSeconds = getLastNoteSeconds(durationSeconds);
-        while (lastNoteSeconds <= durationSeconds + 1) {
+        float lastNoteBeats = getLastNoteBeats();
+        while (lastNoteBeats <= MusicView.K_BEATS_ON_VIEW + 1) {
             // we need another at the correct interval from the last, add one here
-            // 60 BPM == 1 bps so we want a note a second in this example, 1 over this to
-            // return the seconds to the next note then please 1 / 2 == 0.5
-            float seconds = lastNoteSeconds + (1 / this.progresser.getBeatsPerSecond());
+            float beats = lastNoteBeats + 1;
             if (this.insertTimeGap > 0f) {
                 // add a gap in here
-                seconds += this.insertTimeGap;
+                beats += this.insertTimeGap;
                 this.insertTimeGap = 0f;
             }
             // get the next note to draw
-            this.activeNotes.add(new GameNote(getNextNote(this.activeClef, seconds), seconds));
+            this.activeNotes.add(new GameNote(getNextNote(this.activeClef, beats), beats));
             // this is the last one now
-            lastNoteSeconds = seconds;
+            lastNoteBeats = beats;
         }
         // this might have changed the current clef
         if (getCurrentClef() != this.broadcastClef) {
@@ -222,7 +221,7 @@ public abstract class GamePlayer implements GameProgressListener {
         }
     }
 
-    public GameNote[] getNotesToDraw(float durationSeconds) {
+    public GameNote[] getNotesToDraw() {
         if (false == this.progresser.isGameActive()) {
             // just return all the notes divided by the interval over which we can draw
             if (this.game.entries.length == 0) {
@@ -231,7 +230,7 @@ public abstract class GamePlayer implements GameProgressListener {
             }
             Game.GameEntry[] clefEntries = this.game.getClefEntries(this.activeClef);
             GameNote[] notes = new GameNote[clefEntries.length];
-            float interval = notes.length == 0 ? 1 : durationSeconds / notes.length;
+            float interval = notes.length == 0 ? 1 : MusicView.K_BEATS_ON_VIEW / (float)notes.length;
             for (int i = 0; i < notes.length; ++i) {
                 // create the note at the next time interval
                 notes[i] = new GameNote(clefEntries[i], i * interval + (interval * 0.5f));
@@ -257,7 +256,7 @@ public abstract class GamePlayer implements GameProgressListener {
         }
         float hitSeconds = -1f;
         if (null != toRemove) {
-            hitSeconds = toRemove.getSeconds();
+            hitSeconds = toRemove.getOffsetBeats();
             this.activeNotes.remove(toRemove);
         }
         // log the success of this note destruction
@@ -280,13 +279,13 @@ public abstract class GamePlayer implements GameProgressListener {
 
     protected abstract Game.GameEntry getNextNote(Clef activeClef, float seconds);
 
-    private float getLastNoteSeconds(float durationSeconds) {
+    private float getLastNoteBeats() {
         if (this.activeNotes.isEmpty()) {
             // there are none
-            return durationSeconds;
+            return MusicView.K_BEATS_ON_VIEW;
         }
         else {
-            return this.activeNotes.get(this.activeNotes.size() - 1).getSeconds();
+            return this.activeNotes.get(this.activeNotes.size() - 1).getOffsetBeats();
         }
     }
 
