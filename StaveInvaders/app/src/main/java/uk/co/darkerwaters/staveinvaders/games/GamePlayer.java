@@ -69,6 +69,7 @@ public abstract class GamePlayer implements GameProgressListener {
         // setup our score and progress class
         this.score = new GameScore(this.game);
         this.progresser = new GameProgress();
+        this.progresser.addListener(this);
     }
 
     public void setActiveClef(Clef clef) {
@@ -118,7 +119,11 @@ public abstract class GamePlayer implements GameProgressListener {
     public Clef getCurrentClef() {
         // there might be notes from the old one
         Clef currentClef = this.activeClef;
-        for (GameNote note : this.activeNotes) {
+        GameNote[] notes;
+        synchronized (this.activeNotes) {
+            notes = this.activeNotes.toArray(new GameNote[0]);
+        }
+        for (GameNote note : notes) {
             // in the list of notes, the current clef is the one on the first we come across
             if (null != note && null != note.getChord()) {
                 currentClef = note.getChord().clef;
@@ -134,18 +139,21 @@ public abstract class GamePlayer implements GameProgressListener {
 
     private void offsetNotes(float beatsDelta) {
         // update our list of notes
-        List<GameNote> toRemove = new ArrayList<GameNote>();
-        for (GameNote note : this.activeNotes) {
+        GameNote[] notes;
+        synchronized (this.activeNotes) {
+            notes = this.activeNotes.toArray(new GameNote[0]);
+        }
+        for (GameNote note : notes) {
             // remove the time from the note
             if (note.adjustTime(beatsDelta) < 0f) {
                 // this has dropped below zero
-                toRemove.add(note);
+                synchronized (this.activeNotes) {
+                    this.activeNotes.remove(note);
+                }
                 // handle this failure to hit this note
                 registerMiss(note.getChord());
             }
         }
-        // remove all the notes timed out
-        this.activeNotes.removeAll(toRemove);
     }
 
     public void updateNotes(float beatsElapsed) {
@@ -184,7 +192,9 @@ public abstract class GamePlayer implements GameProgressListener {
                 // and the new change time
                 if (false == progresser.isGameActive()) {
                     // clear the list of active notes to immediately refresh them
-                    this.activeNotes.clear();
+                    synchronized (this.activeNotes) {
+                        this.activeNotes.clear();
+                    }
                     // and schedule a new change
                     this.nextSheduledChangeTime = System.currentTimeMillis() + K_HELP_CHANGE_TIME;
                 } else {
@@ -205,7 +215,9 @@ public abstract class GamePlayer implements GameProgressListener {
                 this.insertTimeGap = 0f;
             }
             // get the next note to draw
-            this.activeNotes.add(new GameNote(getNextNote(this.activeClef, beats), beats));
+            synchronized (this.activeNotes) {
+                this.activeNotes.add(new GameNote(getNextNote(this.activeClef, beats), beats));
+            }
             // this is the last one now
             lastNoteBeats = beats;
         }
@@ -221,8 +233,12 @@ public abstract class GamePlayer implements GameProgressListener {
         }
     }
 
+    public boolean isGameActive() {
+        return this.progresser.isGameActive();
+    }
+
     public GameNote[] getNotesToDraw() {
-        if (false == this.progresser.isGameActive()) {
+        if (false == isGameActive()) {
             // just return all the notes divided by the interval over which we can draw
             if (this.game.entries.length == 0) {
                 // none, log this for the developer
@@ -240,14 +256,20 @@ public abstract class GamePlayer implements GameProgressListener {
         }
         else {
             // just return our active list of notes
-            return this.activeNotes.toArray(new GameNote[0]);
+            synchronized (this.activeNotes) {
+                return this.activeNotes.toArray(new GameNote[0]);
+            }
         }
     }
 
     public float destroyNote(Game.GameEntry entry) {
         // destroy the specified entry, hit!
         GameNote toRemove = null;
-        for (GameNote note : this.activeNotes) {
+        GameNote[] notes;
+        synchronized (this.activeNotes) {
+            notes = this.activeNotes.toArray(new GameNote[0]);
+        }
+        for (GameNote note : notes) {
             if (note.getChord() == entry) {
                 // this is the one to destroy
                 toRemove = note;
@@ -257,7 +279,9 @@ public abstract class GamePlayer implements GameProgressListener {
         float hitSeconds = -1f;
         if (null != toRemove) {
             hitSeconds = toRemove.getOffsetBeats();
-            this.activeNotes.remove(toRemove);
+            synchronized (this.activeNotes) {
+                this.activeNotes.remove(toRemove);
+            }
         }
         // log the success of this note destruction
         this.score.recordHit(entry.clef, this.progresser.getTempo(), entry.chord);
@@ -280,23 +304,36 @@ public abstract class GamePlayer implements GameProgressListener {
     protected abstract Game.GameEntry getNextNote(Clef activeClef, float seconds);
 
     private float getLastNoteBeats() {
-        if (this.activeNotes.isEmpty()) {
-            // there are none
-            return MusicView.K_BEATS_ON_VIEW;
-        }
-        else {
-            return this.activeNotes.get(this.activeNotes.size() - 1).getOffsetBeats();
+        synchronized (this.activeNotes) {
+            if (this.activeNotes.isEmpty()) {
+                // there are none
+                return MusicView.K_BEATS_ON_VIEW;
+            } else {
+                return this.activeNotes.get(this.activeNotes.size() - 1).getOffsetBeats();
+            }
         }
     }
 
     @Override
-    public void onGameProgressChanged(int score, int livesLeft, boolean isGameActive) {
-        // called as the progress of our current game changes
+    public void onGameProgressChanged(GameProgress source, GameProgress.Type type) {
+        // called as the progress of our current game changes,
+        switch (type) {
+            case unknown:
+            case shotLost:
+            case scoreChanged:
+            case statusChanged:
+                break;
+            case lifeLost:
+                // when we lose a life, give them a chance to recover
+                offsetNotes(K_CLEF_CHANGE_FREEBEE_BEATS);
+                break;
+        }
     }
 
     @Override
     public void onGameProgressLevelChanged(int tempo, boolean isHelpOn) {
-        //TODO handle the level change by giving them a second...
+        // handle the level change by giving them a second...
+        this.offsetNotes(K_CLEF_CHANGE_FREEBEE_BEATS);
     }
 
     public boolean addListener(GameProgressListener listener) {
@@ -311,6 +348,8 @@ public abstract class GamePlayer implements GameProgressListener {
         // start a new game, stop help
         this.progresser.startNewGame(tempo, isHelpOn);
         // clear the notes
-        this.activeNotes.clear();
+        synchronized (this.activeNotes) {
+            this.activeNotes.clear();
+        }
     }
 }

@@ -10,12 +10,14 @@ public class GameProgress {
 
     public static final int K_LEVEL_POINTS_GOAL = 100;
     public static final int K_LIVES = 5;
+    public static final int K_SHOTS = 10;
     public static final int K_MAX_HELP_TEMPO = GameScore.K_BPMS[4];
 
     private int tempo = GameScore.K_DEFAULT_BPM;
     private boolean isHelpOn = true;
     private int maxTempo = 0;
     private int livesLeft = 0;
+    private int shotsLeft = 0;
 
     private class Points {
         final Clef clef;
@@ -26,10 +28,18 @@ public class GameProgress {
         }
     }
 
+    public enum Type {
+        lifeLost,
+        shotLost,
+        scoreChanged,
+        statusChanged,
+        unknown,
+    }
+
     private Points[] points = new Points[Clef.values().length];
 
     public interface GameProgressListener {
-        void onGameProgressChanged(int score, int livesLeft, boolean isGameActive);
+        void onGameProgressChanged(GameProgress source, GameProgress.Type changeType);
         void onGameProgressLevelChanged(int tempo, boolean isHelpOn);
     }
 
@@ -45,10 +55,11 @@ public class GameProgress {
         this.isHelpOn = isHelpOn;
         this.maxTempo = 0;
         this.livesLeft = K_LIVES;
+        this.shotsLeft = K_SHOTS;
         // clear the points
         clearPointsAccumulation();
         // inform the listeners of the game state
-        informListeners();
+        informListeners(Type.statusChanged);
     }
 
     private void clearPointsAccumulation() {
@@ -58,17 +69,20 @@ public class GameProgress {
         }
     }
 
-    private void informListeners() {
+    public int getPoints() {
         int score = 0;
         for (Points point : this.points) {
             if (null != point) {
                 score += point.points;
             }
         }
-        boolean isGameActive = isGameActive();
+        return score;
+    }
+
+    private void informListeners(Type type) {
         synchronized (this.listeners) {
             for (GameProgressListener listener : this.listeners) {
-                listener.onGameProgressChanged(score, this.livesLeft, isGameActive);
+                listener.onGameProgressChanged(this, type);
             }
         }
     }
@@ -82,15 +96,19 @@ public class GameProgress {
     }
 
     public boolean isGameActive() {
-        return this.livesLeft > 0 && this.maxTempo < GameScore.K_MAX_BPM;
+        return this.livesLeft > 0 && this.shotsLeft > 0 && this.maxTempo < GameScore.K_MAX_BPM;
     }
 
     public boolean isGameWon() {
-        return this.maxTempo == GameScore.K_MAX_BPM && this.livesLeft > 0;
+        return this.maxTempo == GameScore.K_MAX_BPM && this.livesLeft > 0 && this.shotsLeft > 0;
     }
 
     public int getLivesLeft() {
         return this.livesLeft;
+    }
+
+    public int getShotsLeft() {
+        return this.shotsLeft;
     }
 
     public boolean addListener(GameProgressListener listener) {
@@ -154,7 +172,7 @@ public class GameProgress {
             informListenersLevelChanged();
         }
         // inform listeners of the change in score etc
-        informListeners();
+        informListeners(Type.scoreChanged);
     }
 
     public void recordHit(Clef clef, float hitSeconds) {
@@ -164,9 +182,9 @@ public class GameProgress {
         // the sooner they hit the note, the more points they get
         point.points += hitSeconds;
         // inform listeners of this change in points
-        informListeners();
+        informListeners(Type.scoreChanged);
         // do we need to change the level now?
-        if (point.points >= K_LEVEL_POINTS_GOAL) {
+        if (getPoints() >= K_LEVEL_POINTS_GOAL) {
             // have exceeded or met the goal, move on the tempo
             increaseTempo();
         }
@@ -176,13 +194,13 @@ public class GameProgress {
         // this causes a loss of a life
         --this.livesLeft;
         // inform listeners of this
-        informListeners();
+        informListeners(Type.lifeLost);
     }
 
     public void recordMissire(Clef clef) {
-        // this causes a loss of a life
-        --this.livesLeft;
+        // this causes a loss of a shot
+        --this.shotsLeft;
         // inform listeners of this
-        informListeners();
+        informListeners(Type.shotLost);
     }
 }

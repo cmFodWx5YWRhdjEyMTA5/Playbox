@@ -44,6 +44,7 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
 
     private CircleProgressView tempoProgressView;
     private RatingBar livesRatingBar;
+    private RatingBar shotsRatingBar;
 
     private volatile boolean isPerformCountdown = true;
     private GamePlayer gamePlayer;
@@ -62,6 +63,7 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
 
         this.tempoProgressView = findViewById(R.id.tempoProgressDisplay);
         this.livesRatingBar = findViewById(R.id.livesRatingBar);
+        this.shotsRatingBar = findViewById(R.id.bulletsRatingBar);
 
         Intent intent = getIntent();
         String parentGameName = intent.getStringExtra(K_SELECTED_CARD_FULL_NAME);
@@ -79,6 +81,8 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
         // setup the progress
         this.livesRatingBar.setNumStars(GameProgress.K_LIVES);
         this.livesRatingBar.setRating(GameProgress.K_LIVES);
+        this.shotsRatingBar.setNumStars(GameProgress.K_SHOTS);
+        this.shotsRatingBar.setRating(GameProgress.K_SHOTS);
         this.tempoProgressView.setProgress(0f, "0%");
 
         // setup the music view
@@ -190,14 +194,15 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
     }
 
     @Override
-    public void onGameProgressChanged(final int score, final int livesLeft, boolean isGameActive) {
+    public void onGameProgressChanged(final GameProgress source, GameProgress.Type type) {
         // set the lives left
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                livesRatingBar.setRating(livesLeft);
+                livesRatingBar.setRating(source.getLivesLeft());
+                shotsRatingBar.setRating(source.getShotsLeft());
                 // and the progress of this tempo
-                float progress = score / (float)GameProgress.K_LEVEL_POINTS_GOAL;
+                float progress = source.getPoints() / (float)GameProgress.K_LEVEL_POINTS_GOAL;
                 tempoProgressView.setProgress(progress, Integer.toString((int)(progress * 100f)) + "%");
             }
         });
@@ -205,6 +210,6 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
 
     @Override
     public void onGameProgressLevelChanged(int tempo, boolean isHelpOn) {
-        //TODO handle the level change by showing something on the screen...
+        // TODO handle the level change by showing something on the screen...
     }
 }

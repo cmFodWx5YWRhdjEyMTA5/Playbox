@@ -357,6 +357,16 @@ public class MusicView extends BaseView {
         this.bassDrawable.draw(canvas);
         canvas.restore();
 
+        // draw in the tempo
+        if (null != this.noteProvider && this.noteProvider.isGameActive()) {
+            String tempoString = Integer.toString((int) (this.noteProvider.getBeatsPerSecond() * 60f));
+            Paint.Align textAlign = assets.letterPaint.getTextAlign();
+            assets.letterPaint.setTextAlign(Paint.Align.LEFT);
+            float letterBorder = assets.letterPaint.getTextSize() * 0.2f;
+            canvas.drawText(tempoString, bounds.drawingLeft, bounds.drawingTop + letterBorder, assets.letterPaint);
+            assets.letterPaint.setTextAlign(textAlign);
+        }
+
         // get the active clef we are drawing the notes for
         Clef currentClef = getCurrentClef();
         switch (currentClef) {

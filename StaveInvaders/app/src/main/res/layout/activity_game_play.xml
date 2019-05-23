@@ -48,13 +48,32 @@
 
             <uk.co.darkerwaters.staveinvaders.views.CircleProgressView
                 android:id="@+id/tempoProgressDisplay"
-                android:layout_width="64dp"
-                android:layout_height="match_parent" />
+                android:layout_width="75dp"
+                android:layout_height="75dp" />
 
-            <RatingBar
-                android:id="@+id/livesRatingBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+            <LinearLayout
+                android:id="@+id/ratingsLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal|center_vertical"
+                android:orientation="vertical">
+
+                <RatingBar
+                    android:id="@+id/livesRatingBar"
+                    style="@style/HeartRatingBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:numStars="5"
+                    android:stepSize="1" />
+
+                <RatingBar
+                    android:id="@+id/bulletsRatingBar"
+                    style="@style/BulletRatingBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="25dp"
+                    android:numStars="10"
+                    android:stepSize="1" />
+            </LinearLayout>
 
         </LinearLayout>
 

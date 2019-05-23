@@ -17,4 +17,16 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="HeartRatingBar" parent="@android:style/Widget.RatingBar">
+        <item name="android:progressDrawable">@drawable/ratingbar_selector</item>
+        <item name="android:minHeight">20dp</item>
+        <item name="android:maxHeight">50dp</item>
+    </style>
+
+    <style name="BulletRatingBar" parent="@android:style/Widget.RatingBar">
+        <item name="android:progressDrawable">@drawable/ratingbar_bullets</item>
+        <item name="android:minHeight">20dp</item>
+        <item name="android:maxHeight">50dp</item>
+    </style>
+
 </resources>

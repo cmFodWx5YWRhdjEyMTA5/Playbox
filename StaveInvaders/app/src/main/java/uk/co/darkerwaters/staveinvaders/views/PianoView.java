@@ -250,6 +250,7 @@ public class PianoView extends BaseView {
             int keyIndex = 0;
             int noteIndex = this.startNoteIndex;
             Assets assets = getAssets();
+            float textSize = assets.letterPaint.getTextSize();
             assets.letterPaint.setTextSize(keyWidth * 0.6f);
             while (keyIndex < this.whiteKeyCount && noteIndex < notes.getSize()) {
                 // loop through the notes finding all the white ones
@@ -273,6 +274,7 @@ public class PianoView extends BaseView {
                     ++keyIndex;
                 }
             }
+            assets.letterPaint.setTextSize(textSize);
             // now we need to go through again for the sharps and flats
             int blackIndex = this.initialWhiteKey;
             float blackLeft = 0f;
