@@ -8,10 +8,11 @@ import java.util.Random;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.application.Log;
+import uk.co.darkerwaters.staveinvaders.games.GameProgress.GameProgressListener;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
 import uk.co.darkerwaters.staveinvaders.notes.Clef;
 
-public abstract class GamePlayer {
+public abstract class GamePlayer implements GameProgressListener {
 
     public static final long K_HELP_CHANGE_TIME = 5000l;
     public static final long K_MIN_CHANGE_TIME = 10000l;
@@ -19,20 +20,15 @@ public abstract class GamePlayer {
     public static final float K_CLEF_CHANGE_FREEBEE_SEC = 5f;
 
     public interface GamePlayerListener {
-        void onGameScoreChanged(GameScore score);
-        void onGameStateChanged();
-        void onGameTempoChanged(int tempo);
         void onGameClefChanged(Clef clef);
     };
 
     protected final Application application;
     protected final Game game;
     protected final GameScore score;
+    protected final GameProgress progresser;
 
     private final List<GamePlayerListener> listeners;
-
-    private int tempo = GameScore.K_DEFAULT_BPM;
-    private boolean isHelpOn = true;
 
     private Clef activeClef;
     private Clef broadcastClef = null;
@@ -43,16 +39,12 @@ public abstract class GamePlayer {
 
     protected final Random random = new Random();
 
-    private final List<Game.GameEntry> hitRecord = new ArrayList<Game.GameEntry>();
-    private final List<Chord> missfireRecord = new ArrayList<Chord>();
-
     private final List<GameNote> activeNotes = new ArrayList<GameNote>();
     private float insertTimeGap = 0.0f;
 
     public GamePlayer(Application application, Game game) {
         this.application = application;
         this.game = game;
-        this.score = new GameScore(this.game);
         this.listeners = new ArrayList<GamePlayerListener>();
 
         // get the active clef from the entries on the game, just use the first
@@ -73,32 +65,9 @@ public abstract class GamePlayer {
         for (Clef clef : this.availableClefs) {
             setPermittedClef(clef, true);
         }
-    }
-
-    public void setTempo(int tempo) {
-        this.tempo = tempo;
-        // inform any listeners of this
-        synchronized (this.listeners) {
-            for (GamePlayerListener listener : this.listeners) {
-                listener.onGameTempoChanged(this.tempo);
-            }
-        }
-    }
-
-    public int getTempo() {
-        return this.tempo;
-    }
-
-    public float getBeatsPerSecond() {
-        return this.tempo / 60f;
-    }
-
-    public void setIsHelpOn(boolean isHelpOn) {
-        this.isHelpOn = isHelpOn;
-    }
-
-    public boolean getIsHelpOn() {
-        return this.isHelpOn;
+        // setup our score and progress class
+        this.score = new GameScore(this.game);
+        this.progresser = new GameProgress();
     }
 
     public void setActiveClef(Clef clef) {
@@ -121,14 +90,6 @@ public abstract class GamePlayer {
         synchronized (this.listeners) {
             return this.listeners.remove(listener);
         }
-    }
-
-    public int getHitCount() {
-        return this.score.getHitCount(this.tempo);
-    }
-
-    public int getMissfireCount() {
-        return this.score.getMissfireCount(this.tempo);
     }
 
     public void insertTimeGap(float timeGapSeconds) {
@@ -164,6 +125,10 @@ public abstract class GamePlayer {
             }
         }
         return currentClef;
+    }
+
+    public float getBeatsPerSecond() {
+        return this.progresser.getBeatsPerSecond();
     }
 
     private void offsetNotes(float secondsDelta) {
@@ -214,7 +179,7 @@ public abstract class GamePlayer {
                 // set the new active clef
                 setActiveClef(newClef);
                 // and the new change time
-                if (isHelpOn) {
+                if (false == progresser.isGameActive()) {
                     // clear the list of active notes to immediately refresh them
                     this.activeNotes.clear();
                     // and schedule a new change
@@ -232,7 +197,7 @@ public abstract class GamePlayer {
             // we need another at the correct interval from the last, add one here
             // 60 BPM == 1 bps so we want a note a second in this example, 1 over this to
             // return the seconds to the next note then please 1 / 2 == 0.5
-            float seconds = lastNoteSeconds + (1 / getBeatsPerSecond());
+            float seconds = lastNoteSeconds + (1 / this.progresser.getBeatsPerSecond());
             if (this.insertTimeGap > 0f) {
                 // add a gap in here
                 seconds += this.insertTimeGap;
@@ -256,7 +221,7 @@ public abstract class GamePlayer {
     }
 
     public GameNote[] getNotesToDraw(float durationSeconds) {
-        if (getIsHelpOn()) {
+        if (false == this.progresser.isGameActive()) {
             // just return all the notes divided by the interval over which we can draw
             if (this.game.entries.length == 0) {
                 // none, log this for the developer
@@ -278,7 +243,7 @@ public abstract class GamePlayer {
         }
     }
 
-    public boolean destroyNote(Game.GameEntry entry) {
+    public float destroyNote(Game.GameEntry entry) {
         // destroy the specified entry, hit!
         GameNote toRemove = null;
         for (GameNote note : this.activeNotes) {
@@ -288,30 +253,21 @@ public abstract class GamePlayer {
                 break;
             }
         }
-        boolean isRemoved = false;
+        float hitSeconds = -1f;
         if (null != toRemove) {
-            isRemoved = this.activeNotes.remove(toRemove);
+            hitSeconds = toRemove.getSeconds();
+            this.activeNotes.remove(toRemove);
         }
         // log the success of this note destruction
-        this.score.recordHit(entry.clef, this.tempo, entry.chord);
-        // inform any listeners of this
-        synchronized (this.listeners) {
-            for (GamePlayerListener listener : this.listeners) {
-                listener.onGameScoreChanged(this.score);
-            }
-        }
-        return isRemoved;
+        this.score.recordHit(entry.clef, this.progresser.getTempo(), entry.chord);
+        this.progresser.recordHit(entry.clef, hitSeconds);
+        return hitSeconds;
     }
 
     public void registerMisfire(Game.GameEntry target, Chord actual) {
         // record this on the score
-        this.score.recordMissfire(target.clef, this.tempo, target.chord, actual);
-        // inform any listeners of this
-        synchronized (this.listeners) {
-            for (GamePlayerListener listener : this.listeners) {
-                listener.onGameScoreChanged(this.score);
-            }
-        }
+        this.score.recordMissfire(target.clef, this.progresser.getTempo(), target.chord, actual);
+        this.progresser.recordMissire(target.clef);
     }
 
     protected abstract Game.GameEntry getNextNote(Clef activeClef, float seconds);
@@ -326,16 +282,22 @@ public abstract class GamePlayer {
         }
     }
 
+    @Override
+    public void onGameProgressChanged(int score, int livesLeft, boolean isGameActive) {
+        // called as the progress of our current game changes
+    }
 
-    public void startNewGame() {
+    public boolean addListener(GameProgressListener listener) {
+        return this.progresser.addListener(listener);
+    }
+
+    public boolean removeListener(GameProgressListener listener) {
+        return this.progresser.removeListener(listener);
+    }
+
+    public void startNewGame(int tempo, boolean isHelpOn) {
         // start a new game, stop help
-        setIsHelpOn(false);
-        // inform any listeners of this
-        synchronized (this.listeners) {
-            for (GamePlayerListener listener : this.listeners) {
-                listener.onGameStateChanged();
-            }
-        }
+        this.progresser.startNewGame(tempo, isHelpOn);
         // clear the notes
         this.activeNotes.clear();
     }

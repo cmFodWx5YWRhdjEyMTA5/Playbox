@@ -58,7 +58,7 @@ public class MusicView extends BaseView {
         }
     }
 
-    private final static float K_VIEW_DURATION_SECONDS = 8f;
+    private final static int K_NOTES_ON_VIEW = 8;
     private final static int K_LINES_ON_VIEW = 5;
     private final static int K_LINES_ABOVEBELOW = 2;
     private final static int K_NOTES_BELOW = 9;
@@ -305,6 +305,15 @@ public class MusicView extends BaseView {
         drawView(timeElapsed, assets, canvas);
     }
 
+    protected float getViewDuration() {
+        // return the number of seconds this view represents
+        float duration = K_NOTES_ON_VIEW;
+        if (null != this.noteProvider) {
+            duration = this.noteProvider.getBeatsPerSecond() * K_NOTES_ON_VIEW;
+        }
+        return duration;
+    }
+
     protected void drawView(long timeElapsed, Assets assets, Canvas canvas) {
         // update the animator
         if (null == this.animator) {
@@ -315,7 +324,7 @@ public class MusicView extends BaseView {
         this.animator.updateAnimations(timeElapsed);
         // also update the provider
         if (null != this.noteProvider) {
-            this.noteProvider.updateNotes(timeElapsed / 1000f, K_VIEW_DURATION_SECONDS);
+            this.noteProvider.updateNotes(timeElapsed / 1000f, getViewDuration());
         }
 
         // draw the active clef lines on the view
@@ -373,10 +382,11 @@ public class MusicView extends BaseView {
         float noteAreaLeft = bounds.drawingLeft + clefWidth;
         // draw all the notes in here
         float noteRadius = noteHeight * 0.8f;
-        float secondsToPixels = (bounds.drawingRight - noteAreaLeft) / K_VIEW_DURATION_SECONDS;
+        float viewDuration = getViewDuration();
+        float secondsToPixels = (bounds.drawingRight - noteAreaLeft) / viewDuration;
         float noteAnimationOffset = this.animator != null ? (this.animator.clefYOffset - this.animator.clefYTarget) : 0;
         if (null != this.noteProvider) {
-            for (GameNote note : this.noteProvider.getNotesToDraw(K_VIEW_DURATION_SECONDS)) {
+            for (GameNote note : this.noteProvider.getNotesToDraw(viewDuration)) {
                 Game.GameEntry toDraw = note.getChord();
                 if (null == toDraw || toDraw.clef != currentClef) {
                     // not drawing this clef at this time, don't draw this note, or any subsequent ones

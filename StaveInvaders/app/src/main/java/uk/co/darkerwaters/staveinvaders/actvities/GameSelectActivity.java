@@ -5,15 +5,20 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.application.Log;
+import uk.co.darkerwaters.staveinvaders.application.Scores;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
+import uk.co.darkerwaters.staveinvaders.games.GameProgress;
+import uk.co.darkerwaters.staveinvaders.games.GameScore;
 import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.games.Game;
 import uk.co.darkerwaters.staveinvaders.games.GameList;
@@ -22,7 +27,9 @@ import uk.co.darkerwaters.staveinvaders.views.ClefProgressView;
 import uk.co.darkerwaters.staveinvaders.views.GameProgressView;
 import uk.co.darkerwaters.staveinvaders.views.MusicView;
 
+import static uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder.K_IS_STARTING_HELP_ON;
 import static uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder.K_SELECTED_CARD_FULL_NAME;
+import static uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder.K_STARTING_TEMPO;
 
 public class GameSelectActivity extends AppCompatActivity {
 
@@ -44,6 +51,11 @@ public class GameSelectActivity extends AppCompatActivity {
     private MusicView musicView;
     private int gameIndex = -1;
 
+    private TextView tempoText;
+    private ImageButton tempoLessButton;
+    private ImageButton tempoMoreButton;
+    private Switch helpSwitch;
+
     private ImageButton nextButton;
     private ImageButton prevButton;
 
@@ -51,6 +63,7 @@ public class GameSelectActivity extends AppCompatActivity {
 
     private RadioGroup radioClefs;
     private Application application;
+    private int tempo = GameScore.K_DEFAULT_BPM;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +79,11 @@ public class GameSelectActivity extends AppCompatActivity {
 
         this.gameTitle = findViewById(R.id.game_title);
         this.musicView = findViewById(R.id.musicView);
+
+        this.tempoText = findViewById(R.id.tempoSelectedTextView);
+        this.tempoLessButton = findViewById(R.id.tempoLessButton);
+        this.tempoMoreButton = findViewById(R.id.tempoMoreButton);
+        this.helpSwitch = findViewById(R.id.helpSwitch);
 
         this.radioClefs = findViewById(R.id.radioGroupClefs);
         this.trebleProgressView = findViewById(R.id.treble_progress_view);
@@ -89,6 +107,9 @@ public class GameSelectActivity extends AppCompatActivity {
             this.progressView = (GameProgressView) this.findViewById(R.id.gameProgress);
             this.progressView.setViewData(parentGame);
         }
+        // default the tempo and help controls
+        this.helpSwitch.setChecked(true);
+        updateTempoAndHelp();
 
         // do the next and previous buttons
         this.prevButton.setOnClickListener(new View.OnClickListener() {
@@ -108,6 +129,25 @@ public class GameSelectActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 playSelectedGame();
+            }
+        });
+
+        this.tempoLessButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                changeTempo(-1);
+            }
+        });
+        this.tempoMoreButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                changeTempo(+1);
+            }
+        });
+        this.helpSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                updateTempoAndHelp();
             }
         });
 
@@ -136,6 +176,45 @@ public class GameSelectActivity extends AppCompatActivity {
         setSelectedGameData();
     }
 
+    private void updateTempoAndHelp() {
+        // update the help and tempo things
+        this.tempoText.setText(Integer.toString(this.tempo));
+        if (this.tempo > GameProgress.K_MAX_HELP_TEMPO) {
+            // not allowed help
+            this.helpSwitch.setChecked(false);
+        }
+    }
+
+    private void changeTempo(int delta) {
+        int tempoIndex = 0;
+        for (int i = 0; i < GameScore.K_BPMS.length; ++i) {
+            if (this.tempo >= GameScore.K_BPMS[i]) {
+                tempoIndex = i;
+            }
+        }
+        // change this index
+        tempoIndex += delta;
+        if (tempoIndex <= 0) {
+            // at the bottom
+            tempoIndex = 0;
+            this.tempoLessButton.setEnabled(false);
+        }
+        else {
+            this.tempoLessButton.setEnabled(true);
+        }
+        if (tempoIndex >= GameScore.K_BPMS.length - 1) {
+            // at the end
+            tempoIndex = GameScore.K_BPMS.length - 1;
+            this.tempoMoreButton.setEnabled(false);
+        }
+        else {
+            this.tempoMoreButton.setEnabled(true);
+        }
+        // get the tempo
+        this.tempo = GameScore.K_BPMS[tempoIndex];
+        updateTempoAndHelp();
+    }
+
     private void setTopGameSelected() {
         // get the last game we have any progress for and select by default
         this.gameIndex = -1;
@@ -154,6 +233,8 @@ public class GameSelectActivity extends AppCompatActivity {
         // play the selected game by showing the game activity
         Intent intent = new Intent(this, GamePlayActivity.class);
         intent.putExtra(K_SELECTED_CARD_FULL_NAME, this.selectedGame.getFullName());
+        intent.putExtra(K_STARTING_TEMPO, this.tempo);
+        intent.putExtra(K_IS_STARTING_HELP_ON, this.helpSwitch.isChecked());
         // and start the activity
         startActivity(intent);
     }
@@ -176,6 +257,7 @@ public class GameSelectActivity extends AppCompatActivity {
         // set this on the application so remembers the choice and updates the game, music view etc
         Settings settings = application.getSettings();
         settings.setSelectedClefs(clefs).commitChanges();
+        int maxBpm = 0;
         // hide the checks if they are not available in the settings
         if (settings.getIsHideClef(Clef.treble)) {
             // hide it all as there is no choice to make
@@ -193,12 +275,16 @@ public class GameSelectActivity extends AppCompatActivity {
         }
         Clef[] selectedClefs = settings.getSelectedClefs();
         // set the check item to match that set and available in the application
+        Scores.Score score = this.application.getScores().getScore(this.selectedGame);
         if (selectedClefs.length == 2) {
             // both are selected
             this.radioClefs.check(R.id.radioMixedClefs);
             // show the progress for both
             this.trebleProgress.setVisibility(View.VISIBLE);
             this.bassProgress.setVisibility(View.VISIBLE);
+            // find the max BPM from the score
+            maxBpm = Math.max(score.getTopBpm(Clef.treble), score.getTopBpm(Clef.bass));
+
         }
         else if (selectedClefs.length == 1) {
             switch (selectedClefs[0]) {
@@ -207,12 +293,16 @@ public class GameSelectActivity extends AppCompatActivity {
                     // show the progress for this only
                     this.trebleProgress.setVisibility(View.VISIBLE);
                     this.bassProgress.setVisibility(View.INVISIBLE);
+                    // and get the max bpm
+                    maxBpm = score.getTopBpm(Clef.treble);
                     break;
                 case bass:
                     this.radioClefs.check(R.id.radioBassClef);
                     // show the progress for this only
                     this.trebleProgress.setVisibility(View.INVISIBLE);
                     this.bassProgress.setVisibility(View.VISIBLE);
+                    // and get the max bpm
+                    maxBpm = score.getTopBpm(Clef.bass);
                     break;
             }
         }
@@ -226,6 +316,16 @@ public class GameSelectActivity extends AppCompatActivity {
         this.bassProgressView.setProgress(this.selectedGame, Clef.bass);
         // and enable the buttons
         enableNextAndBackButtons();
+
+        // set the tempo
+        if (maxBpm == 0) {
+            this.tempo = GameScore.K_DEFAULT_BPM;
+        }
+        else {
+            this.tempo = maxBpm;
+        }
+        // and update the controls
+        updateTempoAndHelp();
     }
 
 

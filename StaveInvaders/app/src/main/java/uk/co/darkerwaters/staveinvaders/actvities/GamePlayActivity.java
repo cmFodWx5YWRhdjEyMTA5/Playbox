@@ -12,6 +12,7 @@ import uk.co.darkerwaters.staveinvaders.application.Settings;
 import uk.co.darkerwaters.staveinvaders.games.Game;
 import uk.co.darkerwaters.staveinvaders.games.GameList;
 import uk.co.darkerwaters.staveinvaders.games.GamePlayer;
+import uk.co.darkerwaters.staveinvaders.games.GameProgress;
 import uk.co.darkerwaters.staveinvaders.games.GameScore;
 import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.views.CircleProgressView;
@@ -22,12 +23,17 @@ import uk.co.darkerwaters.staveinvaders.views.PianoPlaying;
 import uk.co.darkerwaters.staveinvaders.views.PianoTouchable;
 import uk.co.darkerwaters.staveinvaders.views.PianoView;
 
+import static uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder.K_IS_STARTING_HELP_ON;
 import static uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder.K_SELECTED_CARD_FULL_NAME;
+import static uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder.K_STARTING_TEMPO;
 
-public class GamePlayActivity extends AppCompatActivity implements GamePlayer.GamePlayerListener {
+public class GamePlayActivity extends AppCompatActivity implements GamePlayer.GamePlayerListener, GameProgress.GameProgressListener {
 
     private static final long K_PLAY_COUNTDOWN = 5000l;
     private Application application;
+
+    private int startingTempo = 60;
+    private boolean startingWithHelpOn = true;
 
     private Game selectedGame;
 
@@ -52,6 +58,8 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
 
         Intent intent = getIntent();
         String parentGameName = intent.getStringExtra(K_SELECTED_CARD_FULL_NAME);
+        this.startingTempo = intent.getIntExtra(K_STARTING_TEMPO, GameScore.K_DEFAULT_BPM);
+        this.startingWithHelpOn = intent.getBooleanExtra(K_IS_STARTING_HELP_ON, true);
         this.selectedGame = GameList.findLoadedGame(parentGameName);
         if (null == this.selectedGame) {
             Log.error("Game name of " + parentGameName + " does not correspond to a game");
@@ -65,11 +73,22 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
         musicView.setPermittedClefs(settings.getSelectedClefs());
         // create the game player and setup the music view accordingly
         this.gamePlayer = this.musicView.setActiveGame(this.selectedGame);
-        this.gamePlayer.addListener(this);
+        // add the listeners to the player
+        this.gamePlayer.addListener((GamePlayer.GamePlayerListener)this);
+        this.gamePlayer.addListener((GameProgress.GameProgressListener) this);
 
         // and the piano
         this.pianoView.setNoteRange(this.selectedGame.getNoteRange(settings.getSelectedClefs()), true);
         this.pianoView.setIsAllowTouch(true);
+    }
+
+    @Override
+    protected void onDestroy() {
+        // remove us as listeners
+        this.gamePlayer.removeListener((GamePlayer.GamePlayerListener)this);
+        this.gamePlayer.removeListener((GameProgress.GameProgressListener) this);
+        // and destroy
+        super.onDestroy();
     }
 
     @Override
@@ -142,23 +161,8 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
         // start the game
         if (null != this.gamePlayer) {
             // turn help off, this sets us playing the game
-            this.gamePlayer.startNewGame();
+            this.gamePlayer.startNewGame(60, true);
         }
-    }
-
-    @Override
-    public void onGameScoreChanged(GameScore score) {
-
-    }
-
-    @Override
-    public void onGameStateChanged() {
-
-    }
-
-    @Override
-    public void onGameTempoChanged(int tempo) {
-
     }
 
     @Override
@@ -171,5 +175,10 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
                 pianoView.invalidate();
             }
         });
+    }
+
+    @Override
+    public void onGameProgressChanged(int score, int livesLeft, boolean isGameActive) {
+
     }
 }

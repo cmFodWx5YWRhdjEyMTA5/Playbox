@@ -46,4 +46,6 @@
     <string name="levels">Levels Complete</string>
     <string name="treble_parent_score_title">Average\nTempo</string>
     <string name="bass_parent_score_title">Average\nTempo</string>
+    <string name="tempo">Tempo</string>
+    <string name="show_help">Show Letters</string>
 </resources>

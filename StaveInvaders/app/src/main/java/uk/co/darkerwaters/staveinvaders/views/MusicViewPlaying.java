@@ -229,7 +229,7 @@ public class MusicViewPlaying extends MusicView implements InputSelector.InputLi
         // handle the destroying of targets
         if (null != this.noteProvider &&
                 null != this.target &&
-                this.noteProvider.destroyNote(this.target.entry)) {
+                this.noteProvider.destroyNote(this.target.entry) >= 0f) {
             // we removed this target, add to the list of hit to show for a second more
             synchronized (this.hitTargets) {
                 this.hitTargets.add(this.target);

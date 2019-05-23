@@ -93,7 +93,7 @@
                 android:layout_marginEnd="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/radioGroupClefs" />
+                app:layout_constraintTop_toBottomOf="@+id/startingControlsLayout" />
 
             <RadioGroup
                 android:id="@+id/radioGroupClefs"
@@ -157,6 +157,58 @@
                     android:layout_weight="1"
                     android:text="@string/clef_mixed" />
             </RadioGroup>
+
+            <LinearLayout
+                android:id="@+id/startingControlsLayout"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/radioGroupClefs">
+
+                <TextView
+                    android:id="@+id/tempoTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/tempo"
+                    android:textAlignment="viewEnd" />
+
+                <ImageButton
+                    android:id="@+id/tempoLessButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:srcCompat="@android:drawable/ic_media_rew" />
+
+                <TextView
+                    android:id="@+id/tempoSelectedTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="TextView"
+                    android:textAlignment="center" />
+
+                <ImageButton
+                    android:id="@+id/tempoMoreButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:srcCompat="@android:drawable/ic_media_ff" />
+
+                <Switch
+                    android:id="@+id/helpSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/show_help" />
+
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/treble_progress_layout"

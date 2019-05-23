@@ -27,6 +27,8 @@ import uk.co.darkerwaters.staveinvaders.views.LevelProgressView;
 public class GameParentCardHolder extends RecyclerView.ViewHolder {
 
     public static final String K_SELECTED_CARD_FULL_NAME = "selected_parent";
+    public static final String K_IS_STARTING_HELP_ON = "is_start_help_on";
+    public static final String K_STARTING_TEMPO = "starting_tempo";
     private final View parent;
 
     private final TextView itemTitle;
