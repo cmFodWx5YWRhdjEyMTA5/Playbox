@@ -8,8 +8,8 @@ import uk.co.darkerwaters.staveinvaders.notes.Clef;
 
 public class GameProgress {
 
-    private static final int K_LEVEL_POINTS_GOAL = 100;
-    private static final int K_LIVES = 5;
+    public static final int K_LEVEL_POINTS_GOAL = 100;
+    public static final int K_LIVES = 5;
     public static final int K_MAX_HELP_TEMPO = GameScore.K_BPMS[4];
 
     private int tempo = GameScore.K_DEFAULT_BPM;
@@ -30,6 +30,7 @@ public class GameProgress {
 
     public interface GameProgressListener {
         void onGameProgressChanged(int score, int livesLeft, boolean isGameActive);
+        void onGameProgressLevelChanged(int tempo, boolean isHelpOn);
     }
 
     private final List<GameProgressListener> listeners;
@@ -44,23 +45,38 @@ public class GameProgress {
         this.isHelpOn = isHelpOn;
         this.maxTempo = 0;
         this.livesLeft = K_LIVES;
+        // clear the points
+        clearPointsAccumulation();
+        // inform the listeners of the game state
+        informListeners();
+    }
+
+    private void clearPointsAccumulation() {
         // clear the points out
         for (int i = 0; i < this.points.length; ++i) {
             this.points[i] = new Points(Clef.values()[i]);
         }
-        // inform the listeners of the game state
-        informListeners();
     }
 
     private void informListeners() {
         int score = 0;
         for (Points point : this.points) {
-            score += point.points;
+            if (null != point) {
+                score += point.points;
+            }
         }
         boolean isGameActive = isGameActive();
         synchronized (this.listeners) {
             for (GameProgressListener listener : this.listeners) {
                 listener.onGameProgressChanged(score, this.livesLeft, isGameActive);
+            }
+        }
+    }
+
+    private void informListenersLevelChanged() {
+        synchronized (this.listeners) {
+            for (GameProgressListener listener : this.listeners) {
+                listener.onGameProgressLevelChanged(this.tempo, this.isHelpOn);
             }
         }
     }
@@ -132,8 +148,12 @@ public class GameProgress {
                 // increase the speed instead
                 this.tempo = GameScore.K_BPMS[tempoIndex + 1];
             }
+            // clear the points to start this new level
+            clearPointsAccumulation();
+            // inform listeners of this level change
+            informListenersLevelChanged();
         }
-        // inform listeners of the change
+        // inform listeners of the change in score etc
         informListeners();
     }
 
@@ -143,6 +163,9 @@ public class GameProgress {
         Points point = this.points[clef.val];
         // the sooner they hit the note, the more points they get
         point.points += hitSeconds;
+        // inform listeners of this change in points
+        informListeners();
+        // do we need to change the level now?
         if (point.points >= K_LEVEL_POINTS_GOAL) {
             // have exceeded or met the goal, move on the tempo
             increaseTempo();

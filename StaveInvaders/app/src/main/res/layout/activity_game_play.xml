@@ -16,7 +16,7 @@
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="3">
+            android:layout_weight="5">
 
             <uk.co.darkerwaters.staveinvaders.views.MusicViewPlaying
                 android:id="@+id/musicView"
@@ -39,9 +39,28 @@
                 app:layout_constraintTop_toTopOf="@+id/musicView" />
         </android.support.constraint.ConstraintLayout>
 
+        <LinearLayout
+            android:id="@+id/progressLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal|center_vertical"
+            android:orientation="horizontal">
+
+            <uk.co.darkerwaters.staveinvaders.views.CircleProgressView
+                android:id="@+id/tempoProgressDisplay"
+                android:layout_width="64dp"
+                android:layout_height="match_parent" />
+
+            <RatingBar
+                android:id="@+id/livesRatingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
         <uk.co.darkerwaters.staveinvaders.views.PianoTouchable
             android:id="@+id/pianoView"
-            android:layout_weight="2"
+            android:layout_weight="3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>

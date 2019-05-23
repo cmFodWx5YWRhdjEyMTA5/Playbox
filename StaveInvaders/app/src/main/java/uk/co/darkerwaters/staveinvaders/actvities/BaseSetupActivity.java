@@ -69,11 +69,6 @@ public abstract class BaseSetupActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void pianoViewSizeChanged(int w, int h, int oldw, int oldh) {
-        // interesting but don't really care
-    }
-
-    @Override
     public void noteReleased(Chord chord) {
         // invalidate the view, the piano released a note
         runOnUiThread(new Runnable() {

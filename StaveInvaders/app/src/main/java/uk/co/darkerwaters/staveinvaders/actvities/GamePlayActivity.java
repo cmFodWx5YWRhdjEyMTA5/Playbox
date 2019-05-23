@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.RatingBar;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
@@ -41,6 +42,9 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
     private MusicViewPlaying musicView;
     private PianoTouchable pianoView;
 
+    private CircleProgressView tempoProgressView;
+    private RatingBar livesRatingBar;
+
     private volatile boolean isPerformCountdown = true;
     private GamePlayer gamePlayer;
 
@@ -56,6 +60,9 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
         this.musicView = findViewById(R.id.musicView);
         this.pianoView = findViewById(R.id.pianoView);
 
+        this.tempoProgressView = findViewById(R.id.tempoProgressDisplay);
+        this.livesRatingBar = findViewById(R.id.livesRatingBar);
+
         Intent intent = getIntent();
         String parentGameName = intent.getStringExtra(K_SELECTED_CARD_FULL_NAME);
         this.startingTempo = intent.getIntExtra(K_STARTING_TEMPO, GameScore.K_DEFAULT_BPM);
@@ -68,6 +75,11 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
             // set our title to be the name of the game parent
             setTitle(selectedGame.name);
         }
+
+        // setup the progress
+        this.livesRatingBar.setNumStars(GameProgress.K_LIVES);
+        this.livesRatingBar.setRating(GameProgress.K_LIVES);
+        this.tempoProgressView.setProgress(0f, "0%");
 
         // setup the music view
         musicView.setPermittedClefs(settings.getSelectedClefs());
@@ -178,7 +190,21 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
     }
 
     @Override
-    public void onGameProgressChanged(int score, int livesLeft, boolean isGameActive) {
+    public void onGameProgressChanged(final int score, final int livesLeft, boolean isGameActive) {
+        // set the lives left
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                livesRatingBar.setRating(livesLeft);
+                // and the progress of this tempo
+                float progress = score / (float)GameProgress.K_LEVEL_POINTS_GOAL;
+                tempoProgressView.setProgress(progress, Integer.toString((int)(progress * 100f)) + "%");
+            }
+        });
+    }
 
+    @Override
+    public void onGameProgressLevelChanged(int tempo, boolean isHelpOn) {
+        //TODO handle the level change by showing something on the screen...
     }
 }

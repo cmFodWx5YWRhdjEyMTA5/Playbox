@@ -24,7 +24,6 @@ public class PianoView extends BaseView {
     private PianoViewBounds bounds = null;
 
     public interface IPianoViewListener {
-        void pianoViewSizeChanged(int w, int h, int oldw, int oldh);
         void noteReleased(Chord chord);
         void noteDepressed(Chord chord);
     }
@@ -99,17 +98,6 @@ public class PianoView extends BaseView {
         // shut down this view
         synchronized (this.listeners) {
             this.listeners.clear();
-        }
-    }
-
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        // inform all the listeners that the view size has changed
-        synchronized (this.listeners) {
-            for (IPianoViewListener listener : this.listeners) {
-                listener.pianoViewSizeChanged(w, h, oldw, oldh);
-            }
         }
     }
 

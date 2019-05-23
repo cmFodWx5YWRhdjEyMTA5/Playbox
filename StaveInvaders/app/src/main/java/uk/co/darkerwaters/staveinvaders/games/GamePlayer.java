@@ -295,6 +295,11 @@ public abstract class GamePlayer implements GameProgressListener {
         // called as the progress of our current game changes
     }
 
+    @Override
+    public void onGameProgressLevelChanged(int tempo, boolean isHelpOn) {
+        //TODO handle the level change by giving them a second...
+    }
+
     public boolean addListener(GameProgressListener listener) {
         return this.progresser.addListener(listener);
     }
