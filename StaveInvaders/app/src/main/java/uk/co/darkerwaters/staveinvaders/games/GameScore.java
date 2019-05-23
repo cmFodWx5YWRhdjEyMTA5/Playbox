@@ -69,14 +69,16 @@ public class GameScore {
     }
 
     private final List<Hit>[] hits = new List[K_BPMS.length];
-    private final List<Miss>[] misses = new List[K_BPMS.length];
+    private final List<Hit>[] misses = new List[K_BPMS.length];
+    private final List<Miss>[] missFires = new List[K_BPMS.length];
 
     public GameScore(Game game) {
         this.game = game;
 
         for (int i = 0; i < K_BPMS.length; ++i) {
             hits[i] = new ArrayList<Hit>();
-            misses[i] = new ArrayList<Miss>();
+            misses[i] = new ArrayList<Hit>();
+            missFires[i] = new ArrayList<Miss>();
         }
     }
 
@@ -89,9 +91,18 @@ public class GameScore {
         return hitCount;
     }
 
+    public int getMissCount(int tempo) {
+        // return the number of misses only
+        int missCount = 0;
+        for (Hit hit : getMissList(tempo)) {
+            missCount += hit.count;
+        }
+        return missCount;
+    }
+
     public int getMissfireCount(int tempo) {
         int missCount = 0;
-        for (Miss miss : getMissList(tempo)) {
+        for (Miss miss : getMissFireList(tempo)) {
             missCount += miss.getMissCount();
         }
         return missCount;
@@ -108,9 +119,20 @@ public class GameScore {
         return hitCount;
     }
 
+    public int getMissCount(Clef clef, int tempo) {
+        // return the number of misses only
+        int missCount = 0;
+        for (Hit miss : getMissList(tempo)) {
+            if (miss.clef == clef) {
+                missCount += miss.count;
+            }
+        }
+        return missCount;
+    }
+
     public int getMissfireCount(Clef clef, int tempo) {
         int missCount = 0;
-        for (Miss miss : getMissList(tempo)) {
+        for (Miss miss : getMissFireList(tempo)) {
             if (miss.clef == clef) {
                 missCount += miss.getMissCount();
             }
@@ -140,9 +162,31 @@ public class GameScore {
         }
     }
 
+    public void recordMiss(Clef clef, int tempo, Chord chord) {
+        // find the miss we already know about
+        Hit miss = null;
+        List<Hit> missList = getMissList(tempo);
+        for (Hit existing : missList) {
+            if (existing.clef == clef && existing.target.equals(chord)) {
+                // this is it
+                miss = existing;
+                break;
+            }
+        }
+        if (miss == null) {
+            // create it
+            miss = new Hit(clef, chord);
+            missList.add(miss);
+        }
+        else {
+            // increment the counter
+            ++miss.count;
+        }
+    }
+
     public void recordMissfire(Clef clef, int tempo, Chord target, Chord actual) {
         Miss miss = null;
-        List<Miss> missList = getMissList(tempo);
+        List<Miss> missList = getMissFireList(tempo);
         for (Miss existing : missList) {
             if (existing.clef == clef && existing.target.equals(target)) {
                 // this is it
@@ -173,12 +217,24 @@ public class GameScore {
         return hitList;
     }
 
-    private List<Miss> getMissList(int tempo) {
-        List<Miss> missList = null;
+    private List<Hit> getMissList(int tempo) {
+        List<Hit> missList = null;
         for (int i = 0; i < K_BPMS.length; ++i) {
             if (K_BPMS[i] >= tempo) {
                 // this is it
                 missList = this.misses[i];
+                break;
+            }
+        }
+        return missList;
+    }
+
+    private List<Miss> getMissFireList(int tempo) {
+        List<Miss> missList = null;
+        for (int i = 0; i < K_BPMS.length; ++i) {
+            if (K_BPMS[i] >= tempo) {
+                // this is it
+                missList = this.missFires[i];
                 break;
             }
         }

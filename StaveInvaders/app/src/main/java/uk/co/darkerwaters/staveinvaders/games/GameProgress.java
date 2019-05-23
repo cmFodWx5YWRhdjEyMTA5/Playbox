@@ -149,6 +149,13 @@ public class GameProgress {
         }
     }
 
+    public void recordMiss(Clef clef) {
+        // this causes a loss of a life
+        --this.livesLeft;
+        // inform listeners of this
+        informListeners();
+    }
+
     public void recordMissire(Clef clef) {
         // this causes a loss of a life
         --this.livesLeft;

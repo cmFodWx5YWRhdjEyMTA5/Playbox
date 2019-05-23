@@ -139,6 +139,8 @@ public abstract class GamePlayer implements GameProgressListener {
             if (note.adjustTime(secondsDelta) < 0f) {
                 // this has dropped below zero
                 toRemove.add(note);
+                // handle this failure to hit this note
+                registerMiss(note.getChord());
             }
         }
         // remove all the notes timed out
@@ -262,6 +264,12 @@ public abstract class GamePlayer implements GameProgressListener {
         this.score.recordHit(entry.clef, this.progresser.getTempo(), entry.chord);
         this.progresser.recordHit(entry.clef, hitSeconds);
         return hitSeconds;
+    }
+
+    private void registerMiss(Game.GameEntry entry) {
+        // called as a note's time goes below zero (failed to hit it)
+        this.score.recordMiss(entry.clef, this.progresser.getTempo(), entry.chord);
+        this.progresser.recordMiss(entry.clef);
     }
 
     public void registerMisfire(Game.GameEntry target, Chord actual) {
