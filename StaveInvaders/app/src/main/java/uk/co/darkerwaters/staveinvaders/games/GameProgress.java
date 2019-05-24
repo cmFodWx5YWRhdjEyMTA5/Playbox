@@ -8,7 +8,7 @@ import uk.co.darkerwaters.staveinvaders.notes.Clef;
 
 public class GameProgress {
 
-    public static final int K_LEVEL_POINTS_GOAL = 100;
+    public static final int K_LEVEL_POINTS_GOAL = 250;
     public static final int K_LIVES = 5;
     public static final int K_SHOTS = 10;
     public static final int K_MAX_HELP_TEMPO = GameScore.K_BPMS[4];
@@ -32,7 +32,7 @@ public class GameProgress {
         gameStarted,
         lifeLost,
         shotLost,
-        scoreChanged,
+        targetHit,
         tempoIncrease,
         lettersDisabled,
         gameOver
@@ -41,7 +41,7 @@ public class GameProgress {
     private Points[] points = new Points[Clef.values().length];
 
     public interface GameProgressListener {
-        void onGameProgressChanged(GameProgress source, GameProgress.Type changeType);
+        void onGameProgressChanged(GameProgress source, Type changeType, Object data);
     }
 
     private final List<GameProgressListener> listeners;
@@ -60,7 +60,7 @@ public class GameProgress {
         // clear the points
         clearPointsAccumulation();
         // inform the listeners of the game state
-        informListeners(Type.gameStarted);
+        informListeners(Type.gameStarted, null);
     }
 
     private void clearPointsAccumulation() {
@@ -80,10 +80,10 @@ public class GameProgress {
         return score;
     }
 
-    private void informListeners(Type type) {
+    private void informListeners(Type type, Object data) {
         synchronized (this.listeners) {
             for (GameProgressListener listener : this.listeners) {
-                listener.onGameProgressChanged(this, type);
+                listener.onGameProgressChanged(this, type, data);
             }
         }
     }
@@ -147,7 +147,7 @@ public class GameProgress {
         }
         if (tempoIndex == GameScore.K_BPMS.length - 1) {
             // this is the final victory
-            informListeners(Type.gameOver);
+            informListeners(Type.gameOver, null);
         }
         else {
             // move on a tempo
@@ -166,20 +166,18 @@ public class GameProgress {
             // clear the points to start this new level
             clearPointsAccumulation();
             // inform listeners of this setting change
-            informListeners(type);
+            informListeners(type, null);
         }
-        // inform listeners of the change in score - back to zero
-        informListeners(Type.scoreChanged);
     }
 
-    public void recordHit(Clef clef, float offsetBeats) {
+    public void recordHit(Clef clef, Chord chord, float offsetBeats) {
         // count the hits to see when we can progress the tempo
         // the tempo is the same as us, whatever, it is the seconds and the clef we are interested
         Points point = this.points[clef.val];
         // the sooner they hit the note, the more points they get
         point.points += offsetBeats;
-        // inform listeners of this change in points
-        informListeners(Type.scoreChanged);
+        // this is a hit
+        informListeners(Type.targetHit, chord);
         // do we need to change the level now?
         if (getPoints() >= K_LEVEL_POINTS_GOAL) {
             // have exceeded or met the goal, move on the tempo
@@ -187,25 +185,25 @@ public class GameProgress {
         }
     }
 
-    public void recordMiss(Clef clef) {
+    public void recordMiss(Clef clef, Chord chord) {
         // this causes a loss of a life
         --this.livesLeft;
         // inform listeners of this
-        informListeners(Type.lifeLost);
+        informListeners(Type.lifeLost, chord);
         if (false == isGameActive()) {
             // game over (lose)
-            informListeners(Type.gameOver);
+            informListeners(Type.gameOver, null);
         }
     }
 
-    public void recordMissire(Clef clef) {
+    public void recordMissire(Clef clef, Chord target, Chord actual) {
         // this causes a loss of a shot
         --this.shotsLeft;
         // inform listeners of this
-        informListeners(Type.shotLost);
+        informListeners(Type.shotLost, new Chord[] {target, actual});
         if (false == isGameActive()) {
             // game over (lose)
-            informListeners(Type.gameOver);
+            informListeners(Type.gameOver, null);
         }
     }
 }

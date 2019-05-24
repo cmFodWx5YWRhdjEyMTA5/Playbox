@@ -20,7 +20,7 @@ import uk.co.darkerwaters.staveinvaders.notes.Range;
 
 public class PianoTouchable extends PianoPlaying implements InputSelector.InputTypeListener {
 
-    private static final Integer K_INITIAL_NOTE_DEPRESSION_COUNT = 10;
+    private static final Integer K_INITIAL_NOTE_DEPRESSION_COUNT = 5;
     private static final Integer K_NOTE_DEPRESSION_COUNTER_INTERVAL = 100;
 
     private final ArrayList<PlayableKey> playableKeys = new ArrayList<PlayableKey>();

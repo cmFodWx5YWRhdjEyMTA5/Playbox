@@ -296,7 +296,7 @@ public abstract class GamePlayer implements GameProgressListener {
         // called as a not is successfully hit on the view
         if (isGameActive()) {
             this.score.recordHit(entry.clef, this.progresser.getTempo(), entry.chord);
-            this.progresser.recordHit(entry.clef, offsetBeats);
+            this.progresser.recordHit(entry.clef, entry.chord, offsetBeats);
         }
     }
 
@@ -304,7 +304,7 @@ public abstract class GamePlayer implements GameProgressListener {
         // called as a note's time goes below zero (failed to hit it)
         if (isGameActive()) {
             this.score.recordMiss(entry.clef, this.progresser.getTempo(), entry.chord);
-            this.progresser.recordMiss(entry.clef);
+            this.progresser.recordMiss(entry.clef, entry.chord);
         }
     }
 
@@ -312,7 +312,7 @@ public abstract class GamePlayer implements GameProgressListener {
         // record this on the score
         if (isGameActive()) {
             this.score.recordMissfire(target.clef, this.progresser.getTempo(), target.chord, actual);
-            this.progresser.recordMissire(target.clef);
+            this.progresser.recordMissire(target.clef,  target.chord, actual);
         }
     }
 
@@ -330,13 +330,13 @@ public abstract class GamePlayer implements GameProgressListener {
     }
 
     @Override
-    public void onGameProgressChanged(GameProgress source, GameProgress.Type type) {
+    public void onGameProgressChanged(GameProgress source, GameProgress.Type type, Object data) {
         // called as the progress of our current game changes,
         switch (type) {
             case gameOver:
             case gameStarted:
             case shotLost:
-            case scoreChanged:
+            case targetHit:
                 break;
             case lifeLost:
             case tempoIncrease:

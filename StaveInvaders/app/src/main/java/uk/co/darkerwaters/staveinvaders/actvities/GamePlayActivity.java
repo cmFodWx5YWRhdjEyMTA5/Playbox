@@ -1,13 +1,9 @@
 package uk.co.darkerwaters.staveinvaders.actvities;
 
 import android.content.Intent;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
@@ -20,7 +16,9 @@ import uk.co.darkerwaters.staveinvaders.games.GameList;
 import uk.co.darkerwaters.staveinvaders.games.GamePlayer;
 import uk.co.darkerwaters.staveinvaders.games.GameProgress;
 import uk.co.darkerwaters.staveinvaders.games.GameScore;
+import uk.co.darkerwaters.staveinvaders.notes.Chord;
 import uk.co.darkerwaters.staveinvaders.notes.Clef;
+import uk.co.darkerwaters.staveinvaders.sounds.SoundPlayer;
 import uk.co.darkerwaters.staveinvaders.views.CircleProgressView;
 import uk.co.darkerwaters.staveinvaders.views.MusicViewPlaying;
 import uk.co.darkerwaters.staveinvaders.views.PianoTouchable;
@@ -106,6 +104,8 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
         // and the piano
         this.pianoView.setNoteRange(this.selectedGame.getNoteRange(settings.getSelectedClefs()), true);
         this.pianoView.setIsAllowTouch(true);
+
+        SoundPlayer.initialise(this);
     }
 
     @Override
@@ -206,7 +206,7 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
     }
 
     @Override
-    public void onGameProgressChanged(final GameProgress source, GameProgress.Type type) {
+    public void onGameProgressChanged(final GameProgress source, GameProgress.Type type, Object data) {
         switch (type) {
             case tempoIncrease:
                 // show this increase
@@ -228,18 +228,30 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
                 break;
             case gameOver:
                 // TODO handle the game ending
+                SoundPlayer.getINSTANCE().gameOver();
                 break;
             case lifeLost:
-            case scoreChanged:
+                // play the sound for this
+                SoundPlayer.getINSTANCE().missed();
+                break;
             case shotLost:
-                // update the contents of the controls from the source
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateGameProgress(source);
-                    }
-                });
+                // play the sound for this
+                SoundPlayer.getINSTANCE().falseFire();
+                break;
+            case targetHit:
+                // the data param is the chord that has been hit
+                if (null != data && data instanceof Chord) {
+                    SoundPlayer.getINSTANCE().playSound((Chord)data);
+                }
+                break;
         }
+        // and update the contents of the controls from the source
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                updateGameProgress(source);
+            }
+        });
     }
 
     private void updateGameProgress(GameProgress source) {
