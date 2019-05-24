@@ -1,6 +1,7 @@
 package uk.co.darkerwaters.staveinvaders.actvities;
 
 import android.content.Intent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -53,6 +54,8 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
     private TextView levelUpHead;
     private TextView levelUpTail;
 
+    private FloatingActionButton playButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +76,8 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
         this.levelUpTail = findViewById(R.id.levelUpTailText);
         this.levelUpLayout = new SlideInOutAnimator(findViewById(R.id.levelUpLayout));
 
+        this.playButton = findViewById(R.id.playActionButton);
+
         Intent intent = getIntent();
         String parentGameName = intent.getStringExtra(K_SELECTED_CARD_FULL_NAME);
         this.startingTempo = intent.getIntExtra(K_STARTING_TEMPO, GameScore.K_DEFAULT_BPM);
@@ -85,6 +90,13 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
             // set our title to be the name of the game parent
             setTitle(selectedGame.name);
         }
+
+        this.playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                playPauseGame();
+            }
+        });
 
         // setup the progress
         this.livesRatingBar.setNumStars(GameProgress.K_LIVES);
@@ -105,6 +117,7 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
         this.pianoView.setNoteRange(this.selectedGame.getNoteRange(settings.getSelectedClefs()), true);
         this.pianoView.setIsAllowTouch(true);
 
+        // be sure sound is initialised
         SoundPlayer.initialise(this);
     }
 
@@ -120,9 +133,11 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
     @Override
     protected void onResume() {
         super.onResume();
-
         // start our countdown
         this.isPerformCountdown = true;
+        // be sure the gameplay is paused
+        this.gamePlayer.setPaused(true);
+        // and show the progress
         this.progressView.setVisibility(View.VISIBLE);
         new Thread(new Runnable() {
             @Override
@@ -131,10 +146,39 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
                 countDownToStartOfPlay();
             }
         }).start();
+        // show / hide the button
+        updatePlayPauseButton();
+    }
+
+    private void playPauseGame() {
+        // play / pause the game
+        this.gamePlayer.setPaused(!this.gamePlayer.isPaused());
+        // update the icon and shown status
+        updatePlayPauseButton();
+    }
+
+    private void updatePlayPauseButton() {
+        // hide the button when counting down
+        if (this.isPerformCountdown) {
+            this.playButton.hide();
+        }
+        else {
+            this.playButton.show();
+            // set the correct icon
+            if (false == this.gamePlayer.isPaused()) {
+                this.playButton.setImageResource(android.R.drawable.ic_media_pause);
+            }
+            else {
+                this.playButton.setImageResource(android.R.drawable.ic_media_play);
+            }
+        }
     }
 
     @Override
     protected void onPause() {
+        // be sure the gameplay is paused
+        this.gamePlayer.setPaused(true);
+        // and stop any countdown we are performing
         this.isPerformCountdown = false;
         synchronized (this) {
             this.notifyAll();
@@ -178,12 +222,23 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
                 }
             }
         }
+        // no longer counting down
+        this.isPerformCountdown = false;
     }
 
     private void startPlaying() {
+        // no longer counting down
+        this.isPerformCountdown = false;
         // lose the progress countdown timer
         this.progressView.setVisibility(View.GONE);
-
+        if (this.gamePlayer.isPaused()) {
+            // play the game
+            playPauseGame();
+        }
+        else {
+            // show / hide the button
+            updatePlayPauseButton();
+        }
         // start the game
         if (null != this.gamePlayer) {
             // turn help off, this sets us playing the game

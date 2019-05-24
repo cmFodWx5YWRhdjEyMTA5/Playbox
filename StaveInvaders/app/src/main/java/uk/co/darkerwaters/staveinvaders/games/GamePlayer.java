@@ -31,6 +31,8 @@ public abstract class GamePlayer implements GameProgressListener {
 
     private final List<GamePlayerListener> listeners;
 
+    private boolean isPaused = true;
+
     private Clef activeClef;
     private Clef broadcastClef = null;
     private HashSet<Clef> permittedClefs = new HashSet<Clef>(2);
@@ -47,6 +49,7 @@ public abstract class GamePlayer implements GameProgressListener {
         this.application = application;
         this.game = game;
         this.listeners = new ArrayList<GamePlayerListener>();
+        this.isPaused = true;
 
         // get the active clef from the entries on the game, just use the first
         if (null != this.game && null != this.game.entries && this.game.entries.length > 0) {
@@ -92,6 +95,14 @@ public abstract class GamePlayer implements GameProgressListener {
         synchronized (this.listeners) {
             return this.listeners.remove(listener);
         }
+    }
+
+    public void setPaused(boolean isPaused) {
+        this.isPaused = isPaused;
+    }
+
+    public boolean isPaused() {
+        return this.isPaused;
     }
 
     public void insertTimeGap(float timeGapBeats) {
@@ -157,77 +168,78 @@ public abstract class GamePlayer implements GameProgressListener {
     }
 
     public void updateNotes(float beatsElapsed) {
-        // offset the notes the correct time
-        offsetNotes(-beatsElapsed);
+        if (false == this.isPaused) {
+            // offset the notes the correct time
+            offsetNotes(-beatsElapsed);
 
-        // check the clef is correct
-        if (false == permittedClefs.contains(this.activeClef) && false == permittedClefs.isEmpty()) {
-            // the active clef is not permitted, change this to whatever is in the list
-            setActiveClef(permittedClefs.iterator().next());
-        }
-        if (System.currentTimeMillis() > this.nextSheduledChangeTime) {
-            // we are due a change on the permitted clefs
-            boolean isActiveFound = false;
-            Clef newClef = null;
-            for (Clef clef : this.permittedClefs) {
-                if (isActiveFound == false ) {
-                    // not found the active one yet, is this it?
-                    if (clef == this.activeClef) {
-                        isActiveFound = true;
+            // check the clef is correct
+            if (false == permittedClefs.contains(this.activeClef) && false == permittedClefs.isEmpty()) {
+                // the active clef is not permitted, change this to whatever is in the list
+                setActiveClef(permittedClefs.iterator().next());
+            }
+            if (System.currentTimeMillis() > this.nextSheduledChangeTime) {
+                // we are due a change on the permitted clefs
+                boolean isActiveFound = false;
+                Clef newClef = null;
+                for (Clef clef : this.permittedClefs) {
+                    if (isActiveFound == false) {
+                        // not found the active one yet, is this it?
+                        if (clef == this.activeClef) {
+                            isActiveFound = true;
+                        }
+                    } else {
+                        // this is the one after the active one
+                        newClef = clef;
+                        break;
                     }
                 }
-                else {
-                    // this is the one after the active one
-                    newClef = clef;
-                    break;
+                if (null == newClef && this.permittedClefs.isEmpty() == false) {
+                    // looped around, select the first one
+                    newClef = this.permittedClefs.iterator().next();
                 }
-            }
-            if (null == newClef && this.permittedClefs.isEmpty() == false) {
-                // looped around, select the first one
-                newClef = this.permittedClefs.iterator().next();
-            }
-            if (null != newClef) {
-                // set the new active clef
-                setActiveClef(newClef);
-                // and the new change time
-                if (false == isGameActive()) {
-                    // clear the list of active notes to immediately refresh them
-                    synchronized (this.activeNotes) {
-                        this.activeNotes.clear();
+                if (null != newClef) {
+                    // set the new active clef
+                    setActiveClef(newClef);
+                    // and the new change time
+                    if (false == isGameActive()) {
+                        // clear the list of active notes to immediately refresh them
+                        synchronized (this.activeNotes) {
+                            this.activeNotes.clear();
+                        }
+                        // and schedule a new change
+                        this.nextSheduledChangeTime = System.currentTimeMillis() + K_HELP_CHANGE_TIME;
+                    } else {
+                        // schedule a new change, allowing for the current ones to clear from the list
+                        this.nextSheduledChangeTime = System.currentTimeMillis() + K_MIN_CHANGE_TIME + (this.random.nextInt(K_CHANGE_TIME_BEATS_ADD) * 1000l);
                     }
-                    // and schedule a new change
-                    this.nextSheduledChangeTime = System.currentTimeMillis() + K_HELP_CHANGE_TIME;
-                } else {
-                    // schedule a new change, allowing for the current ones to clear from the list
-                    this.nextSheduledChangeTime = System.currentTimeMillis() + K_MIN_CHANGE_TIME + (this.random.nextInt(K_CHANGE_TIME_BEATS_ADD) * 1000l);
                 }
             }
-        }
 
-        // do we need any more notes in our list we will return now we have changed times?
-        float lastNoteBeats = getLastNoteBeats();
-        while (lastNoteBeats <= MusicView.K_BEATS_ON_VIEW + 1) {
-            // we need another at the correct interval from the last, add one here
-            float beats = lastNoteBeats + 1;
-            if (this.insertTimeGap > 0f) {
-                // add a gap in here
-                beats += this.insertTimeGap;
-                this.insertTimeGap = 0f;
+            // do we need any more notes in our list we will return now we have changed times?
+            float lastNoteBeats = getLastNoteBeats();
+            while (lastNoteBeats <= MusicView.K_BEATS_ON_VIEW + 1) {
+                // we need another at the correct interval from the last, add one here
+                float beats = lastNoteBeats + 1;
+                if (this.insertTimeGap > 0f) {
+                    // add a gap in here
+                    beats += this.insertTimeGap;
+                    this.insertTimeGap = 0f;
+                }
+                // get the next note to draw
+                synchronized (this.activeNotes) {
+                    this.activeNotes.add(new GameNote(getNextNote(this.activeClef, beats), beats));
+                }
+                // this is the last one now
+                lastNoteBeats = beats;
             }
-            // get the next note to draw
-            synchronized (this.activeNotes) {
-                this.activeNotes.add(new GameNote(getNextNote(this.activeClef, beats), beats));
-            }
-            // this is the last one now
-            lastNoteBeats = beats;
-        }
-        // this might have changed the current clef
-        if (getCurrentClef() != this.broadcastClef) {
-            broadcastClef = getCurrentClef();
-            // inform any listeners of this change
-            synchronized (this.listeners) {
-                for (GamePlayerListener listener : this.listeners) {
-                    listener.onGameClefChanged(broadcastClef);
+            // this might have changed the current clef
+            if (getCurrentClef() != this.broadcastClef) {
+                broadcastClef = getCurrentClef();
+                // inform any listeners of this change
+                synchronized (this.listeners) {
+                    for (GamePlayerListener listener : this.listeners) {
+                        listener.onGameClefChanged(broadcastClef);
+                    }
                 }
             }
         }

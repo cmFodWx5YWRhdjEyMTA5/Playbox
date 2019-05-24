@@ -291,7 +291,7 @@ public class MusicViewPlaying extends MusicView implements InputSelector.InputLi
     public void onNoteDetected(Settings.InputType type, Chord chord, boolean isDetection, float probability) {
         // as a note is pressed, build our chord of notes we are firing at
         synchronized (this.detectedNotes) {
-            if (isDetection) {
+            if (isDetection && (this.noteProvider == null || false == this.noteProvider.isPaused())) {
                 // this is an addition if the probability is ok
                 if (probability > Input.K_DETECTION_PROBABILITY_THRESHOLD) {
                     // add all the detected notes to our list
