@@ -371,7 +371,7 @@ public class MusicView extends BaseView {
 
         // draw in the tempo
         if (null != this.noteProvider && this.noteProvider.isGameActive()) {
-            String tempoString = Integer.toString((int) (this.noteProvider.getBeatsPerSecond() * 60f));
+            String tempoString = Integer.toString(this.noteProvider.getTempo());
             Paint.Align textAlign = assets.letterPaint.getTextAlign();
             assets.letterPaint.setTextAlign(Paint.Align.LEFT);
             float letterBorder = assets.letterPaint.getTextSize() * 0.2f;

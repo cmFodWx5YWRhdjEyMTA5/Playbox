@@ -32,6 +32,7 @@ public abstract class GamePlayer implements GameProgressListener {
     private final List<GamePlayerListener> listeners;
 
     private boolean isPaused = true;
+    private boolean isInDemoMode = true;
 
     private Clef activeClef;
     private Clef broadcastClef = null;
@@ -172,11 +173,8 @@ public abstract class GamePlayer implements GameProgressListener {
     }
 
     public void updateNotes(float beatsElapsed) {
-        if (false == this.isPaused) {
-            // offset the notes the correct time
-            offsetNotes(-beatsElapsed);
-
-            // check the clef is correct
+        if (false == this.isPaused || this.isInDemoMode) {
+            // we are not pausd, or we are in demo mode - deal with the clef changes here
             if (false == permittedClefs.contains(this.activeClef) && false == permittedClefs.isEmpty()) {
                 // the active clef is not permitted, change this to whatever is in the list
                 setActiveClef(permittedClefs.iterator().next());
@@ -205,7 +203,7 @@ public abstract class GamePlayer implements GameProgressListener {
                     // set the new active clef
                     setActiveClef(newClef);
                     // and the new change time
-                    if (false == isGameActive()) {
+                    if (isInDemoMode) {
                         // clear the list of active notes to immediately refresh them
                         synchronized (this.activeNotes) {
                             this.activeNotes.clear();
@@ -218,7 +216,11 @@ public abstract class GamePlayer implements GameProgressListener {
                     }
                 }
             }
-
+        }
+        // only do all the other updates when we are playing (not paused)
+        if (false == this.isPaused) {
+            // offset the notes the correct time
+            offsetNotes(-beatsElapsed);
             // do we need any more notes in our list we will return now we have changed times?
             float lastNoteBeats = getLastNoteBeats();
             while (lastNoteBeats <= MusicView.K_BEATS_ON_VIEW + 1) {
@@ -236,14 +238,14 @@ public abstract class GamePlayer implements GameProgressListener {
                 // this is the last one now
                 lastNoteBeats = beats;
             }
-            // this might have changed the current clef
-            if (getCurrentClef() != this.broadcastClef) {
-                broadcastClef = getCurrentClef();
-                // inform any listeners of this change
-                synchronized (this.listeners) {
-                    for (GamePlayerListener listener : this.listeners) {
-                        listener.onGameClefChanged(broadcastClef);
-                    }
+        }
+        // this might have changed the current clef
+        if (getCurrentClef() != this.broadcastClef) {
+            broadcastClef = getCurrentClef();
+            // inform any listeners of this change
+            synchronized (this.listeners) {
+                for (GamePlayerListener listener : this.listeners) {
+                    listener.onGameClefChanged(broadcastClef);
                 }
             }
         }
@@ -261,8 +263,10 @@ public abstract class GamePlayer implements GameProgressListener {
 
     public void setTempo(int tempo) { this.progresser.setTempo(tempo); }
 
+    public int getTempo() { return this.progresser.getTempo(); }
+
     public GameNote[] getNotesToDraw() {
-        if (false == isGameActive()) {
+        if (this.isInDemoMode) {
             // just return all the notes divided by the interval over which we can draw
             if (this.game.entries.length == 0) {
                 // none, log this for the developer
@@ -375,8 +379,13 @@ public abstract class GamePlayer implements GameProgressListener {
         return this.progresser.removeListener(listener);
     }
 
+    public void resetGame() {
+        this.isInDemoMode = true;
+    }
+
     public void startNewGame(int tempo, boolean isHelpOn) {
         // start a new game, stop help
+        this.isInDemoMode = false;
         this.progresser.startNewGame(tempo, isHelpOn);
         // clear the notes
         synchronized (this.activeNotes) {
