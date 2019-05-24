@@ -29,18 +29,19 @@ public class GameProgress {
     }
 
     public enum Type {
+        gameStarted,
         lifeLost,
         shotLost,
         scoreChanged,
-        statusChanged,
-        unknown,
+        tempoIncrease,
+        lettersDisabled,
+        gameOver
     }
 
     private Points[] points = new Points[Clef.values().length];
 
     public interface GameProgressListener {
         void onGameProgressChanged(GameProgress source, GameProgress.Type changeType);
-        void onGameProgressLevelChanged(int tempo, boolean isHelpOn);
     }
 
     private final List<GameProgressListener> listeners;
@@ -59,7 +60,7 @@ public class GameProgress {
         // clear the points
         clearPointsAccumulation();
         // inform the listeners of the game state
-        informListeners(Type.statusChanged);
+        informListeners(Type.gameStarted);
     }
 
     private void clearPointsAccumulation() {
@@ -83,14 +84,6 @@ public class GameProgress {
         synchronized (this.listeners) {
             for (GameProgressListener listener : this.listeners) {
                 listener.onGameProgressChanged(this, type);
-            }
-        }
-    }
-
-    private void informListenersLevelChanged() {
-        synchronized (this.listeners) {
-            for (GameProgressListener listener : this.listeners) {
-                listener.onGameProgressLevelChanged(this.tempo, this.isHelpOn);
             }
         }
     }
@@ -153,34 +146,38 @@ public class GameProgress {
             }
         }
         if (tempoIndex == GameScore.K_BPMS.length - 1) {
-            // this is the final victory, nothing to do here
+            // this is the final victory
+            informListeners(Type.gameOver);
         }
         else {
             // move on a tempo
+            Type type;
             if (isHelpOn && this.tempo >= K_MAX_HELP_TEMPO) {
                 // we are going too quick to allow help, get rid of it
                 this.isHelpOn = false;
+                type = Type.lettersDisabled;
                 // but to be nice, don't speed up
             }
             else {
                 // increase the speed instead
                 this.tempo = GameScore.K_BPMS[tempoIndex + 1];
+                type = Type.tempoIncrease;
             }
             // clear the points to start this new level
             clearPointsAccumulation();
-            // inform listeners of this level change
-            informListenersLevelChanged();
+            // inform listeners of this setting change
+            informListeners(type);
         }
-        // inform listeners of the change in score etc
+        // inform listeners of the change in score - back to zero
         informListeners(Type.scoreChanged);
     }
 
-    public void recordHit(Clef clef, float hitSeconds) {
+    public void recordHit(Clef clef, float offsetBeats) {
         // count the hits to see when we can progress the tempo
         // the tempo is the same as us, whatever, it is the seconds and the clef we are interested
         Points point = this.points[clef.val];
         // the sooner they hit the note, the more points they get
-        point.points += hitSeconds;
+        point.points += offsetBeats;
         // inform listeners of this change in points
         informListeners(Type.scoreChanged);
         // do we need to change the level now?
@@ -195,6 +192,10 @@ public class GameProgress {
         --this.livesLeft;
         // inform listeners of this
         informListeners(Type.lifeLost);
+        if (false == isGameActive()) {
+            // game over (lose)
+            informListeners(Type.gameOver);
+        }
     }
 
     public void recordMissire(Clef clef) {
@@ -202,5 +203,9 @@ public class GameProgress {
         --this.shotsLeft;
         // inform listeners of this
         informListeners(Type.shotLost);
+        if (false == isGameActive()) {
+            // game over (lose)
+            informListeners(Type.gameOver);
+        }
     }
 }

@@ -1,10 +1,15 @@
 package uk.co.darkerwaters.staveinvaders.actvities;
 
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.EditText;
 import android.widget.RatingBar;
+import android.widget.TextView;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
@@ -17,12 +22,9 @@ import uk.co.darkerwaters.staveinvaders.games.GameProgress;
 import uk.co.darkerwaters.staveinvaders.games.GameScore;
 import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.views.CircleProgressView;
-import uk.co.darkerwaters.staveinvaders.views.GameProgressView;
-import uk.co.darkerwaters.staveinvaders.views.MusicView;
 import uk.co.darkerwaters.staveinvaders.views.MusicViewPlaying;
-import uk.co.darkerwaters.staveinvaders.views.PianoPlaying;
 import uk.co.darkerwaters.staveinvaders.views.PianoTouchable;
-import uk.co.darkerwaters.staveinvaders.views.PianoView;
+import uk.co.darkerwaters.staveinvaders.views.SlideInOutAnimator;
 
 import static uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder.K_IS_STARTING_HELP_ON;
 import static uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder.K_SELECTED_CARD_FULL_NAME;
@@ -49,6 +51,10 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
     private volatile boolean isPerformCountdown = true;
     private GamePlayer gamePlayer;
 
+    private SlideInOutAnimator levelUpLayout;
+    private TextView levelUpHead;
+    private TextView levelUpTail;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +70,10 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
         this.tempoProgressView = findViewById(R.id.tempoProgressDisplay);
         this.livesRatingBar = findViewById(R.id.livesRatingBar);
         this.shotsRatingBar = findViewById(R.id.bulletsRatingBar);
+
+        this.levelUpHead = findViewById(R.id.levelUpHeadText);
+        this.levelUpTail = findViewById(R.id.levelUpTailText);
+        this.levelUpLayout = new SlideInOutAnimator(findViewById(R.id.levelUpLayout));
 
         Intent intent = getIntent();
         String parentGameName = intent.getStringExtra(K_SELECTED_CARD_FULL_NAME);
@@ -179,6 +189,8 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
             // turn help off, this sets us playing the game
             this.gamePlayer.startNewGame(this.startingTempo, this.startingWithHelpOn);
         }
+        // show the level up
+        this.levelUpLayout.slideIn();
     }
 
     @Override
@@ -195,23 +207,46 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
 
     @Override
     public void onGameProgressChanged(final GameProgress source, GameProgress.Type type) {
-        // set the lives left
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                livesRatingBar.setRating(source.getLivesLeft());
-                shotsRatingBar.setRating(source.getShotsLeft());
-                // and the progress of this tempo
-                float progress = source.getPoints() / (float)GameProgress.K_LEVEL_POINTS_GOAL;
-                tempoProgressView.setProgress(progress, Integer.toString((int)(progress * 100f)) + "%");
-            }
-        });
+        switch (type) {
+            case tempoIncrease:
+                // show this increase
+                levelUpHead.setText(R.string.tempo);
+                levelUpTail.setText(R.string.level_up);
+                this.levelUpLayout.slideIn();
+                break;
+            case lettersDisabled:
+                // show that the letters are gone
+                levelUpHead.setText(R.string.letters);
+                levelUpTail.setText(R.string.disabled);
+                this.levelUpLayout.slideIn();
+                break;
+            case gameStarted:
+                // start the game
+                levelUpHead.setText(R.string.game);
+                levelUpTail.setText(R.string.start);
+                this.levelUpLayout.slideIn();
+                break;
+            case gameOver:
+                // TODO handle the game ending
+                break;
+            case lifeLost:
+            case scoreChanged:
+            case shotLost:
+                // update the contents of the controls from the source
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateGameProgress(source);
+                    }
+                });
+        }
     }
 
-    @Override
-    public void onGameProgressLevelChanged(int tempo, boolean isHelpOn) {
-        // TODO handle the level change by showing something on the screen...
-
-        // and update the child views to show the letters, or not
+    private void updateGameProgress(GameProgress source) {
+        this.livesRatingBar.setRating(source.getLivesLeft());
+        this.shotsRatingBar.setRating(source.getShotsLeft());
+        // and the progress of this tempo
+        float progress = source.getPoints() / (float)GameProgress.K_LEVEL_POINTS_GOAL;
+        this.tempoProgressView.setProgress(progress, Integer.toString((int)(progress * 100f)) + "%");
     }
 }

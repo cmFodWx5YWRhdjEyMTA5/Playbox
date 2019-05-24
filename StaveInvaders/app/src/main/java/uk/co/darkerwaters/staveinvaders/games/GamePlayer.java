@@ -190,7 +190,7 @@ public abstract class GamePlayer implements GameProgressListener {
                 // set the new active clef
                 setActiveClef(newClef);
                 // and the new change time
-                if (false == progresser.isGameActive()) {
+                if (false == isGameActive()) {
                     // clear the list of active notes to immediately refresh them
                     synchronized (this.activeNotes) {
                         this.activeNotes.clear();
@@ -280,29 +280,40 @@ public abstract class GamePlayer implements GameProgressListener {
                 break;
             }
         }
-        float hitSeconds = -1f;
+        float hitBeatsOffset = -1f;
         if (null != toRemove) {
-            hitSeconds = toRemove.getOffsetBeats();
+            hitBeatsOffset = toRemove.getOffsetBeats();
             synchronized (this.activeNotes) {
                 this.activeNotes.remove(toRemove);
             }
         }
         // log the success of this note destruction
-        this.score.recordHit(entry.clef, this.progresser.getTempo(), entry.chord);
-        this.progresser.recordHit(entry.clef, hitSeconds);
-        return hitSeconds;
+        registerHit(entry, hitBeatsOffset);
+        return hitBeatsOffset;
+    }
+
+    private void registerHit(Game.GameEntry entry, float offsetBeats) {
+        // called as a not is successfully hit on the view
+        if (isGameActive()) {
+            this.score.recordHit(entry.clef, this.progresser.getTempo(), entry.chord);
+            this.progresser.recordHit(entry.clef, offsetBeats);
+        }
     }
 
     private void registerMiss(Game.GameEntry entry) {
         // called as a note's time goes below zero (failed to hit it)
-        this.score.recordMiss(entry.clef, this.progresser.getTempo(), entry.chord);
-        this.progresser.recordMiss(entry.clef);
+        if (isGameActive()) {
+            this.score.recordMiss(entry.clef, this.progresser.getTempo(), entry.chord);
+            this.progresser.recordMiss(entry.clef);
+        }
     }
 
     public void registerMisfire(Game.GameEntry target, Chord actual) {
         // record this on the score
-        this.score.recordMissfire(target.clef, this.progresser.getTempo(), target.chord, actual);
-        this.progresser.recordMissire(target.clef);
+        if (isGameActive()) {
+            this.score.recordMissfire(target.clef, this.progresser.getTempo(), target.chord, actual);
+            this.progresser.recordMissire(target.clef);
+        }
     }
 
     protected abstract Game.GameEntry getNextNote(Clef activeClef, float seconds);
@@ -322,22 +333,18 @@ public abstract class GamePlayer implements GameProgressListener {
     public void onGameProgressChanged(GameProgress source, GameProgress.Type type) {
         // called as the progress of our current game changes,
         switch (type) {
-            case unknown:
+            case gameOver:
+            case gameStarted:
             case shotLost:
             case scoreChanged:
-            case statusChanged:
                 break;
             case lifeLost:
-                // when we lose a life, give them a chance to recover
+            case tempoIncrease:
+            case lettersDisabled:
+                // when we lose a life or the level changes, give them a chance to recover
                 offsetNotes(K_CLEF_CHANGE_FREEBEE_BEATS);
                 break;
         }
-    }
-
-    @Override
-    public void onGameProgressLevelChanged(int tempo, boolean isHelpOn) {
-        // handle the level change by giving them a second...
-        this.offsetNotes(K_CLEF_CHANGE_FREEBEE_BEATS);
     }
 
     public boolean addListener(GameProgressListener listener) {

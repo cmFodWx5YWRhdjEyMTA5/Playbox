@@ -48,4 +48,9 @@
     <string name="bass_parent_score_title">Average\nTempo</string>
     <string name="tempo">Tempo</string>
     <string name="show_help">Show Letters</string>
+    <string name="level_up">Level Up</string>
+    <string name="disabled">Gone</string>
+    <string name="letters">Note letters</string>
+    <string name="game">Game</string>
+    <string name="start">Start</string>
 </resources>
