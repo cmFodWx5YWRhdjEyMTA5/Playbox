@@ -12,7 +12,6 @@ import android.widget.TextView;
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.application.Log;
-import uk.co.darkerwaters.staveinvaders.application.Scores;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
 import uk.co.darkerwaters.staveinvaders.games.Game;
 import uk.co.darkerwaters.staveinvaders.games.GameList;
@@ -310,7 +309,9 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
                         levelUpHead.setText(R.string.game);
                         levelUpTail.setText(R.string.ended);
                         levelUpImage.setVisibility(View.GONE);
-                        SoundPlayer.getINSTANCE().gameOver();
+                        if (!application.getSettings().getIsMuted()) {
+                            SoundPlayer.getINSTANCE().gameOver();
+                        }
                         levelUpLayout.slideIn(new Runnable() {
                             @Override
                             public void run() {
@@ -323,16 +324,22 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
                 break;
             case lifeLost:
                 // play the sound for this
-                SoundPlayer.getINSTANCE().missed();
+                if (!application.getSettings().getIsMuted()) {
+                    SoundPlayer.getINSTANCE().missed();
+                }
                 break;
             case shotLost:
                 // play the sound for this
-                SoundPlayer.getINSTANCE().falseFire();
+                if (!application.getSettings().getIsMuted()) {
+                    SoundPlayer.getINSTANCE().falseFire();
+                }
                 break;
             case targetHit:
                 // the data param is the chord that has been hit
                 if (null != data && data instanceof Chord) {
-                    SoundPlayer.getINSTANCE().playSound((Chord)data);
+                    if (!application.getSettings().getIsMuted()) {
+                        SoundPlayer.getINSTANCE().playSound((Chord) data);
+                    }
                 }
                 break;
         }

@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private NavigationDrawerHandler navigationActor = null;
     private GridLayoutManager layoutManager;
     private RecyclerView recyclerView;
+    private Application application;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // set this on the application
-        Application application = (Application)getApplication();
+        this.application = (Application)getApplication();
         application.setMainActivity(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -57,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
         }
         layoutManager = new GridLayoutManager(MainActivity.this, span);
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(new GameParentRecyclerAdapter(application, GameList.loadGamesFromAssets(application, this)));
 
         // if we are sent a message to open the drawer, open it
         boolean isOpenDrawer = this.getIntent().getBooleanExtra(K_OPEN_DRAWER, false);
@@ -69,6 +69,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             }, 250);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // update the cards from the possible settings change
+        recyclerView.setAdapter(new GameParentRecyclerAdapter(application, GameList.loadGamesFromAssets(application, this)));
     }
 
     @Override

@@ -13,6 +13,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private Switch hideTreble;
     private Switch hideBass;
+    private Switch mute;
 
     private Application application;
 
@@ -25,6 +26,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         this.hideTreble = findViewById(R.id.hideTrebleSwitch);
         this.hideBass = findViewById(R.id.hideBassSwitch);
+        this.mute = findViewById(R.id.muteSwitch);
 
         // listen for changes here
         this.hideTreble.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -47,9 +49,16 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             }
         });
+        this.mute.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                application.getSettings().setIsMuted(b).commitChanges();
+            }
+        });
 
         // set the data here
         this.hideTreble.setChecked(application.getSettings().getIsHideClef(Clef.treble));
         this.hideBass.setChecked(application.getSettings().getIsHideClef(Clef.bass));
+        this.mute.setChecked(application.getSettings().getIsMuted());
     }
 }

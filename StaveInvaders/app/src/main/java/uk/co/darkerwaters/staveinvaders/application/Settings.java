@@ -26,6 +26,7 @@ public class Settings {
     private final String K_ISHIDEBASS = "isHideBass";
     private final String K_ISHIDETREBLE = "isHideTreble";
     private final String K_SELECTEDCLEF = "selectedClef";
+    private final String K_ISMUTED = "isMuted";
 
     // the settings - important for defaults
     private boolean isLogging = true;
@@ -42,6 +43,7 @@ public class Settings {
 
     private boolean isHideTreble = false;
     private boolean isHideBass = false;
+    private boolean isMuted = false;
 
     private String selectedClefs = Clef.treble.name();
 
@@ -184,6 +186,17 @@ public class Settings {
     public Settings setLastConnectedBtDevice(String device) {
         this.lastConnectedBtDevice = device;
         this.editor.putString(K_LASTCONNECTEDBTDEVICE, this.lastConnectedBtDevice);
+        return this;
+    }
+
+    public boolean getIsMuted() {
+        this.isMuted = this.preferences.getBoolean(K_ISMUTED, this.isMuted);
+        return this.isMuted;
+    }
+
+    public Settings setIsMuted(boolean isMuted) {
+        this.isMuted = isMuted;
+        this.editor.putBoolean(K_ISMUTED, this.isMuted);
         return this;
     }
 

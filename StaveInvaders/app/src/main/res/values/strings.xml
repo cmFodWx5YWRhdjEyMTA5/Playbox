@@ -59,4 +59,8 @@
     <string name="previously">Previously managed</string>
     <string name="lives_left">Lives left</string>
     <string name="shots_left">Shots left</string>
+    <string name="hide_treble_desc">Hide the treble clef and all associated controls.</string>
+    <string name="hide_bass_desc">Hide the bass clef and all associated controls.</string>
+    <string name="mute_desc">Mute all sounds played.</string>
+    <string name="mute">Mute</string>
 </resources>
