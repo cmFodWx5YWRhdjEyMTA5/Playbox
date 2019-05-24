@@ -183,6 +183,7 @@ public class GameSelectActivity extends AppCompatActivity {
             // not allowed help
             this.helpSwitch.setChecked(false);
         }
+        this.musicView.setIsHelpLettersShowing(this.helpSwitch.isChecked());
     }
 
     private void changeTempo(int delta) {

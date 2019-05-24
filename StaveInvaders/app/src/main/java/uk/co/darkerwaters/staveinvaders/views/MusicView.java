@@ -284,6 +284,12 @@ public class MusicView extends BaseView {
         this.bassDrawable = VectorDrawableCompat.create(getContext().getResources(), R.drawable.ic_bass, null);
     }
 
+    public void setIsHelpLettersShowing(boolean isShowing) {
+        if (null != this.noteProvider) {
+            this.noteProvider.setIsHelpLettersShowing(isShowing);
+        }
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -423,7 +429,7 @@ public class MusicView extends BaseView {
                     // and the title if we are showing this helpful thing
                     if (toDraw.name != null && toDraw.name.isEmpty() == false) {
                         // there is a name, should we draw it
-                        if (false == this.noteProvider.isGameActive() || this.noteProvider.isHelpLettersShowing()) {
+                        if (this.noteProvider.isHelpLettersShowing()) {
                             float yText = topYPosition - noteRadius * 2f;
                             /*Paint.FontMetrics fontMetrics = assets.letterPaint.getFontMetrics();
                             float letterWidth = assets.letterPaint.measureText(toDraw.name);
