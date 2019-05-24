@@ -52,5 +52,11 @@
     <string name="disabled">Gone</string>
     <string name="letters">Note letters</string>
     <string name="game">Game</string>
+    <string name="ended">Over</string>
     <string name="start">Start</string>
+    <string name="game_over">Game Over</string>
+    <string name="new_max">Which is a new maximum!</string>
+    <string name="previously">Previously managed</string>
+    <string name="lives_left">Lives left</string>
+    <string name="shots_left">Shots left</string>
 </resources>

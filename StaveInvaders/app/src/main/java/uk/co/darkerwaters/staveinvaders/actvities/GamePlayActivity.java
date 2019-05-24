@@ -5,12 +5,14 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.application.Log;
+import uk.co.darkerwaters.staveinvaders.application.Scores;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
 import uk.co.darkerwaters.staveinvaders.games.Game;
 import uk.co.darkerwaters.staveinvaders.games.GameList;
@@ -52,6 +54,7 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
 
     private SlideInOutAnimator levelUpLayout;
     private TextView levelUpHead;
+    private ImageView levelUpImage;
     private TextView levelUpTail;
 
     private FloatingActionButton playButton;
@@ -74,6 +77,7 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
 
         this.levelUpHead = findViewById(R.id.levelUpHeadText);
         this.levelUpTail = findViewById(R.id.levelUpTailText);
+        this.levelUpImage = findViewById(R.id.levelUpImage);
         this.levelUpLayout = new SlideInOutAnimator(findViewById(R.id.levelUpLayout));
 
         this.playButton = findViewById(R.id.playActionButton);
@@ -133,6 +137,12 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (false == this.gamePlayer.isGameActive()) {
+            // this game is over (we are coming back from the score card, just finish this
+            // to jump back another one
+            finish();
+        }
         // start our countdown
         this.isPerformCountdown = true;
         // be sure the gameplay is paused
@@ -248,6 +258,13 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
         this.levelUpLayout.slideIn();
     }
 
+    private void endGame() {
+        // show the activity to summarise the score
+        Intent intent = new Intent(GamePlayActivity.this, GameOverActivity.class);
+        intent.putExtra(K_SELECTED_CARD_FULL_NAME, selectedGame.getFullName());
+        GamePlayActivity.this.startActivity(intent);
+    }
+
     @Override
     public void onGameClefChanged(Clef clef) {
         // set the range on the piano view accordingly
@@ -262,28 +279,43 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
 
     @Override
     public void onGameProgressChanged(final GameProgress source, GameProgress.Type type, Object data) {
+        this.levelUpImage.setVisibility(View.VISIBLE);
         switch (type) {
             case tempoIncrease:
                 // show this increase
-                levelUpHead.setText(R.string.tempo);
-                levelUpTail.setText(R.string.level_up);
+                this.levelUpHead.setText(R.string.tempo);
+                this.levelUpTail.setText(R.string.level_up);
                 this.levelUpLayout.slideIn();
                 break;
             case lettersDisabled:
                 // show that the letters are gone
-                levelUpHead.setText(R.string.letters);
-                levelUpTail.setText(R.string.disabled);
+                this.levelUpHead.setText(R.string.letters);
+                this.levelUpTail.setText(R.string.disabled);
                 this.levelUpLayout.slideIn();
                 break;
             case gameStarted:
                 // start the game
-                levelUpHead.setText(R.string.game);
-                levelUpTail.setText(R.string.start);
+                this.levelUpHead.setText(R.string.game);
+                this.levelUpTail.setText(R.string.start);
                 this.levelUpLayout.slideIn();
                 break;
             case gameOver:
-                // TODO handle the game ending
-                SoundPlayer.getINSTANCE().gameOver();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        levelUpHead.setText(R.string.game);
+                        levelUpTail.setText(R.string.ended);
+                        levelUpImage.setVisibility(View.GONE);
+                        SoundPlayer.getINSTANCE().gameOver();
+                        levelUpLayout.slideIn(new Runnable() {
+                            @Override
+                            public void run() {
+                                // the slide of "game over" has ended, show the game over activity
+                                endGame();
+                            }
+                        });
+                    }
+                });
                 break;
             case lifeLost:
                 // play the sound for this

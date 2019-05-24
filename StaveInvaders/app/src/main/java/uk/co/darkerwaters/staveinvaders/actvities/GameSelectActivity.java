@@ -40,13 +40,8 @@ public class GameSelectActivity extends AppCompatActivity {
     private TextView imageTitle;
 
     private GameProgressView progressView;
-    private ClefProgressView trebleProgressView;
-    private ClefProgressView bassProgressView;
 
     private FloatingActionButton playActionButton;
-
-    private View trebleProgress;
-    private View bassProgress;
 
     private MusicView musicView;
     private int gameIndex = -1;
@@ -86,10 +81,6 @@ public class GameSelectActivity extends AppCompatActivity {
         this.helpSwitch = findViewById(R.id.helpSwitch);
 
         this.radioClefs = findViewById(R.id.radioGroupClefs);
-        this.trebleProgressView = findViewById(R.id.treble_progress_view);
-        this.trebleProgress = findViewById(R.id.treble_progress_layout);
-        this.bassProgressView = findViewById(R.id.bass_progress_view);
-        this.bassProgress = findViewById(R.id.bass_progress_layout);
 
         Intent intent = getIntent();
         String parentGameName = intent.getStringExtra(K_SELECTED_CARD_FULL_NAME);
@@ -183,6 +174,7 @@ public class GameSelectActivity extends AppCompatActivity {
             // not allowed help
             this.helpSwitch.setChecked(false);
         }
+        this.musicView.setTempo(this.tempo);
         this.musicView.setIsHelpLettersShowing(this.helpSwitch.isChecked());
     }
 
@@ -280,9 +272,6 @@ public class GameSelectActivity extends AppCompatActivity {
         if (selectedClefs.length == 2) {
             // both are selected
             this.radioClefs.check(R.id.radioMixedClefs);
-            // show the progress for both
-            this.trebleProgress.setVisibility(View.VISIBLE);
-            this.bassProgress.setVisibility(View.VISIBLE);
             // find the max BPM from the score
             maxBpm = Math.max(score.getTopBpm(Clef.treble), score.getTopBpm(Clef.bass));
 
@@ -291,17 +280,11 @@ public class GameSelectActivity extends AppCompatActivity {
             switch (selectedClefs[0]) {
                 case treble:
                     this.radioClefs.check(R.id.radioTrebleClef);
-                    // show the progress for this only
-                    this.trebleProgress.setVisibility(View.VISIBLE);
-                    this.bassProgress.setVisibility(View.INVISIBLE);
                     // and get the max bpm
                     maxBpm = score.getTopBpm(Clef.treble);
                     break;
                 case bass:
                     this.radioClefs.check(R.id.radioBassClef);
-                    // show the progress for this only
-                    this.trebleProgress.setVisibility(View.INVISIBLE);
-                    this.bassProgress.setVisibility(View.VISIBLE);
                     // and get the max bpm
                     maxBpm = score.getTopBpm(Clef.bass);
                     break;
@@ -311,10 +294,6 @@ public class GameSelectActivity extends AppCompatActivity {
         musicView.setPermittedClefs(selectedClefs);
         // update the game progress view
         this.progressView.invalidate();
-        // and the progress views
-        this.trebleProgressView.setProgress(this.selectedGame, Clef.treble);
-        // and bass
-        this.bassProgressView.setProgress(this.selectedGame, Clef.bass);
         // and enable the buttons
         enableNextAndBackButtons();
 
@@ -329,6 +308,12 @@ public class GameSelectActivity extends AppCompatActivity {
         updateTempoAndHelp();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // update the page when back from the score screen
+        setSelectedGameData();
+    }
 
     private void setSelectedGameData() {
         gameTitle.setText(this.selectedGame.name);

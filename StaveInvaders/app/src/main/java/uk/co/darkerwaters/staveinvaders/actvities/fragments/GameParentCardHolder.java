@@ -35,9 +35,8 @@ public class GameParentCardHolder extends RecyclerView.ViewHolder {
     private final ImageView itemImage;
     private final TextView itemDetail;
     private final GameProgressView progressView;
-    private final ClefProgressView trebleProgressView;
-    private final LevelProgressView levelsProgressView;
-    private final ClefProgressView bassProgressView;
+
+    private final TempoSummaryLayout tempoSummary;
 
     public GameParentCardHolder(@NonNull View itemView) {
         super(itemView);
@@ -48,13 +47,10 @@ public class GameParentCardHolder extends RecyclerView.ViewHolder {
         this.itemDetail = (TextView)this.parent.findViewById(R.id.item_detail);
         this.progressView = (GameProgressView)this.parent.findViewById(R.id.gameProgress);
 
-        this.trebleProgressView = this.parent.findViewById(R.id.treble_progress_view);
-        this.levelsProgressView = this.parent.findViewById(R.id.levels_progress_view);
-        this.bassProgressView = this.parent.findViewById(R.id.bass_progress_view);
+        this.tempoSummary = new TempoSummaryLayout(this.parent);
     }
 
     public void initialiseCard(final Application application, final Game card) {
-
         // hide the old game progress view
         this.progressView.setVisibility(View.GONE);
         Settings settings = application.getSettings();
@@ -79,12 +75,8 @@ public class GameParentCardHolder extends RecyclerView.ViewHolder {
         // and the progress view
         this.progressView.setViewData(card);
 
-        // set the progress on the bass and treble views
-        this.trebleProgressView.setProgress(card, Clef.treble);
-        this.bassProgressView.setProgress(card, Clef.bass);
-
-        // and the levels too
-        this.levelsProgressView.setProgress(card);
+        // set the progress on the tempo views
+        this.tempoSummary.setProgress(card);
 
         // also handle the click here, show the active game for this parent
         final Context context = this.parent.getContext();

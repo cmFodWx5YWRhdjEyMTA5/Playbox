@@ -284,6 +284,12 @@ public class MusicView extends BaseView {
         this.bassDrawable = VectorDrawableCompat.create(getContext().getResources(), R.drawable.ic_bass, null);
     }
 
+    public void setTempo(int tempo) {
+        if (null != this.noteProvider) {
+            this.noteProvider.setTempo(tempo);
+        }
+    }
+
     public void setIsHelpLettersShowing(boolean isShowing) {
         if (null != this.noteProvider) {
             this.noteProvider.setIsHelpLettersShowing(isShowing);

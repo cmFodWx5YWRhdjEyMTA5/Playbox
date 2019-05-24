@@ -1,5 +1,6 @@
 package uk.co.darkerwaters.staveinvaders.games;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +39,16 @@ public class GameProgress {
         gameOver
     }
 
+    private static GameProgress LAST_INSTANCE = null;
+
+    public static GameProgress GetLastInstance(boolean isClear) {
+        GameProgress instance = LAST_INSTANCE;
+        if (isClear) {
+            LAST_INSTANCE = null;
+        }
+        return instance;
+    }
+
     private Points[] points = new Points[Clef.values().length];
 
     public interface GameProgressListener {
@@ -47,7 +58,10 @@ public class GameProgress {
     private final List<GameProgressListener> listeners;
 
     public GameProgress() {
+        LAST_INSTANCE = this;
         this.listeners = new ArrayList<GameProgressListener>();
+        this.livesLeft = K_LIVES;
+        this.shotsLeft = K_SHOTS;
     }
 
     public void startNewGame(int tempo, boolean isHelpOn) {
@@ -78,6 +92,10 @@ public class GameProgress {
             }
         }
         return score;
+    }
+
+    public int getMaxTempo() {
+        return this.maxTempo;
     }
 
     private void informListeners(Type type, Object data) {

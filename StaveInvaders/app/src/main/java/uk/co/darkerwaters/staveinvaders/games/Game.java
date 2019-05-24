@@ -144,7 +144,11 @@ public class Game {
 
     public float getGameProgress(Clef clef) {
         // return the current progress acheived by this game
-        return (float) getGameTopTempo(clef) / GameScore.K_MAX_BPM;
+        return getGameProgress(getGameTopTempo(clef));
+    }
+
+    public float getGameProgress(int tempo) {
+        return (float) tempo / GameScore.K_MAX_BPM;
     }
 
     public int getGameTopTempo(Clef clef) {

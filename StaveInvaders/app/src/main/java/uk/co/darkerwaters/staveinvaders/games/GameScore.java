@@ -1,12 +1,13 @@
 package uk.co.darkerwaters.staveinvaders.games;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
 import uk.co.darkerwaters.staveinvaders.notes.Clef;
 
-public class GameScore {
+public class GameScore implements Serializable {
 
     public static final int[] K_BPMS = {20,40,60,80,100,130,150,180};
     public static final int K_MIN_BPM = K_BPMS[0];
@@ -15,6 +16,16 @@ public class GameScore {
     public static final int K_DEFAULT_BPM = K_BPMS[2];
     public static final int K_PASS_BPM = K_BPMS[4];
     public static final float K_PASS_BPM_FACTOR = 0.50f;
+
+    private static GameScore LAST_INSTANCE = null;
+
+    public static GameScore GetLastInstance(boolean isClear) {
+        GameScore instance = LAST_INSTANCE;
+        if (isClear) {
+            LAST_INSTANCE = null;
+        }
+        return instance;
+    }
 
     private final Game game;
 
@@ -73,6 +84,8 @@ public class GameScore {
     private final List<Miss>[] missFires = new List[K_BPMS.length];
 
     public GameScore(Game game) {
+        LAST_INSTANCE = this;
+
         this.game = game;
 
         for (int i = 0; i < K_BPMS.length; ++i) {

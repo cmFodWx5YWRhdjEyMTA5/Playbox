@@ -148,6 +148,10 @@ public abstract class GamePlayer implements GameProgressListener {
         return this.progresser.getBeatsPerSecond();
     }
 
+    public int getPoints() { return this.progresser.getPoints(); }
+
+    public int getMaxTempo() { return this.progresser.getMaxTempo(); }
+
     private void offsetNotes(float beatsDelta) {
         // update our list of notes
         GameNote[] notes;
@@ -254,6 +258,8 @@ public abstract class GamePlayer implements GameProgressListener {
     }
 
     public void setIsHelpLettersShowing(boolean isShowing) { this.progresser.setIsHelpOn(isShowing); }
+
+    public void setTempo(int tempo) { this.progresser.setTempo(tempo); }
 
     public GameNote[] getNotesToDraw() {
         if (false == isGameActive()) {

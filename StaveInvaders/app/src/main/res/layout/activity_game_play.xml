@@ -58,11 +58,11 @@
                     android:text="@string/tempo"
                     android:textSize="18sp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/imageView9"
+                    app:layout_constraintEnd_toStartOf="@+id/levelUpImage"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageView
-                    android:id="@+id/imageView9"
+                    android:id="@+id/levelUpImage"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -81,7 +81,7 @@
                     android:text="@string/level_up"
                     android:textSize="18sp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/imageView9"
+                    app:layout_constraintStart_toEndOf="@+id/levelUpImage"
                     app:layout_constraintTop_toTopOf="parent" />
 
             </android.support.constraint.ConstraintLayout>

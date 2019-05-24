@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         int span = 1;
         switch(getResources().getConfiguration().orientation) {
             case Configuration.ORIENTATION_LANDSCAPE:
-                span = 2;
+                span = 1;
                 break;
 
         }

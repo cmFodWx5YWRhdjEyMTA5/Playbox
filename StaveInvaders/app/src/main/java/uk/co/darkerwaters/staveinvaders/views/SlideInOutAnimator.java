@@ -23,24 +23,28 @@ public class SlideInOutAnimator {
     }
 
     public void slideIn() {
+        slideIn(null);
+    }
+
+    public void slideIn(final Runnable onCompleted) {
         // perform the animation in
         view.setVisibility(View.VISIBLE);
         view.setAlpha(0f);
 
         if (view.getHeight() > 0) {
-            slideInNow();
+            slideInNow(onCompleted);
         } else {
             // wait till height is measured
             view.post(new Runnable() {
                 @Override
                 public void run() {
-                    slideInNow();
+                    slideInNow(onCompleted);
                 }
             });
         }
     }
 
-    private void slideInNow() {
+    private void slideInNow(final Runnable onCompleted) {
         view.setTranslationX(-view.getWidth());
         view.animate()
                 .translationX(0)
@@ -51,14 +55,14 @@ public class SlideInOutAnimator {
                         view.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                slideOut();
+                                slideOut(onCompleted);
                             }
                         }, K_PAUSE_DELAY);
                     }
                 });
     }
 
-    private void slideOut() {
+    private void slideOut(final Runnable onCompleted) {
         // perform the animation out
         this.view.animate()
                 .translationX(view.getWidth())
@@ -70,6 +74,9 @@ public class SlideInOutAnimator {
                         view.setVisibility(View.GONE);
                         view.setAlpha(1f);
                         view.setTranslationY(0f);
+                        if (null != onCompleted) {
+                            onCompleted.run();
+                        }
                     }
                 });
     }

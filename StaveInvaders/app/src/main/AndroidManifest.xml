@@ -18,6 +18,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".actvities.GameOverActivity"></activity>
         <activity
             android:name=".actvities.GamePlayActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
