@@ -15,6 +15,7 @@ import java.util.List;
 
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.application.Log;
+import uk.co.darkerwaters.staveinvaders.games.GameScore;
 import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.games.Game;
 import uk.co.darkerwaters.staveinvaders.games.GameNote;
@@ -284,6 +285,24 @@ public class MusicView extends BaseView {
         this.bassDrawable = VectorDrawableCompat.create(getContext().getResources(), R.drawable.ic_bass, null);
     }
 
+    public int getTempo() {
+        if (null != this.noteProvider) {
+            return this.noteProvider.getTempo();
+        }
+        else {
+            return GameScore.K_DEFAULT_BPM;
+        }
+    }
+
+    public boolean getIsHelpLettersShowing() {
+        if (null != this.noteProvider) {
+            return this.noteProvider.isHelpLettersShowing();
+        }
+        else {
+            return true;
+        }
+    }
+
     public void setTempo(int tempo) {
         if (null != this.noteProvider) {
             this.noteProvider.setTempo(tempo);
@@ -371,7 +390,7 @@ public class MusicView extends BaseView {
 
         // draw in the tempo
         if (null != this.noteProvider && this.noteProvider.isGameActive()) {
-            String tempoString = Integer.toString(this.noteProvider.getTempo());
+            String tempoString = Integer.toString(getTempo());
             Paint.Align textAlign = assets.letterPaint.getTextAlign();
             assets.letterPaint.setTextAlign(Paint.Align.LEFT);
             float letterBorder = assets.letterPaint.getTextSize() * 0.2f;
@@ -435,7 +454,7 @@ public class MusicView extends BaseView {
                     // and the title if we are showing this helpful thing
                     if (toDraw.name != null && toDraw.name.isEmpty() == false) {
                         // there is a name, should we draw it
-                        if (this.noteProvider.isHelpLettersShowing()) {
+                        if (getIsHelpLettersShowing()) {
                             float yText = topYPosition - noteRadius * 2f;
                             /*Paint.FontMetrics fontMetrics = assets.letterPaint.getFontMetrics();
                             float letterWidth = assets.letterPaint.measureText(toDraw.name);

@@ -121,6 +121,10 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
         this.pianoView.setNoteRange(this.selectedGame.getNoteRange(settings.getSelectedClefs()), true);
         this.pianoView.setIsAllowTouch(true);
 
+        // and the music view
+        this.musicView.setTempo(this.startingTempo);
+        this.musicView.setIsHelpLettersShowing(this.startingWithHelpOn);
+
         // be sure sound is initialised
         SoundPlayer.initialise(this);
     }

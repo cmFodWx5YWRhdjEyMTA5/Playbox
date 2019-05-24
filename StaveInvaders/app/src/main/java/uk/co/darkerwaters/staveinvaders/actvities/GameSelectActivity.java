@@ -23,7 +23,6 @@ import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.games.Game;
 import uk.co.darkerwaters.staveinvaders.games.GameList;
 import uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder;
-import uk.co.darkerwaters.staveinvaders.views.ClefProgressView;
 import uk.co.darkerwaters.staveinvaders.views.GameProgressView;
 import uk.co.darkerwaters.staveinvaders.views.MusicView;
 
@@ -58,7 +57,6 @@ public class GameSelectActivity extends AppCompatActivity {
 
     private RadioGroup radioClefs;
     private Application application;
-    private int tempo = GameScore.K_DEFAULT_BPM;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,15 +90,13 @@ public class GameSelectActivity extends AppCompatActivity {
             // set our title to be the name of the game parent
             setTitle(parentGame.name);
 
-            setTopGameSelected();
-
             // card is created, find all our children views and stuff here
             this.progressView = (GameProgressView) this.findViewById(R.id.gameProgress);
             this.progressView.setViewData(parentGame);
         }
         // default the tempo and help controls
         this.helpSwitch.setChecked(true);
-        updateTempoAndHelp();
+        setTempo(this.musicView.getTempo());
 
         // do the next and previous buttons
         this.prevButton.setOnClickListener(new View.OnClickListener() {
@@ -138,10 +134,12 @@ public class GameSelectActivity extends AppCompatActivity {
         this.helpSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                updateTempoAndHelp();
+                updateHelpControls();
             }
         });
 
+        // hide any radio buttons is the user is not interested
+        hideClefsControlsAsRequired();
         // do the bass and treble button listeners
         this.radioClefs.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -158,30 +156,42 @@ public class GameSelectActivity extends AppCompatActivity {
                         setAvailableClefs(new Clef[] {Clef.treble, Clef.bass});
                         break;
                 }
-                setTopGameSelected();
-                setSelectedGameData();
             }
         });
-
-        // set the data
-        setSelectedGameData();
     }
 
-    private void updateTempoAndHelp() {
-        // update the help and tempo things
-        this.tempoText.setText(Integer.toString(this.tempo));
-        if (this.tempo > GameProgress.K_MAX_HELP_TEMPO) {
-            // not allowed help
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // update the page when back from the score screen to be the top game
+        setTopGameSelected();
+        // set the available clefs to be that from the application
+        setAvailableClefs(this.application.getSettings().getSelectedClefs());
+    }
+
+    private void updateHelpControls() {
+        // be sure we are only on when we can be on
+        if (this.musicView.getTempo() > GameProgress.K_MAX_HELP_TEMPO) {
+            // help is not allowed
             this.helpSwitch.setChecked(false);
         }
-        this.musicView.setTempo(this.tempo);
+        // and set on the music view from the switch
         this.musicView.setIsHelpLettersShowing(this.helpSwitch.isChecked());
+    }
+
+    private void setTempo(int newTempo) {
+        // set the data on the music view and the text control
+        this.musicView.setTempo(newTempo);
+        this.tempoText.setText(Integer.toString(newTempo));
+        // and update the help controls accordingly
+        updateHelpControls();
     }
 
     private void changeTempo(int delta) {
         int tempoIndex = 0;
+        int tempo = musicView.getTempo();
         for (int i = 0; i < GameScore.K_BPMS.length; ++i) {
-            if (this.tempo >= GameScore.K_BPMS[i]) {
+            if (tempo >= GameScore.K_BPMS[i]) {
                 tempoIndex = i;
             }
         }
@@ -203,9 +213,8 @@ public class GameSelectActivity extends AppCompatActivity {
         else {
             this.tempoMoreButton.setEnabled(true);
         }
-        // get the tempo
-        this.tempo = GameScore.K_BPMS[tempoIndex];
-        updateTempoAndHelp();
+        // set the tempo on the controls now
+        setTempo(GameScore.K_BPMS[tempoIndex]);
     }
 
     private void setTopGameSelected() {
@@ -220,13 +229,15 @@ public class GameSelectActivity extends AppCompatActivity {
                 break;
             }
         }
+        // set this game data now we have one selected
+        setSelectedGameData();
     }
 
     private void playSelectedGame() {
         // play the selected game by showing the game activity
         Intent intent = new Intent(this, GamePlayActivity.class);
         intent.putExtra(K_SELECTED_CARD_FULL_NAME, this.selectedGame.getFullName());
-        intent.putExtra(K_STARTING_TEMPO, this.tempo);
+        intent.putExtra(K_STARTING_TEMPO, this.musicView.getTempo());
         intent.putExtra(K_IS_STARTING_HELP_ON, this.helpSwitch.isChecked());
         // and start the activity
         startActivity(intent);
@@ -246,12 +257,9 @@ public class GameSelectActivity extends AppCompatActivity {
         return isPassed;
     }
 
-    private void setAvailableClefs(Clef[] clefs) {
-        // set this on the application so remembers the choice and updates the game, music view etc
-        Settings settings = application.getSettings();
-        settings.setSelectedClefs(clefs).commitChanges();
-        int maxBpm = 0;
-        // hide the checks if they are not available in the settings
+    private void hideClefsControlsAsRequired() {
+        Settings settings = this.application.getSettings();
+        // hide the options to select clefs if they are not available in the settings
         if (settings.getIsHideClef(Clef.treble)) {
             // hide it all as there is no choice to make
             this.radioClefs.setVisibility(View.GONE);
@@ -266,63 +274,41 @@ public class GameSelectActivity extends AppCompatActivity {
             // and set the selected clef to be treble, bass cannot be selected, nor can both
             settings.setSelectedClefs(new Clef[]{Clef.treble});
         }
-        Clef[] selectedClefs = settings.getSelectedClefs();
-        // set the check item to match that set and available in the application
-        Scores.Score score = this.application.getScores().getScore(this.selectedGame);
-        if (selectedClefs.length == 2) {
-            // both are selected
-            this.radioClefs.check(R.id.radioMixedClefs);
-            // find the max BPM from the score
-            maxBpm = Math.max(score.getTopBpm(Clef.treble), score.getTopBpm(Clef.bass));
-
-        }
-        else if (selectedClefs.length == 1) {
-            switch (selectedClefs[0]) {
-                case treble:
-                    this.radioClefs.check(R.id.radioTrebleClef);
-                    // and get the max bpm
-                    maxBpm = score.getTopBpm(Clef.treble);
-                    break;
-                case bass:
-                    this.radioClefs.check(R.id.radioBassClef);
-                    // and get the max bpm
-                    maxBpm = score.getTopBpm(Clef.bass);
-                    break;
-            }
-        }
-        // set these on the music view
-        musicView.setPermittedClefs(selectedClefs);
-        // update the game progress view
-        this.progressView.invalidate();
-        // and enable the buttons
-        enableNextAndBackButtons();
-
-        // set the tempo
-        if (maxBpm == 0) {
-            this.tempo = GameScore.K_DEFAULT_BPM;
-        }
-        else {
-            this.tempo = maxBpm;
-        }
-        // and update the controls
-        updateTempoAndHelp();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // update the page when back from the score screen
-        setSelectedGameData();
+    private void setAvailableClefs(Clef[] clefs) {
+        // set this on the application so remembers the choice and updates the game, music view etc
+        Settings settings = application.getSettings();
+        settings.setSelectedClefs(clefs).commitChanges();
+        int maxBpm = 0;
+        // set the check item to match that set and available in the application
+        Scores.Score score = this.application.getScores().getScore(this.selectedGame);
+        if (clefs.length == 2) {
+            // find the max BPM from the score
+            maxBpm = Math.max(score.getTopBpm(clefs[0]), score.getTopBpm(clefs[1]));
+
+        }
+        else if (clefs.length == 1) {
+            maxBpm = score.getTopBpm(clefs[0]);
+        }
+        // set these on the music view
+        musicView.setPermittedClefs(clefs);
+        // update the game progress view
+        this.progressView.invalidate();
+        // and enable the buttons for these new clefs
+        enableNextAndBackButtons();
     }
 
     private void setSelectedGameData() {
+        // set the data from the selected game here
         gameTitle.setText(this.selectedGame.name);
         progressView.setSelectedChild(this.selectedGame);
-        // set the clefs available properly
-        Clef[] selectedClefs = this.application.getSettings().getSelectedClefs();
-        setAvailableClefs(selectedClefs);
+        // what tempo are we now
+        int tempo = musicView.getTempo();
         // set this on the music view
         musicView.setActiveGame(this.selectedGame);
+        // set the tempo from the music view, will update the help too
+        setTempo(tempo);
         // and update the views
         progressView.invalidate();
         musicView.invalidate();
