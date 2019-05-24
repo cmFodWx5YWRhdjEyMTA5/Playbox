@@ -87,7 +87,8 @@ public class InputConnectionStatus extends Fragment {
         });
         // start this thread to do the work here
         this.progressReductionThread.start();
-
+        /*
+        //TODO removed this as going to settings from playing page (then back button) meant that play/pause icons didn't work
         // listen for a click on this view
         View.OnClickListener clickListener = new View.OnClickListener() {
             @Override
@@ -102,6 +103,7 @@ public class InputConnectionStatus extends Fragment {
         this.image.setOnClickListener(clickListener);
         this.typeText.setOnClickListener(clickListener);
         this.statusText.setOnClickListener(clickListener);
+        */
         // and update the view
         updateDisplay();
 
