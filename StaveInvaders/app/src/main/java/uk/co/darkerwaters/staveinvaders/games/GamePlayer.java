@@ -160,11 +160,7 @@ public abstract class GamePlayer implements GameProgressListener {
         for (GameNote note : notes) {
             // remove the time from the note
             if (note.adjustTime(beatsDelta) < 0f) {
-                // this has dropped below zero
-                synchronized (this.activeNotes) {
-                    this.activeNotes.remove(note);
-                }
-                // handle this failure to hit this note
+                // this has dropped below zero handle this failure to hit this note
                 registerMiss(note.getChord());
             }
         }
@@ -324,7 +320,7 @@ public abstract class GamePlayer implements GameProgressListener {
         return K_LEVEL_POINTS_GOAL;
     }
 
-    private void registerHit(Game.GameEntry entry, float offsetBeats) {
+    protected void registerHit(Game.GameEntry entry, float offsetBeats) {
         // called as a not is successfully hit on the view
         if (isGameActive()) {
             this.score.recordHit(entry.clef, this.progresser.getTempo(), entry.chord);
@@ -333,7 +329,7 @@ public abstract class GamePlayer implements GameProgressListener {
         }
     }
 
-    private void registerMiss(Game.GameEntry entry) {
+    protected void registerMiss(Game.GameEntry entry) {
         // called as a note's time goes below zero (failed to hit it)
         if (isGameActive()) {
             this.score.recordMiss(entry.clef, this.progresser.getTempo(), entry.chord);
