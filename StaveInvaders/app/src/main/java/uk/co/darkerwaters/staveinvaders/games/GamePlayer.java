@@ -254,6 +254,8 @@ public abstract class GamePlayer implements GameProgressListener {
         this.nextSheduledChangeTime = System.currentTimeMillis() + K_HELP_CHANGE_TIME;
     }
 
+    public void endGame() { this.progresser.endGame(); }
+
     public boolean isGameActive() {
         return this.progresser.isGameActive();
     }

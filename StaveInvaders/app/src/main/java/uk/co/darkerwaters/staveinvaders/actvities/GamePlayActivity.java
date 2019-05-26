@@ -30,7 +30,7 @@ import static uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCar
 import static uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder.K_SELECTED_CARD_FULL_NAME;
 import static uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder.K_STARTING_TEMPO;
 
-public class GamePlayActivity extends AppCompatActivity implements GamePlayer.GamePlayerListener, GameProgress.GameProgressListener {
+public class GamePlayActivity extends HidingFullscreenActivity implements GamePlayer.GamePlayerListener, GameProgress.GameProgressListener {
 
     private static final long K_PLAY_COUNTDOWN = 5000l;
     private Application application;
@@ -57,11 +57,14 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
     private TextView levelUpTail;
 
     private FloatingActionButton playButton;
+    private FloatingActionButton stopButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_play);
+
+        createFullscreenView(findViewById(R.id.fullscreen_layout));
 
         this.application = (Application) this.getApplication();
         Settings settings = this.application.getSettings();
@@ -80,6 +83,7 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
         this.levelUpLayout = new SlideInOutAnimator(findViewById(R.id.levelUpLayout));
 
         this.playButton = findViewById(R.id.playActionButton);
+        this.stopButton = findViewById(R.id.stopActionButton);
 
         Intent intent = getIntent();
         String parentGameName = intent.getStringExtra(K_SELECTED_CARD_FULL_NAME);
@@ -98,6 +102,12 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
             @Override
             public void onClick(View view) {
                 playPauseGame();
+            }
+        });
+        this.stopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                endGame();
             }
         });
 
@@ -176,9 +186,22 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
         // hide the button when counting down
         if (this.isPerformCountdown) {
             this.playButton.hide();
+            this.stopButton.hide();
         }
         else {
             this.playButton.show();
+            this.stopButton.show();
+            if (this.gamePlayer.isPaused()) {
+                // show the play icon
+                this.stopButton.animate().translationX(-getResources().getDimension(R.dimen.standard_63));
+                this.playButton.setImageResource(android.R.drawable.ic_media_play);
+            }
+            else {
+                // show the pause icon
+                this.stopButton.animate().translationX(0);
+                this.playButton.setImageResource(android.R.drawable.ic_media_pause);
+            }
+
             // set the correct icon
             if (false == this.gamePlayer.isPaused()) {
                 this.playButton.setImageResource(android.R.drawable.ic_media_pause);
@@ -264,6 +287,8 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
     }
 
     private void endGame() {
+        // end this game
+        this.gamePlayer.endGame();
         // show the activity to summarise the score
         Intent intent = new Intent(GamePlayActivity.this, GameOverActivity.class);
         intent.putExtra(K_SELECTED_CARD_FULL_NAME, selectedGame.getFullName());

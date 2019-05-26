@@ -2,6 +2,7 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fullscreen_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".actvities.GamePlayActivity">
@@ -46,8 +47,8 @@
                 android:layout_marginBottom="8dp"
                 android:gravity="center_vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <TextView
@@ -127,9 +128,9 @@
 
         <uk.co.darkerwaters.staveinvaders.views.PianoTouchable
             android:id="@+id/pianoView"
-            android:layout_weight="3"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_weight="3" />
     </LinearLayout>
 
     <fragment
@@ -148,8 +149,25 @@
         android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
         android:layout_marginEnd="8dp"
+        android:elevation="9dp"
         app:layout_constraintBottom_toTopOf="@+id/connection_status"
         app:layout_constraintEnd_toEndOf="parent"
+        app:elevation="9dp"
         app:srcCompat="@android:drawable/ic_media_pause" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/stopActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="0dp"
+        android:clickable="true"
+        android:elevation="8dp"
+        android:focusable="true"
+        android:src="@drawable/ic_baseline_stop_24px"
+        android:tint="@android:color/white"
+        app:elevation="8dp"
+        app:fabSize="normal"
+        app:layout_constraintEnd_toEndOf="@+id/playActionButton"
+        app:layout_constraintTop_toTopOf="@+id/playActionButton" />
 
 </android.support.constraint.ConstraintLayout>

@@ -19,6 +19,7 @@ public class GameProgress {
     private int livesLeft = 0;
     private int shotsLeft = 0;
     private int pointsLevelGoal = GamePlayer.K_LEVEL_POINTS_GOAL;
+    private boolean isGameEnded = false;
 
     private class Points {
         final Clef clef;
@@ -69,6 +70,7 @@ public class GameProgress {
         this.tempo = tempo;
         this.isHelpOn = isHelpOn;
         this.maxTempo = 0;
+        this.isGameEnded = false;
         this.livesLeft = K_LIVES;
         this.shotsLeft = K_SHOTS;
         this.pointsLevelGoal = pointsLevelGoal;
@@ -107,8 +109,13 @@ public class GameProgress {
         }
     }
 
+    public void endGame() {
+        this.isGameEnded = true;
+    }
+
     public boolean isGameActive() {
-        return this.livesLeft > 0 && this.shotsLeft > 0 && this.maxTempo < GameScore.K_MAX_BPM;
+        return false == this.isGameEnded &&
+                this.livesLeft > 0 && this.shotsLeft > 0 && this.maxTempo < GameScore.K_MAX_BPM;
     }
 
     public boolean isGameWon() {
