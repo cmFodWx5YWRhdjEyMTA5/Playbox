@@ -175,7 +175,10 @@ public class InputConnectionStatus extends Fragment {
     private int getInputAsString(Settings.InputType input) {
         switch (input) {
             case keys:
-                return R.string.on_screen_keyboard;
+                if (this.application.getSettings().getIsKeyInputPiano())
+                    return R.string.on_screen_piano;
+                else
+                    return R.string.on_screen_keyboard;
             case usb:
                 return R.string.usb_keyboard;
             case bt:

@@ -24,16 +24,16 @@ public class InputSelector {
     private final ArrayList<InputStatusListener> inputStatusListeners;
 
     public interface InputTypeListener {
-        public void onInputTypeChanged(Settings.InputType newType);
+        void onInputTypeChanged(Settings.InputType newType);
     }
 
     public interface InputListener {
-        public void onNoteDetected(Settings.InputType type, Chord chord, boolean isDetection, float probability);
+        void onNoteDetected(Settings.InputType type, Chord chord, boolean isDetection, float probability);
     }
 
     public interface InputStatusListener {
-        public void onStatusChanged(Input source, Status oldStatus, Status newStatus);
-        public void onInputProcessingData(Input source, Status status);
+        void onStatusChanged(Input source, Status oldStatus, Status newStatus);
+        void onInputProcessingData(Input source, Status status);
     }
 
     public enum Status {
@@ -70,14 +70,6 @@ public class InputSelector {
         }
         // shut it all down
         shutdownActiveInput();
-    }
-
-    private void informListenersOfTypeChange() {
-        synchronized (this.inputTypeListeners) {
-            for (InputTypeListener listener : this.inputTypeListeners) {
-                listener.onInputTypeChanged(this.activeInputType);
-            }
-        }
     }
 
     public void setStatus(Status status) {

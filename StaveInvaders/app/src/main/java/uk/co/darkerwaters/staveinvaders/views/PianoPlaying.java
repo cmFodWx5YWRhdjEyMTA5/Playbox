@@ -75,7 +75,7 @@ public class PianoPlaying extends PianoView {
         }
         // inform listeners that this note is depressed now
         synchronized (this.listeners) {
-            for (IPianoViewListener listener : this.listeners) {
+            for (IKeysViewListener listener : this.listeners) {
                 listener.noteDepressed(chord);
             }
         }
@@ -91,7 +91,7 @@ public class PianoPlaying extends PianoView {
         // and inform the listeners
         synchronized (this.listeners) {
             for (Chord released : notesReleased) {
-                for (IPianoViewListener listener : this.listeners) {
+                for (IKeysViewListener listener : this.listeners) {
                     listener.noteReleased(released);
                 }
             }
@@ -114,7 +114,7 @@ public class PianoPlaying extends PianoView {
         }
         // and inform the listeners
         synchronized (this.listeners) {
-            for (IPianoViewListener listener : this.listeners) {
+            for (IKeysViewListener listener : this.listeners) {
                 listener.noteReleased(note);
             }
         }

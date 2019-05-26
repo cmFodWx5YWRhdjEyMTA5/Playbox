@@ -9,12 +9,13 @@ import uk.co.darkerwaters.staveinvaders.application.Settings;
 import uk.co.darkerwaters.staveinvaders.input.Input;
 import uk.co.darkerwaters.staveinvaders.input.InputMidi;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
+import uk.co.darkerwaters.staveinvaders.views.KeysView;
 import uk.co.darkerwaters.staveinvaders.views.PianoPlaying;
 import uk.co.darkerwaters.staveinvaders.views.PianoView;
 
 public abstract class BaseSetupActivity extends AppCompatActivity implements
         InputSelector.InputListener,
-        PianoView.IPianoViewListener,
+        KeysView.IKeysViewListener,
         InputMidi.MidiListener {
 
     protected PianoPlaying piano = null;

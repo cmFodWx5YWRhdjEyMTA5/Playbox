@@ -1,37 +1,23 @@
 package uk.co.darkerwaters.staveinvaders.views;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.RectF;
 import android.os.Handler;
 import android.util.AttributeSet;
-import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.co.darkerwaters.staveinvaders.Application;
-import uk.co.darkerwaters.staveinvaders.R;
-import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
 import uk.co.darkerwaters.staveinvaders.notes.Chords;
 import uk.co.darkerwaters.staveinvaders.notes.Note;
 import uk.co.darkerwaters.staveinvaders.notes.Range;
 
-public class PianoView extends BaseView {
+public class PianoView extends KeysView {
 
     private static final float K_VIEW_HEIGHT_FACTOR = 3f;
-    private static final float K_PAN_SPEED_SEC = 1f;
-
-    private PianoViewBounds bounds = null;
-
-    public interface IPianoViewListener {
-        void noteReleased(Chord chord);
-        void noteDepressed(Chord chord);
-    }
 
     private class PianoViewBounds extends ViewBounds {
         PianoViewBounds() {
@@ -59,15 +45,8 @@ public class PianoView extends BaseView {
 
     private float whiteKeyOffset = 0f;
     private int startNoteIndex = 0;
-    private Range masterRange = null;
-    private Range noteRange = null;
-
-    private boolean isDrawNoteNames = true;
-    private boolean isShowPrimatives = false;
 
     private long lastDrawnTime = 0l;
-
-    protected final List<IPianoViewListener> listeners = new ArrayList<IPianoViewListener>();
 
     private final static float[] sharpOffsets = {
             0.4f,           // A
@@ -91,116 +70,13 @@ public class PianoView extends BaseView {
     }
 
     @Override
-    protected void initialiseView(Context context) {
-        // get the full range of notes so we can animate across the piano
-        Chords singleChords = this.application.getSingleChords();
-        this.masterRange = new Range(singleChords.getChord(0), singleChords.getChord(singleChords.getSize() - 1));
-        // and  initialise the notes we are going to show on the piano
-        Range defaultRange = getDefaultNoteRange();
-        setNoteRange(defaultRange.getStart().root().getFrequency(), defaultRange.getEnd().root().getFrequency(), false);
-    }
-
-    public Range getDefaultNoteRange() {
-        Chords notes = this.application.getSingleChords();
-        return new Range(notes.getChord("C3"), notes.getChord("B5"));
-    }
-
-    public void closeView() {
-        // shut down this view
-        synchronized (this.listeners) {
-            this.listeners.clear();
-        }
-    }
-
-    public boolean addListener(IPianoViewListener listener) {
-        synchronized (this.listeners) {
-            if (this.listeners.contains(listener)) {
-                return false;
-            }
-            return this.listeners.add(listener);
-        }
-    }
-
-    public boolean removeListener(IPianoViewListener listener) {
-        synchronized (this.listeners) {
-            return this.listeners.remove(listener);
-        }
-    }
-
-    public void setNoteRange(float minPitchDetected, float maxPitchDetected, Boolean isShowPrimatives) {
-        // set the notes that are to be shown on this piano
-        Chords notes = this.application.getSingleChords();
-        if (null == this.noteRange) {
-            this.noteRange = new Range((Chord)null, (Chord)null);
-        }
-        // count the white keys from the min pitch
-        this.startNoteIndex = notes.getChordIndex(minPitchDetected);
-        if (this.startNoteIndex >= 0) {
-            this.noteRange.setStart(notes.getChord(this.startNoteIndex));
-        }
-        // set the end note
-        int endNoteIndex = notes.getChordIndex(maxPitchDetected);
-        if (endNoteIndex >= 0) {
-            this.noteRange.setEnd(notes.getChord(endNoteIndex));
-        }
-        if (this.noteRange.getStart().equals(this.noteRange.getEnd())) {
-            // there is no range, make one
-            int index = 0;
-            for (index = 0; index < notes.getSize(); ++index) {
-                if (notes.getChord(index).equals(this.noteRange.getStart())) {
-                    // this is our note index
-                    this.startNoteIndex = Math.max(index - 7, 0);
-                    this.noteRange.setStart(notes.getChord(startNoteIndex));
-                    this.noteRange.setEnd(notes.getChord(Math.min(index + 7, notes.getSize() - 1)));
-                    break;
-                }
-            }
-        }
-        // set this range now
-        setNoteRange(this.noteRange, isShowPrimatives);
-    }
-
     public void setNoteRange(Range newRange, Boolean isShowPrimatives) {
-        if (null != isShowPrimatives) {
-            this.isShowPrimatives = isShowPrimatives;
-        }
-        // set the members to remember this range to display
-        Chords notes = this.application.getSingleChords();
-        if (null != newRange && null != newRange.getStart() && null != newRange.getEnd()) {
-            this.noteRange = newRange;
+        super.setNoteRange(newRange, isShowPrimatives);
 
-            // set the starting key, we don't want to start on a sharp or just after one
-            // as we won't draw it and it will look and behave weird, go down until we get to
-            // a normal kind of note (a white key without a flat, which is a sharp before it)
-            // basically this is an F or a C then
-            this.startNoteIndex = notes.getChordIndex(this.noteRange.getStart().root().getFrequency());
-            int endNoteIndex = notes.getChordIndex(this.noteRange.getEnd().root().getFrequency());
-            boolean stretchToNoAdjacentSharps = false;
-
-            if (endNoteIndex - startNoteIndex < 10) {
-                // there are not many notes, stretch them down to the nice gappy bits
-                stretchToNoAdjacentSharps = true;
-            }
-
-            // if the starting key is a sharp or has a flat, move down away from it
-            while (this.startNoteIndex > 0 &&
-                    (this.noteRange.getStart().hasSharp() ||
-                            (stretchToNoAdjacentSharps && notes.getChord(this.startNoteIndex - 1).hasSharp()))) {
-                // while there are notes before the start and the start is a sharp or there is a sharp
-                // before it, keep looking further down the scale
-                this.noteRange.setStart(notes.getChord(--this.startNoteIndex));
-            }
-
-            // do the end note too
-
-            // while the end note is a sharp, or has a sharp - move up from it
-            while (endNoteIndex < notes.getSize() - 1 &&
-                    (this.noteRange.getEnd().hasSharp() ||
-                            (stretchToNoAdjacentSharps && notes.getChord(endNoteIndex + 1).hasSharp()))) {
-                // while there are notes after and the end is a sharp or has one, keep looking
-                this.noteRange.setEnd(notes.getChord(++endNoteIndex));
-            }
-
+        Range noteRange = getNoteRange();
+        if (null != noteRange && getIsPiano()) {
+            // set the members to remember this range to display
+            Chords notes = this.application.getSingleChords();
             // and setup the white keys accordingly
             int keyCount = 0;
             for (int i = 0; i < notes.getSize(); ++i) {
@@ -210,137 +86,132 @@ public class PianoView extends BaseView {
                         // this is a normal note, count these
                         ++keyCount;
                     }
-                } else if (notes.getChord(i).equals(this.noteRange.getStart())) {
+                } else if (notes.getChord(i).equals(noteRange.getStart())) {
                     keyCount = 1;
                 }
                 // check to see if we have all our notes
-                if (notes.getChord(i).equals(this.noteRange.getEnd())) {
+                if (notes.getChord(i).equals(noteRange.getEnd())) {
                     // last one...
                     break;
                 }
             }
+            this.startNoteIndex = notes.getChordIndex(noteRange.getStart().root().getFrequency());
             this.whiteKeyCount = keyCount;
             // animate the movement of range from this time
             this.lastDrawnTime = System.currentTimeMillis();
         }
     }
 
-    public void setIsDrawNoteName(boolean isDrawNoteName) {
-        this.isDrawNoteNames = isDrawNoteName;
-        this.invalidate();
-    }
-
-    private int getKeyWidth(ViewBounds bounds) {
-        if (this.whiteKeyCount == 0) {
-            return 5;
-        }
-        else {
-            return (int)(bounds.viewWidth / this.whiteKeyCount);
-        }
+    protected boolean getIsPiano() {
+        return this.application.getSettings().getIsKeyInputPiano();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-
-        // Draw a solid color on the canvas as background
-        canvas.drawColor(Color.WHITE);
-
-        long currentTime = System.currentTimeMillis();
-        if (this.lastDrawnTime == 0 || this.lastDrawnTime > currentTime) {
-            // ignore this
-            this.lastDrawnTime = currentTime;
+        // create the bounds for this piano view
+        if (false == getIsPiano()) {
+            // just let the base do its thing
+            super.onDraw(canvas);
         }
-        float timeElapsed = (currentTime - this.lastDrawnTime) / 1000f;
-        this.lastDrawnTime = currentTime;
-
-        if (this.whiteKeyCount > 0) {
-            // allocations per draw cycle.
+        else {
+            // Draw a solid color on the canvas as background
+            canvas.drawColor(Color.WHITE);
             this.bounds = new PianoViewBounds();
 
-            float keyWidth = (this.whiteKeyCount == 0 ? 5f : bounds.drawingWidth / this.whiteKeyCount);
-            float sharpWidth = keyWidth * 0.4f;
-            Chords notes = this.application.getSingleChords();
-
-            // if there is an offset and it is not in the correct place, move it now
-            calculateAnimation(keyWidth, timeElapsed, notes);
-
-            // draw all the keys, go through twice, drawing white then black over the top of them
-            // first let's go through the keys and draw in all the white ones
-            int keyIndex = 0;
-            // the note at the start is from our offset
-            int noteIndex = (int)whiteKeyOffset;
-            // less a little as never drawn bang on...
-            float drawOffset = (whiteKeyOffset - noteIndex) * keyWidth;
-            // also get the initial key to use here
-            Note initialKey = notes.getChord(noteIndex).root();
-            // and remember where to start
-            int initialWhiteKey = initialKey.getNotePrimativeIndex();
-            Assets assets = getAssets();
-            float textSize = assets.letterPaint.getTextSize();
-            assets.letterPaint.setTextSize(keyWidth * 0.6f);
-            while (keyIndex < this.whiteKeyCount && noteIndex < notes.getSize()) {
-                // loop through the notes finding all the white ones
-                Chord currentNote = notes.getChord(noteIndex++);
-                if (false == currentNote.hasSharp()) {
-                    // this is a white key, draw this
-                    RectF keyRect = new RectF(bounds.drawingLeft + (keyIndex * keyWidth) - drawOffset,
-                            bounds.drawingTop,
-                            bounds.drawingLeft + ((keyIndex + 1) * keyWidth) - drawOffset,
-                            bounds.drawingBottom);
-                    // draw this white key
-                    drawKey(canvas, keyRect, currentNote);
-
-                    if (isDrawNoteNames) {
-                        canvas.drawText(isShowPrimatives ? "" + currentNote.root().getNotePrimative() : currentNote.getTitle(),
-                                keyRect.left + (keyWidth * 0.5f),
-                                keyRect.bottom - (keyWidth * 0.3f),
-                                assets.letterPaint);
-                    }
-                    // move on our white key counter
-                    ++keyIndex;
-                }
+            long currentTime = System.currentTimeMillis();
+            if (this.lastDrawnTime == 0 || this.lastDrawnTime > currentTime) {
+                // ignore this
+                this.lastDrawnTime = currentTime;
             }
-            assets.letterPaint.setTextSize(textSize);
-            // now we need to go through again for the sharps and flats
-            int blackIndex = initialWhiteKey;
-            float blackLeft = 0f;
-            keyIndex = 0;
-            noteIndex = (int)whiteKeyOffset;
-            while (keyIndex < this.whiteKeyCount - 1 && noteIndex < notes.getSize()) {
-                // we will go through with reference to the white notes to offset the blacks better
-                Chord currentNote = notes.getChord(noteIndex++);
-                if (false == currentNote.hasSharp() && noteIndex < notes.getSize()) {
-                    // this is a white key, is there a sharp to draw?
-                    Chord blackNote = notes.getChord(noteIndex);
-                    if (blackNote.hasSharp() && false == Float.isNaN(sharpOffsets[blackIndex])) {
-                        // this is a sharp, draw this note now
-                        blackLeft = bounds.drawingLeft + ((keyIndex + 1) * keyWidth) - (sharpWidth * sharpOffsets[blackIndex]) - drawOffset;
-                        // create the rect for this
-                        RectF keyRect = new RectF(blackLeft,
+            float timeElapsed = (currentTime - this.lastDrawnTime) / 1000f;
+            this.lastDrawnTime = currentTime;
+
+            if (this.whiteKeyCount > 0) {
+                // draw in all the keys
+                float keyWidth = (this.whiteKeyCount == 0 ? 5f : bounds.drawingWidth / this.whiteKeyCount);
+                float sharpWidth = keyWidth * 0.4f;
+                Chords notes = this.application.getSingleChords();
+
+                // if there is an offset and it is not in the correct place, move it now
+                calculateAnimation(keyWidth, timeElapsed, notes);
+
+                // draw all the keys, go through twice, drawing white then black over the top of them
+                // first let's go through the keys and draw in all the white ones
+                int keyIndex = 0;
+                // the note at the start is from our offset
+                int noteIndex = (int) whiteKeyOffset;
+                // less a little as never drawn bang on...
+                float drawOffset = (whiteKeyOffset - noteIndex) * keyWidth;
+                // also get the initial key to use here
+                Note initialKey = notes.getChord(noteIndex).root();
+                // and remember where to start
+                int initialWhiteKey = initialKey.getNotePrimativeIndex();
+                Assets assets = getAssets();
+                float textSize = assets.letterPaint.getTextSize();
+                assets.letterPaint.setTextSize(keyWidth * 0.6f);
+                while (keyIndex < this.whiteKeyCount && noteIndex < notes.getSize()) {
+                    // loop through the notes finding all the white ones
+                    Chord currentNote = notes.getChord(noteIndex++);
+                    if (false == currentNote.hasSharp()) {
+                        // this is a white key, draw this
+                        RectF keyRect = new RectF(bounds.drawingLeft + (keyIndex * keyWidth) - drawOffset,
                                 bounds.drawingTop,
-                                blackLeft + sharpWidth,
-                                bounds.drawingTop + (bounds.drawingHeight * 0.7f));
-                        // draw it
-                        drawKey(canvas, keyRect, blackNote);
-                    }
-                    // move on the index for the white key
-                    ++keyIndex;
-                    // move on the black index to get the offset for this key properly next time
-                    if (++blackIndex > sharpOffsets.length - 1) {
-                        blackIndex = 0;
+                                bounds.drawingLeft + ((keyIndex + 1) * keyWidth) - drawOffset,
+                                bounds.drawingBottom);
+                        // draw this white key
+                        drawKey(canvas, keyRect, currentNote);
+
+                        if (isDrawNoteNames()) {
+                            canvas.drawText(isShowPrimatives() ? "" + currentNote.root().getNotePrimative() : currentNote.getTitle(),
+                                    keyRect.left + (keyWidth * 0.5f),
+                                    keyRect.bottom - (keyWidth * 0.3f),
+                                    assets.letterPaint);
+                        }
+                        // move on our white key counter
+                        ++keyIndex;
                     }
                 }
-            }
-
-            if (this.startNoteIndex != (int)this.whiteKeyOffset || drawOffset != 0f) {
-                // we need another draw
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        invalidate();
+                assets.letterPaint.setTextSize(textSize);
+                // now we need to go through again for the sharps and flats
+                int blackIndex = initialWhiteKey;
+                float blackLeft = 0f;
+                keyIndex = 0;
+                noteIndex = (int) whiteKeyOffset;
+                while (keyIndex < this.whiteKeyCount - 1 && noteIndex < notes.getSize()) {
+                    // we will go through with reference to the white notes to offset the blacks better
+                    Chord currentNote = notes.getChord(noteIndex++);
+                    if (false == currentNote.hasSharp() && noteIndex < notes.getSize()) {
+                        // this is a white key, is there a sharp to draw?
+                        Chord blackNote = notes.getChord(noteIndex);
+                        if (blackNote.hasSharp() && false == Float.isNaN(sharpOffsets[blackIndex])) {
+                            // this is a sharp, draw this note now
+                            blackLeft = bounds.drawingLeft + ((keyIndex + 1) * keyWidth) - (sharpWidth * sharpOffsets[blackIndex]) - drawOffset;
+                            // create the rect for this
+                            RectF keyRect = new RectF(blackLeft,
+                                    bounds.drawingTop,
+                                    blackLeft + sharpWidth,
+                                    bounds.drawingTop + (bounds.drawingHeight * 0.7f));
+                            // draw it
+                            drawKey(canvas, keyRect, blackNote);
+                        }
+                        // move on the index for the white key
+                        ++keyIndex;
+                        // move on the black index to get the offset for this key properly next time
+                        if (++blackIndex > sharpOffsets.length - 1) {
+                            blackIndex = 0;
+                        }
                     }
-                }, 50);
+                }
+                // if we are animating then we need to keep invalidating the view to draw the movement
+                if (this.startNoteIndex != (int) this.whiteKeyOffset || drawOffset != 0f) {
+                    // we need another draw
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            invalidate();
+                        }
+                    }, 50);
+                }
             }
         }
     }
@@ -387,6 +258,7 @@ public class PianoView extends BaseView {
         return oldOffset != this.whiteKeyOffset;
     }
 
+    @Override
     protected void drawKey(Canvas canvas, RectF keyRect, Chord keyNote) {
         // just draw the note in here
         if (false == keyNote.hasFlat() && false == keyNote.hasSharp()) {
@@ -395,13 +267,5 @@ public class PianoView extends BaseView {
         else {
             canvas.drawRect(keyRect, getAssets().blackPaint);
         }
-    }
-
-    public String getRangeText() {
-        String range = "--";
-        if (null != this.noteRange) {
-            range = this.noteRange.toString();
-        }
-        return range;
     }
 }

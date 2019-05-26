@@ -63,4 +63,5 @@
     <string name="hide_bass_desc">Hide the bass clef and all associated controls.</string>
     <string name="mute_desc">Mute all sounds played.</string>
     <string name="mute">Mute</string>
+    <string name="on_screen_piano">On-Screen Piano</string>
 </resources>

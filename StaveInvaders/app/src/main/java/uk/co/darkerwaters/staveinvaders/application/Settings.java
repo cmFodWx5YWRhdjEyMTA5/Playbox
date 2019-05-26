@@ -27,14 +27,10 @@ public class Settings {
     private final String K_ISHIDETREBLE = "isHideTreble";
     private final String K_SELECTEDCLEF = "selectedClef";
     private final String K_ISMUTED = "isMuted";
+    private final String K_ISKEYINPUTPIANO = "isKeyInputPiano";
 
     // the settings - important for defaults
     private boolean isLogging = true;
-
-    private boolean isInputKeys = true;
-    private boolean isInputMic = true;
-    private boolean isInputBt = true;
-    private boolean isInputUsb = true;
 
     private String activeInput = K_INPUTKEYS;
 
@@ -43,6 +39,7 @@ public class Settings {
 
     private boolean isHideTreble = false;
     private boolean isHideBass = false;
+    private boolean isKeyInputPiano = true;
     private boolean isMuted = false;
 
     private String selectedClefs = Clef.treble.name();
@@ -80,7 +77,7 @@ public class Settings {
     }
 
     public InputType getActiveInput() {
-        InputType typeToReturn = InputType.keys;
+        InputType typeToReturn;
         this.activeInput = this.preferences.getString(K_ACTIVEINPUT, this.activeInput);
         switch (this.activeInput) {
             case K_INPUTMIC:
@@ -99,6 +96,17 @@ public class Settings {
 
         }
         return typeToReturn;
+    }
+
+    public boolean getIsKeyInputPiano() {
+        this.isKeyInputPiano = this.preferences.getBoolean(K_ISKEYINPUTPIANO, this.isKeyInputPiano);
+        return this.isKeyInputPiano;
+    }
+
+    public Settings setIsKeyInputPiano(boolean isPiano) {
+        this.isKeyInputPiano = isPiano;
+        this.editor.putBoolean(K_ISMUTED, this.isKeyInputPiano);
+        return this;
     }
 
     public Settings setActiveInput(InputType activeInput) {
@@ -145,26 +153,6 @@ public class Settings {
         this.selectedClefs = builder.toString();
         this.editor.putString(K_SELECTEDCLEF, this.selectedClefs);
         return this;
-    }
-
-    public boolean getIsInputKeys() {
-        this.isInputKeys = this.preferences.getBoolean(K_INPUTKEYS, this.isInputKeys);
-        return this.isInputKeys;
-    }
-
-    public boolean getIsInputMic() {
-        this.isInputMic = this.preferences.getBoolean(K_INPUTMIC, this.isInputMic);
-        return this.isInputMic;
-    }
-
-    public boolean getIsInputBt() {
-        this.isInputBt = this.preferences.getBoolean(K_INPUTBT, this.isInputBt);
-        return this.isInputBt;
-    }
-
-    public boolean getIsInputUsb() {
-        this.isInputUsb = this.preferences.getBoolean(K_INPUTUSB, this.isInputUsb);
-        return this.isInputUsb;
     }
 
     public String getLastConnectedUsbDevice() {
