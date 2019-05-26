@@ -143,6 +143,6 @@ public class GameOverActivity extends AppCompatActivity {
         // and the progress views
         this.trebleGlobalProgressView.setProgress(this.selectedGame, Clef.treble);
         // and bass
-        this.bassProgressView.setProgress(this.selectedGame, Clef.bass);
+        this.bassGlobalProgressView.setProgress(this.selectedGame, Clef.bass);
     }
 }

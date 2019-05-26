@@ -74,6 +74,16 @@ public class PianoTouchable extends PianoPlaying implements InputSelector.InputT
     }
 
     @Override
+    protected boolean calculateAnimation(float keyWidth, float timeElapsed, Chords singleChords) {
+        boolean toReturn = super.calculateAnimation(keyWidth, timeElapsed, singleChords);
+        if (toReturn) {
+            // keys are moving
+            resetPlayableKeys();
+        }
+        return toReturn;
+    }
+
+    @Override
     protected void initialiseView(Context context) {
         super.initialiseView(context);
 

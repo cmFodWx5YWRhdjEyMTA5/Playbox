@@ -5,7 +5,11 @@ import uk.co.darkerwaters.staveinvaders.notes.Clef;
 
 public class PlayRandomAttack extends GamePlayer {
 
-    private long nextSheduledChangeTime = 0l;
+    private static final int K_MIN_CHANGE_NOTE = 15;
+    private static final int K_RND_CHANGE_NOTE = 5;
+
+    private int noteCounter = 0;
+    private int nextNoteClefChange = K_MIN_CHANGE_NOTE;
 
     public PlayRandomAttack(Application application, Game game) {
         super(application, game);
@@ -16,6 +20,8 @@ public class PlayRandomAttack extends GamePlayer {
         if (this.game.entries.length == 0) {
             return null;
         }
+        // another note returned
+        ++noteCounter;
         // else sit in an infinite loop to find the next note
         int tryIndex = 0;
         while (++tryIndex < 100) {
@@ -33,28 +39,20 @@ public class PlayRandomAttack extends GamePlayer {
     }
 
     @Override
-    public boolean setPermittedClef(Clef clef, boolean isPermitted) {
-        // reset the time we will change this about
-        this.nextSheduledChangeTime = System.currentTimeMillis();
-        // and do the change
-        return super.setPermittedClef(clef, isPermitted);
-    }
-
-    @Override
     protected boolean isPerformClefChange() {
-        return System.currentTimeMillis() > this.nextSheduledChangeTime;
-    }
-
-    @Override
-    protected void performClefChange() {
-        // do the change
-        super.performClefChange();
         if (this.isInDemoMode) {
-            // and schedule a new change to be fairly quick to show the user the state of play
-            this.nextSheduledChangeTime = System.currentTimeMillis() + K_HELP_CHANGE_TIME;
-        } else {
-            // schedule a new change, allowing for the current ones to clear from the list
-            this.nextSheduledChangeTime = System.currentTimeMillis() + K_MIN_CHANGE_TIME + (this.random.nextInt(K_CHANGE_TIME_BEATS_ADD) * 1000l);
+            // in demo mode we just flip at the specified time, let the base do this
+            return super.isPerformClefChange();
+        }
+        else if (this.noteCounter >= this.nextNoteClefChange) {
+            // reset the change counter
+            this.nextNoteClefChange = this.noteCounter + K_MIN_CHANGE_NOTE + this.random.nextInt(K_RND_CHANGE_NOTE);
+            // and chante the clef
+            return true;
+        }
+        else {
+            // don't
+            return false;
         }
     }
 }

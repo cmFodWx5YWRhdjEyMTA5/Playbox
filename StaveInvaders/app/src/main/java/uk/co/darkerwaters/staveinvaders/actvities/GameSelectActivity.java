@@ -25,6 +25,7 @@ import uk.co.darkerwaters.staveinvaders.games.GameList;
 import uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder;
 import uk.co.darkerwaters.staveinvaders.views.GameProgressView;
 import uk.co.darkerwaters.staveinvaders.views.MusicView;
+import uk.co.darkerwaters.staveinvaders.views.PianoView;
 
 import static uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder.K_IS_STARTING_HELP_ON;
 import static uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder.K_SELECTED_CARD_FULL_NAME;
@@ -43,6 +44,7 @@ public class GameSelectActivity extends AppCompatActivity {
     private FloatingActionButton playActionButton;
 
     private MusicView musicView;
+    private PianoView pianoView;
     private int gameIndex = -1;
 
     private TextView tempoText;
@@ -72,6 +74,7 @@ public class GameSelectActivity extends AppCompatActivity {
 
         this.gameTitle = findViewById(R.id.game_title);
         this.musicView = findViewById(R.id.musicView);
+        this.pianoView = findViewById(R.id.pianoView);
 
         this.tempoText = findViewById(R.id.tempoSelectedTextView);
         this.tempoLessButton = findViewById(R.id.tempoLessButton);
@@ -177,6 +180,7 @@ public class GameSelectActivity extends AppCompatActivity {
         }
         // and set on the music view from the switch
         this.musicView.setIsHelpLettersShowing(this.helpSwitch.isChecked());
+        this.pianoView.setIsDrawNoteName(this.helpSwitch.isChecked());
     }
 
     private void setTempo(int newTempo) {
@@ -293,6 +297,9 @@ public class GameSelectActivity extends AppCompatActivity {
         }
         // set these on the music view
         musicView.setPermittedClefs(clefs);
+        // and on the piano view
+        pianoView.setNoteRange(this.selectedGame.getNoteRange(clefs), this.helpSwitch.isChecked());
+        this.pianoView.invalidate();
         // update the game progress view
         this.progressView.invalidate();
         // and enable the buttons for these new clefs
@@ -312,6 +319,11 @@ public class GameSelectActivity extends AppCompatActivity {
         // and update the views
         progressView.invalidate();
         musicView.invalidate();
+
+        // set this data on the piano
+        Clef[] selectedClefs = this.application.getSettings().getSelectedClefs();
+        pianoView.setNoteRange(this.selectedGame.getNoteRange(selectedClefs), this.helpSwitch.isChecked());
+        pianoView.invalidate();
 
         // and load the image for the title bar
         setTitleImage(this.selectedGame);

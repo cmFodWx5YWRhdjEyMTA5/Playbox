@@ -16,7 +16,6 @@ import uk.co.darkerwaters.staveinvaders.views.MusicView;
 public abstract class GamePlayer implements GameProgressListener {
 
     public static final long K_HELP_CHANGE_TIME = 5000l;
-    public static final long K_MIN_CHANGE_TIME = 10000l;
     public static final int K_CHANGE_TIME_BEATS_ADD = 5;
     public static final float K_CLEF_CHANGE_FREEBEE_BEATS = 5f;
 
@@ -32,6 +31,8 @@ public abstract class GamePlayer implements GameProgressListener {
     protected final GameProgress progresser;
 
     private final List<GamePlayerListener> listeners;
+
+    private long nextSheduledChangeTime = 0l;
 
     private boolean isPaused = true;
     protected boolean isInDemoMode = true;
@@ -118,6 +119,8 @@ public abstract class GamePlayer implements GameProgressListener {
         else {
             result = this.permittedClefs.remove(clef);
         }
+        // reset the time we will change this about
+        this.nextSheduledChangeTime = System.currentTimeMillis();
         // and return the result
         return result;
     }
@@ -166,7 +169,10 @@ public abstract class GamePlayer implements GameProgressListener {
         }
     }
 
-    protected abstract boolean isPerformClefChange();
+    protected boolean isPerformClefChange() {
+        // just flip at the specified time
+        return System.currentTimeMillis() > this.nextSheduledChangeTime;
+    }
 
     public void updateNotes(float beatsElapsed) {
         if (false == this.isPaused || this.isInDemoMode) {
@@ -244,6 +250,8 @@ public abstract class GamePlayer implements GameProgressListener {
                 }
             }
         }
+        // schedule a new change to be fairly quick to show the user the state of play
+        this.nextSheduledChangeTime = System.currentTimeMillis() + K_HELP_CHANGE_TIME;
     }
 
     public boolean isGameActive() {

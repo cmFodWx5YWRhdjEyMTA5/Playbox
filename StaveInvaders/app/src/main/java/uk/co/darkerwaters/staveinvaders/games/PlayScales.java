@@ -9,7 +9,6 @@ import uk.co.darkerwaters.staveinvaders.notes.Clef;
 public class PlayScales extends GamePlayer {
 
     private static final int K_NO_SCALES = 8;
-    private long nextSheduledChangeTime = 0l;
 
     private int noteIndex = 0;
     private int incrementer = 1;
@@ -87,18 +86,10 @@ public class PlayScales extends GamePlayer {
     }
 
     @Override
-    public boolean setPermittedClef(Clef clef, boolean isPermitted) {
-        // reset the time we will change this about
-        this.nextSheduledChangeTime = System.currentTimeMillis();
-        // and do the change
-        return super.setPermittedClef(clef, isPermitted);
-    }
-
-    @Override
     protected boolean isPerformClefChange() {
         if (this.isInDemoMode) {
-            // in demo mode we just flip at the specified time
-            return System.currentTimeMillis() > this.nextSheduledChangeTime;
+            // in demo mode we just flip at the specified time, let the base do this
+            return super.isPerformClefChange();
         }
         else if (this.isChangeClef) {
             // we change clef when we end each scale played
@@ -108,16 +99,6 @@ public class PlayScales extends GamePlayer {
         else {
             // don't
             return false;
-        }
-    }
-
-    @Override
-    protected void performClefChange() {
-        // do the change
-        super.performClefChange();
-        if (this.isInDemoMode) {
-            // schedule a new change to be fairly quick to show the user the state of play
-            this.nextSheduledChangeTime = System.currentTimeMillis() + K_HELP_CHANGE_TIME;
         }
     }
 }
