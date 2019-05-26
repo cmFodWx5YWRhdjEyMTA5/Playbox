@@ -186,7 +186,7 @@ public class MusicViewPlaying extends MusicView implements InputSelector.InputLi
             canvas.restore();
 
             // here we are drawing a target and have an attempt, did we win?
-            if (notesInTargetHit.size() == this.target.entry.chord.getNoteCount()) {
+            if (notesInTargetHit.size() >= this.target.entry.chord.getNoteCount()) {
                 // we hit everything
                 onTargetDestroyed();
             }

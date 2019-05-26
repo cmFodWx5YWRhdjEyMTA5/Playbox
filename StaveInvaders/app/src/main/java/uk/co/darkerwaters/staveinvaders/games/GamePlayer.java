@@ -20,6 +20,8 @@ public abstract class GamePlayer implements GameProgressListener {
     public static final int K_CHANGE_TIME_BEATS_ADD = 5;
     public static final float K_CLEF_CHANGE_FREEBEE_BEATS = 5f;
 
+    public static final int K_LEVEL_POINTS_GOAL = 250;
+
     public interface GamePlayerListener {
         void onGameClefChanged(Clef clef);
     };
@@ -32,14 +34,12 @@ public abstract class GamePlayer implements GameProgressListener {
     private final List<GamePlayerListener> listeners;
 
     private boolean isPaused = true;
-    private boolean isInDemoMode = true;
+    protected boolean isInDemoMode = true;
 
     private Clef activeClef;
     private Clef broadcastClef = null;
-    private HashSet<Clef> permittedClefs = new HashSet<Clef>(2);
-    private HashSet<Clef> availableClefs = new HashSet<Clef>(2);
-
-    private long nextSheduledChangeTime = 0l;
+    protected HashSet<Clef> permittedClefs = new HashSet<Clef>(2);
+    protected HashSet<Clef> availableClefs = new HashSet<Clef>(2);
 
     protected final Random random = new Random();
 
@@ -118,8 +118,6 @@ public abstract class GamePlayer implements GameProgressListener {
         else {
             result = this.permittedClefs.remove(clef);
         }
-        // reset the change time to be now
-        this.nextSheduledChangeTime = System.currentTimeMillis();
         // and return the result
         return result;
     }
@@ -172,6 +170,8 @@ public abstract class GamePlayer implements GameProgressListener {
         }
     }
 
+    protected abstract boolean isPerformClefChange();
+
     public void updateNotes(float beatsElapsed) {
         if (false == this.isPaused || this.isInDemoMode) {
             // we are not pausd, or we are in demo mode - deal with the clef changes here
@@ -179,42 +179,9 @@ public abstract class GamePlayer implements GameProgressListener {
                 // the active clef is not permitted, change this to whatever is in the list
                 setActiveClef(permittedClefs.iterator().next());
             }
-            if (System.currentTimeMillis() > this.nextSheduledChangeTime) {
+            if (isPerformClefChange()) {
                 // we are due a change on the permitted clefs
-                boolean isActiveFound = false;
-                Clef newClef = null;
-                for (Clef clef : this.permittedClefs) {
-                    if (isActiveFound == false) {
-                        // not found the active one yet, is this it?
-                        if (clef == this.activeClef) {
-                            isActiveFound = true;
-                        }
-                    } else {
-                        // this is the one after the active one
-                        newClef = clef;
-                        break;
-                    }
-                }
-                if (null == newClef && this.permittedClefs.isEmpty() == false) {
-                    // looped around, select the first one
-                    newClef = this.permittedClefs.iterator().next();
-                }
-                if (null != newClef) {
-                    // set the new active clef
-                    setActiveClef(newClef);
-                    // and the new change time
-                    if (isInDemoMode) {
-                        // clear the list of active notes to immediately refresh them
-                        synchronized (this.activeNotes) {
-                            this.activeNotes.clear();
-                        }
-                        // and schedule a new change
-                        this.nextSheduledChangeTime = System.currentTimeMillis() + K_HELP_CHANGE_TIME;
-                    } else {
-                        // schedule a new change, allowing for the current ones to clear from the list
-                        this.nextSheduledChangeTime = System.currentTimeMillis() + K_MIN_CHANGE_TIME + (this.random.nextInt(K_CHANGE_TIME_BEATS_ADD) * 1000l);
-                    }
-                }
+                performClefChange();
             }
         }
         // only do all the other updates when we are playing (not paused)
@@ -246,6 +213,38 @@ public abstract class GamePlayer implements GameProgressListener {
             synchronized (this.listeners) {
                 for (GamePlayerListener listener : this.listeners) {
                     listener.onGameClefChanged(broadcastClef);
+                }
+            }
+        }
+    }
+
+    protected void performClefChange() {
+        boolean isActiveFound = false;
+        Clef newClef = null;
+        for (Clef clef : this.permittedClefs) {
+            if (isActiveFound == false) {
+                // not found the active one yet, is this it?
+                if (clef == this.activeClef) {
+                    isActiveFound = true;
+                }
+            } else {
+                // this is the one after the active one
+                newClef = clef;
+                break;
+            }
+        }
+        if (null == newClef && this.permittedClefs.isEmpty() == false) {
+            // looped around, select the first one
+            newClef = this.permittedClefs.iterator().next();
+        }
+        if (null != newClef) {
+            // set the new active clef
+            setActiveClef(newClef);
+            // and the new change time
+            if (isInDemoMode) {
+                // clear the list of active notes to immediately refresh them
+                synchronized (this.activeNotes) {
+                    this.activeNotes.clear();
                 }
             }
         }
@@ -316,11 +315,21 @@ public abstract class GamePlayer implements GameProgressListener {
         return hitBeatsOffset;
     }
 
+    protected int getPointsForHit(Game.GameEntry entry, float offsetBeats) {
+        // by default the points are just the offset in seconds
+        return (int)(offsetBeats + 1);
+    }
+
+    public int getPointLevelGoal() {
+        return K_LEVEL_POINTS_GOAL;
+    }
+
     private void registerHit(Game.GameEntry entry, float offsetBeats) {
         // called as a not is successfully hit on the view
         if (isGameActive()) {
             this.score.recordHit(entry.clef, this.progresser.getTempo(), entry.chord);
-            this.progresser.recordHit(entry.clef, entry.chord, offsetBeats);
+            int points = getPointsForHit(entry, offsetBeats);
+            this.progresser.recordHit(entry.clef, entry.chord, points);
         }
     }
 
@@ -386,7 +395,7 @@ public abstract class GamePlayer implements GameProgressListener {
     public void startNewGame(int tempo, boolean isHelpOn) {
         // start a new game, stop help
         this.isInDemoMode = false;
-        this.progresser.startNewGame(tempo, isHelpOn);
+        this.progresser.startNewGame(tempo, isHelpOn, getPointLevelGoal());
         // clear the notes
         synchronized (this.activeNotes) {
             this.activeNotes.clear();

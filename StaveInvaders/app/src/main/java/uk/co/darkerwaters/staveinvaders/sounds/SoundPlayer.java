@@ -12,8 +12,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
+import uk.co.darkerwaters.staveinvaders.notes.Chords;
 import uk.co.darkerwaters.staveinvaders.notes.Note;
 
 public class SoundPlayer {
@@ -25,11 +27,12 @@ public class SoundPlayer {
     private int gameOverSound = -1;
 
     private final Map<Note, Integer> loadedNotes;
+    private final Map<Note, Note> sharpToFlat;
     private NoteSounds noteSounds = null;
 
     private static SoundPlayer INSTANCE = null;
 
-    private SoundPlayer(Context context) {
+    private SoundPlayer(Context context, Application application) {
         int maxStreams = 9;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             soundPool = new SoundPool.Builder()
@@ -46,11 +49,32 @@ public class SoundPlayer {
 
         this.loadedNotes = new HashMap<Note, Integer>();
         this.assetManager = context.getAssets();
+
+        // also we need a map of sharps to flats to play the flat instead each time
+        this.sharpToFlat = new HashMap<Note, Note>();
+        Chords singleChords = application.getSingleChords();
+        for (int i = 0; i < singleChords.getSize(); ++i) {
+            // for each chord, if it contains a sharp, map it to the flat
+            Chord chord = singleChords.getChord(i);
+            Note flat = null, sharp = null;
+            for (Note note : chord.notes) {
+                if (note.isSharp()) {
+                    sharp = note;
+                }
+                else if (note.isFlat()) {
+                    flat = note;
+                }
+            }
+            if (null != flat && null != sharp) {
+                // map one to the other
+                this.sharpToFlat.put(sharp, flat);
+            }
+        }
     }
 
-    public static void initialise(Context context) {
+    public static void initialise(Context context, Application application) {
         if (INSTANCE == null) {
-            INSTANCE = new SoundPlayer(context);
+            INSTANCE = new SoundPlayer(context, application);
         }
     }
 
@@ -92,7 +116,16 @@ public class SoundPlayer {
             if (null == soundIndex) {
                 // there is no index, try to load it now
                 try {
-                    String notePath = "notes/piano/" + note.getName() + ".mp3";
+                    //if it is a sharp - we need the equivilent flat to get the MP3 for it
+                    String noteName = note.getName();
+                    if (note.isSharp()) {
+                        Note flat = this.sharpToFlat.get(note);
+                        if (null != flat) {
+                            // use this name instead
+                            noteName = flat.getName();
+                        }
+                    }
+                    String notePath = "notes/piano/" + noteName + ".mp3";
                     // loading won't load in time to play later in the loop, so add a listener to play
                     soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
                         @Override

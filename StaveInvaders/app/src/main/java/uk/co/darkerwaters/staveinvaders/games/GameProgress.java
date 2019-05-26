@@ -9,7 +9,6 @@ import uk.co.darkerwaters.staveinvaders.notes.Clef;
 
 public class GameProgress {
 
-    public static final int K_LEVEL_POINTS_GOAL = 250;
     public static final int K_LIVES = 5;
     public static final int K_SHOTS = 10;
     public static final int K_MAX_HELP_TEMPO = GameScore.K_BPMS[4];
@@ -19,6 +18,7 @@ public class GameProgress {
     private int maxTempo = 0;
     private int livesLeft = 0;
     private int shotsLeft = 0;
+    private int pointsLevelGoal = GamePlayer.K_LEVEL_POINTS_GOAL;
 
     private class Points {
         final Clef clef;
@@ -64,13 +64,14 @@ public class GameProgress {
         this.shotsLeft = K_SHOTS;
     }
 
-    public void startNewGame(int tempo, boolean isHelpOn) {
+    public void startNewGame(int tempo, boolean isHelpOn, int pointsLevelGoal) {
         // start the new game, reset the counters etc
         this.tempo = tempo;
         this.isHelpOn = isHelpOn;
         this.maxTempo = 0;
         this.livesLeft = K_LIVES;
         this.shotsLeft = K_SHOTS;
+        this.pointsLevelGoal = pointsLevelGoal;
         // clear the points
         clearPointsAccumulation();
         // inform the listeners of the game state
@@ -188,16 +189,14 @@ public class GameProgress {
         }
     }
 
-    public void recordHit(Clef clef, Chord chord, float offsetBeats) {
+    public void recordHit(Clef clef, Chord chord, int points) {
         // count the hits to see when we can progress the tempo
         // the tempo is the same as us, whatever, it is the seconds and the clef we are interested
-        Points point = this.points[clef.val];
-        // the sooner they hit the note, the more points they get
-        point.points += offsetBeats;
+        this.points[clef.val].points += points;
         // this is a hit
         informListeners(Type.targetHit, chord);
         // do we need to change the level now?
-        if (getPoints() >= K_LEVEL_POINTS_GOAL) {
+        if (getPoints() >= this.pointsLevelGoal) {
             // have exceeded or met the goal, move on the tempo
             increaseTempo();
         }

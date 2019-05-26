@@ -5,6 +5,8 @@ import uk.co.darkerwaters.staveinvaders.notes.Clef;
 
 public class PlayRandomAttack extends GamePlayer {
 
+    private long nextSheduledChangeTime = 0l;
+
     public PlayRandomAttack(Application application, Game game) {
         super(application, game);
     }
@@ -28,5 +30,31 @@ public class PlayRandomAttack extends GamePlayer {
         // should never get here because if we do something is wrong with randomised, still
         // hate putting in infinite loops
         return this.game.entries[0];
+    }
+
+    @Override
+    public boolean setPermittedClef(Clef clef, boolean isPermitted) {
+        // reset the time we will change this about
+        this.nextSheduledChangeTime = System.currentTimeMillis();
+        // and do the change
+        return super.setPermittedClef(clef, isPermitted);
+    }
+
+    @Override
+    protected boolean isPerformClefChange() {
+        return System.currentTimeMillis() > this.nextSheduledChangeTime;
+    }
+
+    @Override
+    protected void performClefChange() {
+        // do the change
+        super.performClefChange();
+        if (this.isInDemoMode) {
+            // and schedule a new change to be fairly quick to show the user the state of play
+            this.nextSheduledChangeTime = System.currentTimeMillis() + K_HELP_CHANGE_TIME;
+        } else {
+            // schedule a new change, allowing for the current ones to clear from the list
+            this.nextSheduledChangeTime = System.currentTimeMillis() + K_MIN_CHANGE_TIME + (this.random.nextInt(K_CHANGE_TIME_BEATS_ADD) * 1000l);
+        }
     }
 }

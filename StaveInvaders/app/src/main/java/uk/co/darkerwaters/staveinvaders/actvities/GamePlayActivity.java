@@ -125,7 +125,7 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
         this.musicView.setIsHelpLettersShowing(this.startingWithHelpOn);
 
         // be sure sound is initialised
-        SoundPlayer.initialise(this);
+        SoundPlayer.initialise(this, this.application);
     }
 
     @Override
@@ -133,6 +133,8 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
         // remove us as listeners
         this.gamePlayer.removeListener((GamePlayer.GamePlayerListener)this);
         this.gamePlayer.removeListener((GameProgress.GameProgressListener) this);
+        // clear out the sound player
+        SoundPlayer.close();
         // and destroy
         super.onDestroy();
     }
@@ -356,7 +358,7 @@ public class GamePlayActivity extends AppCompatActivity implements GamePlayer.Ga
         this.livesRatingBar.setRating(source.getLivesLeft());
         this.shotsRatingBar.setRating(source.getShotsLeft());
         // and the progress of this tempo
-        float progress = source.getPoints() / (float)GameProgress.K_LEVEL_POINTS_GOAL;
+        float progress = source.getPoints() / (float)this.gamePlayer.getPointLevelGoal();
         this.tempoProgressView.setProgress(progress, Integer.toString((int)(progress * 100f)) + "%");
     }
 }
