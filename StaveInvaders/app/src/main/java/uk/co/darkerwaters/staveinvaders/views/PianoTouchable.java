@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import uk.co.darkerwaters.staveinvaders.application.InputSelector;
+import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
 import uk.co.darkerwaters.staveinvaders.input.InputKeys;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;

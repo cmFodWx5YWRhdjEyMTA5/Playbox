@@ -20,6 +20,7 @@ import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
+import uk.co.darkerwaters.staveinvaders.notes.ChordFactory;
 import uk.co.darkerwaters.staveinvaders.notes.Chords;
 
 public abstract class InputMidi extends Input {
@@ -71,7 +72,7 @@ public abstract class InputMidi extends Input {
         this.midiChords = new Chord[128];
         // find middle C and add to number 60
         this.midiChords[60] = chords.getChord("C4");
-        int middleC = chords.getChordIndex(this.midiChords[60].notes[0].getFrequency());
+        int middleC = chords.getChordIndex(this.midiChords[60].notes[0]);
         // ok then, from here we can do down to zero
         int offset = 1;
         for (int i = 59; i >= 0 && offset <= middleC; --i) {

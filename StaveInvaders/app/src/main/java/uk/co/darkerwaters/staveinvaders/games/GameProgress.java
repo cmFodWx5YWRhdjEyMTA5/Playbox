@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
+import uk.co.darkerwaters.staveinvaders.notes.ChordFactory;
 import uk.co.darkerwaters.staveinvaders.notes.Clef;
 
 public class GameProgress {

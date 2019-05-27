@@ -95,7 +95,7 @@ public class PianoView extends KeysView {
                     break;
                 }
             }
-            this.startNoteIndex = notes.getChordIndex(noteRange.getStart().root().getFrequency());
+            this.startNoteIndex = notes.getChordIndex(noteRange.getStart().root());
             this.whiteKeyCount = keyCount;
             // animate the movement of range from this time
             this.lastDrawnTime = System.currentTimeMillis();

@@ -15,10 +15,12 @@ import java.util.Set;
 
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.application.InputSelector;
+import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
 import uk.co.darkerwaters.staveinvaders.games.Game;
 import uk.co.darkerwaters.staveinvaders.input.Input;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
+import uk.co.darkerwaters.staveinvaders.notes.ChordFactory;
 import uk.co.darkerwaters.staveinvaders.notes.Note;
 
 public class MusicViewPlaying extends MusicView implements InputSelector.InputListener {
@@ -153,6 +155,14 @@ public class MusicViewPlaying extends MusicView implements InputSelector.InputLi
                 // at each note we are shooting at
                 for (int i = 0; i < attempt.notes.length; ++i) {
                     Note note = attempt.notes[i];
+                    if (ChordFactory.IsOffKeyCreation()) {
+                        Note targetNote = this.target.entry.chord.getNoteContained(note);
+                        if (null != targetNote) {
+                            // the target is the note, this is important to do
+                            // because the target might be an offkey chord
+                            note = targetNote;
+                        }
+                    }
                     float yPosition = getYPosition(getCurrentClef(), note);
                     if (yPosition > 0f) {
                         // shoot at this

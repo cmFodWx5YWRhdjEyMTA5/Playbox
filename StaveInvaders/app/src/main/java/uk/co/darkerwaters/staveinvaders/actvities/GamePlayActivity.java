@@ -19,6 +19,7 @@ import uk.co.darkerwaters.staveinvaders.games.GamePlayer;
 import uk.co.darkerwaters.staveinvaders.games.GameProgress;
 import uk.co.darkerwaters.staveinvaders.games.GameScore;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
+import uk.co.darkerwaters.staveinvaders.notes.ChordFactory;
 import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.sounds.SoundPlayer;
 import uk.co.darkerwaters.staveinvaders.views.CircleProgressView;
@@ -175,6 +176,21 @@ public class GamePlayActivity extends HidingFullscreenActivity implements GamePl
         updatePlayPauseButton();
     }
 
+
+    @Override
+    protected void onPause() {
+        // be sure the gameplay is paused
+        this.gamePlayer.setPaused(true);
+        // and stop any countdown we are performing
+        this.isPerformCountdown = false;
+        synchronized (this) {
+            this.notifyAll();
+        }
+        // clear the off key chord creation
+        ChordFactory.ClearOffkeyCreation();
+        super.onPause();
+    }
+
     private void playPauseGame() {
         // play / pause the game
         this.gamePlayer.setPaused(!this.gamePlayer.isPaused());
@@ -210,18 +226,6 @@ public class GamePlayActivity extends HidingFullscreenActivity implements GamePl
                 this.playButton.setImageResource(android.R.drawable.ic_media_play);
             }
         }
-    }
-
-    @Override
-    protected void onPause() {
-        // be sure the gameplay is paused
-        this.gamePlayer.setPaused(true);
-        // and stop any countdown we are performing
-        this.isPerformCountdown = false;
-        synchronized (this) {
-            this.notifyAll();
-        }
-        super.onPause();
     }
 
     private void countDownToStartOfPlay() {
@@ -277,11 +281,25 @@ public class GamePlayActivity extends HidingFullscreenActivity implements GamePl
             // show / hide the button
             updatePlayPauseButton();
         }
+
+        // setup the input here
+        if (Settings.InputType.keys == this.application.getInputSelector().getActiveInputType() &&
+                false == this.application.getSettings().getIsKeyInputPiano()) {
+            // this is the keyboard and it is in letter mode, need to ignore where on the keyboard
+            // the notes are and just test their letters and sharp / flat status
+            ChordFactory.InitialiseOffkeyCreation(this.application.getSingleChords());
+        }
+        else {
+            // use the exact chords to compare each time
+            ChordFactory.ClearOffkeyCreation();
+        }
+
         // start the game
         if (null != this.gamePlayer) {
             // turn help off, this sets us playing the game
             this.gamePlayer.startNewGame(this.startingTempo, this.startingWithHelpOn);
         }
+
         // show the level up
         this.levelUpLayout.slideIn();
     }

@@ -16,6 +16,7 @@ import java.util.List;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.games.GameScore;
+import uk.co.darkerwaters.staveinvaders.notes.ChordFactory;
 import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.games.Game;
 import uk.co.darkerwaters.staveinvaders.games.GameNote;
@@ -429,7 +430,7 @@ public class MusicView extends BaseView {
                     float topYPosition = -1f;
                     for (Note noteToDraw : toDraw.chord.notes) {
                         // for each note to draw, find it's location and draw it
-                        int noteToDrawIndex = this.clefNotes[toDraw.clef.val].getChordIndex(noteToDraw.getFrequency());
+                        int noteToDrawIndex = this.clefNotes[toDraw.clef.val].getChordIndex(noteToDraw);
                         if (noteToDrawIndex >= 0) {
                             // this is a valid index, get the yPosition for this note
                             noteToDrawIndex = noteCount - 1 - noteToDrawIndex;
@@ -483,7 +484,7 @@ public class MusicView extends BaseView {
     }
 
     protected float getYPosition(Clef clef, Note noteToDraw) {
-        int noteToDrawIndex = this.clefNotes[clef.val].getChordIndex(noteToDraw.getFrequency());
+        int noteToDrawIndex = this.clefNotes[clef.val].getChordIndex(noteToDraw);
         float yPosition = -1f;
         if (noteToDrawIndex >= 0) {
             // this is a valid index, get the yPosition for this note

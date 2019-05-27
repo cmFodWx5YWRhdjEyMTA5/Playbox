@@ -30,8 +30,7 @@ public class Note {
         }
         else {
             // compare root frequencies
-            Note toCompare = (Note) obj;
-            return toCompare.frequency == this.frequency;
+            return 0 == ChordFactory.CompareNoteFrequencies(this, (Note) obj);
         }
     }
 
@@ -82,6 +81,18 @@ public class Note {
 
     public char getNotePrimative() {
         return this.name.charAt(0);
+    }
+
+    public char getNoteQualifier() {
+        if (isSharp()) {
+            return '#';
+        }
+        else if (isFlat()) {
+            return 'b';
+        }
+        else {
+            return ' ';
+        }
     }
 
     public int getNoteScaleIndex() {

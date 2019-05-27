@@ -3,6 +3,9 @@ package uk.co.darkerwaters.staveinvaders.notes;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import uk.co.darkerwaters.staveinvaders.Application;
+import uk.co.darkerwaters.staveinvaders.application.Settings;
+
 public class Chords {
 
     private final Chord[] chords;
@@ -20,8 +23,7 @@ public class Chords {
                 // first one
                 notesGathered.add(note);
             }
-            else if (notesGathered.get(notesGathered.size() - 1).getFrequency() ==
-                    note.getFrequency()) {
+            else if (notesGathered.get(notesGathered.size() - 1).getFrequency() == note.getFrequency()) {
                 // the last note is the same as this one
                 notesGathered.add(note);
             }
@@ -65,10 +67,10 @@ public class Chords {
         return result;
     }
 
-    public Chord getChord(float frequency) {
+    public Chord getChord(Note note) {
         Chord result = null;
         for (Chord chord : this.chords) {
-            if (chord.isNoteContained(frequency)) {
+            if (chord.isNoteContained(note)) {
                 result = chord;
                 break;
             }
@@ -85,9 +87,9 @@ public class Chords {
         return -1;
     }
 
-    public int getChordIndex(float frequency) {
+    public int getChordIndex(Note note) {
         for (int i = 0; i < this.chords.length; ++i) {
-            if (this.chords[i].isNoteContained(frequency)) {
+            if (this.chords[i].isNoteContained(note)) {
                 return i;
             }
         }

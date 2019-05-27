@@ -7,12 +7,7 @@ public class Chord {
     public final String title;
     public final Note[] notes;
 
-    public Chord(Note[] notes) {
-        // create the title from the notes
-        this(createNotesTitle(notes), notes);
-    }
-
-    private static String createNotesTitle(Note[] notes) {
+    private static String CreateNotesTitle(Note[] notes) {
         StringBuilder noteTitle = new StringBuilder();
         for (Note note : notes) {
             noteTitle.append(note.name);
@@ -25,6 +20,10 @@ public class Chord {
         return noteTitle.toString();
     }
 
+    public Chord(Note[] notes) {
+        this(CreateNotesTitle(notes), notes);
+    }
+
     public Chord(String title, Note[] notes) {
         // construct this object nicely
         this.notes = Arrays.copyOf(notes, notes.length);
@@ -32,7 +31,7 @@ public class Chord {
         Arrays.sort(this.notes, new Comparator<Note>() {
             @Override
             public int compare(Note note, Note t1) {
-                return (int)(note.frequency * 1000000 - t1.frequency * 1000000);
+                return ChordFactory.CompareNoteFrequencies(note, t1);
             }
         });
         // set the title too
@@ -89,7 +88,7 @@ public class Chord {
             else {
                 // compare the notes
                 for (int i = 0; i < this.notes.length; ++i) {
-                    if (this.notes[i].frequency != toCompare.notes[i].frequency) {
+                    if (0 != ChordFactory.CompareNoteFrequencies(this.notes[i], toCompare.notes[i])) {
                         // the note is different
                         return false;
                     }
@@ -100,26 +99,30 @@ public class Chord {
         }
     }
 
-    public boolean isNoteContained(Note test) {
-        return isNoteContained(test.frequency);
+    public boolean areNotesEqual(Note note1, Note note2) {
+        return ChordFactory.CompareNoteFrequencies(note1, note2) == 0;
     }
 
-    public boolean isNoteContained(float frequency) {
-        boolean isContained = false;
+    public Note getNoteContained(Note test) {
+        Note containedNote = null;
         for (Note note : this.notes) {
-            if (frequency >= note.lower && frequency <= note.upper) {
+            if (0 == ChordFactory.CompareNoteFrequencies(test, note)) {
                 // here it is
-                isContained = true;
+                containedNote = note;
                 break;
             }
         }
-        return isContained;
+        return containedNote;
+    }
+
+    public boolean isNoteContained(Note test) {
+        return null != getNoteContained(test);
     }
 
     public int findNoteIndex(Note test) {
         int foundIndex = -1;
         for (int i = 0; i < notes.length; ++i) {
-            if (notes[i].frequency >= test.lower && notes[i].frequency <= test.upper) {
+            if (0 == ChordFactory.CompareNoteFrequencies(test, notes[i])) {
                 // here it is
                 foundIndex = i;
                 break;
@@ -128,20 +131,9 @@ public class Chord {
         return foundIndex;
     }
 
-    public int getNumberContained(Chord toTest) {
-        int count = 0;
-        for (Note test : toTest.notes) {
-            if (isNoteContained(test)) {
-                ++count;
-            }
-        }
-        return count;
-    }
-
     public int getNoteCount() {
         return this.notes.length;
     }
-
 
     public Note getLowest() {
         // find the lowest
