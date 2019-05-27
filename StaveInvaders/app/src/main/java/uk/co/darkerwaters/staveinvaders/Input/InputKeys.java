@@ -23,7 +23,12 @@ public class InputKeys extends Input {
     public int getStatusDrawable(InputSelector.Status status) {
         // if we are connected and all okay then return our icon
         if (status == InputSelector.Status.connected) {
-            return R.drawable.ic_baseline_keyboard_24px;
+            if (this.application.getSettings().getIsKeyInputPiano()) {
+                return R.drawable.ic_baseline_keyboard_24px;
+            }
+            else {
+                return R.drawable.ic_baseline_az_24px;
+            }
         }
         // else let the base class do its thing
         return super.getStatusDrawable(status);

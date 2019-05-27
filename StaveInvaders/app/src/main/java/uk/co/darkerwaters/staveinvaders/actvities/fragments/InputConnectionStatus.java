@@ -71,9 +71,8 @@ public class InputConnectionStatus extends Fragment {
             public void run() {
                 while (InputConnectionStatus.this.isRunThread) {
                     // reduce the progress down
-                    int oldProgress = progressToShow;
                     progressToShow = Math.max(0, progressToShow - K_PROGRESS_REDUCTION_AMOUNT);
-                    if (oldProgress != progressToShow && isRunThread) {
+                    if (isRunThread) {
                         updateDisplay();
                     }
                     // and sleep
@@ -108,6 +107,12 @@ public class InputConnectionStatus extends Fragment {
         updateDisplay();
 
         return inflated;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateDisplay();
     }
 
     @Override
