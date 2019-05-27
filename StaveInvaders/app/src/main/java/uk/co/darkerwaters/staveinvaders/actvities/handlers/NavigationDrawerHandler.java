@@ -18,6 +18,7 @@ import android.widget.Toast;
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.actvities.BtSetupActivity;
+import uk.co.darkerwaters.staveinvaders.actvities.KeyboardSetupActivity;
 import uk.co.darkerwaters.staveinvaders.actvities.MainActivity;
 import uk.co.darkerwaters.staveinvaders.actvities.SettingsActivity;
 import uk.co.darkerwaters.staveinvaders.actvities.UsbSetupActivity;
@@ -94,8 +95,7 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
         Intent myIntent;
         switch(inputType) {
             case keys:
-                // No settings for this
-                myIntent = null;
+                myIntent = new Intent(this.parent, KeyboardSetupActivity.class);
                 break;
             case mic:
                 Toast.makeText(parent, "Settings page to do for " + inputType.toString(), Toast.LENGTH_LONG).show();

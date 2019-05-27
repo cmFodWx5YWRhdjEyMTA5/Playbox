@@ -127,7 +127,7 @@ public class GamePlayActivity extends HidingFullscreenActivity implements GamePl
         this.gamePlayer.addListener((GameProgress.GameProgressListener) this);
 
         // and the piano
-        this.pianoView.setNoteRange(this.selectedGame.getNoteRange(settings.getSelectedClefs()), true);
+        this.pianoView.setNoteRange(this.selectedGame.getNoteRange(settings.getSelectedClefs()));
         this.pianoView.setIsAllowTouch(true);
 
         // and the music view
@@ -298,7 +298,7 @@ public class GamePlayActivity extends HidingFullscreenActivity implements GamePl
     @Override
     public void onGameClefChanged(Clef clef) {
         // set the range on the piano view accordingly
-        this.pianoView.setNoteRange(this.selectedGame.getNoteRange(new Clef[] {clef}), true);
+        this.pianoView.setNoteRange(this.selectedGame.getNoteRange(new Clef[] {clef}));
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

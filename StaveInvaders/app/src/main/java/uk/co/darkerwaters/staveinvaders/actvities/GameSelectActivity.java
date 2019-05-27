@@ -180,7 +180,6 @@ public class GameSelectActivity extends AppCompatActivity {
         }
         // and set on the music view from the switch
         this.musicView.setIsHelpLettersShowing(this.helpSwitch.isChecked());
-        this.pianoView.setIsDrawNoteName(this.helpSwitch.isChecked());
     }
 
     private void setTempo(int newTempo) {
@@ -300,7 +299,7 @@ public class GameSelectActivity extends AppCompatActivity {
         // set these on the music view
         musicView.setPermittedClefs(clefs);
         // and on the piano view
-        pianoView.setNoteRange(this.selectedGame.getNoteRange(clefs), this.helpSwitch.isChecked());
+        pianoView.setNoteRange(this.selectedGame.getNoteRange(clefs));
         this.pianoView.invalidate();
         // update the game progress view
         this.progressView.invalidate();
@@ -324,7 +323,7 @@ public class GameSelectActivity extends AppCompatActivity {
 
         // set this data on the piano
         Clef[] selectedClefs = this.application.getSettings().getSelectedClefs();
-        pianoView.setNoteRange(this.selectedGame.getNoteRange(selectedClefs), this.helpSwitch.isChecked());
+        pianoView.setNoteRange(this.selectedGame.getNoteRange(selectedClefs));
         pianoView.invalidate();
 
         // and load the image for the title bar

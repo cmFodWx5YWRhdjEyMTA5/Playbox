@@ -27,9 +27,6 @@ public class KeysView extends BaseView {
 
     protected ViewBounds bounds = null;
 
-    private boolean isDrawNoteNames = true;
-    private boolean isShowPrimatives = false;
-
     protected final List<IKeysViewListener> listeners = new ArrayList<IKeysViewListener>();
 
     public KeysView(Context context) {
@@ -48,7 +45,7 @@ public class KeysView extends BaseView {
     protected void initialiseView(Context context) {
         // initialise the notes we are going to show on the piano
         Range defaultRange = getDefaultNoteRange();
-        setNoteRange(defaultRange.getStart().root().getFrequency(), defaultRange.getEnd().root().getFrequency(), false);
+        setNoteRange(defaultRange.getStart().root().getFrequency(), defaultRange.getEnd().root().getFrequency());
     }
 
     public Range getDefaultNoteRange() {
@@ -78,7 +75,7 @@ public class KeysView extends BaseView {
         }
     }
 
-    public void setNoteRange(float minPitchDetected, float maxPitchDetected, Boolean isShowPrimatives) {
+    public void setNoteRange(float minPitchDetected, float maxPitchDetected) {
         // set the notes that are to be shown on this piano
         Chords notes = this.application.getSingleChords();
         if (null == this.noteRange) {
@@ -101,17 +98,14 @@ public class KeysView extends BaseView {
             }
         }
         // set this range now
-        setNoteRange(this.noteRange, isShowPrimatives);
+        setNoteRange(this.noteRange);
     }
 
     protected Range getNoteRange() {
         return this.noteRange;
     }
 
-    public void setNoteRange(Range newRange, Boolean isShowPrimatives) {
-        if (null != isShowPrimatives) {
-            this.isShowPrimatives = isShowPrimatives;
-        }
+    public void setNoteRange(Range newRange) {
         // set the members to remember this range to display
         Chords notes = this.application.getSingleChords();
         if (null != newRange && null != newRange.getStart() && null != newRange.getEnd()) {
@@ -148,17 +142,8 @@ public class KeysView extends BaseView {
         }
     }
 
-    public void setIsDrawNoteName(boolean isDrawNoteName) {
-        this.isDrawNoteNames = isDrawNoteName;
-        this.invalidate();
-    }
-
     public boolean isDrawNoteNames() {
-        return this.isDrawNoteNames;
-    }
-
-    public boolean isShowPrimatives() {
-        return this.isShowPrimatives;
+        return true;
     }
 
     @Override
@@ -166,6 +151,7 @@ public class KeysView extends BaseView {
         super.onDraw(canvas);
         // create the bounds
         this.bounds = new ViewBounds();
+        Assets assets = getAssets();
         // Draw a solid color on the canvas as background
         canvas.drawColor(Color.WHITE);
 
@@ -228,17 +214,21 @@ public class KeysView extends BaseView {
                                 keyBottom);
                         // draw the key (white key)
                         drawKey(canvas, keyRect, chord);
-                        canvas.drawText(Character.toString(noteLetter), keyRect.centerX(), keyRect.centerY(), getAssets().letterPaint);
-                        if (null != sharp) {
+                        int letterColor = assets.letterPaint.getColor();
+                        canvas.drawText(Character.toString(noteLetter), keyRect.centerX(), keyRect.centerY(), assets.letterPaint);
+                        if (null != sharp && i < noteCount - 1) {
                             // draw in the sharp
                             keyRect = new RectF(
                                     bounds.drawingLeft + (i * keyWidth) + halfKey,
                                     bounds.drawingBottom - keyHeight * 1.5f,
                                     bounds.drawingLeft + ((i + 1) * keyWidth) + halfKey,
                                     bounds.drawingBottom - keyHeight);
-                            drawKey(canvas, keyRect, chord);
-                            canvas.drawText(Character.toString(noteLetter) + '#', keyRect.centerX(), keyRect.centerY(), getAssets().letterPaint);
-                            canvas.drawText(Character.toString(nextLetter(noteLetter)) + 'ᵇ', keyRect.centerX(), keyRect.centerY() + getAssets().letterPaint.getTextSize(), getAssets().letterPaint);
+                            drawKey(canvas, keyRect, sharp);
+                            assets.letterPaint.setColor(Color.WHITE);
+                            canvas.drawText(Character.toString(noteLetter) + '#', keyRect.centerX(), keyRect.centerY(), assets.letterPaint);
+                            canvas.drawText(Character.toString(nextLetter(noteLetter)) + 'ᵇ', keyRect.centerX(), keyRect.centerY() + assets.letterPaint.getTextSize(), assets.letterPaint);
+                            // put the color back
+                            assets.letterPaint.setColor(letterColor);
                         }
                     }
                     // move onto the next letter

@@ -199,17 +199,9 @@ public class PianoTouchable extends PianoPlaying implements InputSelector.InputT
     }
 
     @Override
-    public void setNoteRange(Range newRange, Boolean isShowPrimatives) {
+    public void setNoteRange(Range newRange) {
         // let the base set the range
-        super.setNoteRange(newRange, isShowPrimatives);
-        // clear all our keys because it has changed size
-        resetPlayableKeys();
-    }
-
-    @Override
-    public void setNoteRange(float minPitchDetected, float maxPitchDetected, Boolean isShowPrimatives) {
-        // let the base set the range
-        super.setNoteRange(minPitchDetected, maxPitchDetected, isShowPrimatives);
+        super.setNoteRange(newRange);
         // clear all our keys because it has changed size
         resetPlayableKeys();
     }

@@ -49,6 +49,9 @@
         <activity
             android:name=".actvities.SettingsActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".actvities.KeyboardSetupActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
 
 </manifest>

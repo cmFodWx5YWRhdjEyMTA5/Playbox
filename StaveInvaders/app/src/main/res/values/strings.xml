@@ -64,4 +64,10 @@
     <string name="mute_desc">Mute all sounds played.</string>
     <string name="mute">Mute</string>
     <string name="on_screen_piano">On-Screen Piano</string>
+    <string name="config_key">Configure On-Screen Keyboard</string>
+    <string name="pianoChoice">Piano Keyboard</string>
+    <string name="lettersChoice">Lettered Keyboard</string>
+    <string name="pianoChoice_desc">Play on the screen with a piano style keyboard</string>
+    <string name="lettersChoice_desc">Play on the screen with a letter-based keyboard</string>
+    <string name="lettersOnPiano">Show letters on the keyboard</string>
 </resources>

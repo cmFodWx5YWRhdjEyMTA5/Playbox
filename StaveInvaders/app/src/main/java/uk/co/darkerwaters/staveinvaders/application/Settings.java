@@ -28,6 +28,7 @@ public class Settings {
     private final String K_SELECTEDCLEF = "selectedClef";
     private final String K_ISMUTED = "isMuted";
     private final String K_ISKEYINPUTPIANO = "isKeyInputPiano";
+    private final String K_ISSHOWPIANOLETTERS = "isShowPianoLetters";
 
     // the settings - important for defaults
     private boolean isLogging = true;
@@ -40,6 +41,7 @@ public class Settings {
     private boolean isHideTreble = false;
     private boolean isHideBass = false;
     private boolean isKeyInputPiano = true;
+    private boolean isShowPianoLetters = true;
     private boolean isMuted = false;
 
     private String selectedClefs = Clef.treble.name();
@@ -105,7 +107,18 @@ public class Settings {
 
     public Settings setIsKeyInputPiano(boolean isPiano) {
         this.isKeyInputPiano = isPiano;
-        this.editor.putBoolean(K_ISMUTED, this.isKeyInputPiano);
+        this.editor.putBoolean(K_ISKEYINPUTPIANO, this.isKeyInputPiano);
+        return this;
+    }
+
+    public boolean getIsShowPianoLetters() {
+        this.isShowPianoLetters = this.preferences.getBoolean(K_ISSHOWPIANOLETTERS, this.isShowPianoLetters);
+        return this.isShowPianoLetters;
+    }
+
+    public Settings setIsShowPianoLetters(boolean isShowPianoLetters) {
+        this.isShowPianoLetters = isShowPianoLetters;
+        this.editor.putBoolean(K_ISSHOWPIANOLETTERS, this.isShowPianoLetters);
         return this;
     }
 

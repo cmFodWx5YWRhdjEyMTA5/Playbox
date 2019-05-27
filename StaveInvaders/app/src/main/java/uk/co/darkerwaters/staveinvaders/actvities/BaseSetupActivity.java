@@ -26,7 +26,6 @@ public abstract class BaseSetupActivity extends AppCompatActivity implements
         this.application = (Application) this.getApplication();
 
         this.piano = (PianoPlaying) findViewById(R.id.microphone_setup_piano);
-        this.piano.setIsDrawNoteName(false);
     }
 
     @Override

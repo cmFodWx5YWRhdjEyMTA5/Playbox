@@ -32,7 +32,9 @@
                 <item
                     android:id="@+id/input_keys"
                     android:icon="@drawable/ic_baseline_keyboard_24px"
-                    android:title="@string/on_screen_keyboard" />
+                    android:title="@string/on_screen_keyboard"
+                    app:actionProviderClass="uk.co.darkerwaters.staveinvaders.actvities.handlers.InputOptionSettingsHandler"
+                    app:showAsAction="ifRoom" />
                 <item
                     android:id="@+id/input_mic"
                     android:icon="@drawable/ic_baseline_mic_24px"

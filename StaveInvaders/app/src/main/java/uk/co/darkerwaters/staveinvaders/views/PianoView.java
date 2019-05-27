@@ -7,9 +7,7 @@ import android.graphics.RectF;
 import android.os.Handler;
 import android.util.AttributeSet;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import uk.co.darkerwaters.staveinvaders.application.Settings;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
 import uk.co.darkerwaters.staveinvaders.notes.Chords;
 import uk.co.darkerwaters.staveinvaders.notes.Note;
@@ -46,6 +44,8 @@ public class PianoView extends KeysView {
     private float whiteKeyOffset = 0f;
     private int startNoteIndex = 0;
 
+    private boolean isShowPrimatives = true;
+
     private long lastDrawnTime = 0l;
 
     private final static float[] sharpOffsets = {
@@ -70,8 +70,8 @@ public class PianoView extends KeysView {
     }
 
     @Override
-    public void setNoteRange(Range newRange, Boolean isShowPrimatives) {
-        super.setNoteRange(newRange, isShowPrimatives);
+    public void setNoteRange(Range newRange) {
+        super.setNoteRange(newRange);
 
         Range noteRange = getNoteRange();
         if (null != noteRange && getIsPiano()) {
@@ -104,6 +104,12 @@ public class PianoView extends KeysView {
 
     protected boolean getIsPiano() {
         return this.application.getSettings().getIsKeyInputPiano();
+    }
+
+    @Override
+    public boolean isDrawNoteNames() {
+        Settings settings = this.application.getSettings();
+        return false == settings.getIsKeyInputPiano() || settings.getIsShowPianoLetters();
     }
 
     @Override
@@ -162,7 +168,7 @@ public class PianoView extends KeysView {
                         drawKey(canvas, keyRect, currentNote);
 
                         if (isDrawNoteNames()) {
-                            canvas.drawText(isShowPrimatives() ? "" + currentNote.root().getNotePrimative() : currentNote.getTitle(),
+                            canvas.drawText(isShowPrimatives ? "" + currentNote.root().getNotePrimative() : currentNote.getTitle(),
                                     keyRect.left + (keyWidth * 0.5f),
                                     keyRect.bottom - (keyWidth * 0.3f),
                                     assets.letterPaint);
