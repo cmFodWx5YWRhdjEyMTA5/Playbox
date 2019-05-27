@@ -34,6 +34,10 @@ public class Note {
         }
     }
 
+    public boolean exactEquals(Note note) {
+        return 0 == (int)(this.frequency * 10000 - note.frequency * 10000);
+    }
+
     public String getName() {
         return this.name;
     }

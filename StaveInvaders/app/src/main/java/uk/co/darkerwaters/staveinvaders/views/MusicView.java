@@ -484,7 +484,26 @@ public class MusicView extends BaseView {
     }
 
     protected float getYPosition(Clef clef, Note noteToDraw) {
-        int noteToDrawIndex = this.clefNotes[clef.val].getChordIndex(noteToDraw);
+        // don't use the matching functions because these ignore key when that input is
+        // used, as we always want to draw on the absolute correct line here, do our own
+        // search for the index
+        int noteToDrawIndex = -1;
+        Chords chords = this.clefNotes[clef.val];
+        for (int i = 0; i < chords.getSize(); ++i) {
+            Chord chord = chords.getChord(i);
+            boolean isNoteContained = false;
+            for (Note note : chord.notes) {
+                if (note.exactEquals(noteToDraw)) {
+                    // this is the note
+                    isNoteContained = true;
+                    break;
+                }
+            }
+            if (isNoteContained) {
+                noteToDrawIndex = i;
+                break;
+            }
+        }
         float yPosition = -1f;
         if (noteToDrawIndex >= 0) {
             // this is a valid index, get the yPosition for this note
