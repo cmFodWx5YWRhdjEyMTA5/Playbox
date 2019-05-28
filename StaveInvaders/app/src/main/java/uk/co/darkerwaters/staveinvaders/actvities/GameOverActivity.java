@@ -157,11 +157,11 @@ public class GameOverActivity extends AppCompatActivity {
                 case treble:
                     // show the progress for this only
                     this.trebleTempoSummary.setVisibility(View.VISIBLE);
-                    this.bassTempoSummary.setVisibility(View.INVISIBLE);
+                    this.bassTempoSummary.setVisibility(View.GONE);
                     break;
                 case bass:
                     // show the progress for this only
-                    this.trebleTempoSummary.setVisibility(View.INVISIBLE);
+                    this.trebleTempoSummary.setVisibility(View.GONE);
                     this.bassTempoSummary.setVisibility(View.VISIBLE);
                     break;
             }
