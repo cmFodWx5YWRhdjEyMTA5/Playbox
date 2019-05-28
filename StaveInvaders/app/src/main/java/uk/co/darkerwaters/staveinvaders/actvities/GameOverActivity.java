@@ -37,6 +37,16 @@ public class GameOverActivity extends AppCompatActivity {
     private TextView livesNumberText;
     private TextView shotsNumberText;
 
+    private TextView hitsText;
+
+    private TextView trebleHitsText;
+    private TextView trebleLivesLostText;
+    private TextView trebleShotsMissedText;
+
+    private TextView bassHitsText;
+    private TextView bassLivesLostText;
+    private TextView bassShotsMissedText;
+
     private ClefProgressView trebleProgressView;
     private ClefProgressView trebleGlobalProgressView;
     private ClefProgressView bassProgressView;
@@ -61,6 +71,14 @@ public class GameOverActivity extends AppCompatActivity {
         this.livesNumberText = findViewById(R.id.livesNumberText);
         this.shotsNumberText = findViewById(R.id.shotsNumberText);
 
+        this.hitsText = findViewById(R.id.hitsNumberText);
+        this.trebleHitsText = findViewById(R.id.trebleHits);
+        this.trebleLivesLostText = findViewById(R.id.trebleLivesLost);
+        this.trebleShotsMissedText = findViewById(R.id.trebleShotsMissed);
+        this.bassHitsText = findViewById(R.id.bassHits);
+        this.bassLivesLostText = findViewById(R.id.bassLivesLost);
+        this.bassShotsMissedText = findViewById(R.id.bassShotsMissed);
+
         this.trebleTempoSummary = findViewById(R.id.trebleClefSummary);
         this.trebleProgressView = findViewById(R.id.treble_progress_view);
         this.trebleSummaryText = findViewById(R.id.trebleTempoTextSummary);
@@ -83,6 +101,14 @@ public class GameOverActivity extends AppCompatActivity {
 
             this.livesNumberText.setText(Integer.toString(this.gameProgress.getLivesLeft()));
             this.shotsNumberText.setText(Integer.toString(this.gameProgress.getShotsLeft()));
+
+            this.hitsText.setText(Integer.toString(this.gameScore.getHitCount()));
+            this.trebleHitsText.setText(Integer.toString(this.gameScore.getHitCount(Clef.treble)));
+            this.trebleLivesLostText.setText(Integer.toString(this.gameScore.getMissCount(Clef.treble)));
+            this.trebleShotsMissedText.setText(Integer.toString(this.gameScore.getMisfireCount(Clef.treble)));
+            this.bassHitsText.setText(Integer.toString(this.gameScore.getHitCount(Clef.bass)));
+            this.bassLivesLostText.setText(Integer.toString(this.gameScore.getMissCount(Clef.bass)));
+            this.bassShotsMissedText.setText(Integer.toString(this.gameScore.getMisfireCount(Clef.bass)));
 
             // set the max tempo for treble and bass on the text (will only show those played)
             int maxTempo = this.gameProgress.getMaxTempo();

@@ -113,10 +113,46 @@ public class GameScore implements Serializable {
         return missCount;
     }
 
-    public int getMissfireCount(int tempo) {
+    public int getMisfireCount(int tempo) {
         int missCount = 0;
         for (Miss miss : getMissFireList(tempo)) {
             missCount += miss.getMissCount();
+        }
+        return missCount;
+    }
+
+    public int getHitCount() {
+        // return the total number of hits made
+        int hitCount = 0;
+        for (int tempo : K_BPMS) {
+            hitCount += getHitCount(tempo);
+        }
+        return hitCount;
+    }
+
+    public int getHitCount(Clef clef) {
+        // return the number of hits for this clef
+        int hitCount = 0;
+        for (int tempo : K_BPMS) {
+            hitCount += getHitCount(clef, tempo);
+        }
+        return hitCount;
+    }
+
+    public int getMissCount(Clef clef) {
+        // return the number of misses for this clef
+        int missCount = 0;
+        for (int tempo : K_BPMS) {
+            missCount += getMissCount(clef, tempo);
+        }
+        return missCount;
+    }
+
+    public int getMisfireCount(Clef clef) {
+        // return the number of misfires for this clef
+        int missCount = 0;
+        for (int tempo : K_BPMS) {
+            missCount += getMisfireCount(clef, tempo);
         }
         return missCount;
     }
@@ -143,7 +179,7 @@ public class GameScore implements Serializable {
         return missCount;
     }
 
-    public int getMissfireCount(Clef clef, int tempo) {
+    public int getMisfireCount(Clef clef, int tempo) {
         int missCount = 0;
         for (Miss miss : getMissFireList(tempo)) {
             if (miss.clef == clef) {
@@ -197,7 +233,7 @@ public class GameScore implements Serializable {
         }
     }
 
-    public void recordMissfire(Clef clef, int tempo, Chord target, Chord actual) {
+    public void recordMisfire(Clef clef, int tempo, Chord target, Chord actual) {
         Miss miss = null;
         List<Miss> missList = getMissFireList(tempo);
         for (Miss existing : missList) {

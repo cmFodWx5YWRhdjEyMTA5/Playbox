@@ -252,7 +252,7 @@ public class MusicViewPlaying extends MusicView implements InputSelector.InputLi
         this.target = null;
     }
 
-    private void onMissfire(Chord chord) {
+    private void onMisfire(Chord chord) {
         // handle the scoring of this
         if (null != this.noteProvider && null != this.target) {
             this.noteProvider.registerMisfire(this.target.entry, chord);
@@ -314,8 +314,8 @@ public class MusicViewPlaying extends MusicView implements InputSelector.InputLi
                 // this is a release, remove these notes
                 if (removeNotesFromDetected(chord)) {
                     // this was removed, so it was not removed when it hit something
-                    // this is a missfire then
-                    onMissfire(chord);
+                    // this is a misfire then
+                    onMisfire(chord);
                 }
             }
         }

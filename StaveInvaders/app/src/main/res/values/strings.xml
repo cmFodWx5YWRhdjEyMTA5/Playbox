@@ -70,4 +70,8 @@
     <string name="pianoChoice_desc">Play on the screen with a piano style keyboard</string>
     <string name="lettersChoice_desc">Play on the screen with a letter-based keyboard</string>
     <string name="lettersOnPiano">Show letters on the keyboard</string>
+    <string name="lives_lost">lives lost</string>
+    <string name="and">and</string>
+    <string name="shots_missed">shots missed</string>
+    <string name="hits">Notes hit successfully</string>
 </resources>

@@ -350,7 +350,7 @@ public abstract class GamePlayer implements GameProgressListener {
     public void registerMisfire(Game.GameEntry target, Chord actual) {
         // record this on the score
         if (isGameActive()) {
-            this.score.recordMissfire(target.clef, this.progresser.getTempo(), target.chord, actual);
+            this.score.recordMisfire(target.clef, this.progresser.getTempo(), target.chord, actual);
             this.progresser.recordMissire(target.clef,  target.chord, actual);
         }
     }
