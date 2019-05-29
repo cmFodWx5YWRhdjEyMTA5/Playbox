@@ -53,10 +53,12 @@ public class MissedTargetRecyclerAdapter extends RecyclerView.Adapter<MissedTarg
         public TextView numberMisses;
         public TextView numberMisfires;
         public TextView explanation;
+        public TextView titleView;
         public MusicView noteView;
 
         public MyViewHolder(View view) {
             super(view);
+            titleView = view.findViewById(R.id.textViewTitle);
             explanation = view.findViewById(R.id.textViewExplanation);
             noteView = view.findViewById(R.id.noteMusicView);
             numberMisses = view.findViewById(R.id.textViewNumberMisses);
@@ -157,6 +159,7 @@ public class MissedTargetRecyclerAdapter extends RecyclerView.Adapter<MissedTarg
         holder.noteView.setIsShowTempo(false);
         holder.noteView.setActiveGame(game);
 
+        holder.titleView.setText(miss.target.getTitle());
         holder.numberMisses.setText(Integer.toString(miss.missCount));
         if (miss.misfires == null) {
             holder.numberMisfires.setText("0");
