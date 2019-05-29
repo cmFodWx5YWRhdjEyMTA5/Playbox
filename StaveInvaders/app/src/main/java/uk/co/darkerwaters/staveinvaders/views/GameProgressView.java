@@ -64,7 +64,7 @@ public class GameProgressView extends BaseView {
         // get our assets for paints etc
         Assets assets = getAssets();
 
-        ViewBounds bounds = new ViewBounds();
+        ViewBounds bounds = new ViewBounds(true);
 
         // draw the outline of the view
         canvas.drawRoundRect(bounds.paddingLeft, bounds.paddingTop, bounds.viewWidth, bounds.viewHeight, bounds.borderX, bounds.borderY, assets.backgroundPaint);

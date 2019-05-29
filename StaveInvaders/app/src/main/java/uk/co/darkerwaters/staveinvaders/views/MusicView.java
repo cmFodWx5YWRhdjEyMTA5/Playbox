@@ -2,6 +2,7 @@ package uk.co.darkerwaters.staveinvaders.views;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
 import android.os.Handler;
@@ -40,7 +41,7 @@ public class MusicView extends BaseView {
 
     private class MusicViewBounds extends ViewBounds {
         MusicViewBounds() {
-            super();
+            super(true);
         }
 
         @Override
@@ -70,6 +71,9 @@ public class MusicView extends BaseView {
     private static final long K_ANIMATION_DELAY = 50;
 
     private Animator animator = null;
+
+    private boolean isScaleView = true;
+    private boolean isShowTempo = true;
 
     // the notes we are drawing on the clefs
     private Chords[] clefNotes;
@@ -316,15 +320,27 @@ public class MusicView extends BaseView {
         }
     }
 
+    public void setIsScaleView(boolean isScaleView) {
+        this.isScaleView = isScaleView;
+    }
+
+    public void setIsShowTempo(boolean isShowTempo) {
+        this.isShowTempo = isShowTempo;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        canvas.drawColor(Color.WHITE);
+
         // draw in the bounds allocated to us
-        this.bounds = new MusicViewBounds();
-
-        Assets assets = getAssets();
-
+        if (this.isScaleView) {
+            this.bounds = new MusicViewBounds();
+        }
+        else {
+            this.bounds = new ViewBounds(true);
+        }
         // calculate the draw time
         long currentTime = System.currentTimeMillis();
         long timeElapsed = currentTime - this.lastDrawn;
@@ -334,7 +350,7 @@ public class MusicView extends BaseView {
         }
         this.lastDrawn = currentTime;
         // draw this view with the time elapsed
-        drawView(timeElapsed, assets, canvas);
+        drawView(timeElapsed, getAssets(), canvas);
     }
 
     protected void drawView(long timeElapsed, Assets assets, Canvas canvas) {
@@ -390,7 +406,7 @@ public class MusicView extends BaseView {
         canvas.restore();
 
         // draw in the tempo
-        if (null != this.noteProvider && this.noteProvider.isGameActive()) {
+        if (this.isShowTempo && null != this.noteProvider && this.noteProvider.isGameActive()) {
             String tempoString = Integer.toString(getTempo());
             Paint.Align textAlign = assets.letterPaint.getTextAlign();
             assets.letterPaint.setTextAlign(Paint.Align.LEFT);

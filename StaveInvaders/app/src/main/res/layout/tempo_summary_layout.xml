@@ -32,7 +32,7 @@
                     android:id="@+id/imageViewTreble"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ic_treble" />
+                    app:srcCompat="@drawable/ic_treble_icon" />
 
                 <TextView
                     android:id="@+id/treble_progress_title"
@@ -95,7 +95,7 @@
                     android:id="@+id/imageViewBass"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ic_bass" />
+                    app:srcCompat="@drawable/ic_bass_icon" />
 
                 <TextView
                     android:id="@+id/bass_progress_title"

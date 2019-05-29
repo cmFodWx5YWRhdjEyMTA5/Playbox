@@ -123,7 +123,7 @@ public class KeysView extends BaseView {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         // create the bounds
-        this.bounds = new ViewBounds();
+        this.bounds = new ViewBounds(true);
         Assets assets = getAssets();
         // Draw a solid color on the canvas as background
         canvas.drawColor(Color.WHITE);

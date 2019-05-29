@@ -19,7 +19,7 @@ public class PianoView extends KeysView {
 
     private class PianoViewBounds extends ViewBounds {
         PianoViewBounds() {
-            super();
+            super(true);
         }
 
         @Override

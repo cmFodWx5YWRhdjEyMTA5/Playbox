@@ -29,29 +29,30 @@ public class GameScore implements Serializable {
 
     private final Game game;
 
-    private class Hit {
-        final Chord target;
-        final Clef clef;
-        int count;
-        Hit(Clef clef, Chord target) {
+    public class Hit {
+        public final Chord target;
+        public final Clef clef;
+        public int count;
+        Hit(Clef clef, Chord target, int count) {
             this.clef = clef;
             this.target = target;
-            count = 1;
+            this.count = count;
         }
     }
 
-    private class Miss {
-        final Chord target;
-        final Clef clef;
-        final List<Hit> actuals;
+    public class Miss {
+        public final Chord target;
+        public final Clef clef;
+        public final List<Hit> actuals;
         Miss(Clef clef, Chord target, Chord actual) {
             this.target = target;
             this.clef = clef;
             this.actuals = new ArrayList<Hit>();
             // add the actual to the list
-            this.actuals.add(new Hit(clef, actual));
+            this.actuals.add(new Hit(clef, actual, 1));
         }
-        void addActual(Clef clef, Chord actual) {
+
+        public void addActual(Clef clef, Chord actual, int count) {
             Hit hit = null;
             for (Hit existing : this.actuals) {
                 if (existing.target == actual && existing.clef == clef) {
@@ -62,11 +63,11 @@ public class GameScore implements Serializable {
             }
             if (null == hit) {
                 // create new
-                this.actuals.add(new Hit(clef, actual));
+                this.actuals.add(new Hit(clef, actual, count));
             }
             else {
-                // increment
-                ++hit.count;
+                // increment the specified amount
+                hit.count += count;
             }
         }
 
@@ -115,7 +116,7 @@ public class GameScore implements Serializable {
 
     public int getMisfireCount(int tempo) {
         int missCount = 0;
-        for (Miss miss : getMissFireList(tempo)) {
+        for (Miss miss : getMisfireList(tempo)) {
             missCount += miss.getMissCount();
         }
         return missCount;
@@ -181,7 +182,7 @@ public class GameScore implements Serializable {
 
     public int getMisfireCount(Clef clef, int tempo) {
         int missCount = 0;
-        for (Miss miss : getMissFireList(tempo)) {
+        for (Miss miss : getMisfireList(tempo)) {
             if (miss.clef == clef) {
                 missCount += miss.getMissCount();
             }
@@ -202,7 +203,7 @@ public class GameScore implements Serializable {
         }
         if (hit == null) {
             // create it
-            hit = new Hit(clef, chord);
+            hit = new Hit(clef, chord, 1);
             hitList.add(hit);
         }
         else {
@@ -224,7 +225,7 @@ public class GameScore implements Serializable {
         }
         if (miss == null) {
             // create it
-            miss = new Hit(clef, chord);
+            miss = new Hit(clef, chord, 1);
             missList.add(miss);
         }
         else {
@@ -235,7 +236,7 @@ public class GameScore implements Serializable {
 
     public void recordMisfire(Clef clef, int tempo, Chord target, Chord actual) {
         Miss miss = null;
-        List<Miss> missList = getMissFireList(tempo);
+        List<Miss> missList = getMisfireList(tempo);
         for (Miss existing : missList) {
             if (existing.clef == clef && existing.target.equals(target)) {
                 // this is it
@@ -243,14 +244,14 @@ public class GameScore implements Serializable {
                 break;
             }
         }
-        if (null == null) {
+        if (miss == null) {
             // create new
             miss = new Miss(clef, target, actual);
             missList.add(miss);
         }
         else {
             // increment counter for the actual
-            miss.addActual(clef, actual);
+            miss.addActual(clef, actual, 1);
         }
     }
 
@@ -278,7 +279,25 @@ public class GameScore implements Serializable {
         return missList;
     }
 
-    private List<Miss> getMissFireList(int tempo) {
+    public List<Hit> getMisses() {
+        List<Hit> missList = new ArrayList<Hit>();
+        for (int i = 0; i < K_BPMS.length; ++i) {
+            // add all these for every entry
+            missList.addAll(this.misses[i]);
+        }
+        return missList;
+    }
+
+    public List<Miss> getMisfires() {
+        List<Miss> missList = new ArrayList<Miss>();
+        for (int i = 0; i < K_BPMS.length; ++i) {
+            // add all these for every entry
+            missList.addAll(this.missFires[i]);
+        }
+        return missList;
+    }
+
+    private List<Miss> getMisfireList(int tempo) {
         List<Miss> missList = null;
         for (int i = 0; i < K_BPMS.length; ++i) {
             if (K_BPMS[i] >= tempo) {

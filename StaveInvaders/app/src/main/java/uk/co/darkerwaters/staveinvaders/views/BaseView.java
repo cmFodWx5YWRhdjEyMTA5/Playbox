@@ -93,7 +93,7 @@ public abstract class BaseView extends View {
         final float drawingHeight;
         final float drawingWidth;
 
-        ViewBounds() {
+        ViewBounds(boolean isAddBorders) {
 
             paddingLeft = getPaddingLeft();
             paddingTop = getPaddingTop();
@@ -103,8 +103,8 @@ public abstract class BaseView extends View {
             viewWidth = getContentWidth();
             viewHeight = getContentHeight();
 
-            borderX = calculateXBorder();
-            borderY = calculateYBorder();
+            borderX = isAddBorders ? calculateXBorder() : 0f;
+            borderY = isAddBorders ? calculateYBorder() : 0f;
 
             drawingRight = viewWidth - (paddingLeft + borderX);
             drawingLeft = paddingLeft + borderX;

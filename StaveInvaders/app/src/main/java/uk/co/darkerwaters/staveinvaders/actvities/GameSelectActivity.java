@@ -268,16 +268,23 @@ public class GameSelectActivity extends AppCompatActivity {
             this.radioClefs.setVisibility(View.GONE);
             // and set the selected clef to be bass, treble cannot be selected, nor can both
             settings.setSelectedClefs(new Clef[] {Clef.bass}).commitChanges();
-            // set the check item to match that set and available in the application
-            this.radioClefs.check(R.id.radioBassClef);
         }
         else if (settings.getIsHideClef(Clef.bass)) {
             // hide it all as there is no choice to make
             this.radioClefs.setVisibility(View.GONE);
             // and set the selected clef to be treble, bass cannot be selected, nor can both
             settings.setSelectedClefs(new Clef[]{Clef.treble}).commitChanges();
-            // set the check item to match that set and available in the application
+        }
+        // set the check item to match that set and available in the application
+        Clef[] selectedClefs = settings.getSelectedClefs();
+        if (selectedClefs.length == 2) {
+            this.radioClefs.check(R.id.radioMixedClefs);
+        }
+        else if (selectedClefs[0] == Clef.treble) {
             this.radioClefs.check(R.id.radioTrebleClef);
+        }
+        else {
+            this.radioClefs.check(R.id.radioBassClef);
         }
     }
 

@@ -22,6 +22,8 @@ import uk.co.darkerwaters.staveinvaders.notes.Range;
 
 public class Game {
 
+    public static final String K_UNPLAYABLE_GAME = "unplayable";
+
     public final Game parent;
     public final String id;
     public final String name;
@@ -42,10 +44,10 @@ public class Game {
             String[] entries = fileData.split(":");
             if (entries[0].equals("t")) {
                 // this is treble
-                clef = Clef.treble;
+                this.clef = Clef.treble;
             }
             else {
-                clef = Clef.bass;
+                this.clef = Clef.bass;
             }
             this.chord = createChord(notes, entries[1]);
             if (entries.length > 2) {
@@ -60,6 +62,13 @@ public class Game {
             else {
                 this.fingering = "";
             }
+        }
+
+        GameEntry(String name, Chord chord, String fingering, Clef clef) {
+            this.name = name;
+            this.chord = chord;
+            this.fingering = fingering;
+            this.clef = clef;
         }
 
         private Chord createChord(Notes notes, String noteName) {
@@ -119,6 +128,31 @@ public class Game {
             // for each level, load them in
             this.children[i] = new Game(application, this, jsonChildren.getJSONObject(i));
         }
+    }
+
+    public Game(Application application,
+                String gameClass,
+                Clef clef, Chord[] chords) {
+        // setup the stand-alone game
+        this.parent = null;
+        this.application = application;
+        // this cannot be played, so the id is irrelevant
+        this.id = K_UNPLAYABLE_GAME;
+        this.name = this.id;
+        this.image = this.id;
+        this.gameClass = gameClass;
+        this.description = "an unplayable reference game";
+
+        // and the entries
+        this.entries = new GameEntry[chords.length];
+        for (int i = 0; i < this.entries.length; ++i) {
+            // create each entry
+            Chord chord = chords[i];
+            this.entries[i] = new GameEntry(Character.toString(chord.root().getNotePrimative()).toLowerCase(), chord, "", clef);
+        }
+
+        // no children
+        this.children = new Game[0];
     }
 
     private String getJsonStringOptional(JSONObject source, String name) {

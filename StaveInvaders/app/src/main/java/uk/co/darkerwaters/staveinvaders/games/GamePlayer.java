@@ -27,7 +27,7 @@ public abstract class GamePlayer implements GameProgressListener {
 
     protected final Application application;
     protected final Game game;
-    protected final GameScore score;
+    protected GameScore score;
     protected final GameProgress progresser;
 
     private final List<GamePlayerListener> listeners;
@@ -52,6 +52,7 @@ public abstract class GamePlayer implements GameProgressListener {
         this.game = game;
         this.listeners = new ArrayList<GamePlayerListener>();
         this.isPaused = true;
+        this.score = null;
 
         // get the active clef from the entries on the game, just use the first
         if (null != this.game && null != this.game.entries && this.game.entries.length > 0) {
@@ -71,8 +72,7 @@ public abstract class GamePlayer implements GameProgressListener {
         for (Clef clef : this.availableClefs) {
             setPermittedClef(clef, true);
         }
-        // setup our score and progress class
-        this.score = new GameScore(this.game);
+        // setup our progress class
         this.progresser = new GameProgress();
         this.progresser.addListener(this);
     }
@@ -401,6 +401,9 @@ public abstract class GamePlayer implements GameProgressListener {
     public void startNewGame(int tempo, boolean isHelpOn) {
         // start a new game, stop help
         this.isInDemoMode = false;
+        // create the score
+        this.score = new GameScore(this.game);
+        // and start the game
         this.progresser.startNewGame(tempo, isHelpOn, getPointLevelGoal());
         // clear the notes
         synchronized (this.activeNotes) {

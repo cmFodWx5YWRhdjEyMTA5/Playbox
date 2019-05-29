@@ -113,7 +113,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    app:srcCompat="@drawable/ic_treble" />
+                    app:srcCompat="@drawable/ic_treble_icon" />
 
                 <RadioButton
                     android:id="@+id/radioTrebleClef"
@@ -127,7 +127,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    app:srcCompat="@drawable/ic_bass" />
+                    app:srcCompat="@drawable/ic_bass_icon" />
 
                 <RadioButton
                     android:id="@+id/radioBassClef"
@@ -141,14 +141,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    app:srcCompat="@drawable/ic_treble" />
+                    app:srcCompat="@drawable/ic_treble_icon" />
 
                 <ImageView
                     android:id="@+id/imageViewBass2"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    app:srcCompat="@drawable/ic_bass" />
+                    app:srcCompat="@drawable/ic_bass_icon" />
 
                 <RadioButton
                     android:id="@+id/radioMixedClefs"

@@ -40,7 +40,7 @@
                     app:layout_constraintBottom_toBottomOf="@+id/trebleTitle"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/trebleTitle"
-                    app:srcCompat="@drawable/ic_treble" />
+                    app:srcCompat="@drawable/ic_treble_icon" />
 
                 <Switch
                     android:id="@+id/hideTrebleSwitch"
@@ -95,7 +95,7 @@
                     app:layout_constraintBottom_toBottomOf="@+id/bassTitle"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/bassTitle"
-                    app:srcCompat="@drawable/ic_bass" />
+                    app:srcCompat="@drawable/ic_bass_icon" />
 
                 <Switch
                     android:id="@+id/hideBassSwitch"

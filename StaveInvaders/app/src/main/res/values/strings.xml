@@ -74,4 +74,9 @@
     <string name="and">and</string>
     <string name="shots_missed">shots missed</string>
     <string name="hits">Notes hit successfully</string>
+    <string name="missed_note">Missed Note</string>
+    <string name="instead_hit">Instead:</string>
+    <string name="times">times</string>
+    <string name="twice">twice</string>
+    <string name="once">once</string>
 </resources>

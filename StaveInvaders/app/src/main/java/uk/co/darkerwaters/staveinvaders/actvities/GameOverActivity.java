@@ -1,13 +1,23 @@
 package uk.co.darkerwaters.staveinvaders.actvities;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
+import uk.co.darkerwaters.staveinvaders.actvities.handlers.MissedTargetRecyclerAdapter;
 import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.application.Scores;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
@@ -46,11 +56,19 @@ public class GameOverActivity extends AppCompatActivity {
     private TextView bassHitsText;
     private TextView bassLivesLostText;
     private TextView bassShotsMissedText;
+    
+    private ImageButton trebleMoreButton;
+    private ImageButton bassMoreButton;
 
     private ClefProgressView trebleProgressView;
     private ClefProgressView trebleGlobalProgressView;
     private ClefProgressView bassProgressView;
     private ClefProgressView bassGlobalProgressView;
+
+    private RecyclerView trebleNotesList;
+    private MissedTargetRecyclerAdapter trebleNotesAdapter;
+    private RecyclerView bassNotesList;
+    private MissedTargetRecyclerAdapter bassNotesAdapter;
 
     private View trebleTempoSummary;
     private View bassTempoSummary;
@@ -88,6 +106,62 @@ public class GameOverActivity extends AppCompatActivity {
         this.bassProgressView = findViewById(R.id.bass_progress_view);
         this.bassSummaryText = findViewById(R.id.bassTempoTextSummary);
         this.bassGlobalProgressView = findViewById(R.id.bass_progress_view_global);
+
+        int span = 1;
+        switch(getResources().getConfiguration().orientation) {
+            case Configuration.ORIENTATION_LANDSCAPE:
+                span = 2;
+                break;
+        }
+
+        this.trebleNotesAdapter = new MissedTargetRecyclerAdapter(this.application, this, Clef.treble);
+        // setup the list
+        this.trebleNotesList = findViewById(R.id.trebleNotesCardView);
+        this.trebleNotesList.setLayoutManager(new GridLayoutManager(this, span));
+        this.trebleNotesList.setAdapter(this.trebleNotesAdapter);
+
+        this.bassNotesAdapter = new MissedTargetRecyclerAdapter(this.application, this, Clef.bass);
+        // setup the list
+        this.bassNotesList = findViewById(R.id.bassNotesCardView);
+        this.bassNotesList.setLayoutManager(new GridLayoutManager(this, span));
+        this.bassNotesList.setAdapter(this.bassNotesAdapter);
+
+        this.trebleMoreButton = findViewById(R.id.trebleMoreButton);
+        if (this.trebleNotesAdapter.isEmpty()) {
+            this.trebleMoreButton.setVisibility(View.INVISIBLE);
+        }
+        else {
+            this.trebleMoreButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (trebleNotesList.getVisibility() == View.VISIBLE) {
+                        trebleNotesList.setVisibility(View.GONE);
+                        trebleMoreButton.setImageResource(R.drawable.ic_baseline_unfold_more_24px);
+                    } else {
+                        trebleNotesList.setVisibility(View.VISIBLE);
+                        trebleMoreButton.setImageResource(R.drawable.ic_baseline_unfold_less_24px);
+                    }
+                }
+            });
+        }
+        this.bassMoreButton = findViewById(R.id.bassMoreButton);
+        if (this.bassNotesAdapter.isEmpty()) {
+            this.bassMoreButton.setVisibility(View.INVISIBLE);
+        }
+        else {
+            this.bassMoreButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (bassNotesList.getVisibility() == View.VISIBLE) {
+                        bassNotesList.setVisibility(View.GONE);
+                        bassMoreButton.setImageResource(R.drawable.ic_baseline_unfold_more_24px);
+                    } else {
+                        bassNotesList.setVisibility(View.VISIBLE);
+                        bassMoreButton.setImageResource(R.drawable.ic_baseline_unfold_less_24px);
+                    }
+                }
+            });
+        }
 
         Intent intent = getIntent();
         String parentGameName = intent.getStringExtra(K_SELECTED_CARD_FULL_NAME);
