@@ -47,11 +47,13 @@ public class AttributionRecyclerAdapter extends RecyclerView.Adapter<Attribution
     private List<Attribution> dataList;
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        final public ImageView imageView;
-        final public WebView attributionView;
+        final ImageView imageView;
+        final WebView attributionView;
+        final TextView titleView;
 
         public MyViewHolder(View view) {
             super(view);
+            this.titleView = view.findViewById(R.id.attributionTitle);
             this.imageView = view.findViewById(R.id.attributionImage);
             this.attributionView = view.findViewById(R.id.attributionText);
         }
@@ -99,6 +101,7 @@ public class AttributionRecyclerAdapter extends RecyclerView.Adapter<Attribution
     public void onBindViewHolder(final MyViewHolder holder, int position) {
         Attribution attribution = dataList.get(position);
 
+        holder.titleView.setText(attribution.imageName);
         int id = context.getResources().getIdentifier(attribution.imageName, "drawable", context.getPackageName());
         holder.imageView.setImageResource(id);
         holder.attributionView.loadData(attribution.attribution, "text/html", "UTF-8");

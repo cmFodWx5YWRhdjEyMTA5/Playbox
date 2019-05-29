@@ -10,25 +10,16 @@
             android:id="@+id/nav_home"
             android:icon="@drawable/ic_baseline_home_24px"
             android:title="@string/home" />
-        <item
-            android:id="@+id/nav_history"
-            android:icon="@drawable/ic_baseline_history_24px"
-            android:title="@string/history" />
-        <item
-            android:id="@+id/nav_attributions"
-            android:icon="@drawable/ic_baseline_collections_24px"
-            android:title="@string/attributions" />
-        <item
-            android:id="@+id/nav_settings"
-            android:icon="@drawable/ic_baseline_settings_20px"
-            android:title="@string/action_settings" />
     </group>
 
     <item
         android:id="@+id/connection_group"
+        android:menuCategory="container"
         android:title="@string/keyboard_connection">
         <menu>
-            <group android:checkableBehavior="single">
+            <group
+                android:checkableBehavior="single"
+                android:title="@string/keyboard_connection">
                 <item
                     android:id="@+id/input_keys"
                     android:icon="@drawable/ic_baseline_keyboard_24px"
@@ -39,6 +30,7 @@
                     android:id="@+id/input_mic"
                     android:icon="@drawable/ic_baseline_mic_24px"
                     android:title="@string/microphone"
+                    android:visible="false"
                     app:actionProviderClass="uk.co.darkerwaters.staveinvaders.actvities.handlers.InputOptionSettingsHandler"
                     app:showAsAction="ifRoom" />
                 <item
@@ -56,6 +48,26 @@
             </group>
         </menu>
     </item>
+    <group
+        android:id="@+id/bottomGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checkableBehavior="none"
+        android:menuCategory="container">
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_baseline_settings_20px"
+            android:title="@string/action_settings" />
+        <item
+            android:id="@+id/nav_history"
+            android:icon="@drawable/ic_baseline_history_24px"
+            android:title="@string/history"
+            android:visible="false" />
+        <item
+            android:id="@+id/nav_attributions"
+            android:icon="@drawable/ic_baseline_collections_24px"
+            android:title="@string/attributions" />
+    </group>
 
 
 </menu>
