@@ -33,8 +33,8 @@
     <string name="home">Home</string>
     <string name="history">History</string>
     <string name="attributions">Attributions</string>
-    <string name="xAxis">level</string>
-    <string name="yAxis">tempo</string>
+    <string name="xAxis">--level--</string>
+    <string name="yAxis"></string>
     <string name="clef_mixed">Mixed</string>
     <string name="clef_bass">Bass</string>
     <string name="clef_treble">Treble</string>
@@ -102,4 +102,11 @@
     <string name="text">placeholder</string>
     <string name="noteTitle">C4</string>
     <string name="content_note">note</string>
+    <string name="dataWipe">Wipe Data</string>
+    <string name="dataWipe_desc">Delete all data and progress from application</string>
+    <string name="onlyIfSure">Only Press if you are REALLY sure, all progress will be lost forever.</string>
+    <string name="wipe">Wipe All Data</string>
+    <string name="areYouSure">Are you REALLY REALLY Sure?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>

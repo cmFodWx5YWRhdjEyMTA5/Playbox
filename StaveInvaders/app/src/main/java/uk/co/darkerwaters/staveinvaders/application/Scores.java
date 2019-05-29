@@ -68,4 +68,11 @@ public class Scores {
         // and commit these scores now
         editor.commit();
     }
+
+    public void wipeAllScores() {
+        SharedPreferences.Editor editor = this.preferences.edit();
+        if (null != editor) {
+            editor.clear().commit();
+        }
+    }
 }

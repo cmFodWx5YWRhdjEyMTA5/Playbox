@@ -159,6 +159,8 @@ public class GameSelectActivity extends AppCompatActivity {
                         setAvailableClefs(new Clef[] {Clef.treble, Clef.bass});
                         break;
                 }
+                // also ensure we don't have a game selected we cannot play
+                checkSelectedGamePossible();
             }
         });
     }
@@ -220,6 +222,28 @@ public class GameSelectActivity extends AppCompatActivity {
         setTempo(GameScore.K_BPMS[tempoIndex]);
     }
 
+    private void checkSelectedGamePossible() {
+        // check the game selected is less than or equal to the top available
+        int topIndex = -1;
+        int selectedIndex = -1;
+        int index = -1;
+        for (Game child : parentGame.children) {
+            // this can be our last game
+            ++index;
+            if (child == this.selectedGame) {
+                selectedIndex = index;
+            }
+            if (isGamePassed(child)) {
+                // this game is ok
+                topIndex = index;
+            }
+        }
+        if (selectedIndex > topIndex) {
+            // the selected is too high, prevent this
+            setTopGameSelected();
+        }
+    }
+
     private void setTopGameSelected() {
         // get the last game we have any progress for and select by default
         this.gameIndex = -1;
@@ -234,6 +258,8 @@ public class GameSelectActivity extends AppCompatActivity {
         }
         // set this game data now we have one selected
         setSelectedGameData();
+        // and the buttons
+        enableNextAndBackButtons();
     }
 
     private void playSelectedGame() {

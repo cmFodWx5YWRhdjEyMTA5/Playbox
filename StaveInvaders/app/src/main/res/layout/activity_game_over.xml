@@ -16,45 +16,54 @@
             android:paddingBottom="24dp"
             tools:context=".activities.GameOverActivity">
 
-            <LinearLayout
+            <android.support.v7.widget.CardView
                 android:id="@+id/linearLayoutHits"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
-                android:gravity="center"
-                android:orientation="horizontal"
+                app:cardBackgroundColor="@color/secondaryColor"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="3dp"
+                app:contentPadding="4dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/imageViewTitlebar">
 
-                <ImageView
-                    android:id="@+id/imageView32"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_note"
-                    android:contentDescription="@string/note"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/hitsNumberText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
-                    android:text="@string/five"
-                    android:textSize="18sp" />
+                    <ImageView
+                        android:id="@+id/imageView32"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_weight="1"
+                        android:src="@drawable/ic_note"
+                        android:contentDescription="@string/note"/>
 
-                <TextView
-                    android:id="@+id/textView32"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
-                    android:text="@string/hits"
-                    android:textSize="18sp" />
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/hitsNumberText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="@string/five"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/textView32"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="@string/hits"
+                        android:textSize="18sp" />
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
 
             <ImageView
                 android:id="@+id/imageViewTitlebar"
@@ -78,81 +87,99 @@
                 app:layout_constraintBottom_toBottomOf="@+id/imageViewTitlebar"
                 app:layout_constraintStart_toStartOf="parent" />
 
-            <LinearLayout
+            <android.support.v7.widget.CardView
                 android:id="@+id/linearLayoutHeart"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:gravity="center"
-                android:orientation="horizontal"
+                app:cardBackgroundColor="@color/secondaryColor"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="3dp"
+                app:contentPadding="4dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/linearLayoutHits">
 
-                <ImageView
-                    android:id="@+id/imageView10"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_weight="1"
-                    android:src="@drawable/heart"
-                    android:contentDescription="@string/content_heart" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/livesNumberText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
-                    android:text="@string/five"
-                    android:textSize="18sp" />
+                    <ImageView
+                        android:id="@+id/imageView10"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_weight="1"
+                        android:src="@drawable/heart"
+                        android:contentDescription="@string/content_heart" />
 
-                <TextView
-                    android:id="@+id/textView8"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
-                    android:text="@string/lives_left"
-                    android:textSize="18sp" />
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/livesNumberText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="@string/five"
+                        android:textSize="18sp" />
 
-            <LinearLayout
+                    <TextView
+                        android:id="@+id/textView8"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="@string/lives_left"
+                        android:textSize="18sp" />
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
                 android:id="@+id/linearLayoutShots"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_marginEnd="8dp"
-                android:gravity="center"
-                android:orientation="horizontal"
+                app:cardBackgroundColor="@color/secondaryColor"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="3dp"
+                app:contentPadding="4dp"
                 app:layout_constraintBottom_toBottomOf="@+id/linearLayoutHeart"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/linearLayoutHeart">
 
-                <TextView
-                    android:id="@+id/shotsNumberText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/ten"
-                    android:textSize="18sp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/textView9"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    android:text="@string/shots_left"
-                    android:textSize="18sp" />
+                    <TextView
+                        android:id="@+id/shotsNumberText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/ten"
+                        android:textSize="18sp" />
 
-                <ImageView
-                    android:id="@+id/imageView11"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:src="@drawable/bullet"
-                    android:contentDescription="@string/content_bullet" />
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/textView9"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:text="@string/shots_left"
+                        android:textSize="18sp" />
+
+                    <ImageView
+                        android:id="@+id/imageView11"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:contentDescription="@string/content_bullet"
+                        android:src="@drawable/bullet" />
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -353,6 +380,7 @@
                             android:layout_marginStart="8dp"
                             android:layout_marginEnd="8dp"
                             android:layout_marginBottom="8dp"
+                            android:background="@color/secondaryDarkColor"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@+id/linearLayoutTrebleHits"
                             app:layout_constraintStart_toStartOf="parent"
@@ -563,6 +591,7 @@
                             android:layout_marginStart="8dp"
                             android:layout_marginEnd="8dp"
                             android:layout_marginBottom="8dp"
+                            android:background="@color/secondaryDarkColor"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@+id/linearLayoutBassHits"
                             app:layout_constraintStart_toStartOf="parent"

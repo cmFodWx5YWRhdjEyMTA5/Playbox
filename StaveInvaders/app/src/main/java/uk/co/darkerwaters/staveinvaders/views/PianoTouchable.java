@@ -25,7 +25,7 @@ public class PianoTouchable extends PianoPlaying implements InputSelector.InputT
     private boolean isCreatePlayableKeys = false;
     private boolean isAllowTouch = true;
 
-    private final Map<Chord, Integer> noteDepressionCount = new HashMap<>();
+    private Map<Chord, Integer> noteDepressionCount;
 
     private Thread reductionThread = null;
     private boolean isThreadStarted = false;
@@ -90,6 +90,8 @@ public class PianoTouchable extends PianoPlaying implements InputSelector.InputT
         inputSelector.addListener(this);
 
         Chords chords = this.application.getSingleChords();
+        // initialise the counter map
+        this.noteDepressionCount = new HashMap<>(chords.getSize());
         for (int i = 0; i < chords.getSize(); ++i) {
             Chord chord = chords.getChord(i);
             // also initialise the count in the map

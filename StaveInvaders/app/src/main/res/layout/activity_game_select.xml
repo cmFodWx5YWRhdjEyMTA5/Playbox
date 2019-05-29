@@ -44,32 +44,36 @@
                 android:id="@+id/gameProgress"
                 android:layout_width="0dp"
                 android:layout_height="80dp"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
                 app:layout_constraintEnd_toStartOf="@+id/nextButton"
                 app:layout_constraintStart_toEndOf="@+id/prevButton"
                 app:layout_constraintTop_toBottomOf="@+id/imageViewTitlebar" />
 
             <ImageButton
                 android:id="@+id/prevButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_marginStart="8dp"
+                android:background="@color/secondaryDarkColor"
+                android:contentDescription="@string/content_prev"
                 android:src="@android:drawable/ic_media_rew"
                 app:layout_constraintBottom_toBottomOf="@+id/gameProgress"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/gameProgress"
-                android:contentDescription="@string/content_prev"/>
+                app:layout_constraintTop_toTopOf="@+id/gameProgress" />
 
             <ImageButton
                 android:id="@+id/nextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_marginEnd="8dp"
+                android:background="@color/secondaryDarkColor"
+                android:contentDescription="@string/content_next"
                 android:src="@android:drawable/ic_media_ff"
                 app:layout_constraintBottom_toBottomOf="@+id/gameProgress"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/gameProgress"
-                android:contentDescription="@string/content_next" />
+                app:layout_constraintTop_toTopOf="@+id/gameProgress" />
 
             <TextView
                 android:id="@+id/game_title"
@@ -81,6 +85,9 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:text="@string/stave_invaders_subtitle"
+                android:textAlignment="center"
+                android:textSize="18sp"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/gameProgress" />
@@ -88,134 +95,170 @@
             <uk.co.darkerwaters.staveinvaders.views.MusicView
                 android:id="@+id/musicView"
                 android:layout_width="0dp"
-                android:layout_height="150dp"
+                android:layout_height="180dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginEnd="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/startingControlsLayout" />
+                app:layout_constraintTop_toBottomOf="@+id/startingControlsCard" />
 
-            <RadioGroup
-                android:id="@+id/radioGroupClefs"
+            <android.support.v7.widget.CardView
+                android:id="@+id/cardClefs"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
-                android:checkedButton="@id/radioTrebleClef"
-                android:orientation="horizontal"
+                app:cardBackgroundColor="@color/secondaryColor"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="3dp"
+                app:contentPadding="4dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/game_title">
 
-                <ImageView
-                    android:id="@+id/imageView7"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    app:srcCompat="@drawable/ic_treble_icon"
-                    android:contentDescription="@string/content_treble" />
-
-                <RadioButton
-                    android:id="@+id/radioTrebleClef"
-                    android:layout_width="wrap_content"
+                <RadioGroup
+                    android:id="@+id/radioGroupClefs"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/clef_treble" />
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:checkedButton="@id/radioTrebleClef"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/game_title">
 
-                <ImageView
-                    android:id="@+id/imageView8"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    app:srcCompat="@drawable/ic_bass_icon"
-                    android:contentDescription="@string/content_bass" />
+                    <ImageView
+                        android:id="@+id/imageView7"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:contentDescription="@string/content_treble"
+                        app:srcCompat="@drawable/ic_treble_icon" />
 
-                <RadioButton
-                    android:id="@+id/radioBassClef"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/clef_bass" />
+                    <RadioButton
+                        android:id="@+id/radioTrebleClef"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/clef_treble" />
 
-                <ImageView
-                    android:id="@+id/imageViewTreble2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    app:srcCompat="@drawable/ic_treble_icon"
-                    android:contentDescription="@string/content_treble" />
+                    <ImageView
+                        android:id="@+id/imageView8"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:contentDescription="@string/content_bass"
+                        app:srcCompat="@drawable/ic_bass_icon" />
 
-                <ImageView
-                    android:id="@+id/imageViewBass2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    app:srcCompat="@drawable/ic_bass_icon"
-                    android:contentDescription="@string/content_bass" />
+                    <RadioButton
+                        android:id="@+id/radioBassClef"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/clef_bass" />
 
-                <RadioButton
-                    android:id="@+id/radioMixedClefs"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/clef_mixed" />
-            </RadioGroup>
+                    <ImageView
+                        android:id="@+id/imageViewTreble2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:contentDescription="@string/content_treble"
+                        app:srcCompat="@drawable/ic_treble_icon" />
 
-            <LinearLayout
-                android:id="@+id/startingControlsLayout"
+                    <ImageView
+                        android:id="@+id/imageViewBass2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:contentDescription="@string/content_bass"
+                        app:srcCompat="@drawable/ic_bass_icon" />
+
+                    <RadioButton
+                        android:id="@+id/radioMixedClefs"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/clef_mixed" />
+                </RadioGroup>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/startingControlsCard"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
+                android:layout_marginBottom="8dp"
+                app:cardBackgroundColor="@color/secondaryColor"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="3dp"
+                app:contentPadding="4dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/radioGroupClefs">
+                app:layout_constraintTop_toBottomOf="@+id/cardClefs">
 
-                <TextView
-                    android:id="@+id/tempoTextView"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/startingControlsLayout"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/tempo"
-                    android:textAlignment="viewEnd" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                <ImageButton
-                    android:id="@+id/tempoLessButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    app:srcCompat="@android:drawable/ic_media_rew"
-                    android:contentDescription="@string/content_rew" />
+                    <TextView
+                        android:id="@+id/tempoTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:text="@string/tempo"
+                        android:textAlignment="viewEnd" />
 
-                <TextView
-                    android:id="@+id/tempoSelectedTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/text"
-                    android:textAlignment="center" />
+                    <ImageButton
+                        android:id="@+id/tempoLessButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@color/secondaryDarkColor"
+                        app:srcCompat="@android:drawable/ic_media_rew"
+                        android:contentDescription="@string/content_rew" />
 
-                <ImageButton
-                    android:id="@+id/tempoMoreButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    app:srcCompat="@android:drawable/ic_media_ff"
-                    android:contentDescription="@string/content_ff" />
+                    <TextView
+                        android:id="@+id/tempoSelectedTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/text"
+                        android:textAlignment="center"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
 
-                <Switch
-                    android:id="@+id/helpSwitch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/show_help" />
+                    <ImageButton
+                        android:id="@+id/tempoMoreButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@color/secondaryDarkColor"
+                        app:srcCompat="@android:drawable/ic_media_ff"
+                        android:contentDescription="@string/content_ff" />
 
-            </LinearLayout>
+                    <Switch
+                        android:id="@+id/helpSwitch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:text="@string/show_help" />
+
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
 
             <uk.co.darkerwaters.staveinvaders.views.PianoView
                 android:id="@+id/pianoView"

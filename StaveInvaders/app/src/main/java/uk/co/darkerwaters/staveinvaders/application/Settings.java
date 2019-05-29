@@ -31,18 +31,18 @@ public class Settings {
     private final String K_ISSHOWPIANOLETTERS = "isShowPianoLetters";
 
     // the settings - important for defaults
-    private boolean isLogging = true;
+    private boolean isLogging;
 
-    private String activeInput = K_INPUTKEYS;
+    private String activeInput;
 
-    private String lastConnectedUsbDevice = "";
-    private String lastConnectedBtDevice = "";
+    private String lastConnectedUsbDevice;
+    private String lastConnectedBtDevice;
 
-    private boolean isHideTreble = false;
-    private boolean isHideBass = false;
-    private boolean isKeyInputPiano = true;
-    private boolean isShowPianoLetters = true;
-    private boolean isMuted = false;
+    private boolean isHideTreble;
+    private boolean isHideBass;
+    private boolean isKeyInputPiano;
+    private boolean isShowPianoLetters;
+    private boolean isMuted;
 
     private String selectedClefs = Clef.treble.name();
 
@@ -59,8 +59,29 @@ public class Settings {
         this.preferences = this.application.getSharedPreferences("MainPref", 0); // 0 - for private mode
         this.editor = this.preferences.edit();
 
+        // set the defaults
+        setDefaults();
         // initialise all the settings
         Log.debug("Settings initialised...");
+    }
+
+    private void setDefaults() {
+        this.isHideTreble = false;
+        this.isHideBass = false;
+        this.isKeyInputPiano = true;
+        this.isShowPianoLetters = true;
+        this.isMuted = false;
+
+        this.isLogging = true;
+
+        this.activeInput = K_INPUTKEYS;
+        this.lastConnectedUsbDevice = "";
+        this.lastConnectedBtDevice = "";
+    }
+
+    public void wipeAllSettings() {
+        this.editor.clear().commit();
+        setDefaults();
     }
 
     public boolean isLogging() {

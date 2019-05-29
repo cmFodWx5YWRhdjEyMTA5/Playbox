@@ -94,10 +94,14 @@ public class GameProgressView extends BaseView {
         Rect textBounds = new Rect();
         assets.letterPaint.getTextBounds(gameCount, 0, gameCount.length() - 1, textBounds);
 
-        float graphRight = bounds.drawingRight - bounds.borderX;
-        float graphLeft = bounds.drawingLeft + assets.letterPaint.getTextSize();
+        float graphRight = bounds.drawingRight;
+        float graphLeft = bounds.drawingLeft;
+        if (null != yAxisTitle && false == yAxisTitle.isEmpty()) {
+            // drawing in the yAxis title, move the rect over
+            graphLeft += assets.letterPaint.getTextSize();
+        }
         float graphTop = bounds.drawingTop + (isDrawBpmValues ? textBounds.height() * 0.5f : 0);
-        float graphBottom = bounds.drawingBottom - (bounds.borderY * 2.5f);
+        float graphBottom = bounds.drawingBottom - (bounds.borderY * 1.5f);
 
         // draw around the graph here
         //canvas.drawRoundRect(graphLeft, graphTop, graphRight, graphBottom, bounds.border, bounds.border, assets.outlinePaint);
@@ -159,15 +163,25 @@ public class GameProgressView extends BaseView {
 
             // draw the graph titles here
             canvas.drawText(xAxisTitle,
-                    (bounds.viewWidth - assets.letterPaint.measureText(xAxisTitle)) * 0.5f,
+                    bounds.viewWidth * 0.5f,
                     bounds.viewHeight - bounds.borderY * 0.5f,
                     assets.letterPaint);
-            canvas.save();
-            canvas.rotate(-90f, 0, 0);
-            canvas.drawText(yAxisTitle,
-                    (bounds.viewHeight + assets.letterPaint.measureText(xAxisTitle)) * -0.25f,
-                    assets.letterPaint.getTextSize(), assets.letterPaint);
-            canvas.restore();
+            canvas.drawText(Integer.toString(1),
+                    graphLeft + entryWidth * 0.5f,
+                    bounds.viewHeight - bounds.borderY * 0.5f,
+                    assets.letterPaint);
+            canvas.drawText(Integer.toString(this.game.children.length),
+                    graphRight - entryWidth * 0.5f,
+                    bounds.viewHeight - bounds.borderY * 0.5f,
+                    assets.letterPaint);
+            if (null != yAxisTitle && false == yAxisTitle.isEmpty()) {
+                canvas.save();
+                canvas.rotate(-90f, 0, 0);
+                canvas.drawText(yAxisTitle,
+                        (bounds.viewHeight + assets.letterPaint.measureText(xAxisTitle)) * -0.25f,
+                        assets.letterPaint.getTextSize(), assets.letterPaint);
+                canvas.restore();
+            }
         }
         // draw the number of passed games in on top
         assets.letterPaint.setTextScaleX(1f);
