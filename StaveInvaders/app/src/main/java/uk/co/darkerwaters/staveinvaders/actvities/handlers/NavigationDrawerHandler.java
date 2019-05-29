@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
+import uk.co.darkerwaters.staveinvaders.actvities.AttributionsActivity;
 import uk.co.darkerwaters.staveinvaders.actvities.BtSetupActivity;
 import uk.co.darkerwaters.staveinvaders.actvities.KeyboardSetupActivity;
 import uk.co.darkerwaters.staveinvaders.actvities.MainActivity;
@@ -176,8 +177,8 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
                 Toast.makeText(parent, "history page todo", Toast.LENGTH_LONG).show();
                 break;
             case R.id.nav_attributions:
-                //TODO show the attributions view
-                Toast.makeText(parent, "attributions page todo", Toast.LENGTH_LONG).show();
+                myIntent = new Intent(this.parent, AttributionsActivity.class);
+                this.parent.startActivity(myIntent);
                 break;
             case R.id.nav_settings:
                 // show settings
