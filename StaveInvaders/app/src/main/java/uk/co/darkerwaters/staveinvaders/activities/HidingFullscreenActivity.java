@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.staveinvaders.actvities;
+package uk.co.darkerwaters.staveinvaders.activities;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -10,14 +10,12 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 
-import uk.co.darkerwaters.staveinvaders.R;
-
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class HidingFullscreenActivity extends AppCompatActivity {
+public abstract class HidingFullscreenActivity extends AppCompatActivity {
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.

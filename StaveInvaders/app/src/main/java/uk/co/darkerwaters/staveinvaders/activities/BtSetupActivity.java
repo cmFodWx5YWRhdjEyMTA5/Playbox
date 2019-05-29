@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.staveinvaders.actvities;
+package uk.co.darkerwaters.staveinvaders.activities;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.pm.PackageManager;
@@ -15,7 +15,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import uk.co.darkerwaters.staveinvaders.R;
-import uk.co.darkerwaters.staveinvaders.actvities.handlers.BtItemAdapter;
+import uk.co.darkerwaters.staveinvaders.activities.handlers.BtItemAdapter;
 import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
 import uk.co.darkerwaters.staveinvaders.input.Input;
@@ -40,10 +40,10 @@ public class BtSetupActivity extends BaseSetupActivity implements
         //initialise the base
         initialiseSetupActivity();
 
-        this.deviceLabel = (TextView) findViewById(R.id.text_detected);
-        this.listView = (RecyclerView) findViewById(R.id.usb_instrument_list);
-        this.detectButton = (Button) findViewById(R.id.button_detect_usb);
-        this.progressBar = (ProgressBar) findViewById(R.id.btScanProgressBar);
+        this.deviceLabel = findViewById(R.id.text_detected);
+        this.listView = findViewById(R.id.usb_instrument_list);
+        this.detectButton = findViewById(R.id.button_detect_usb);
+        this.progressBar = findViewById(R.id.btScanProgressBar);
 
         Resources r = getResources();
         int tenPixels = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, r.getDisplayMetrics()));
@@ -151,7 +151,7 @@ public class BtSetupActivity extends BaseSetupActivity implements
     public void midiBtDeviceDiscovered(final BluetoothDevice device) {
         // discovered a device, add it to the list and connect if it is what we are interested in
         BtItemAdapter adapter = (BtItemAdapter) listView.getAdapter();
-        if (adapter.getItemCount() == 0) {
+        if (null == adapter || adapter.getItemCount() == 0) {
             // hide the label
             runOnUiThread(new Runnable() {
                 @Override
@@ -171,7 +171,7 @@ public class BtSetupActivity extends BaseSetupActivity implements
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case InputBluetooth.REQUEST_ENABLE_PERMISSIONS:
@@ -200,25 +200,37 @@ public class BtSetupActivity extends BaseSetupActivity implements
     @Override
     public void onMidiDeviceDiscovered(MidiDeviceInfo device) {
         // just inform the list of the change
-        this.listView.getAdapter().notifyDataSetChanged();
+        RecyclerView.Adapter adapter = this.listView.getAdapter();
+        if (null != adapter) {
+            adapter.notifyDataSetChanged();
+        }
     }
 
     @Override
     public void onMidiDeviceRemoved(MidiDeviceInfo device) {
         // just inform the list of the change
-        this.listView.getAdapter().notifyDataSetChanged();
+        RecyclerView.Adapter adapter = this.listView.getAdapter();
+        if (null != adapter) {
+            adapter.notifyDataSetChanged();
+        }
     }
 
     @Override
     public void onMidiDeviceOpened(MidiDeviceInfo device) {
         // just inform the list of the change
-        this.listView.getAdapter().notifyDataSetChanged();
+        RecyclerView.Adapter adapter = this.listView.getAdapter();
+        if (null != adapter) {
+            adapter.notifyDataSetChanged();
+        }
     }
 
     @Override
     public void onMidiDeviceConnected(MidiDeviceInfo device) {
         // just inform the list of the change
-        this.listView.getAdapter().notifyDataSetChanged();
+        RecyclerView.Adapter adapter = this.listView.getAdapter();
+        if (null != adapter) {
+            adapter.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -228,7 +240,10 @@ public class BtSetupActivity extends BaseSetupActivity implements
         // also connect to this device on our input
         this.inputBt.connectToDevice(item);
         // also update the list view, the state of the item connected will have changed
-        this.listView.getAdapter().notifyDataSetChanged();
+        RecyclerView.Adapter adapter = this.listView.getAdapter();
+        if (null != adapter) {
+            adapter.notifyDataSetChanged();
+        }
         showDeviceLabel();
     }
 

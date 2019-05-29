@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/card_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -22,7 +21,7 @@
             android:layout_width="0dp"
             android:layout_height="80dp"
             android:layout_weight="0.3"
-            android:layout_marginRight="8dp" />
+            android:layout_marginEnd="8dp" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -41,7 +40,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
-                    android:text="D3"
+                    android:text="@string/noteTitle"
                     android:textSize="18sp" />
 
                 <ImageView
@@ -49,31 +48,36 @@
                     android:layout_width="14dp"
                     android:layout_height="14dp"
                     android:layout_weight="1"
-                    app:srcCompat="@drawable/heart" />
+                    app:srcCompat="@drawable/heart"
+                    android:contentDescription="@string/content_heart" />
 
                 <TextView
                     android:id="@+id/textViewNumberMisses"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
                     android:layout_weight="1"
-                    android:text="8" />
+                    android:text="@string/five" />
 
                 <ImageView
                     android:id="@+id/imageView2"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_weight="1"
-                    android:paddingStart="8dp"
-                    app:srcCompat="@drawable/bullet" />
+                    app:srcCompat="@drawable/bullet"
+                    android:contentDescription="@string/content_bullet" />
 
                 <TextView
-                    android:id="@+id/textViewNumberMissfires"
+                    android:id="@+id/textViewNumberMisfires"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    android:text="8" />
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text="@string/five" />
 
                 <TextView
                     android:id="@+id/textView10"
@@ -89,7 +93,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:scrollbars="vertical"
-                android:text="TextView" />
+                android:text="@string/text" />
         </LinearLayout>
 
     </LinearLayout>

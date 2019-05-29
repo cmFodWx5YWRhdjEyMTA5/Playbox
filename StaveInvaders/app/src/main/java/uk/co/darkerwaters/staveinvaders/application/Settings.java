@@ -51,7 +51,7 @@ public class Settings {
         mic,
         bt,
         usb
-    };
+    }
 
     public Settings(Application app) {
         // get all the variables
@@ -81,21 +81,27 @@ public class Settings {
     public InputType getActiveInput() {
         InputType typeToReturn;
         this.activeInput = this.preferences.getString(K_ACTIVEINPUT, this.activeInput);
-        switch (this.activeInput) {
-            case K_INPUTMIC:
-                typeToReturn = InputType.mic;
-                break;
-            case K_INPUTBT:
-                typeToReturn = InputType.bt;
-                break;
-            case K_INPUTUSB:
-                typeToReturn = InputType.usb;
-                break;
-            case K_INPUTKEYS:
-            default:
-                typeToReturn = InputType.keys;
-                break;
+        if (null != this.activeInput) {
+            switch (this.activeInput) {
+                case K_INPUTMIC:
+                    typeToReturn = InputType.mic;
+                    break;
+                case K_INPUTBT:
+                    typeToReturn = InputType.bt;
+                    break;
+                case K_INPUTUSB:
+                    typeToReturn = InputType.usb;
+                    break;
+                case K_INPUTKEYS:
+                default:
+                    typeToReturn = InputType.keys;
+                    break;
 
+            }
+        }
+        else {
+            Log.error("Failed to find the active input type");
+            typeToReturn = InputType.keys;
         }
         return typeToReturn;
     }
@@ -143,12 +149,15 @@ public class Settings {
     }
 
     public Clef[] getSelectedClefs() {
+        Clef[] toReturn = null;
         this.selectedClefs = this.preferences.getString(K_SELECTEDCLEF, this.selectedClefs);
-        String[] clefStrings = this.selectedClefs.split(",");
-        Clef[] toReturn = new Clef[clefStrings.length];
-        for (int i = 0; i < clefStrings.length; ++i) {
-            // get the enum from the string representation
-            toReturn[i] = Clef.valueOf(Clef.class, clefStrings[i]);
+        if (null != selectedClefs) {
+            String[] clefStrings = this.selectedClefs.split(",");
+            toReturn = new Clef[clefStrings.length];
+            for (int i = 0; i < clefStrings.length; ++i) {
+                // get the enum from the string representation
+                toReturn[i] = Clef.valueOf(Clef.class, clefStrings[i]);
+            }
         }
         return toReturn;
     }

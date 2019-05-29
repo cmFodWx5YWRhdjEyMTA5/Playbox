@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.staveinvaders.actvities;
+package uk.co.darkerwaters.staveinvaders.activities;
 
 import android.content.res.Resources;
 import android.media.midi.MidiDevice;
@@ -15,7 +15,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import uk.co.darkerwaters.staveinvaders.R;
-import uk.co.darkerwaters.staveinvaders.actvities.handlers.UsbItemAdapter;
+import uk.co.darkerwaters.staveinvaders.activities.handlers.UsbItemAdapter;
 import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
 import uk.co.darkerwaters.staveinvaders.input.Input;
@@ -41,9 +41,9 @@ public class UsbSetupActivity extends BaseSetupActivity implements
         //initialise the base
         initialiseSetupActivity();
 
-        this.deviceLabel = (TextView) findViewById(R.id.text_detected);
-        this.listView = (RecyclerView) findViewById(R.id.usb_instrument_list);
-        this.detectButton = (Button) findViewById(R.id.button_detect_usb);
+        this.deviceLabel = findViewById(R.id.text_detected);
+        this.listView = findViewById(R.id.usb_instrument_list);
+        this.detectButton = findViewById(R.id.button_detect_usb);
 
         Resources r = getResources();
         int tenPixels = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, r.getDisplayMetrics()));
@@ -79,7 +79,7 @@ public class UsbSetupActivity extends BaseSetupActivity implements
     private void setInputToUsb() {
         this.application.getInputSelector().changeInputType(Settings.InputType.usb);
         Input activeInput = this.application.getInputSelector().getActiveInput();
-        if (activeInput == null || false == activeInput instanceof InputUsb) {
+        if (false == activeInput instanceof InputUsb) {
             // there is no input
             Log.error("Active INPUT is not USB despite us setting it to be, it is " + activeInput);
         }
@@ -119,7 +119,10 @@ public class UsbSetupActivity extends BaseSetupActivity implements
             // also connect to this device on our input
             this.inputUsb.connectToDevice(item);
             // also update the list view, the state of the item connected will have changed
-            this.listView.getAdapter().notifyDataSetChanged();
+            RecyclerView.Adapter adapter = this.listView.getAdapter();
+            if (null != adapter) {
+                adapter.notifyDataSetChanged();
+            }
         }
     }
 
@@ -180,12 +183,18 @@ public class UsbSetupActivity extends BaseSetupActivity implements
     @Override
     public void usbDeviceConnectionClosed(String deviceDisconnected) {
         // this changes the status display, just update the display of devices
-        this.listView.getAdapter().notifyDataSetChanged();
+        RecyclerView.Adapter adapter = this.listView.getAdapter();
+        if (null != adapter) {
+            adapter.notifyDataSetChanged();
+        }
     }
 
     @Override
     public void usbDeviceConnectionOpened(MidiDevice item) {
         // this changes the status display, just update the display of devices
-        this.listView.getAdapter().notifyDataSetChanged();
+        RecyclerView.Adapter adapter = this.listView.getAdapter();
+        if (null != adapter) {
+            adapter.notifyDataSetChanged();
+        }
     }
 }

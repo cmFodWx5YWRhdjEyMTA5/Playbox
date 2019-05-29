@@ -15,12 +15,12 @@ public class PlayScales extends GamePlayer {
 
     private int scaleCounter = 0;
 
-    private List<Game.GameEntry>[] scales = new List[Clef.values().length];
+    private final List<Game.GameEntry>[] scales = new List[Clef.values().length];
     private boolean isChangeClef = false;
 
     public PlayScales(Application application, Game game) {
         super(application, game);
-        // we want to seperate the notes into their clefs here to do
+        // we want to separate the notes into their clefs here to do
         // each one on their own in totality
 
         // get the active clef from the entries on the game, just use the first
@@ -28,7 +28,7 @@ public class PlayScales extends GamePlayer {
             // there are entries in the list, start off with the first one as the default
             for (Clef clef : Clef.values()) {
                 // create a list of this clef
-                scales[clef.val] = new ArrayList<Game.GameEntry>(this.game.entries.length / 2);
+                scales[clef.val] = new ArrayList<>(this.game.entries.length / 2);
                 // get all the entries for this clef
                 for (Game.GameEntry entry : this.game.entries) {
                     if (entry.clef == clef) {

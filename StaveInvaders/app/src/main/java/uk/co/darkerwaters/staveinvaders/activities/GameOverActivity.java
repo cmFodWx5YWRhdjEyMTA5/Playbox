@@ -1,23 +1,18 @@
-package uk.co.darkerwaters.staveinvaders.actvities;
+package uk.co.darkerwaters.staveinvaders.activities;
 
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
-import uk.co.darkerwaters.staveinvaders.actvities.handlers.MissedTargetRecyclerAdapter;
+import uk.co.darkerwaters.staveinvaders.activities.handlers.MissedTargetRecyclerAdapter;
 import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.application.Scores;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
@@ -28,7 +23,7 @@ import uk.co.darkerwaters.staveinvaders.games.GameScore;
 import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.views.ClefProgressView;
 
-import static uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder.K_SELECTED_CARD_FULL_NAME;
+import static uk.co.darkerwaters.staveinvaders.activities.fragments.GameParentCardHolder.K_SELECTED_CARD_FULL_NAME;
 
 public class GameOverActivity extends AppCompatActivity {
     private Application application;
@@ -107,10 +102,13 @@ public class GameOverActivity extends AppCompatActivity {
         this.bassSummaryText = findViewById(R.id.bassTempoTextSummary);
         this.bassGlobalProgressView = findViewById(R.id.bass_progress_view_global);
 
-        int span = 1;
+        int span;
         switch(getResources().getConfiguration().orientation) {
             case Configuration.ORIENTATION_LANDSCAPE:
                 span = 2;
+                break;
+            default:
+                span = 1;
                 break;
         }
 

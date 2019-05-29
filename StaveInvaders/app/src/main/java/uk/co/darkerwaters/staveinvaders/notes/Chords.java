@@ -3,9 +3,6 @@ package uk.co.darkerwaters.staveinvaders.notes;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import uk.co.darkerwaters.staveinvaders.Application;
-import uk.co.darkerwaters.staveinvaders.application.Settings;
-
 public class Chords {
 
     private final Chord[] chords;
@@ -14,8 +11,8 @@ public class Chords {
         // create the list of chords that represents notes too, gathering
         // two of each same note into a single sound of two notes
         int noteCount = notes.getNoteCount();
-        ArrayList<Chord> soundlist = new ArrayList<Chord>(noteCount);
-        ArrayList<Note> notesGathered = new ArrayList<Note>(2);
+        ArrayList<Chord> soundlist = new ArrayList<>(noteCount);
+        ArrayList<Note> notesGathered = new ArrayList<>(2);
         for (int i = 0; i < noteCount; ++i) {
             // for each note, create the sound
             Note note = notes.getNote(i);
@@ -29,7 +26,7 @@ public class Chords {
             }
             else {
                 // this note is different, create the sound from the previous
-                soundlist.add(new Chord(notesGathered.toArray(new Note[notesGathered.size()])));
+                soundlist.add(new Chord(notesGathered.toArray(new Note[0])));
                 // clear the list, added these notes
                 notesGathered.clear();
                 // this note is the start of a new list, add this
@@ -37,9 +34,9 @@ public class Chords {
             }
         }
         // we end up with a trailing sound not added to the list yet, do it now
-        soundlist.add(new Chord(notesGathered.toArray(new Note[notesGathered.size()])));
+        soundlist.add(new Chord(notesGathered.toArray(new Note[0])));
         // and return the result
-        return new Chords(soundlist.toArray(new Chord[soundlist.size()]));
+        return new Chords(soundlist.toArray(new Chord[0]));
     }
 
     public Chords(Chord[] chords) {

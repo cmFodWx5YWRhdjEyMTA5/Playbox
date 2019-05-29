@@ -10,13 +10,11 @@ public class Scores {
 
     private final SharedPreferences preferences;
     private final Application application;
-    private final SharedPreferences.Editor editor;
 
     public Scores(Application app) {
         // get all the variables
         this.application = app;
         this.preferences = this.application.getSharedPreferences("Scores", 0); // 0 - for private mode
-        this.editor = this.preferences.edit();
 
         // initialise all the scores
         Log.debug("Scores initialised...");
@@ -62,11 +60,12 @@ public class Scores {
 
     public void setScore(Score score) {
         // set the score in the preferences
+        SharedPreferences.Editor editor = this.preferences.edit();
         for (Clef clef : Clef.values()) {
             // put the score in for each clef against the name of the game
-            this.editor.putInt(score.getGame().getFullName() + clef.name(), score.getTopBpm(clef));
+            editor.putInt(score.getGame().getFullName() + clef.name(), score.getTopBpm(clef));
         }
         // and commit these scores now
-        this.editor.commit();
+        editor.commit();
     }
 }

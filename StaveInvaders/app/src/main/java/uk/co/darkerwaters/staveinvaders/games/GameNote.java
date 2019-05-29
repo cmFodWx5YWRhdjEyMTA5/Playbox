@@ -1,7 +1,5 @@
 package uk.co.darkerwaters.staveinvaders.games;
 
-import uk.co.darkerwaters.staveinvaders.notes.Chord;
-
 public class GameNote {
 
     private final Game.GameEntry entry;

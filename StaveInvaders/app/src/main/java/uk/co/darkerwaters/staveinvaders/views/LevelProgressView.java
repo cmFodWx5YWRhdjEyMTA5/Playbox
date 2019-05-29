@@ -34,7 +34,7 @@ public class LevelProgressView extends CircleProgressView {
     public void setProgress(Game game) {
         // show the levels complete on both clefs
         Settings settings = this.application.getSettings();
-        List<Clef> clefs = new ArrayList<Clef>(2);
+        List<Clef> clefs = new ArrayList<>(2);
         if (!settings.getIsHideClef(Clef.treble)) {
             // are doing treble
             clefs.add(Clef.treble);

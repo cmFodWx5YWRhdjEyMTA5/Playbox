@@ -10,7 +10,7 @@ class BluetoothDeviceList {
     private BluetoothDevice defaultDevice;
 
     BluetoothDeviceList() {
-        devices = new ArrayList<BluetoothDevice>();
+        devices = new ArrayList<>();
         defaultDevice = null;
     }
 
@@ -46,7 +46,7 @@ class BluetoothDeviceList {
 
     BluetoothDevice[] getAll() {
         synchronized (this.devices) {
-            return this.devices.toArray(new BluetoothDevice[this.devices.size()]);
+            return this.devices.toArray(new BluetoothDevice[0]);
         }
     }
 }

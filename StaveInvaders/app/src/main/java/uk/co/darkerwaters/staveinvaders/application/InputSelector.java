@@ -1,7 +1,6 @@
 package uk.co.darkerwaters.staveinvaders.application;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.input.Input;
@@ -47,9 +46,9 @@ public class InputSelector {
 
     public InputSelector(Application application) {
         this.application = application;
-        this.inputTypeListeners = new ArrayList<InputTypeListener>();
-        this.inputListeners = new ArrayList<InputListener>();
-        this.inputStatusListeners = new ArrayList<InputStatusListener>();
+        this.inputTypeListeners = new ArrayList<>();
+        this.inputListeners = new ArrayList<>();
+        this.inputStatusListeners = new ArrayList<>();
         this.activeInputType = null;
     }
 
@@ -150,10 +149,7 @@ public class InputSelector {
     }
 
     public void changeInputType(Settings.InputType newType) {
-        if (newType.equals(this.activeInputType)) {
-            // no change
-        }
-        else {
+        if (false == newType.equals(this.activeInputType)) {
             Log.debug("Changing input type from " + this.activeInputType + " to " + newType);
             // set this on the settings
             this.application.getSettings().setActiveInput(newType).commitChanges();

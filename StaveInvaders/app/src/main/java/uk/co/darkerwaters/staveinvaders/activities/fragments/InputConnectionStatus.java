@@ -1,8 +1,7 @@
-package uk.co.darkerwaters.staveinvaders.actvities.fragments;
+package uk.co.darkerwaters.staveinvaders.activities.fragments;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -14,8 +13,6 @@ import android.widget.TextView;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
-import uk.co.darkerwaters.staveinvaders.actvities.MainActivity;
-import uk.co.darkerwaters.staveinvaders.actvities.SettingsActivity;
 import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.application.Settings;

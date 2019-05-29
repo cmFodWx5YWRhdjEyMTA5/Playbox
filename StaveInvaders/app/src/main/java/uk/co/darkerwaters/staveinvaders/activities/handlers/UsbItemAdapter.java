@@ -1,6 +1,5 @@
-package uk.co.darkerwaters.staveinvaders.actvities.handlers;
+package uk.co.darkerwaters.staveinvaders.activities.handlers;
 
-import android.content.Context;
 import android.media.midi.MidiDeviceInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -25,9 +24,9 @@ public class UsbItemAdapter extends RecyclerView.Adapter<UsbItemAdapter.ViewHold
     private final MidiListListener listener;
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        TextView title, subtitle;
-        ImageView thumbnail;
-        ImageView selected;
+        final TextView title, subtitle;
+        final ImageView thumbnail;
+        final ImageView selected;
         MidiDeviceInfo item;
 
         ViewHolder(View view) {

@@ -1,55 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".actvities.fragments.InputConnectionStatus">
+    tools:context=".activities.fragments.InputConnectionStatus"
+    android:background="@color/secondaryColor"
+    android:backgroundTint="@color/secondaryColor"
+    android:backgroundTintMode="src_over"
+    android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <ImageView
+        android:id="@+id/input_conn_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="5dp"
+        android:contentDescription="@string/connection_status_help"
+        android:src="@drawable/ic_baseline_keyboard_24px" />
+
+    <TextView
+        android:id="@+id/input_conn_text"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:background="@color/secondaryColor"
-        android:backgroundTint="@color/secondaryColor"
-        android:backgroundTintMode="src_over"
-        android:orientation="horizontal">
+        android:textSize="12sp"
+        android:gravity="center_vertical"
+        android:text="@string/on_screen_keyboard" />
 
-        <ImageView
-            android:id="@+id/input_conn_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="5dp"
-            android:contentDescription="@string/connection_status_help"
-            android:src="@drawable/ic_baseline_keyboard_24px" />
+    <TextView
+        android:id="@+id/input_conn_status"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginStart="5dp"
+        android:textSize="12sp"
+        android:gravity="center_vertical"
+        android:text="@string/unknown" />
 
-        <TextView
-            android:id="@+id/input_conn_text"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:autoSizeMinTextSize="12sp"
-            android:gravity="center_vertical"
-            android:text="@string/on_screen_keyboard" />
-
-        <TextView
-            android:id="@+id/input_conn_status"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginStart="5dp"
-            android:autoSizeMinTextSize="12sp"
-            android:gravity="center_vertical"
-            android:text="@string/unknown" />
-
-        <ProgressBar
-            android:id="@+id/input_conn_progress"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
-            android:max="100"
-            android:progress="0" />
-    </LinearLayout>
-
-</FrameLayout>
+    <ProgressBar
+        android:id="@+id/input_conn_progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:max="100"
+        android:progress="0" />
+</LinearLayout>

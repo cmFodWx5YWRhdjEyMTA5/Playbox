@@ -75,7 +75,7 @@ public class Chord {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || false == obj instanceof Chord) {
+        if (false == obj instanceof Chord) {
             // not the same
             return false;
         }

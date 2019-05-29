@@ -18,16 +18,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".actvities.AttributionsActivity"></activity>
-        <activity android:name=".actvities.GameOverActivity" />
         <activity
-            android:name=".actvities.GamePlayActivity"
+            android:name=".activities.GamePlayActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
-            android:name=".actvities.GameSelectActivity"
+            android:name=".activities.GameSelectActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
-            android:name=".actvities.MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -42,17 +40,19 @@
                 android:resource="@xml/device_filter" />
         </activity>
         <activity
-            android:name=".actvities.UsbSetupActivity"
+            android:name=".activities.UsbSetupActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
-            android:name=".actvities.BtSetupActivity"
+            android:name=".activities.BtSetupActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
-            android:name=".actvities.SettingsActivity"
+            android:name=".activities.SettingsActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
-            android:name=".actvities.KeyboardSetupActivity"
+            android:name=".activities.KeyboardSetupActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity android:name=".activities.AttributionsActivity"/>
+        <activity android:name=".activities.GameOverActivity" />
     </application>
 
 </manifest>

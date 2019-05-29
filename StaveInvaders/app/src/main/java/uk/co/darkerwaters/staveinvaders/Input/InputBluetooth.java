@@ -53,7 +53,7 @@ public class InputBluetooth extends InputMidi {
         void midiBtDeviceDiscovered(BluetoothDevice device);
     }
 
-    private final List<BluetoothListener> bluetoothListeners = new ArrayList<BluetoothListener>();
+    private final List<BluetoothListener> bluetoothListeners = new ArrayList<>();
 
     public InputBluetooth(Application application) {
         super(application);
@@ -99,8 +99,7 @@ public class InputBluetooth extends InputMidi {
     }
 
     public boolean isBtAvailable(Context context) {
-        return android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2 &&
-                context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
+        return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
     }
 
     private boolean initialiseBluetooth(final Activity context) {
@@ -130,8 +129,7 @@ public class InputBluetooth extends InputMidi {
             return false;
         }
         // create the manager and get the adapter to check it
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2 &&
-                context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             this.bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
             adapter = bluetoothManager.getAdapter();
             // Ensures Bluetooth is available on the device and it is enabled. If not,
@@ -145,7 +143,7 @@ public class InputBluetooth extends InputMidi {
         boolean isConnected = false;
         if (null != this.bluetoothManager) {
             // there is a manager
-            if (null == adapter && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            if (null == adapter) {
                 adapter = this.bluetoothManager.getAdapter();
             }
             isConnected = null != adapter && adapter.isEnabled();
@@ -174,7 +172,7 @@ public class InputBluetooth extends InputMidi {
         if (!initialiseBluetooth(context)) {
             return false;
         }
-        if (null != this.bluetoothManager && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
+        if (null != this.bluetoothManager) {
             // there is a manager, get the adapter and do the scan
             BluetoothAdapter adapter = this.bluetoothManager.getAdapter();
             if (null != adapter && adapter.isEnabled()) {
@@ -232,7 +230,7 @@ public class InputBluetooth extends InputMidi {
                 ScanSettings settings = new ScanSettings.Builder()
                         .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                         .build();
-                ArrayList<ScanFilter> filters = new ArrayList<ScanFilter>();
+                ArrayList<ScanFilter> filters = new ArrayList<>();
                 filters.add(new ScanFilter.Builder().setServiceUuid(ParcelUuid.fromString(BT_OVER_LE_UUID)).build());
                 // scan with these generic settings
                 this.btLeScanner.startScan(filters, settings, btScanCallback);
@@ -368,7 +366,7 @@ public class InputBluetooth extends InputMidi {
         private final List<BluetoothDevice> devices;
         private BluetoothDevice defaultDevice;
         BluetoothDeviceList() {
-            devices = new ArrayList<BluetoothDevice>();
+            devices = new ArrayList<>();
             defaultDevice = null;
         }
         void add(BluetoothDevice device) {
@@ -400,7 +398,7 @@ public class InputBluetooth extends InputMidi {
         }
         BluetoothDevice[] getAll() {
             synchronized (this.devices) {
-                return this.devices.toArray(new BluetoothDevice[this.devices.size()]);
+                return this.devices.toArray(new BluetoothDevice[0]);
             }
         }
     }

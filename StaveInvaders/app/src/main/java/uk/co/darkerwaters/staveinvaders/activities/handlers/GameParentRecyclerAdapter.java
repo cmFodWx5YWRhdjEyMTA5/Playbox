@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.staveinvaders.actvities.handlers;
+package uk.co.darkerwaters.staveinvaders.activities.handlers;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.games.Game;
-import uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder;
+import uk.co.darkerwaters.staveinvaders.activities.fragments.GameParentCardHolder;
 
 public class GameParentRecyclerAdapter extends RecyclerView.Adapter<GameParentCardHolder> {
 
@@ -27,8 +27,7 @@ public class GameParentRecyclerAdapter extends RecyclerView.Adapter<GameParentCa
         //GRR - have to use our own counter for getting the class to create as i == 0 regardless...
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.game_parent_card, viewGroup, false);
         // create the holder and return it
-        GameParentCardHolder holder = new GameParentCardHolder(v);
-        return holder;
+        return new GameParentCardHolder(v);
     }
 
     @Override

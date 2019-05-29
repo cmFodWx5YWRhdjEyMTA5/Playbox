@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.staveinvaders.actvities;
+package uk.co.darkerwaters.staveinvaders.activities;
 
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
@@ -22,14 +22,14 @@ import uk.co.darkerwaters.staveinvaders.games.GameScore;
 import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.games.Game;
 import uk.co.darkerwaters.staveinvaders.games.GameList;
-import uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder;
+import uk.co.darkerwaters.staveinvaders.activities.fragments.GameParentCardHolder;
 import uk.co.darkerwaters.staveinvaders.views.GameProgressView;
 import uk.co.darkerwaters.staveinvaders.views.MusicView;
 import uk.co.darkerwaters.staveinvaders.views.PianoView;
 
-import static uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder.K_IS_STARTING_HELP_ON;
-import static uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder.K_SELECTED_CARD_FULL_NAME;
-import static uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder.K_STARTING_TEMPO;
+import static uk.co.darkerwaters.staveinvaders.activities.fragments.GameParentCardHolder.K_IS_STARTING_HELP_ON;
+import static uk.co.darkerwaters.staveinvaders.activities.fragments.GameParentCardHolder.K_SELECTED_CARD_FULL_NAME;
+import static uk.co.darkerwaters.staveinvaders.activities.fragments.GameParentCardHolder.K_STARTING_TEMPO;
 
 public class GameSelectActivity extends AppCompatActivity {
 
@@ -94,7 +94,7 @@ public class GameSelectActivity extends AppCompatActivity {
             setTitle(parentGame.name);
 
             // card is created, find all our children views and stuff here
-            this.progressView = (GameProgressView) this.findViewById(R.id.gameProgress);
+            this.progressView = this.findViewById(R.id.gameProgress);
             this.progressView.setViewData(parentGame);
         }
         // default the tempo and help controls
@@ -292,17 +292,8 @@ public class GameSelectActivity extends AppCompatActivity {
         // set this on the application so remembers the choice and updates the game, music view etc
         Settings settings = application.getSettings();
         settings.setSelectedClefs(clefs).commitChanges();
-        int maxBpm = 0;
         // set the check item to match that set and available in the application
         Scores.Score score = this.application.getScores().getScore(this.selectedGame);
-        if (clefs.length == 2) {
-            // find the max BPM from the score
-            maxBpm = Math.max(score.getTopBpm(clefs[0]), score.getTopBpm(clefs[1]));
-
-        }
-        else if (clefs.length == 1) {
-            maxBpm = score.getTopBpm(clefs[0]);
-        }
         // set these on the music view
         musicView.setPermittedClefs(clefs);
         // and on the piano view

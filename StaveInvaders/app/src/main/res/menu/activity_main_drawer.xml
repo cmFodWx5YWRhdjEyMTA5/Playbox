@@ -24,26 +24,26 @@
                     android:id="@+id/input_keys"
                     android:icon="@drawable/ic_baseline_keyboard_24px"
                     android:title="@string/on_screen_keyboard"
-                    app:actionProviderClass="uk.co.darkerwaters.staveinvaders.actvities.handlers.InputOptionSettingsHandler"
+                    app:actionProviderClass="uk.co.darkerwaters.staveinvaders.activities.handlers.InputOptionSettingsHandler"
                     app:showAsAction="ifRoom" />
                 <item
                     android:id="@+id/input_mic"
                     android:icon="@drawable/ic_baseline_mic_24px"
                     android:title="@string/microphone"
                     android:visible="false"
-                    app:actionProviderClass="uk.co.darkerwaters.staveinvaders.actvities.handlers.InputOptionSettingsHandler"
+                    app:actionProviderClass="uk.co.darkerwaters.staveinvaders.activities.handlers.InputOptionSettingsHandler"
                     app:showAsAction="ifRoom" />
                 <item
                     android:id="@+id/input_bt"
                     android:icon="@drawable/ic_baseline_bluetooth_24px"
                     android:title="@string/bluetooth_keyboard"
-                    app:actionProviderClass="uk.co.darkerwaters.staveinvaders.actvities.handlers.InputOptionSettingsHandler"
+                    app:actionProviderClass="uk.co.darkerwaters.staveinvaders.activities.handlers.InputOptionSettingsHandler"
                     app:showAsAction="ifRoom" />
                 <item
                     android:id="@+id/input_usb"
                     android:icon="@drawable/ic_baseline_usb_24px"
                     android:title="@string/usb_keyboard"
-                    app:actionProviderClass="uk.co.darkerwaters.staveinvaders.actvities.handlers.InputOptionSettingsHandler"
+                    app:actionProviderClass="uk.co.darkerwaters.staveinvaders.activities.handlers.InputOptionSettingsHandler"
                     app:showAsAction="ifRoom" />
             </group>
         </menu>

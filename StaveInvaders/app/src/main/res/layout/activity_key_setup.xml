@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".actvities.KeyboardSetupActivity">
+    tools:context=".activities.KeyboardSetupActivity">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -26,7 +26,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/piano" />
+                app:srcCompat="@drawable/piano"
+                android:contentDescription="@string/content_piano" />
 
             <TextView
                 android:id="@+id/textTitle"
@@ -92,7 +93,8 @@
                     app:layout_constraintBottom_toBottomOf="@+id/lettersChoiceTitle"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/lettersChoiceTitle"
-                    app:srcCompat="@drawable/ic_baseline_az_24px" />
+                    app:srcCompat="@drawable/ic_baseline_az_24px"
+                    android:contentDescription="@string/content_letters" />
 
                 <Switch
                     android:id="@+id/lettersChoiceSwitch"
@@ -149,7 +151,8 @@
                     app:layout_constraintBottom_toBottomOf="@+id/pianoChoiceTitle"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/pianoChoiceTitle"
-                    app:srcCompat="@drawable/ic_baseline_keyboard_24px" />
+                    app:srcCompat="@drawable/ic_baseline_keyboard_24px"
+                    android:contentDescription="@string/content_keyboard" />
 
                 <Switch
                     android:id="@+id/pianoChoiceSwitch"
@@ -191,7 +194,6 @@
             <view
                 android:id="@+id/microphone_setup_piano"
                 class="uk.co.darkerwaters.staveinvaders.views.PianoTouchable"
-                id="@+id/view"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:layout_marginTop="8dp"
@@ -204,7 +206,7 @@
 
     <fragment
         android:id="@+id/connection_status_view"
-        android:name="uk.co.darkerwaters.staveinvaders.actvities.fragments.InputConnectionStatus"
+        android:name="uk.co.darkerwaters.staveinvaders.activities.fragments.InputConnectionStatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent" />

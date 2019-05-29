@@ -4,12 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".actvities.UsbSetupActivity">
+    tools:context=".activities.UsbSetupActivity">
 
     <view
         android:id="@+id/microphone_setup_piano"
         class="uk.co.darkerwaters.staveinvaders.views.PianoPlaying"
-        id="@+id/view"
         android:layout_width="match_parent"
         android:layout_height="32dp"
         android:layout_marginStart="8dp"
@@ -28,9 +27,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
+        <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -52,7 +49,7 @@
                     android:id="@+id/textView2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="right|center_vertical"
+                    android:gravity="end|center_vertical"
                     android:text="@string/connect_usb"
                     app:layout_constraintBottom_toBottomOf="@+id/button_detect_usb"
                     app:layout_constraintEnd_toStartOf="@+id/button_detect_usb"
@@ -65,7 +62,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
-                    android:layout_marginLeft="8dp"
+                    android:layout_marginStart="8dp"
                     android:text="@string/scan_usb"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/textTitle" />
@@ -93,7 +90,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/usb" />
+                app:srcCompat="@drawable/usb"
+                android:contentDescription="@string/content_usb" />
 
             <TextView
                 android:id="@+id/textTitle"
@@ -126,7 +124,7 @@
 
     <fragment
         android:id="@+id/connection_status_view"
-        android:name="uk.co.darkerwaters.staveinvaders.actvities.fragments.InputConnectionStatus"
+        android:name="uk.co.darkerwaters.staveinvaders.activities.fragments.InputConnectionStatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent" />

@@ -47,7 +47,7 @@ public class PlayRandomAttack extends GamePlayer {
         else if (this.noteCounter >= this.nextNoteClefChange) {
             // reset the change counter
             this.nextNoteClefChange = this.noteCounter + K_MIN_CHANGE_NOTE + this.random.nextInt(K_RND_CHANGE_NOTE);
-            // and chante the clef
+            // and change the clef
             return true;
         }
         else {

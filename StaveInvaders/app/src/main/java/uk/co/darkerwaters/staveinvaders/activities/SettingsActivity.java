@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.staveinvaders.actvities;
+package uk.co.darkerwaters.staveinvaders.activities;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;

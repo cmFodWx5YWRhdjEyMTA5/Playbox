@@ -24,7 +24,7 @@ public class Note {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || false == obj instanceof Note) {
+        if (false == obj instanceof Note) {
             // comparison is not a note
             return false;
         }
@@ -62,7 +62,7 @@ public class Note {
         return this.name.contains("b");
     }
 
-    public int getNotePrimativeIndex() {
+    public int getNotePrimitiveIndex() {
         switch (this.name.charAt(0)) {
             case 'A':
                 return 0;
@@ -83,7 +83,7 @@ public class Note {
         }
     }
 
-    public char getNotePrimative() {
+    public char getNotePrimitive() {
         return this.name.charAt(0);
     }
 

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.graphics.drawable.VectorDrawableCompat;
@@ -17,7 +16,6 @@ import java.util.List;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.games.GameScore;
-import uk.co.darkerwaters.staveinvaders.notes.ChordFactory;
 import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.games.Game;
 import uk.co.darkerwaters.staveinvaders.games.GameNote;
@@ -41,7 +39,7 @@ public class MusicView extends BaseView {
 
     private class MusicViewBounds extends ViewBounds {
         MusicViewBounds() {
-            super(true);
+            super();
         }
 
         @Override
@@ -82,7 +80,7 @@ public class MusicView extends BaseView {
     private VectorDrawableCompat trebleDrawable;
     private VectorDrawableCompat bassDrawable;
 
-    private long lastDrawn = 0l;
+    private long lastDrawn = 0L;
 
     protected GamePlayer noteProvider = null;
 
@@ -220,36 +218,38 @@ public class MusicView extends BaseView {
         Chords singleChords = this.application.getSingleChords();
         this.clefNotes = new Chords[Clef.values().length];
         // by default both clefs are active
-        this.permittedClefs = new ArrayList<Clef>(2);
+        this.permittedClefs = new ArrayList<>(2);
         this.permittedClefs.add(Clef.treble);
         this.permittedClefs.add(Clef.bass);
 
         for (int iClef = 0; iClef < this.clefNotes.length; ++iClef) {
             // for each clef, create the list of notes
             Clef clef = Clef.get(iClef);
-            // find the middle note in the list of single notes
-            int iMiddle = singleChords.getChordIndex(clef.middleNoteName);
-            // now get all the notes down from here and add to the list
-            ArrayList<Chord> notes = new ArrayList<Chord>();
-            for (int i = iMiddle - 1; notes.size() < K_NOTES_BELOW; --i) {
-                // get the note at this index
-                Chord note = singleChords.getChord(i);
-                if (!note.hasFlat() && !note.hasSharp()) {
-                    // this is a nice raw note, add this to the head of the list
-                    notes.add(0, note);
+            if (null != clef) {
+                // find the middle note in the list of single notes
+                int iMiddle = singleChords.getChordIndex(clef.middleNoteName);
+                // now get all the notes down from here and add to the list
+                ArrayList<Chord> notes = new ArrayList<>();
+                for (int i = iMiddle - 1; notes.size() < K_NOTES_BELOW; --i) {
+                    // get the note at this index
+                    Chord note = singleChords.getChord(i);
+                    if (!note.hasFlat() && !note.hasSharp()) {
+                        // this is a nice raw note, add this to the head of the list
+                        notes.add(0, note);
+                    }
                 }
-            }
-            // we also need to go up the list getting those above
-            for (int i = iMiddle; notes.size() < K_NOTES_COUNT; ++i) {
-                // get the note at this index
-                Chord note = singleChords.getChord(i);
-                if (!note.hasFlat() && !note.hasSharp()) {
-                    // this is a nice raw note, add this to the tail of the list
-                    notes.add(note);
+                // we also need to go up the list getting those above
+                for (int i = iMiddle; notes.size() < K_NOTES_COUNT; ++i) {
+                    // get the note at this index
+                    Chord note = singleChords.getChord(i);
+                    if (!note.hasFlat() && !note.hasSharp()) {
+                        // this is a nice raw note, add this to the tail of the list
+                        notes.add(note);
+                    }
                 }
+                // now create the array of chords for this clef from the list
+                this.clefNotes[iClef] = new Chords(notes.toArray(new Chord[0]));
             }
-            // now create the array of chords for this clef from the list
-            this.clefNotes[iClef] = new Chords(notes.toArray(new Chord[0]));
         }
 
         // we have our list of notes we are going to display, but these are pure notes
@@ -257,19 +257,19 @@ public class MusicView extends BaseView {
         for (int i = 0; i < singleChords.getSize(); ++i) {
             Chord chord = singleChords.getChord(i);
             if (chord.hasSharp() || chord.hasFlat()) {
-                // get the primative name of this
+                // get the primitive name of this
                 for (int iNote = 0; iNote < chord.notes.length; ++iNote) {
                     Note note = chord.notes[iNote];
                     if (note.isFlat() || note.isSharp()) {
                         //get the raw name for this note (not a sharp or a flat)
-                        String name = String.format("%s%d", note.getNotePrimative(), note.getNoteScaleIndex());
+                        String name = String.format("%s%d", note.getNotePrimitive(), note.getNoteScaleIndex());
                         // find this flat/sharp in our list of notes we are drawing and add it
                         for (int iClef = 0; iClef < this.clefNotes.length; ++iClef) {
                             // do on each clef, will be somewhere (hopefully)
                             int findIndex = this.clefNotes[iClef].getChordIndex(name);
                             if (findIndex >= 0) {
                                 // this is in the list, add the sharp / flat to the base we are storing
-                                List<Note> chordNotes = new ArrayList<Note>();
+                                List<Note> chordNotes = new ArrayList<>();
                                 // add all the notes already in the chord
                                 chordNotes.addAll(Arrays.asList(this.clefNotes[iClef].getChord(findIndex).getNotes()));
                                 // and the one we found
@@ -339,12 +339,12 @@ public class MusicView extends BaseView {
             this.bounds = new MusicViewBounds();
         }
         else {
-            this.bounds = new ViewBounds(true);
+            this.bounds = new ViewBounds();
         }
         // calculate the draw time
         long currentTime = System.currentTimeMillis();
         long timeElapsed = currentTime - this.lastDrawn;
-        if (timeElapsed < 0l) {
+        if (timeElapsed < 0L) {
             // oops
             timeElapsed = 0;
         }
@@ -531,19 +531,13 @@ public class MusicView extends BaseView {
 
     protected void drawNote(Game.GameEntry toDraw, float xPosition, float yPosition, float noteRadius, Canvas canvas, Paint paint) {
         float stickX;
-        if (Build.VERSION.SDK_INT >= 21) {
-            // there is a function to draw it a little oval-like, do this
-            canvas.drawOval(xPosition - noteRadius * 1.2f,
-                    yPosition - noteRadius,
-                    xPosition + noteRadius * 1.2f,
-                    yPosition + noteRadius,
-                    paint);
-            stickX = xPosition + noteRadius * 1.2f;
-        } else {
-            // fall back to drawing a circle then
-            canvas.drawCircle(xPosition, yPosition, noteRadius, paint);
-            stickX = xPosition + noteRadius;
-        }
+        // there is a function to draw it a little oval-like, do this
+        canvas.drawOval(xPosition - noteRadius * 1.2f,
+                yPosition - noteRadius,
+                xPosition + noteRadius * 1.2f,
+                yPosition + noteRadius,
+                paint);
+        stickX = xPosition + noteRadius * 1.2f;
         // draw the stick up from the note
         canvas.drawLine(stickX, yPosition, stickX, yPosition - lineHeight * 1.5f, paint);
     }

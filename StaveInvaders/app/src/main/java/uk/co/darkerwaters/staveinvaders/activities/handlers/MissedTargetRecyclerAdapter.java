@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.staveinvaders.actvities.handlers;
+package uk.co.darkerwaters.staveinvaders.activities.handlers;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -28,7 +28,7 @@ public class MissedTargetRecyclerAdapter extends RecyclerView.Adapter<MissedTarg
     private final Application application;
     private final Context context;
 
-    public static class MissedTarget {
+    static class MissedTarget {
         final Chord target;
         int missCount = 0;
         final Clef clef;
@@ -47,22 +47,22 @@ public class MissedTargetRecyclerAdapter extends RecyclerView.Adapter<MissedTarg
         }
     }
 
-    private List<MissedTarget> dataList;
+    private final List<MissedTarget> dataList;
 
-    public class MyViewHolder extends RecyclerView.ViewHolder {
-        public TextView numberMisses;
-        public TextView numberMisfires;
-        public TextView explanation;
-        public TextView titleView;
-        public MusicView noteView;
+    class MyViewHolder extends RecyclerView.ViewHolder {
+        final TextView numberMisses;
+        final TextView numberMisfires;
+        final TextView explanation;
+        final TextView titleView;
+        final MusicView noteView;
 
-        public MyViewHolder(View view) {
+        MyViewHolder(View view) {
             super(view);
             titleView = view.findViewById(R.id.textViewTitle);
             explanation = view.findViewById(R.id.textViewExplanation);
             noteView = view.findViewById(R.id.noteMusicView);
             numberMisses = view.findViewById(R.id.textViewNumberMisses);
-            numberMisfires = view.findViewById(R.id.textViewNumberMissfires);
+            numberMisfires = view.findViewById(R.id.textViewNumberMisfires);
         }
     }
 
@@ -70,18 +70,18 @@ public class MissedTargetRecyclerAdapter extends RecyclerView.Adapter<MissedTarg
     public MissedTargetRecyclerAdapter(Application application, Context context, Clef clef) {
         this.context = context;
         this.application = application;
-        this.dataList = new ArrayList<MissedTarget>();
+        this.dataList = new ArrayList<>();
 
         // get the last score
         GameScore score = GameScore.GetLastInstance(false);
         // and get all the misses and misfires for this clef
         for (GameScore.Hit miss : score.getMisses()) {
-            // seperate and combine
+            // separate and combine
             if (miss.clef == clef) {
                 putHitInList(miss);
             }
         }
-        // go through the list and seperate and combine
+        // go through the list and separate and combine
         for (GameScore.Miss miss : score.getMisfires()) {
             if (miss.clef == clef) {
                 // this is ours
@@ -172,7 +172,7 @@ public class MissedTargetRecyclerAdapter extends RecyclerView.Adapter<MissedTarg
             Collections.sort(miss.misfires.actuals, new Comparator<GameScore.Hit>() {
                 @Override
                 public int compare(GameScore.Hit hit, GameScore.Hit t1) {
-                    return hit.target.root().getNotePrimative() - t1.target.root().getNotePrimative();
+                    return hit.target.root().getNotePrimitive() - t1.target.root().getNotePrimitive();
                 }
             });
 

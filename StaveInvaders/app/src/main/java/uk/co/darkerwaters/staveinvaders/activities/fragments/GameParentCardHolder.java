@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.staveinvaders.actvities.fragments;
+package uk.co.darkerwaters.staveinvaders.activities.fragments;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,14 +15,12 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import uk.co.darkerwaters.staveinvaders.Application;
-import uk.co.darkerwaters.staveinvaders.actvities.GameSelectActivity;
+import uk.co.darkerwaters.staveinvaders.activities.GameSelectActivity;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
 import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.games.Game;
-import uk.co.darkerwaters.staveinvaders.views.ClefProgressView;
 import uk.co.darkerwaters.staveinvaders.views.GameProgressView;
-import uk.co.darkerwaters.staveinvaders.views.LevelProgressView;
 
 public class GameParentCardHolder extends RecyclerView.ViewHolder {
 
@@ -42,10 +40,10 @@ public class GameParentCardHolder extends RecyclerView.ViewHolder {
         super(itemView);
         this.parent = itemView;
         // card is created, find all our children views and stuff here
-        this.itemImage = (ImageView)this.parent.findViewById(R.id.item_image);
-        this.itemTitle = (TextView)this.parent.findViewById(R.id.item_title);
-        this.itemDetail = (TextView)this.parent.findViewById(R.id.item_detail);
-        this.progressView = (GameProgressView)this.parent.findViewById(R.id.gameProgress);
+        this.itemImage = this.parent.findViewById(R.id.item_image);
+        this.itemTitle = this.parent.findViewById(R.id.item_title);
+        this.itemDetail = this.parent.findViewById(R.id.item_detail);
+        this.progressView = this.parent.findViewById(R.id.gameProgress);
 
         this.tempoSummary = new TempoSummaryLayout(this.parent);
     }

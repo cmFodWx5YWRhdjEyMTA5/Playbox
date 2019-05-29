@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -28,27 +29,27 @@ public abstract class BaseView extends View {
             this.backgroundPaint = new Paint();
             this.backgroundPaint.setStyle(Paint.Style.FILL_AND_STROKE);
             this.backgroundPaint.setStrokeWidth(getResources().getDimension(R.dimen.music_line_stroke));
-            this.backgroundPaint.setColor(getResources().getColor(R.color.secondaryDarkColor));
+            this.backgroundPaint.setColor(ContextCompat.getColor(getContext(), R.color.secondaryDarkColor));
             this.backgroundPaint.setAntiAlias(true);
 
             this.outlinePaint = new Paint();
             this.outlinePaint.setStyle(Paint.Style.STROKE);
             this.outlinePaint.setStrokeWidth(1f);
-            this.outlinePaint.setColor(getResources().getColor(R.color.secondaryLightColor));
+            this.outlinePaint.setColor(ContextCompat.getColor(getContext(), R.color.secondaryLightColor));
             this.outlinePaint.setAntiAlias(true);
             this.outlinePaint.setTextSize(20f);
 
             this.highlightPaint = new Paint();
             this.highlightPaint.setStyle(Paint.Style.STROKE);
             this.highlightPaint.setStrokeWidth(getResources().getDimension(R.dimen.music_line_stroke));
-            this.highlightPaint.setColor(getResources().getColor(R.color.secondaryTextColor));
+            this.highlightPaint.setColor(ContextCompat.getColor(getContext(), R.color.secondaryTextColor));
             this.highlightPaint.setAntiAlias(true);
             this.highlightPaint.setAlpha(150);
 
             this.letterPaint = new Paint();
             this.letterPaint.setStyle(Paint.Style.FILL_AND_STROKE);
             this.letterPaint.setStrokeWidth(getResources().getDimension(R.dimen.letter_stroke));
-            this.letterPaint.setColor(getResources().getColor(R.color.secondaryTextColor));
+            this.letterPaint.setColor(ContextCompat.getColor(getContext(), R.color.secondaryTextColor));
             this.letterPaint.setAntiAlias(true);
             this.letterPaint.setTextAlign(Paint.Align.CENTER);
             this.letterPaint.setTextSize(36f);
@@ -56,8 +57,8 @@ public abstract class BaseView extends View {
             this.objectPaint = new Paint();
             this.objectPaint.setAntiAlias(true);
             this.objectPaint.setStyle(Paint.Style.FILL);
-            this.objectPaint.setColor(getResources().getColor(R.color.primaryColor));
-            this.objectPaint.setShadowLayer(12, 6, 6, getResources().getColor(R.color.primaryDarkColor));
+            this.objectPaint.setColor(ContextCompat.getColor(getContext(), R.color.primaryColor));
+            this.objectPaint.setShadowLayer(12, 6, 6, ContextCompat.getColor(getContext(), R.color.primaryDarkColor));
             setLayerType(LAYER_TYPE_SOFTWARE, this.objectPaint);
 
             this.whitePaint = new Paint();
@@ -93,7 +94,7 @@ public abstract class BaseView extends View {
         final float drawingHeight;
         final float drawingWidth;
 
-        ViewBounds(boolean isAddBorders) {
+        ViewBounds() {
 
             paddingLeft = getPaddingLeft();
             paddingTop = getPaddingTop();
@@ -103,8 +104,8 @@ public abstract class BaseView extends View {
             viewWidth = getContentWidth();
             viewHeight = getContentHeight();
 
-            borderX = isAddBorders ? calculateXBorder() : 0f;
-            borderY = isAddBorders ? calculateYBorder() : 0f;
+            borderX = calculateXBorder();
+            borderY = calculateYBorder();
 
             drawingRight = viewWidth - (paddingLeft + borderX);
             drawingLeft = paddingLeft + borderX;

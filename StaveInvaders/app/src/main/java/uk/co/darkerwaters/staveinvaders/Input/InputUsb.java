@@ -11,12 +11,11 @@ import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Log;
-import uk.co.darkerwaters.staveinvaders.application.Settings;
 
 public class InputUsb extends InputMidi {
 
     private MidiDeviceInfo defaultUsbDevice = null;
-    private List<MidiDeviceInfo> usbDevices = new ArrayList<MidiDeviceInfo>();
+    private final List<MidiDeviceInfo> usbDevices = new ArrayList<>();
     private String activeConnectionId = "";
 
     private final List<UsbInputListener> listeners;
@@ -30,7 +29,7 @@ public class InputUsb extends InputMidi {
         super(application);
 
         // create the listening list
-        this.listeners = new ArrayList<UsbInputListener>();
+        this.listeners = new ArrayList<>();
 
         Log.debug("input type usb initialised");
     }
@@ -101,7 +100,7 @@ public class InputUsb extends InputMidi {
                 }
             }
             // return all the found USB devices (own copy to stop them messing with our list)
-            return new ArrayList<MidiDeviceInfo>(this.usbDevices);
+            return new ArrayList<>(this.usbDevices);
         }
     }
 
@@ -191,10 +190,10 @@ public class InputUsb extends InputMidi {
         // and close this connection
         super.closeOpenMidiConnection();
         // no active connection now
-        this.activeConnectionId = new String();
+        this.activeConnectionId = "";
         // this is disconnected, so set our status
         setStatus(InputSelector.Status.disconnected);
-        // inform the listners of this disconnection
+        // inform the listeners of this disconnection
         synchronized (this.listeners) {
             for (UsbInputListener listener : listeners) {
                 listener.usbDeviceConnectionClosed(deviceDisconnected);

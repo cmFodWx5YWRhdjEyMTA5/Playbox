@@ -47,7 +47,7 @@ public class GameScore implements Serializable {
         Miss(Clef clef, Chord target, Chord actual) {
             this.target = target;
             this.clef = clef;
-            this.actuals = new ArrayList<Hit>();
+            this.actuals = new ArrayList<>();
             // add the actual to the list
             this.actuals.add(new Hit(clef, actual, 1));
         }
@@ -90,9 +90,9 @@ public class GameScore implements Serializable {
         this.game = game;
 
         for (int i = 0; i < K_BPMS.length; ++i) {
-            hits[i] = new ArrayList<Hit>();
-            misses[i] = new ArrayList<Hit>();
-            missFires[i] = new ArrayList<Miss>();
+            hits[i] = new ArrayList<>();
+            misses[i] = new ArrayList<>();
+            missFires[i] = new ArrayList<>();
         }
     }
 
@@ -280,7 +280,7 @@ public class GameScore implements Serializable {
     }
 
     public List<Hit> getMisses() {
-        List<Hit> missList = new ArrayList<Hit>();
+        List<Hit> missList = new ArrayList<>();
         for (int i = 0; i < K_BPMS.length; ++i) {
             // add all these for every entry
             missList.addAll(this.misses[i]);
@@ -289,7 +289,7 @@ public class GameScore implements Serializable {
     }
 
     public List<Miss> getMisfires() {
-        List<Miss> missList = new ArrayList<Miss>();
+        List<Miss> missList = new ArrayList<>();
         for (int i = 0; i < K_BPMS.length; ++i) {
             // add all these for every entry
             missList.addAll(this.missFires[i]);

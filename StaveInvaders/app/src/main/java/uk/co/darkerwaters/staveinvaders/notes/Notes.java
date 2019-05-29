@@ -15,7 +15,7 @@ public class Notes {
         String[] frequency_resources = context.getResources().getStringArray(R.array.piano_note_frequencies);
         String[] nameArray = context.getResources().getStringArray(R.array.piano_note_names);
 
-        ArrayList<Note> noteList = new ArrayList<Note>(frequency_resources.length* 2);
+        ArrayList<Note> noteList = new ArrayList<>(frequency_resources.length * 2);
         float lower, upper, frequency;
         for (int index = 0; index < frequency_resources.length; ++index) {
             frequency = Float.parseFloat(frequency_resources[index]);
@@ -41,8 +41,7 @@ public class Notes {
             }
         }
         // create the notes from this list
-        Notes notes = new Notes(noteList.toArray(new Note[noteList.size()]));
-        return notes;
+        return new Notes(noteList.toArray(new Note[0]));
     }
 
     private Notes(Note[] array) {

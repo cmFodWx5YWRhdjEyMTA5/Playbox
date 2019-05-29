@@ -13,9 +13,6 @@
     <color name="primaryTextColor">#ffffff</color>
     <color name="secondaryTextColor">#8a000000</color>
 
-    <color name="black_overlay">#66000000</color>
-    <color name="colorLetterBack">#AAFFFFFF</color>
     <color name="colorLaser">#FF1A1A</color>
-    <color name="colorFalseFire">#BB3333</color>
     <color name="colorKeyPress">#3f51b5</color>
 </resources>

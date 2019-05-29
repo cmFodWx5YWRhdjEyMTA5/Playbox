@@ -5,8 +5,6 @@ import android.content.res.AssetManager;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
-import android.view.SoundEffectConstants;
-import android.view.View;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -21,10 +19,10 @@ import uk.co.darkerwaters.staveinvaders.notes.Note;
 public class SoundPlayer {
 
     private final AssetManager assetManager;
-    private SoundPool soundPool = null;
-    private int falseFireSound = -1;
-    private int missedSound = -1;
-    private int gameOverSound = -1;
+    private SoundPool soundPool;
+    private int falseFireSound;
+    private int missedSound;
+    private int gameOverSound;
 
     private final Map<Note, Integer> loadedNotes;
     private final Map<Note, Note> sharpToFlat;
@@ -34,24 +32,18 @@ public class SoundPlayer {
 
     private SoundPlayer(Context context, Application application) {
         int maxStreams = 9;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            soundPool = new SoundPool.Builder()
-                    .setMaxStreams(maxStreams)
-                    .build();
-        } else {
-            soundPool = new SoundPool(maxStreams, AudioManager.STREAM_MUSIC, 0);
-        }
+        this.soundPool = new SoundPool.Builder().setMaxStreams(maxStreams).build();
 
         // fill your sounds
         this.falseFireSound = soundPool.load(context, R.raw.false_fire, 1);
         this.missedSound = soundPool.load(context, R.raw.missed, 1);
         this.gameOverSound = soundPool.load(context, R.raw.game_over, 1);
 
-        this.loadedNotes = new HashMap<Note, Integer>();
+        this.loadedNotes = new HashMap<>();
         this.assetManager = context.getAssets();
 
         // also we need a map of sharps to flats to play the flat instead each time
-        this.sharpToFlat = new HashMap<Note, Note>();
+        this.sharpToFlat = new HashMap<>();
         Chords singleChords = application.getSingleChords();
         for (int i = 0; i < singleChords.getSize(); ++i) {
             // for each chord, if it contains a sharp, map it to the flat
@@ -116,7 +108,7 @@ public class SoundPlayer {
             if (null == soundIndex) {
                 // there is no index, try to load it now
                 try {
-                    //if it is a sharp - we need the equivilent flat to get the MP3 for it
+                    //if it is a sharp - we need the equivalent flat to get the MP3 for it
                     String noteName = note.getName();
                     if (note.isSharp()) {
                         Note flat = this.sharpToFlat.get(note);

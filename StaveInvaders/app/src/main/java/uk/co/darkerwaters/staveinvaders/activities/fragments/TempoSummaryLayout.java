@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.staveinvaders.actvities.fragments;
+package uk.co.darkerwaters.staveinvaders.activities.fragments;
 
 import android.app.Activity;
 import android.view.View;
@@ -11,9 +11,9 @@ import uk.co.darkerwaters.staveinvaders.views.LevelProgressView;
 
 public class TempoSummaryLayout {
 
-    public final ClefProgressView trebleProgressView;
-    public final LevelProgressView levelsProgressView;
-    public final ClefProgressView bassProgressView;
+    private final ClefProgressView trebleProgressView;
+    private final LevelProgressView levelsProgressView;
+    private final ClefProgressView bassProgressView;
 
     public TempoSummaryLayout(View parent) {
         // find all the controls we play with

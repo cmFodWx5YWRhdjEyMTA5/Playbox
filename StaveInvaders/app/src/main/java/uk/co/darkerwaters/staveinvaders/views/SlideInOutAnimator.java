@@ -2,14 +2,7 @@ package uk.co.darkerwaters.staveinvaders.views;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.app.Activity;
-import android.os.Handler;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-
-import uk.co.darkerwaters.staveinvaders.R;
-import uk.co.darkerwaters.staveinvaders.actvities.GamePlayActivity;
 
 public class SlideInOutAnimator {
 

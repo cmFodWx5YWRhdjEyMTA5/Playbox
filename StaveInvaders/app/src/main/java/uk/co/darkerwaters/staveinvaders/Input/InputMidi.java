@@ -20,7 +20,6 @@ import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
-import uk.co.darkerwaters.staveinvaders.notes.ChordFactory;
 import uk.co.darkerwaters.staveinvaders.notes.Chords;
 
 public abstract class InputMidi extends Input {
@@ -32,12 +31,12 @@ public abstract class InputMidi extends Input {
     private static final byte STATUS_NOTE_OFF = (byte) 0x80;
     private static final byte STATUS_NOTE_ON = (byte) 0x90;
 
-    private static final long TIMESTAMP_INFORM_INTERVAL = 1000l;
+    private static final long TIMESTAMP_INFORM_INTERVAL = 1000L;
 
     protected MidiManager midiManager;
     private MidiManager.DeviceCallback callback = null;
 
-    private long lastInformTime = 0l;
+    private long lastInformTime = 0L;
 
     private enum MidiCommand {
         None,
@@ -64,7 +63,7 @@ public abstract class InputMidi extends Input {
         super(application);
 
         // create the listening list
-        this.listeners = new ArrayList<MidiListener>();
+        this.listeners = new ArrayList<>();
 
         // map the chords to their MIDI index (middle C being 60)
         Chords chords = application.getSingleChords();
@@ -232,7 +231,7 @@ public abstract class InputMidi extends Input {
                         // and connect
                         openMidiOutputPort.connect(new MidiReceiver() {
                             @Override
-                            public void onSend(byte[] data, int offset, int count, long timestamp) throws IOException {
+                            public void onSend(byte[] data, int offset, int count, long timestamp) {
                                 // have data, process this data
                                 processMidiData(data, offset, count, timestamp);
                             }

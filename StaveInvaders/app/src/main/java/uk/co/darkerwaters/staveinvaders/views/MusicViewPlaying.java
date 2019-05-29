@@ -3,9 +3,8 @@ package uk.co.darkerwaters.staveinvaders.views;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.view.View;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +14,6 @@ import java.util.Set;
 
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.application.InputSelector;
-import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
 import uk.co.darkerwaters.staveinvaders.games.Game;
 import uk.co.darkerwaters.staveinvaders.input.Input;
@@ -25,7 +23,7 @@ import uk.co.darkerwaters.staveinvaders.notes.Note;
 
 public class MusicViewPlaying extends MusicView implements InputSelector.InputListener {
 
-    private final static long K_TIME_TO_SHOW_HIT = 250l;
+    private final static long K_TIME_TO_SHOW_HIT = 250L;
 
     private Paint laserPaint;
 
@@ -48,18 +46,18 @@ public class MusicViewPlaying extends MusicView implements InputSelector.InputLi
 
         boolean isShowTarget(long timeElapsed) {
             timeToShow -= timeElapsed;
-            return timeToShow > 0l;
+            return timeToShow > 0L;
         }
 
         boolean isShowLaser() {
-            return timeToShow > K_TIME_TO_SHOW_HIT - 100l;
+            return timeToShow > K_TIME_TO_SHOW_HIT - 100L;
         }
     }
 
     private Target target = null;
-    private final List<Target> hitTargets = new ArrayList<Target>();
+    private final List<Target> hitTargets = new ArrayList<>();
 
-    private final List<Note> detectedNotes = new ArrayList<Note>();
+    private final List<Note> detectedNotes = new ArrayList<>();
 
     public MusicViewPlaying(Context context) {
         super(context);
@@ -84,7 +82,7 @@ public class MusicViewPlaying extends MusicView implements InputSelector.InputLi
         this.laserPaint = new Paint();
         this.laserPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         this.laserPaint.setStrokeWidth(getResources().getDimension(R.dimen.music_line_stroke));
-        this.laserPaint.setColor(getResources().getColor(R.color.colorLaser));
+        this.laserPaint.setColor(ContextCompat.getColor(getContext(), R.color.colorLaser));
         this.laserPaint.setAntiAlias(true);
         this.laserPaint.setAlpha(150);
 
@@ -149,7 +147,7 @@ public class MusicViewPlaying extends MusicView implements InputSelector.InputLi
 
         if (null != this.target) {
             // there is a target to shoot at, we can do some shooting
-            Set<Note> notesInTargetHit = new HashSet<Note>();
+            Set<Note> notesInTargetHit = new HashSet<>();
             if (null != attempt) {
                 // we are shooting at something, use the Y from each note and open fire
                 // at each note we are shooting at
@@ -284,7 +282,7 @@ public class MusicViewPlaying extends MusicView implements InputSelector.InputLi
         boolean retVal;
         synchronized (this.detectedNotes) {
             // remove all the notes in chord from the list of detected notes
-            List<Note> toRemove = new ArrayList<Note>();
+            List<Note> toRemove = new ArrayList<>();
             for (Note note : chord.notes) {
                 for (Note detected : this.detectedNotes) {
                     if (detected.equals(note)) {

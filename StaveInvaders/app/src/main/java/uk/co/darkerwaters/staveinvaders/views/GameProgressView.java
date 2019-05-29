@@ -8,7 +8,6 @@ import android.graphics.RectF;
 import android.util.AttributeSet;
 
 import uk.co.darkerwaters.staveinvaders.R;
-import uk.co.darkerwaters.staveinvaders.application.Scores;
 import uk.co.darkerwaters.staveinvaders.games.GameScore;
 import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.games.Game;
@@ -64,7 +63,7 @@ public class GameProgressView extends BaseView {
         // get our assets for paints etc
         Assets assets = getAssets();
 
-        ViewBounds bounds = new ViewBounds(true);
+        ViewBounds bounds = new ViewBounds();
 
         // draw the outline of the view
         canvas.drawRoundRect(bounds.paddingLeft, bounds.paddingTop, bounds.viewWidth, bounds.viewHeight, bounds.borderX, bounds.borderY, assets.backgroundPaint);

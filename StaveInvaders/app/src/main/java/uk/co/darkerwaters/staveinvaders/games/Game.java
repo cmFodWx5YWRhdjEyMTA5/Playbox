@@ -14,7 +14,6 @@ import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.application.Scores;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
-import uk.co.darkerwaters.staveinvaders.notes.ChordFactory;
 import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.notes.Note;
 import uk.co.darkerwaters.staveinvaders.notes.Notes;
@@ -22,7 +21,7 @@ import uk.co.darkerwaters.staveinvaders.notes.Range;
 
 public class Game {
 
-    public static final String K_UNPLAYABLE_GAME = "unplayable";
+    private static final String K_UNPLAYABLE_GAME = "unplayable";
 
     public final Game parent;
     public final String id;
@@ -64,17 +63,17 @@ public class Game {
             }
         }
 
-        GameEntry(String name, Chord chord, String fingering, Clef clef) {
+        GameEntry(String name, Chord chord, Clef clef) {
             this.name = name;
             this.chord = chord;
-            this.fingering = fingering;
+            this.fingering = "";
             this.clef = clef;
         }
 
         private Chord createChord(Notes notes, String noteName) {
             String[] noteNames = noteName.split(",");
             Chord createdChord;
-            if (noteNames == null || noteNames.length == 0) {
+            if (noteNames.length == 0) {
                 // just use the name
                 createdChord = new Chord(noteName, new Note[] {notes.getNote(noteName)});
             }
@@ -88,7 +87,7 @@ public class Game {
                 for (int i = 0; i < noteNames.length; ++i) {
                     notesToAdd[i] = notes.getNote(noteNames[i]);
                 }
-                // and create the chord for thest notes, with the correct name
+                // and create the chord for the notes, with the correct name
                 createdChord = new Chord(name, notesToAdd);
             }
             // return the created chord
@@ -148,7 +147,7 @@ public class Game {
         for (int i = 0; i < this.entries.length; ++i) {
             // create each entry
             Chord chord = chords[i];
-            this.entries[i] = new GameEntry(Character.toString(chord.root().getNotePrimative()).toLowerCase(), chord, "", clef);
+            this.entries[i] = new GameEntry(Character.toString(chord.root().getNotePrimitive()).toLowerCase(), chord, clef);
         }
 
         // no children
@@ -178,7 +177,7 @@ public class Game {
     }
 
     public float getGameProgress(Clef clef) {
-        // return the current progress acheived by this game
+        // return the current progress achieved by this game
         return getGameProgress(getGameTopTempo(clef));
     }
 
@@ -187,7 +186,7 @@ public class Game {
     }
 
     public int getGameTopTempo(Clef clef) {
-        // return the current top tempo acheived by this game
+        // return the current top tempo achieved by this game
         Scores.Score score = this.application.getScores().getScore(this);
         return score.getTopBpm(clef);
     }
@@ -198,7 +197,7 @@ public class Game {
     }
 
     public GameEntry[] getClefEntries(Clef clef) {
-        List<GameEntry> entries = new ArrayList<GameEntry>();
+        List<GameEntry> entries = new ArrayList<>();
         for (GameEntry entry : this.entries) {
             if (entry.clef == clef) {
                 entries.add(entry);
@@ -213,7 +212,7 @@ public class Game {
 
     public Range getNoteRange(Clef[] selectedClefs) {
         // go through all the notes to find the lowest and highest of them all
-        Range range = new Range((Chord)null, (Chord)null);
+        Range range = new Range(null, null);
         for (int i = 0; i < this.entries.length; ++i) {
             // only look at entries for the selected clefs
             Chord playable = null;
@@ -264,7 +263,7 @@ public class Game {
                     Log.error("Failed to invoke game constructor \"" + className + "\"", e);
                 }
             }
-            if (null != classCreated && classCreated instanceof GamePlayer) {
+            if (classCreated instanceof GamePlayer) {
                 return (GamePlayer) classCreated;
             }
             else {
@@ -293,12 +292,12 @@ public class Game {
     }
 
     public String getFullName() {
-        String fulltitle = new String(this.name);
+        String fullTitle = this.name;
         Game gameParent = this.parent;
         while (null != gameParent) {
-            fulltitle = gameParent.name + " -- " + fulltitle;
+            fullTitle = gameParent.name + " -- " + fullTitle;
             gameParent = gameParent.parent;
         }
-        return fulltitle;
+        return fullTitle;
     }
 }

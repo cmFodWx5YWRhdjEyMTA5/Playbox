@@ -19,7 +19,7 @@ public class PianoView extends KeysView {
 
     private class PianoViewBounds extends ViewBounds {
         PianoViewBounds() {
-            super(true);
+            super();
         }
 
         @Override
@@ -44,9 +44,9 @@ public class PianoView extends KeysView {
     private float whiteKeyOffset = 0f;
     private int startNoteIndex = 0;
 
-    private boolean isShowPrimatives = true;
+    private boolean isShowPrimitives = true;
 
-    private long lastDrawnTime = 0l;
+    private long lastDrawnTime = 0L;
 
     private final static float[] sharpOffsets = {
             0.4f,           // A
@@ -134,7 +134,7 @@ public class PianoView extends KeysView {
 
             if (this.whiteKeyCount > 0) {
                 // draw in all the keys
-                float keyWidth = (this.whiteKeyCount == 0 ? 5f : bounds.drawingWidth / this.whiteKeyCount);
+                float keyWidth = bounds.drawingWidth / this.whiteKeyCount;
                 float sharpWidth = keyWidth * 0.4f;
                 Chords notes = this.application.getSingleChords();
 
@@ -151,7 +151,7 @@ public class PianoView extends KeysView {
                 // also get the initial key to use here
                 Note initialKey = notes.getChord(noteIndex).root();
                 // and remember where to start
-                int initialWhiteKey = initialKey.getNotePrimativeIndex();
+                int initialWhiteKey = initialKey.getNotePrimitiveIndex();
                 Assets assets = getAssets();
                 float textSize = assets.letterPaint.getTextSize();
                 assets.letterPaint.setTextSize(keyWidth * 0.6f);
@@ -168,7 +168,7 @@ public class PianoView extends KeysView {
                         drawKey(canvas, keyRect, currentNote);
 
                         if (isDrawNoteNames()) {
-                            canvas.drawText(isShowPrimatives ? "" + currentNote.root().getNotePrimative() : currentNote.getTitle(),
+                            canvas.drawText(isShowPrimitives ? "" + currentNote.root().getNotePrimitive() : currentNote.getTitle(),
                                     keyRect.left + (keyWidth * 0.5f),
                                     keyRect.bottom - (keyWidth * 0.3f),
                                     assets.letterPaint);
@@ -180,7 +180,7 @@ public class PianoView extends KeysView {
                 assets.letterPaint.setTextSize(textSize);
                 // now we need to go through again for the sharps and flats
                 int blackIndex = initialWhiteKey;
-                float blackLeft = 0f;
+                float blackLeft;
                 keyIndex = 0;
                 noteIndex = (int) whiteKeyOffset;
                 while (keyIndex < this.whiteKeyCount - 1 && noteIndex < notes.getSize()) {

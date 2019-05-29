@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.staveinvaders.actvities.handlers;
+package uk.co.darkerwaters.staveinvaders.activities.handlers;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -17,12 +17,12 @@ import android.widget.Toast;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
-import uk.co.darkerwaters.staveinvaders.actvities.AttributionsActivity;
-import uk.co.darkerwaters.staveinvaders.actvities.BtSetupActivity;
-import uk.co.darkerwaters.staveinvaders.actvities.KeyboardSetupActivity;
-import uk.co.darkerwaters.staveinvaders.actvities.MainActivity;
-import uk.co.darkerwaters.staveinvaders.actvities.SettingsActivity;
-import uk.co.darkerwaters.staveinvaders.actvities.UsbSetupActivity;
+import uk.co.darkerwaters.staveinvaders.activities.AttributionsActivity;
+import uk.co.darkerwaters.staveinvaders.activities.BtSetupActivity;
+import uk.co.darkerwaters.staveinvaders.activities.KeyboardSetupActivity;
+import uk.co.darkerwaters.staveinvaders.activities.MainActivity;
+import uk.co.darkerwaters.staveinvaders.activities.SettingsActivity;
+import uk.co.darkerwaters.staveinvaders.activities.UsbSetupActivity;
 import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
 
@@ -141,7 +141,7 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
     private void setupActionProvider(MenuItem item, int activeButtonId) {
         if (null != item) {
             ActionProvider actionProvider = MenuItemCompat.getActionProvider(item);
-            if (null != actionProvider && actionProvider instanceof InputOptionSettingsHandler) {
+            if (actionProvider instanceof InputOptionSettingsHandler) {
                 // handle the clicking of this settings button
                 final Settings.InputType selectedType = ButtonToType(item.getItemId());
                 View actionView = item.getActionView();
@@ -198,7 +198,7 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle implements In
 
     private void closeDrawer() {
         // close the drawer
-        DrawerLayout drawer = (DrawerLayout) this.parent.findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = this.parent.findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
     }
 

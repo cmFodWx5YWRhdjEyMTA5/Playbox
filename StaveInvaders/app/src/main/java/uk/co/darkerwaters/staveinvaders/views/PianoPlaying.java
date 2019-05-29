@@ -5,25 +5,22 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
-import uk.co.darkerwaters.staveinvaders.notes.ChordFactory;
-import uk.co.darkerwaters.staveinvaders.notes.Chords;
 import uk.co.darkerwaters.staveinvaders.notes.Note;
 
 public class PianoPlaying extends PianoView {
 
     private Paint keyPressPaint;
-    private final List<Chord> depressedNotes = new ArrayList<Chord>();
+    private final List<Chord> depressedNotes = new ArrayList<>();
 
     public PianoPlaying(Context context) {
         super(context);
@@ -44,7 +41,7 @@ public class PianoPlaying extends PianoView {
         // initialise the paint for the pressed keys
         this.keyPressPaint = new Paint();
         this.keyPressPaint.setStyle(Paint.Style.FILL);
-        this.keyPressPaint.setColor(getResources().getColor(R.color.colorKeyPress));
+        this.keyPressPaint.setColor(ContextCompat.getColor(getContext(), R.color.colorKeyPress));
         this.keyPressPaint.setAntiAlias(true);
     }
 
@@ -104,7 +101,7 @@ public class PianoPlaying extends PianoView {
     public void releaseNote(Chord note) {
         // release this specified note
         synchronized (this.depressedNotes) {
-            List<Chord> toRemove = new ArrayList<Chord>();
+            List<Chord> toRemove = new ArrayList<>();
             for (Chord chord : this.depressedNotes) {
                 if (chord.equals(note)) {
                     // this is it
@@ -125,7 +122,7 @@ public class PianoPlaying extends PianoView {
 
     private void invalidateOurselves() {
         Context context = getContext();
-        if (null != context && context instanceof Activity) {
+        if (context instanceof Activity) {
             ((Activity)context).runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -136,7 +133,7 @@ public class PianoPlaying extends PianoView {
     }
 
     public Chord getDepressedNotes() {
-        ArrayList<Note> notesPressed = new ArrayList<Note>();
+        ArrayList<Note> notesPressed = new ArrayList<>();
         synchronized (this.depressedNotes) {
             for (Chord chord : this.depressedNotes) {
                 // add all the nodes in the chord to our master list
@@ -144,7 +141,7 @@ public class PianoPlaying extends PianoView {
             }
         }
         // return the sound that now contains all the depressed notes
-        return new Chord(notesPressed.toArray(new Note[notesPressed.size()]));
+        return new Chord(notesPressed.toArray(new Note[0]));
     }
 
     public boolean isNoteDepressed(Chord note) {

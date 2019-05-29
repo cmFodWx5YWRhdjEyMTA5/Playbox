@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.staveinvaders.actvities;
+package uk.co.darkerwaters.staveinvaders.activities;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -7,9 +7,7 @@ import android.support.v7.widget.RecyclerView;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
-import uk.co.darkerwaters.staveinvaders.actvities.handlers.AttributionRecyclerAdapter;
-import uk.co.darkerwaters.staveinvaders.actvities.handlers.MissedTargetRecyclerAdapter;
-import uk.co.darkerwaters.staveinvaders.notes.Clef;
+import uk.co.darkerwaters.staveinvaders.activities.handlers.AttributionRecyclerAdapter;
 
 public class AttributionsActivity extends AppCompatActivity {
 

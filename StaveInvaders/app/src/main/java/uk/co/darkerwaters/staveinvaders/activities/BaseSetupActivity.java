@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.staveinvaders.actvities;
+package uk.co.darkerwaters.staveinvaders.activities;
 
 import android.support.v7.app.AppCompatActivity;
 
@@ -11,21 +11,20 @@ import uk.co.darkerwaters.staveinvaders.input.InputMidi;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
 import uk.co.darkerwaters.staveinvaders.views.KeysView;
 import uk.co.darkerwaters.staveinvaders.views.PianoPlaying;
-import uk.co.darkerwaters.staveinvaders.views.PianoView;
 
 public abstract class BaseSetupActivity extends AppCompatActivity implements
         InputSelector.InputListener,
         KeysView.IKeysViewListener,
         InputMidi.MidiListener {
 
-    protected PianoPlaying piano = null;
+    private PianoPlaying piano = null;
     protected Application application;
 
     protected void initialiseSetupActivity() {
         // get the application for reference
         this.application = (Application) this.getApplication();
 
-        this.piano = (PianoPlaying) findViewById(R.id.microphone_setup_piano);
+        this.piano = findViewById(R.id.microphone_setup_piano);
     }
 
     @Override

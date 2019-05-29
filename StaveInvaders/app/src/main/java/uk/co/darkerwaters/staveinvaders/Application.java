@@ -1,9 +1,6 @@
 package uk.co.darkerwaters.staveinvaders;
 
-import android.app.Activity;
-import android.content.Context;
-
-import uk.co.darkerwaters.staveinvaders.actvities.MainActivity;
+import uk.co.darkerwaters.staveinvaders.activities.MainActivity;
 import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.application.Scores;

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".actvities.GameOverActivity">
+    tools:context=".activities.GameOverActivity">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -14,7 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="24dp"
-            tools:context=".actvities.GameOverActivity">
+            tools:context=".activities.GameOverActivity">
 
             <LinearLayout
                 android:id="@+id/linearLayoutHits"
@@ -34,7 +34,8 @@
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:layout_weight="1"
-                    android:src="@drawable/ic_note" />
+                    android:src="@drawable/ic_note"
+                    android:contentDescription="@string/note"/>
 
                 <TextView
                     android:id="@+id/hitsNumberText"
@@ -42,7 +43,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    android:text="5"
+                    android:text="@string/five"
                     android:textSize="18sp" />
 
                 <TextView
@@ -63,7 +64,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/piano" />
+                app:srcCompat="@drawable/piano"
+                android:contentDescription="@string/content_piano" />
 
             <TextView
                 android:id="@+id/imageViewTitle"
@@ -92,7 +94,8 @@
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:layout_weight="1"
-                    android:src="@drawable/heart" />
+                    android:src="@drawable/heart"
+                    android:contentDescription="@string/content_heart" />
 
                 <TextView
                     android:id="@+id/livesNumberText"
@@ -100,7 +103,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    android:text="5"
+                    android:text="@string/five"
                     android:textSize="18sp" />
 
                 <TextView
@@ -129,7 +132,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="10"
+                    android:text="@string/ten"
                     android:textSize="18sp" />
 
                 <TextView
@@ -147,7 +150,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:src="@drawable/bullet" />
+                    android:src="@drawable/bullet"
+                    android:contentDescription="@string/content_bullet" />
             </LinearLayout>
 
             <LinearLayout
@@ -187,7 +191,8 @@
                             android:layout_marginTop="8dp"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:srcCompat="@drawable/ic_treble_icon" />
+                            app:srcCompat="@drawable/ic_treble_icon"
+                            android:contentDescription="@string/content_treble" />
 
                         <LinearLayout
                             android:id="@+id/linearLayout5"
@@ -251,7 +256,8 @@
                                 android:id="@+id/imageView20"
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
-                                android:src="@drawable/ic_note" />
+                                android:src="@drawable/ic_note"
+                                android:contentDescription="@string/content_note" />
 
                             <TextView
                                 android:id="@+id/trebleHits"
@@ -261,7 +267,7 @@
                                 android:layout_marginEnd="8dp"
                                 android:layout_marginBottom="8dp"
                                 android:gravity="center"
-                                android:text="5"
+                                android:text="@string/five"
                                 android:textSize="14sp" />
 
                             <TextView
@@ -290,7 +296,8 @@
                                 android:id="@+id/imageView14"
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
-                                android:src="@drawable/heart" />
+                                android:src="@drawable/heart"
+                                android:contentDescription="@string/content_heart" />
 
                             <TextView
                                 android:id="@+id/trebleLivesLost"
@@ -300,7 +307,7 @@
                                 android:layout_marginEnd="8dp"
                                 android:layout_marginBottom="8dp"
                                 android:gravity="center"
-                                android:text="5"
+                                android:text="@string/five"
                                 android:textSize="14sp" />
 
                             <TextView
@@ -316,7 +323,8 @@
                                 android:id="@+id/imageView15"
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
-                                android:src="@drawable/bullet" />
+                                android:src="@drawable/bullet"
+                                android:contentDescription="@string/content_bullet" />
 
                             <TextView
                                 android:id="@+id/trebleShotsMissed"
@@ -325,15 +333,14 @@
                                 android:layout_marginEnd="8dp"
                                 android:layout_marginBottom="8dp"
                                 android:paddingStart="8dp"
-                                android:text="5"
+                                android:paddingEnd="8dp"
+                                android:text="@string/five"
                                 android:textSize="14sp" />
 
                             <TextView
                                 android:id="@+id/trebleShotsMissedText"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginEnd="8dp"
-                                android:layout_marginBottom="8dp"
                                 android:text="@string/shots_missed"
                                 android:textSize="14sp" />
 
@@ -350,7 +357,8 @@
                             app:layout_constraintEnd_toStartOf="@+id/linearLayoutTrebleHits"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="@+id/linearLayoutTrebleHits"
-                            app:srcCompat="@drawable/ic_baseline_unfold_more_24px" />
+                            app:srcCompat="@drawable/ic_baseline_unfold_more_24px"
+                            android:contentDescription="@string/content_more" />
                     </android.support.constraint.ConstraintLayout>
                 </android.support.v7.widget.CardView>
 
@@ -393,7 +401,8 @@
                             android:layout_marginTop="8dp"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:srcCompat="@drawable/ic_bass_icon" />
+                            app:srcCompat="@drawable/ic_bass_icon"
+                            android:contentDescription="@string/content_bass" />
 
                         <LinearLayout
                             android:id="@+id/linearLayout6"
@@ -457,7 +466,8 @@
                                 android:id="@+id/imageView19"
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
-                                android:src="@drawable/ic_note" />
+                                android:src="@drawable/ic_note"
+                                android:contentDescription="@string/content_note" />
 
                             <TextView
                                 android:id="@+id/bassHits"
@@ -467,7 +477,7 @@
                                 android:layout_marginEnd="8dp"
                                 android:layout_marginBottom="8dp"
                                 android:gravity="center"
-                                android:text="5"
+                                android:text="@string/five"
                                 android:textSize="14sp" />
 
                             <TextView
@@ -495,7 +505,8 @@
                                 android:id="@+id/imageView17"
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
-                                android:src="@drawable/heart" />
+                                android:src="@drawable/heart"
+                                android:contentDescription="@string/content_heart" />
 
                             <TextView
                                 android:id="@+id/bassLivesLost"
@@ -505,7 +516,7 @@
                                 android:layout_marginEnd="8dp"
                                 android:layout_marginBottom="8dp"
                                 android:gravity="center"
-                                android:text="5"
+                                android:text="@string/five"
                                 android:textSize="14sp" />
 
                             <TextView
@@ -521,7 +532,8 @@
                                 android:id="@+id/imageView18"
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
-                                android:src="@drawable/bullet" />
+                                android:src="@drawable/bullet"
+                                android:contentDescription="@string/content_bullet" />
 
                             <TextView
                                 android:id="@+id/bassShotsMissed"
@@ -531,15 +543,14 @@
                                 android:layout_marginBottom="8dp"
                                 android:gravity="center"
                                 android:paddingStart="8dp"
-                                android:text="5"
+                                android:paddingEnd="8dp"
+                                android:text="@string/five"
                                 android:textSize="14sp" />
 
                             <TextView
                                 android:id="@+id/bassShotsMissedText"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginEnd="8dp"
-                                android:layout_marginBottom="8dp"
                                 android:text="@string/shots_missed"
                                 android:textSize="14sp" />
 
@@ -556,7 +567,8 @@
                             app:layout_constraintEnd_toStartOf="@+id/linearLayoutBassHits"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="@+id/linearLayoutBassHits"
-                            app:srcCompat="@drawable/ic_baseline_unfold_more_24px" />
+                            app:srcCompat="@drawable/ic_baseline_unfold_more_24px"
+                            android:contentDescription="@string/content_more" />
                     </android.support.constraint.ConstraintLayout>
                 </android.support.v7.widget.CardView>
 

@@ -22,7 +22,7 @@ public class NoteSounds {
     private boolean isAudioInitialised = false;
 
     NoteSounds() {
-        this.generatedSounds = new HashMap<Note, byte[]>();
+        this.generatedSounds = new HashMap<>();
         this.audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
                 sampleRate, AudioFormat.CHANNEL_OUT_MONO,
                 AudioFormat.ENCODING_PCM_16BIT, 2 * numSamples,
@@ -44,8 +44,8 @@ public class NoteSounds {
 
     private byte[] genTone(double frequency){
         // fill out the array
-        byte generatedSnd[] = new byte[2 * numSamples];
-        double sample[] = new double[numSamples];
+        byte[] generatedSnd = new byte[2 * numSamples];
+        double[] sample = new double[numSamples];
         for (int i = 0; i < numSamples; ++i) {
             sample[i] = Math.sin(2 * Math.PI * i / (sampleRate/frequency));
         }

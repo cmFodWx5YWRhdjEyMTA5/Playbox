@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.staveinvaders.actvities.handlers;
+package uk.co.darkerwaters.staveinvaders.activities.handlers;
 
 import android.bluetooth.BluetoothDevice;
 import android.support.annotation.NonNull;
@@ -16,7 +16,6 @@ import java.util.List;
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
 import uk.co.darkerwaters.staveinvaders.input.InputBluetooth;
-import uk.co.darkerwaters.staveinvaders.input.InputMidi;
 
 public class BtItemAdapter extends RecyclerView.Adapter<BtItemAdapter.ViewHolder> {
 
@@ -24,18 +23,18 @@ public class BtItemAdapter extends RecyclerView.Adapter<BtItemAdapter.ViewHolder
     private final BtListListener listener;
     private final Application application;
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView title, subtitle;
-        public ImageView thumbnail;
-        public ImageView selected;
+    class ViewHolder extends RecyclerView.ViewHolder {
+        final TextView title, subtitle;
+        final ImageView thumbnail;
+        final ImageView selected;
         BluetoothDevice item;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
-            title = (TextView) view.findViewById(R.id.title_text);
-            subtitle = (TextView) view.findViewById(R.id.subtitle_text);
-            thumbnail = (ImageView) view.findViewById(R.id.instrument_image);
-            selected = (ImageView) view.findViewById(R.id.midi_selected);
+            title = view.findViewById(R.id.title_text);
+            subtitle = view.findViewById(R.id.subtitle_text);
+            thumbnail = view.findViewById(R.id.instrument_image);
+            selected = view.findViewById(R.id.midi_selected);
         }
     }
 
@@ -44,7 +43,7 @@ public class BtItemAdapter extends RecyclerView.Adapter<BtItemAdapter.ViewHolder
     }
 
     public BtItemAdapter(Application application, BtListListener listener) {
-        this.itemList = new ArrayList<BluetoothDevice>();
+        this.itemList = new ArrayList<>();
         this.application = application;
         this.listener = listener;
     }
@@ -81,16 +80,18 @@ public class BtItemAdapter extends RecyclerView.Adapter<BtItemAdapter.ViewHolder
 
     public boolean addDevice(BluetoothDevice device) {
         int i = this.itemList.indexOf(device);
+        boolean isSet = false;
         if (i >= 0) {
             // already in the list, replace with the newest
             this.itemList.set(i, device);
+            isSet = true;
         }
         else {
             // else add the view
-            this.itemList.add(device);
+            isSet = this.itemList.add(device);
             notifyDataSetChanged();
         }
-        return true;
+        return isSet;
     }
 
     private void refreshContent(ViewHolder holder) {
@@ -108,6 +109,6 @@ public class BtItemAdapter extends RecyclerView.Adapter<BtItemAdapter.ViewHolder
 
     @Override
     public int getItemCount() {
-        return itemList == null ? 0 : itemList.size();
+        return itemList.size();
     }
 }

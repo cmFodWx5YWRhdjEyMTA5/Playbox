@@ -5,7 +5,7 @@
     android:id="@+id/fullscreen_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".actvities.GamePlayActivity">
+    tools:context=".activities.GamePlayActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -71,7 +71,8 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@android:drawable/ic_media_ff" />
+                    app:srcCompat="@android:drawable/ic_media_ff"
+                    android:contentDescription="@string/content_ff" />
 
                 <TextView
                     android:id="@+id/levelUpTailText"
@@ -135,7 +136,7 @@
 
     <fragment
         android:id="@+id/connection_status"
-        android:name="uk.co.darkerwaters.staveinvaders.actvities.fragments.InputConnectionStatus"
+        android:name="uk.co.darkerwaters.staveinvaders.activities.fragments.InputConnectionStatus"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"

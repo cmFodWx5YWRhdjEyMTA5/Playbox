@@ -1,8 +1,7 @@
-package uk.co.darkerwaters.staveinvaders.actvities;
+package uk.co.darkerwaters.staveinvaders.activities;
 
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -27,13 +26,13 @@ import uk.co.darkerwaters.staveinvaders.views.MusicViewPlaying;
 import uk.co.darkerwaters.staveinvaders.views.PianoTouchable;
 import uk.co.darkerwaters.staveinvaders.views.SlideInOutAnimator;
 
-import static uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder.K_IS_STARTING_HELP_ON;
-import static uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder.K_SELECTED_CARD_FULL_NAME;
-import static uk.co.darkerwaters.staveinvaders.actvities.fragments.GameParentCardHolder.K_STARTING_TEMPO;
+import static uk.co.darkerwaters.staveinvaders.activities.fragments.GameParentCardHolder.K_IS_STARTING_HELP_ON;
+import static uk.co.darkerwaters.staveinvaders.activities.fragments.GameParentCardHolder.K_SELECTED_CARD_FULL_NAME;
+import static uk.co.darkerwaters.staveinvaders.activities.fragments.GameParentCardHolder.K_STARTING_TEMPO;
 
 public class GamePlayActivity extends HidingFullscreenActivity implements GamePlayer.GamePlayerListener, GameProgress.GameProgressListener {
 
-    private static final long K_PLAY_COUNTDOWN = 5000l;
+    private static final long K_PLAY_COUNTDOWN = 5000L;
     private Application application;
 
     private int startingTempo = 60;
@@ -161,7 +160,7 @@ public class GamePlayActivity extends HidingFullscreenActivity implements GamePl
         }
         // start our countdown
         this.isPerformCountdown = true;
-        // be sure the gameplay is paused
+        // be sure the game play is paused
         this.gamePlayer.setPaused(true);
         // and show the progress
         this.progressView.setVisibility(View.VISIBLE);
@@ -381,7 +380,7 @@ public class GamePlayActivity extends HidingFullscreenActivity implements GamePl
                 break;
             case targetHit:
                 // the data param is the chord that has been hit
-                if (null != data && data instanceof Chord) {
+                if (data instanceof Chord) {
                     if (!application.getSettings().getIsMuted()) {
                         SoundPlayer.getINSTANCE().playSound((Chord) data);
                     }
@@ -402,6 +401,6 @@ public class GamePlayActivity extends HidingFullscreenActivity implements GamePl
         this.shotsRatingBar.setRating(source.getShotsLeft());
         // and the progress of this tempo
         float progress = source.getPoints() / (float)this.gamePlayer.getPointLevelGoal();
-        this.tempoProgressView.setProgress(progress, Integer.toString((int)(progress * 100f)) + "%");
+        this.tempoProgressView.setProgress(progress, (int) (progress * 100f) + "%");
     }
 }

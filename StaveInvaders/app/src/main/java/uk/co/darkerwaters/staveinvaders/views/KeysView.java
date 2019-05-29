@@ -4,16 +4,13 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.RectF;
-import android.os.Handler;
 import android.util.AttributeSet;
-import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
 import uk.co.darkerwaters.staveinvaders.notes.Chords;
-import uk.co.darkerwaters.staveinvaders.notes.Note;
 import uk.co.darkerwaters.staveinvaders.notes.Range;
 
 public class KeysView extends BaseView {
@@ -27,7 +24,7 @@ public class KeysView extends BaseView {
 
     protected ViewBounds bounds = null;
 
-    protected final List<IKeysViewListener> listeners = new ArrayList<IKeysViewListener>();
+    protected final List<IKeysViewListener> listeners = new ArrayList<>();
 
     public KeysView(Context context) {
         super(context);
@@ -123,7 +120,7 @@ public class KeysView extends BaseView {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         // create the bounds
-        this.bounds = new ViewBounds(true);
+        this.bounds = new ViewBounds();
         Assets assets = getAssets();
         // Draw a solid color on the canvas as background
         canvas.drawColor(Color.WHITE);
@@ -152,7 +149,7 @@ public class KeysView extends BaseView {
                 for (int j = iStart; j <= iEnd; ++j) {
                     chord = singleChords.getChord(j);
                     if (false == chord.hasFlat() && false == chord.hasSharp()) {
-                        if (chord.root().getNotePrimative() == noteLetter) {
+                        if (chord.root().getNotePrimitive() == noteLetter) {
                             // this is a chord that represents the letter to draw
                             if (j < singleChords.getSize() - 2) {
                                 sharp = singleChords.getChord(j + 1);

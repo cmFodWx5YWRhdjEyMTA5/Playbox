@@ -1,8 +1,5 @@
 package uk.co.darkerwaters.staveinvaders.games;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.notes.Clef;
 

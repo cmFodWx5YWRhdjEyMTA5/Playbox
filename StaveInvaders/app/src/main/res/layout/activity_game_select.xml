@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".actvities.GameSelectActivity">
+    tools:context=".activities.GameSelectActivity">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -24,7 +24,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/piano" />
+                app:srcCompat="@drawable/piano"
+                android:contentDescription="@string/content_piano" />
 
             <TextView
                 android:id="@+id/imageViewTitle"
@@ -34,7 +35,6 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_toEndOf="@+id/item_image"
-                android:layout_toRightOf="@+id/item_image"
                 android:text="@string/app_name"
                 android:textSize="30sp"
                 app:layout_constraintStart_toStartOf="parent"
@@ -57,7 +57,8 @@
                 android:src="@android:drawable/ic_media_rew"
                 app:layout_constraintBottom_toBottomOf="@+id/gameProgress"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/gameProgress" />
+                app:layout_constraintTop_toTopOf="@+id/gameProgress"
+                android:contentDescription="@string/content_prev"/>
 
             <ImageButton
                 android:id="@+id/nextButton"
@@ -67,7 +68,8 @@
                 android:src="@android:drawable/ic_media_ff"
                 app:layout_constraintBottom_toBottomOf="@+id/gameProgress"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/gameProgress" />
+                app:layout_constraintTop_toTopOf="@+id/gameProgress"
+                android:contentDescription="@string/content_next" />
 
             <TextView
                 android:id="@+id/game_title"
@@ -75,7 +77,6 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/gameProgress"
                 android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
@@ -113,7 +114,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    app:srcCompat="@drawable/ic_treble_icon" />
+                    app:srcCompat="@drawable/ic_treble_icon"
+                    android:contentDescription="@string/content_treble" />
 
                 <RadioButton
                     android:id="@+id/radioTrebleClef"
@@ -127,7 +129,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    app:srcCompat="@drawable/ic_bass_icon" />
+                    app:srcCompat="@drawable/ic_bass_icon"
+                    android:contentDescription="@string/content_bass" />
 
                 <RadioButton
                     android:id="@+id/radioBassClef"
@@ -141,14 +144,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    app:srcCompat="@drawable/ic_treble_icon" />
+                    app:srcCompat="@drawable/ic_treble_icon"
+                    android:contentDescription="@string/content_treble" />
 
                 <ImageView
                     android:id="@+id/imageViewBass2"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    app:srcCompat="@drawable/ic_bass_icon" />
+                    app:srcCompat="@drawable/ic_bass_icon"
+                    android:contentDescription="@string/content_bass" />
 
                 <RadioButton
                     android:id="@+id/radioMixedClefs"
@@ -184,14 +189,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    app:srcCompat="@android:drawable/ic_media_rew" />
+                    app:srcCompat="@android:drawable/ic_media_rew"
+                    android:contentDescription="@string/content_rew" />
 
                 <TextView
                     android:id="@+id/tempoSelectedTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="TextView"
+                    android:text="@string/text"
                     android:textAlignment="center" />
 
                 <ImageButton
@@ -199,7 +205,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    app:srcCompat="@android:drawable/ic_media_ff" />
+                    app:srcCompat="@android:drawable/ic_media_ff"
+                    android:contentDescription="@string/content_ff" />
 
                 <Switch
                     android:id="@+id/helpSwitch"
@@ -228,7 +235,7 @@
 
     <fragment
         android:id="@+id/connection_status"
-        android:name="uk.co.darkerwaters.staveinvaders.actvities.fragments.InputConnectionStatus"
+        android:name="uk.co.darkerwaters.staveinvaders.activities.fragments.InputConnectionStatus"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"

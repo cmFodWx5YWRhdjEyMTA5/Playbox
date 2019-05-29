@@ -15,15 +15,14 @@ import uk.co.darkerwaters.staveinvaders.views.MusicView;
 
 public abstract class GamePlayer implements GameProgressListener {
 
-    public static final long K_HELP_CHANGE_TIME = 5000l;
-    public static final int K_CHANGE_TIME_BEATS_ADD = 5;
-    public static final float K_CLEF_CHANGE_FREEBEE_BEATS = 5f;
+    private static final long K_HELP_CHANGE_TIME = 5000L;
+    private static final float K_CLEF_CHANGE_FREEBEE_BEATS = 5f;
 
     public static final int K_LEVEL_POINTS_GOAL = 250;
 
     public interface GamePlayerListener {
         void onGameClefChanged(Clef clef);
-    };
+    }
 
     protected final Application application;
     protected final Game game;
@@ -32,25 +31,25 @@ public abstract class GamePlayer implements GameProgressListener {
 
     private final List<GamePlayerListener> listeners;
 
-    private long nextSheduledChangeTime = 0l;
+    private long nextSheduledChangeTime = 0L;
 
-    private boolean isPaused = true;
+    private boolean isPaused;
     protected boolean isInDemoMode = true;
 
     private Clef activeClef;
     private Clef broadcastClef = null;
-    protected HashSet<Clef> permittedClefs = new HashSet<Clef>(2);
-    protected HashSet<Clef> availableClefs = new HashSet<Clef>(2);
+    protected final HashSet<Clef> permittedClefs = new HashSet<>(2);
+    protected final HashSet<Clef> availableClefs = new HashSet<>(2);
 
     protected final Random random = new Random();
 
-    private final List<GameNote> activeNotes = new ArrayList<GameNote>();
+    private final List<GameNote> activeNotes = new ArrayList<>();
     private float insertTimeGap = 0.0f;
 
     public GamePlayer(Application application, Game game) {
         this.application = application;
         this.game = game;
-        this.listeners = new ArrayList<GamePlayerListener>();
+        this.listeners = new ArrayList<>();
         this.isPaused = true;
         this.score = null;
 
@@ -351,7 +350,7 @@ public abstract class GamePlayer implements GameProgressListener {
         // record this on the score
         if (isGameActive()) {
             this.score.recordMisfire(target.clef, this.progresser.getTempo(), target.chord, actual);
-            this.progresser.recordMissire(target.clef,  target.chord, actual);
+            this.progresser.recordMisfire(target.clef,  target.chord, actual);
         }
     }
 

@@ -3,7 +3,7 @@ package uk.co.darkerwaters.staveinvaders.application;
 import uk.co.darkerwaters.staveinvaders.Application;
 
 public class Log {
-    public static final String K_APPLICATION = "StaveInvaders";
+    private static final String K_APPLICATION = "NoteInvaders";
     private static final String K_SEP = ": ";
 
     private static final Object lock = new Object();

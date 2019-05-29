@@ -11,12 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import uk.co.darkerwaters.staveinvaders.application.InputSelector;
-import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
-import uk.co.darkerwaters.staveinvaders.input.InputKeys;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
 import uk.co.darkerwaters.staveinvaders.notes.Chords;
-import uk.co.darkerwaters.staveinvaders.notes.Note;
 import uk.co.darkerwaters.staveinvaders.notes.Range;
 
 public class PianoTouchable extends PianoPlaying implements InputSelector.InputTypeListener {
@@ -24,11 +21,11 @@ public class PianoTouchable extends PianoPlaying implements InputSelector.InputT
     private static final Integer K_INITIAL_NOTE_DEPRESSION_COUNT = 5;
     private static final Integer K_NOTE_DEPRESSION_COUNTER_INTERVAL = 100;
 
-    private final ArrayList<PlayableKey> playableKeys = new ArrayList<PlayableKey>();
+    private final ArrayList<PlayableKey> playableKeys = new ArrayList<>();
     private boolean isCreatePlayableKeys = false;
     private boolean isAllowTouch = true;
 
-    private Map<Chord, Integer> noteDepressionCount;
+    private final Map<Chord, Integer> noteDepressionCount = new HashMap<>();
 
     private Thread reductionThread = null;
     private boolean isThreadStarted = false;
@@ -93,7 +90,6 @@ public class PianoTouchable extends PianoPlaying implements InputSelector.InputT
         inputSelector.addListener(this);
 
         Chords chords = this.application.getSingleChords();
-        this.noteDepressionCount = new HashMap<Chord, Integer>(chords.getSize());
         for (int i = 0; i < chords.getSize(); ++i) {
             Chord chord = chords.getChord(i);
             // also initialise the count in the map

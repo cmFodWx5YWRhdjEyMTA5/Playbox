@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".actvities.SettingsActivity">
+    tools:context=".activities.SettingsActivity">
 
     <ImageView
         android:id="@+id/titleImage"
@@ -14,7 +14,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/usb" />
+        app:srcCompat="@drawable/usb"
+        android:contentDescription="@string/content_usb" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -40,7 +41,8 @@
                     app:layout_constraintBottom_toBottomOf="@+id/trebleTitle"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/trebleTitle"
-                    app:srcCompat="@drawable/ic_treble_icon" />
+                    app:srcCompat="@drawable/ic_treble_icon"
+                    android:contentDescription="@string/content_treble" />
 
                 <Switch
                     android:id="@+id/hideTrebleSwitch"
@@ -95,7 +97,8 @@
                     app:layout_constraintBottom_toBottomOf="@+id/bassTitle"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/bassTitle"
-                    app:srcCompat="@drawable/ic_bass_icon" />
+                    app:srcCompat="@drawable/ic_bass_icon"
+                    android:contentDescription="@string/content_bass" />
 
                 <Switch
                     android:id="@+id/hideBassSwitch"
@@ -151,7 +154,8 @@
                     app:layout_constraintBottom_toBottomOf="@+id/muteTitle"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/muteTitle"
-                    app:srcCompat="@drawable/ic_baseline_volume_off_24px" />
+                    app:srcCompat="@drawable/ic_baseline_volume_off_24px"
+                    android:contentDescription="@string/content_mute" />
 
                 <Switch
                     android:id="@+id/muteSwitch"

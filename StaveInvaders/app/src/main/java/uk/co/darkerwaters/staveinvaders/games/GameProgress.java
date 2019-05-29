@@ -1,11 +1,9 @@
 package uk.co.darkerwaters.staveinvaders.games;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
-import uk.co.darkerwaters.staveinvaders.notes.ChordFactory;
 import uk.co.darkerwaters.staveinvaders.notes.Clef;
 
 public class GameProgress {
@@ -17,8 +15,8 @@ public class GameProgress {
     private int tempo = GameScore.K_DEFAULT_BPM;
     private boolean isHelpOn = true;
     private int maxTempo = 0;
-    private int livesLeft = 0;
-    private int shotsLeft = 0;
+    private int livesLeft;
+    private int shotsLeft;
     private int pointsLevelGoal = GamePlayer.K_LEVEL_POINTS_GOAL;
     private boolean isGameEnded = false;
 
@@ -51,7 +49,7 @@ public class GameProgress {
         return instance;
     }
 
-    private Points[] points = new Points[Clef.values().length];
+    private final Points[] points = new Points[Clef.values().length];
 
     public interface GameProgressListener {
         void onGameProgressChanged(GameProgress source, Type changeType, Object data);
@@ -61,7 +59,7 @@ public class GameProgress {
 
     public GameProgress() {
         LAST_INSTANCE = this;
-        this.listeners = new ArrayList<GameProgressListener>();
+        this.listeners = new ArrayList<>();
         this.livesLeft = K_LIVES;
         this.shotsLeft = K_SHOTS;
     }
@@ -221,7 +219,7 @@ public class GameProgress {
         }
     }
 
-    public void recordMissire(Clef clef, Chord target, Chord actual) {
+    public void recordMisfire(Clef clef, Chord target, Chord actual) {
         // this causes a loss of a shot
         --this.shotsLeft;
         // inform listeners of this

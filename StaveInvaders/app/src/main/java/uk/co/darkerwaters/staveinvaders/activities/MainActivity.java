@@ -1,14 +1,11 @@
-package uk.co.darkerwaters.staveinvaders.actvities;
+package uk.co.darkerwaters.staveinvaders.activities;
 
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -18,8 +15,8 @@ import android.view.MenuItem;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
-import uk.co.darkerwaters.staveinvaders.actvities.handlers.GameParentRecyclerAdapter;
-import uk.co.darkerwaters.staveinvaders.actvities.handlers.NavigationDrawerHandler;
+import uk.co.darkerwaters.staveinvaders.activities.handlers.GameParentRecyclerAdapter;
+import uk.co.darkerwaters.staveinvaders.activities.handlers.NavigationDrawerHandler;
 import uk.co.darkerwaters.staveinvaders.games.GameList;
 
 public class MainActivity extends AppCompatActivity {
@@ -40,18 +37,21 @@ public class MainActivity extends AppCompatActivity {
         this.application = (Application)getApplication();
         application.setMainActivity(this);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         // create the nav listener
-        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        final DrawerLayout drawer = findViewById(R.id.drawer_layout);
         this.navigationActor = new NavigationDrawerHandler(this, drawer, toolbar);
 
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        recyclerView = findViewById(R.id.recyclerView);
 
-        int span = 1;
+        int span;
         switch(getResources().getConfiguration().orientation) {
             case Configuration.ORIENTATION_LANDSCAPE:
+                span = 1;
+                break;
+            default :
                 span = 1;
                 break;
 
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -112,7 +112,6 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent myIntent = new Intent(this, SettingsActivity.class);
             this.startActivity(myIntent);

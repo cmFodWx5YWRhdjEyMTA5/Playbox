@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.staveinvaders.actvities;
+package uk.co.darkerwaters.staveinvaders.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -12,11 +12,9 @@ import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
 import uk.co.darkerwaters.staveinvaders.input.Input;
 import uk.co.darkerwaters.staveinvaders.input.InputKeys;
-import uk.co.darkerwaters.staveinvaders.input.InputUsb;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
 import uk.co.darkerwaters.staveinvaders.sounds.SoundPlayer;
 import uk.co.darkerwaters.staveinvaders.views.KeysView;
-import uk.co.darkerwaters.staveinvaders.views.PianoPlaying;
 import uk.co.darkerwaters.staveinvaders.views.PianoTouchable;
 
 public class KeyboardSetupActivity extends AppCompatActivity implements KeysView.IKeysViewListener {
@@ -94,7 +92,7 @@ public class KeyboardSetupActivity extends AppCompatActivity implements KeysView
     private void setInputToKeys() {
         this.application.getInputSelector().changeInputType(Settings.InputType.keys);
         Input activeInput = this.application.getInputSelector().getActiveInput();
-        if (activeInput == null || false == activeInput instanceof InputUsb) {
+        if (false == activeInput instanceof InputKeys) {
             // there is no input
             Log.error("Active INPUT is not KEYS despite us setting it to be, it is " + activeInput);
         }
