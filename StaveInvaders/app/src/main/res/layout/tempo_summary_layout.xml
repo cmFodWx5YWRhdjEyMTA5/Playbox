@@ -1,112 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TableLayout xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:stretchColumns="1">
 
-    <TableRow
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <view
+        android:id="@+id/bass_progress_view"
+        class="uk.co.darkerwaters.staveinvaders.views.ClefProgressView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="H,1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintHorizontal_weight="0.25"
+        app:layout_constraintStart_toEndOf="@+id/levels_progress_view"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
-            android:id="@+id/treble_progress_layout"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/bass_progress_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@+id/bass_progress_view"
+        app:layout_constraintStart_toStartOf="@+id/bass_progress_view"
+        app:layout_constraintTop_toBottomOf="@+id/bass_progress_view">
+
+        <TextView
+            android:id="@+id/bass_progress_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="@string/bass_parent_score_title"
+            android:textAlignment="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.485"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageViewBass" />
 
-            <view
-                android:id="@+id/treble_progress_view"
-                class="uk.co.darkerwaters.staveinvaders.views.ClefProgressView"
-                android:layout_width="match_parent"
-                android:layout_height="120dp" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/imageViewTreble"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ic_treble_icon"
-                    android:contentDescription="@string/content_treble" />
-
-                <TextView
-                    android:id="@+id/treble_progress_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/treble_parent_score_title" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
+        <ImageView
+            android:id="@+id/imageViewBass"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="@string/content_bass"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_bass_icon" />
+    </android.support.constraint.ConstraintLayout>
 
-            <view
-                android:id="@+id/levels_progress_view"
-                class="uk.co.darkerwaters.staveinvaders.views.LevelProgressView"
-                android:layout_width="match_parent"
-                android:layout_height="120dp" />
+    <view
+        android:id="@+id/treble_progress_view"
+        class="uk.co.darkerwaters.staveinvaders.views.ClefProgressView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="H,1:1"
+        app:layout_constraintEnd_toStartOf="@+id/levels_progress_view"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintHorizontal_weight="0.25"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/treble_progress_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@+id/treble_progress_view"
+        app:layout_constraintStart_toStartOf="@+id/treble_progress_view"
+        app:layout_constraintTop_toBottomOf="@+id/treble_progress_view">
 
-                <ImageView
-                    android:id="@+id/imageViewLevels"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ic_baseline_history_24px"
-                    android:contentDescription="@string/content_history" />
-
-                <TextView
-                    android:id="@+id/levels_progress_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/levels" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/bass_progress_layout"
+        <TextView
+            android:id="@+id/treble_progress_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="end"
-            android:orientation="vertical">
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="@string/treble_parent_score_title"
+            android:textAlignment="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.485"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageViewtreble" />
 
-            <view
-                android:id="@+id/bass_progress_view"
-                class="uk.co.darkerwaters.staveinvaders.views.ClefProgressView"
-                android:layout_width="match_parent"
-                android:layout_height="120dp" />
+        <ImageView
+            android:id="@+id/imageViewtreble"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="@string/content_treble"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_treble_icon" />
+    </android.support.constraint.ConstraintLayout>
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+    <view
+        android:id="@+id/levels_progress_view"
+        class="uk.co.darkerwaters.staveinvaders.views.LevelProgressView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="H,1:1"
+        app:layout_constraintEnd_toStartOf="@+id/bass_progress_view"
+        app:layout_constraintHorizontal_weight="0.5"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toEndOf="@+id/treble_progress_view"
+        app:layout_constraintTop_toTopOf="parent" />
 
-                <ImageView
-                    android:id="@+id/imageViewBass"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ic_bass_icon"
-                    android:contentDescription="@string/content_bass" />
+    <LinearLayout
+        android:id="@+id/levelsProgressLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="@+id/levels_progress_view"
+        app:layout_constraintStart_toStartOf="@+id/levels_progress_view"
+        app:layout_constraintTop_toBottomOf="@+id/levels_progress_view">
 
-                <TextView
-                    android:id="@+id/bass_progress_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/bass_parent_score_title" />
-            </LinearLayout>
-        </LinearLayout>
+        <ImageView
+            android:id="@+id/imageViewLevels"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/content_history"
+            app:srcCompat="@drawable/ic_baseline_history_24px" />
 
-    </TableRow>
+        <TextView
+            android:id="@+id/levels_progress_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/levels" />
+    </LinearLayout>
 
-</TableLayout>
+</android.support.constraint.ConstraintLayout>

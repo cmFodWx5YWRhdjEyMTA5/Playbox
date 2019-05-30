@@ -1,5 +1,10 @@
 package uk.co.darkerwaters.staveinvaders;
 
+import android.content.Context;
+import android.util.DisplayMetrics;
+import android.util.Pair;
+import android.util.SizeF;
+
 import uk.co.darkerwaters.staveinvaders.activities.MainActivity;
 import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Log;
@@ -40,6 +45,13 @@ public class Application extends android.app.Application {
 
     public InputSelector getInputSelector() {
         return this.input;
+    }
+
+    public SizeF getDisplaySize(Context context) {
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        float dpHeight = displayMetrics.heightPixels / displayMetrics.density;
+        float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+        return new SizeF(dpWidth, dpHeight);
     }
 
     @Override

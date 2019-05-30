@@ -46,16 +46,20 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
 
-        int span;
+        int span = 1;
+        if (application.getDisplaySize(this).getWidth() >= 550f) {
+            span = 2;
+        }
+        /*
         switch(getResources().getConfiguration().orientation) {
             case Configuration.ORIENTATION_LANDSCAPE:
-                span = 1;
+                span *= 1;
                 break;
             default :
-                span = 1;
+                span *= 2;
                 break;
 
-        }
+        }*/
         layoutManager = new GridLayoutManager(MainActivity.this, span);
         recyclerView.setLayoutManager(layoutManager);
 
