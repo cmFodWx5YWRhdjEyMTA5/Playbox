@@ -19,10 +19,11 @@
         <ImageView
             android:id="@+id/attributionImage"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="120dp"
             android:layout_weight="0.3"
-            app:srcCompat="@drawable/piano"
-            android:contentDescription="@string/content_piano" />
+            android:contentDescription="@string/content_piano"
+            android:scaleType="fitStart"
+            app:srcCompat="@drawable/piano" />
 
         <LinearLayout
             android:layout_width="0dp"

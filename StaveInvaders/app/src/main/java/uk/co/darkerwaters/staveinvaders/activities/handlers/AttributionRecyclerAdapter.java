@@ -1,6 +1,7 @@
 package uk.co.darkerwaters.staveinvaders.activities.handlers;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ import java.util.List;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
+import uk.co.darkerwaters.staveinvaders.activities.fragments.GameParentCardHolder;
 import uk.co.darkerwaters.staveinvaders.application.Log;
 
 public class AttributionRecyclerAdapter extends RecyclerView.Adapter<AttributionRecyclerAdapter.MyViewHolder> {
@@ -98,7 +100,20 @@ public class AttributionRecyclerAdapter extends RecyclerView.Adapter<Attribution
 
         holder.titleView.setText(attribution.imageName);
         int id = context.getResources().getIdentifier(attribution.imageName, "drawable", context.getPackageName());
-        holder.imageView.setImageResource(id);
+        if (0 == id) {
+            // this is not a drawable, is this an asset?
+            Bitmap bitmap = GameParentCardHolder.getBitmapFromAssets("games/" + attribution.imageName + ".jpg", context);
+            if (null != bitmap) {
+                // this was loaded ok, use this
+                holder.imageView.setImageBitmap(bitmap);
+            }
+            else {
+                // try an icon?
+            }
+        }
+        else {
+            holder.imageView.setImageResource(id);
+        }
         holder.attributionView.loadData(attribution.attribution, "text/html", "UTF-8");
     }
 

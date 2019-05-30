@@ -58,6 +58,7 @@ public class GamePlayActivity extends HidingFullscreenActivity implements GamePl
 
     private FloatingActionButton playButton;
     private FloatingActionButton stopButton;
+    private FloatingActionButton muteButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +85,7 @@ public class GamePlayActivity extends HidingFullscreenActivity implements GamePl
 
         this.playButton = findViewById(R.id.playActionButton);
         this.stopButton = findViewById(R.id.stopActionButton);
+        this.muteButton = findViewById(R.id.muteActionButton);
 
         Intent intent = getIntent();
         String parentGameName = intent.getStringExtra(K_SELECTED_CARD_FULL_NAME);
@@ -108,6 +110,12 @@ public class GamePlayActivity extends HidingFullscreenActivity implements GamePl
             @Override
             public void onClick(View view) {
                 endGame();
+            }
+        });
+        this.muteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggleMute();
             }
         });
 
@@ -202,17 +210,21 @@ public class GamePlayActivity extends HidingFullscreenActivity implements GamePl
         if (this.isPerformCountdown) {
             this.playButton.hide();
             this.stopButton.hide();
+            this.muteButton.hide();
         }
         else {
             this.playButton.show();
             this.stopButton.show();
+            this.muteButton.show();
             if (this.gamePlayer.isPaused()) {
                 // show the play icon
+                this.muteButton.animate().translationY(-getResources().getDimension(R.dimen.standard_63));
                 this.stopButton.animate().translationX(-getResources().getDimension(R.dimen.standard_63));
                 this.playButton.setImageResource(android.R.drawable.ic_media_play);
             }
             else {
                 // show the pause icon
+                this.muteButton.animate().translationY(0);
                 this.stopButton.animate().translationX(0);
                 this.playButton.setImageResource(android.R.drawable.ic_media_pause);
             }
@@ -223,6 +235,12 @@ public class GamePlayActivity extends HidingFullscreenActivity implements GamePl
             }
             else {
                 this.playButton.setImageResource(android.R.drawable.ic_media_play);
+            }
+            if (this.application.getSettings().getIsMuted()) {
+                this.muteButton.setImageResource(R.drawable.ic_baseline_volume_up_24px);
+            }
+            else {
+                this.muteButton.setImageResource(R.drawable.ic_baseline_volume_off_24px);
             }
         }
     }
@@ -310,6 +328,12 @@ public class GamePlayActivity extends HidingFullscreenActivity implements GamePl
         Intent intent = new Intent(GamePlayActivity.this, GameOverActivity.class);
         intent.putExtra(K_SELECTED_CARD_FULL_NAME, selectedGame.getFullName());
         GamePlayActivity.this.startActivity(intent);
+    }
+
+    private void toggleMute() {
+        Settings settings = this.application.getSettings();
+        settings.setIsMuted(!settings.getIsMuted());
+        updatePlayPauseButton();
     }
 
     @Override
