@@ -17,6 +17,8 @@ public class GameScore implements Serializable {
     public static final int K_PASS_BPM = K_BPMS[4];
     public static final float K_PASS_BPM_FACTOR = 0.50f;
 
+    public static final int K_ASK_SKIP_TIMES = 10;
+
     private static GameScore LAST_INSTANCE = null;
 
     public static GameScore GetLastInstance(boolean isClear) {

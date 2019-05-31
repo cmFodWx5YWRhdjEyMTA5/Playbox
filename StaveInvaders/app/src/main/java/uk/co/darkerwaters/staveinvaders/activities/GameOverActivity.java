@@ -1,7 +1,9 @@
 package uk.co.darkerwaters.staveinvaders.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -187,15 +189,25 @@ public class GameOverActivity extends AppCompatActivity {
             this.trebleProgressView.setProgress(this.selectedGame.getGameProgress(maxTempo), Integer.toString(maxTempo));
             this.bassProgressView.setProgress(this.selectedGame.getGameProgress(maxTempo), Integer.toString(maxTempo));
             // so is this new? Check the score
-            createSummaryText(maxTempo, score.getTopBpm(Clef.treble), this.trebleSummaryText);
-            createSummaryText(maxTempo, score.getTopBpm(Clef.bass), this.bassSummaryText);
+            createSummaryText(maxTempo, score.getTopTempo(Clef.treble), this.trebleSummaryText);
+            createSummaryText(maxTempo, score.getTopTempo(Clef.bass), this.bassSummaryText);
 
             // now we have compared etc, set the scores to the application for next time
             // for the clefs that are selected, set the new max on the score
-            for (Clef clef : this.application.getSettings().getSelectedClefs()) {
+            Clef[] selectedClefs = this.application.getSettings().getSelectedClefs();
+            for (Clef clef : selectedClefs) {
                 // for each clef we played, set the top BPM achieved
-                int newMax = Math.max(maxTempo, score.getTopBpm(clef));
-                score.setTopBpm(clef, newMax);
+                int newMax = Math.max(maxTempo, score.getTopTempo(clef));
+                score.setTopTempo(clef, newMax);
+                int newTimesPlayed = score.incrementTimesPlayed(clef);
+                // check this score is passed, or not annoying the player
+                if (false == score.isClefPassed(clef) &&
+                        newTimesPlayed > 0 &&
+                        newTimesPlayed % 2 == GameScore.K_ASK_SKIP_TIMES) {
+                    // this is a tenth time for a clef that is not already skipped
+                    // and still is not passed
+                    askUserAboutSkippingScore(score, clef);
+                }
             }
             // and set this score back on the application so it is properly logged
             scores.setScore(score);
@@ -203,6 +215,46 @@ public class GameOverActivity extends AppCompatActivity {
             // show the available clefs and set their progress for this data
             setAvailableClefs(settings.getSelectedClefs());
         }
+    }
+
+    private void askUserAboutSkippingScore(Scores.Score score, final Clef clef) {
+        // prepare for the response
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
+                        //Yes button clicked, skip this clef then please - first get the score that is
+                        // set as this might have changed in the interveining time
+                        Scores.Score score = application.getScores().getScore(selectedGame);
+                        // set this to be skipped
+                        score.setClefSkipped(clef, true);
+                        // and put it back
+                        application.getScores().setScore(score);
+                        break;
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        //No button clicked, leave it alone until the next time they hit 10
+                        break;
+                }
+            }
+        };
+        // show the dialog
+        String message;
+        switch (clef) {
+            case treble:
+                message = getResources().getString(R.string.doYouWantToSkipTreble);
+                break;
+            case bass: default:
+                message = getResources().getString(R.string.doYouWantToSkipBass);
+                break;
+        }
+        // format the numbers in here, the number of times and the level needed
+        String messageString = String.format(message, score.getTimesPlayed(clef), GameScore.K_PASS_BPM);
+
+        // show the dialog to ask if they are ready to skip this annoying level
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(messageString).setPositiveButton(R.string.yes, dialogClickListener)
+                .setNegativeButton(R.string.no, dialogClickListener).show();
     }
 
     private void createSummaryText(int maxTempo, int topBpm, TextView summaryText) {

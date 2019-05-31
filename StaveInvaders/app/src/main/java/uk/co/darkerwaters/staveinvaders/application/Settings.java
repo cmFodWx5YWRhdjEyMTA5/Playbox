@@ -68,11 +68,11 @@ public class Settings {
     private void setDefaults() {
         this.isHideTreble = false;
         this.isHideBass = false;
-        this.isKeyInputPiano = true;
+        this.isKeyInputPiano = false;
         this.isShowPianoLetters = true;
         this.isMuted = false;
 
-        this.isLogging = true;
+        this.isLogging = false;
 
         this.activeInput = K_INPUTKEYS;
         this.lastConnectedUsbDevice = "";

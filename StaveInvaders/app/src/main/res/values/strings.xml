@@ -109,4 +109,6 @@
     <string name="areYouSure">Are you REALLY REALLY Sure?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="doYouWantToSkipTreble">It looks like you have played this treble level a lot (%1$d times) without getting past %2$d. Would you like to pass on to the next one?</string>
+    <string name="doYouWantToSkipBass">It looks like you have played this bass level a lot (%1$d times) without getting past %2$d. Would you like to pass on to the next one?</string>
 </resources>

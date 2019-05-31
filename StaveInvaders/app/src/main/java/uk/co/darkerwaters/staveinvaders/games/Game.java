@@ -188,12 +188,13 @@ public class Game {
     public int getGameTopTempo(Clef clef) {
         // return the current top tempo achieved by this game
         Scores.Score score = this.application.getScores().getScore(this);
-        return score.getTopBpm(clef);
+        return score.getTopTempo(clef);
     }
 
     public boolean getIsGamePassed(Clef clef) {
         // return if this game progress is enough to move on
-        return getGameTopTempo(clef) >= GameScore.K_PASS_BPM;
+        Scores.Score score = this.application.getScores().getScore(this);
+        return score.isClefPassed(clef);
     }
 
     public GameEntry[] getClefEntries(Clef clef) {
