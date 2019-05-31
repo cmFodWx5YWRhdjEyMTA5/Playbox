@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('/Users/douglasbrain/Documents/code/android.keystore')
+            storePassword 'awh4Jy}z8@sBBhFNs+sh3'
+            keyAlias = 'staveinvadersrelease'
+            keyPassword 'KXY[v4L>EgvD=Y99=e)8qNwbrewbC7'
+        }
+    }
     compileSdkVersion 28
     defaultConfig {
         applicationId "uk.co.darkerwaters.staveinvaders"
@@ -9,6 +17,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        signingConfig signingConfigs.release
     }
     buildTypes {
         release {
