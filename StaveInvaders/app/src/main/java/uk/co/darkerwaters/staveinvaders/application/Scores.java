@@ -105,7 +105,8 @@ public class Scores {
 
     private String getScoreString(Clef clef, Score score) {
         // return the score as a single string, the first is the top tempo
-        StringBuilder builder = new StringBuilder(score.getTopTempo(clef));
+        StringBuilder builder = new StringBuilder();
+        builder.append(score.getTopTempo(clef));
         builder.append(",");
         // second is the times we played
         builder.append(score.getTimesPlayed(clef));

@@ -323,7 +323,12 @@ public class GameSelectActivity extends AppCompatActivity {
         // set these on the music view
         musicView.setPermittedClefs(clefs);
         // and on the piano view
-        pianoView.setNoteRange(this.selectedGame.getNoteRange(clefs));
+        if (pianoView.getIsPiano()) {
+            pianoView.setNoteRange(this.selectedGame.getNoteRange(clefs));
+        }
+        else {
+            this.pianoView.setNoteRange(this.application.getSettings().getPianoLettersRange());
+        }
         this.pianoView.invalidate();
         // update the game progress view
         this.progressView.invalidate();
@@ -346,8 +351,13 @@ public class GameSelectActivity extends AppCompatActivity {
         musicView.invalidate();
 
         // set this data on the piano
-        Clef[] selectedClefs = this.application.getSettings().getSelectedClefs();
-        pianoView.setNoteRange(this.selectedGame.getNoteRange(selectedClefs));
+        if (pianoView.getIsPiano()) {
+            Clef[] selectedClefs = this.application.getSettings().getSelectedClefs();
+            pianoView.setNoteRange(this.selectedGame.getNoteRange(selectedClefs));
+        }
+        else {
+            this.pianoView.setNoteRange(this.application.getSettings().getPianoLettersRange());
+        }
         pianoView.invalidate();
 
         // and load the image for the title bar

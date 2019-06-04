@@ -111,4 +111,8 @@
     <string name="no">No</string>
     <string name="doYouWantToSkipTreble">It looks like you have played this treble level a lot (%1$d times) without getting past %2$d. Would you like to pass on to the next one?</string>
     <string name="doYouWantToSkipBass">It looks like you have played this bass level a lot (%1$d times) without getting past %2$d. Would you like to pass on to the next one?</string>
+    <string name="a_to_g">A to G</string>
+    <string name="c_key">Key of C</string>
+    <string name="c_range">C to C</string>
+    <string name="to">to</string>
 </resources>

@@ -15,6 +15,8 @@ import uk.co.darkerwaters.staveinvaders.notes.Range;
 
 public class KeysView extends BaseView {
 
+    private int whiteNoteCount = -1;
+
     public interface IKeysViewListener {
         void noteReleased(Chord chord);
         void noteDepressed(Chord chord);
@@ -77,39 +79,10 @@ public class KeysView extends BaseView {
 
     public void setNoteRange(Range newRange) {
         // set the members to remember this range to display
-        Chords notes = this.application.getSingleChords();
         if (null != newRange && null != newRange.getStart() && null != newRange.getEnd()) {
             this.noteRange = newRange;
-
-            // set the starting key, we don't want to start on a sharp or just after one
-            // as we won't draw it and it will look and behave weird, go down until we get to
-            // a normal kind of note (a white key without a flat, which is a sharp before it)
-            // basically this is an F or a C then
-            int startNoteIndex = notes.getChordIndex(this.noteRange.getStart().root());
-            int endNoteIndex = notes.getChordIndex(this.noteRange.getEnd().root());
-            boolean stretchToNoAdjacentSharps = false;
-
-            if (endNoteIndex - startNoteIndex < 10) {
-                // there are not many notes, stretch them down to the nice gappy bits
-                stretchToNoAdjacentSharps = true;
-            }
-
-            // if the starting key is a sharp or has a flat, move down away from it
-            while (startNoteIndex > 0 && (this.noteRange.getStart().hasSharp() ||
-                    (stretchToNoAdjacentSharps && notes.getChord(startNoteIndex - 1).hasSharp()))) {
-                // while there are notes before the start and the start is a sharp or there is a sharp
-                // before it, keep looking further down the scale
-                this.noteRange.setStart(notes.getChord(--startNoteIndex));
-            }
-
-            // while the end note is a sharp, or has a sharp - move up from it
-            while (endNoteIndex < notes.getSize() - 1 &&
-                    (this.noteRange.getEnd().hasSharp() ||
-                            (stretchToNoAdjacentSharps && notes.getChord(endNoteIndex + 1).hasSharp()))) {
-                // while there are notes after and the end is a sharp or has one, keep looking
-                this.noteRange.setEnd(notes.getChord(++endNoteIndex));
-            }
         }
+        this.whiteNoteCount = -1;
     }
 
     public boolean isDrawNoteNames() {
@@ -126,59 +99,57 @@ public class KeysView extends BaseView {
         canvas.drawColor(Color.WHITE);
 
         // get all the letters we want to draw, from A to G...
-        char lowestLetter = 'A';
-        char highestLetter = 'G';
-
         Chords singleChords = this.application.getSingleChords();
-        int iStart = singleChords.getChordIndex("A3");
-        int iEnd = singleChords.getChordIndex("G4");
+        int iStart = singleChords.getChordIndex(this.noteRange.getStart().root());
+        int iEnd = singleChords.getChordIndex(this.noteRange.getEnd().root());
 
+        if (this.whiteNoteCount <= 0) {
+            // calculate the note count again
+            this.whiteNoteCount = 0;
+            for (int noteIndex = iStart; noteIndex <= iEnd; ++noteIndex) {
+                Chord chord = singleChords.getChord(noteIndex);
+                if (null != chord && (false == chord.hasSharp() && false == chord.hasFlat())) {
+                    ++whiteNoteCount;
+                }
+            }
+        }
         // now draw these notes in
-        int noteCount = highestLetter - lowestLetter + 1;
-        if (noteCount > 0) {
+        if (whiteNoteCount > 0) {
             // there are notes, divide the space
-            float keyWidth = this.bounds.drawingWidth / noteCount;
+            float keyWidth = this.bounds.drawingWidth / whiteNoteCount;
             float halfKey = keyWidth * 0.5f;
             float keyHeight = this.bounds.drawingHeight * 0.6f;
             float keyBottom = this.bounds.drawingBottom - keyHeight * 0.3f;
-            char noteLetter = lowestLetter;
-            for (int i = 0; i < noteCount; ++i) {
-                // find a note in the range that represents this letter
-                Chord chord = null;
-                Chord sharp = null;
-                for (int j = iStart; j <= iEnd; ++j) {
-                    chord = singleChords.getChord(j);
-                    if (false == chord.hasFlat() && false == chord.hasSharp()) {
-                        if (chord.root().getNotePrimitive() == noteLetter) {
-                            // this is a chord that represents the letter to draw
-                            if (j < singleChords.getSize() - 2) {
-                                sharp = singleChords.getChord(j + 1);
-                                if (!sharp.hasSharp()) {
-                                    sharp = null;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
+            int i = 0;
+            RectF keyRect;
+            for (int noteIndex = iStart; noteIndex <= iEnd; ++noteIndex) {
+                // draw this note in the correct position
+                Chord chord = singleChords.getChord(noteIndex);
                 if (null != chord) {
-                    RectF keyRect = new RectF(
-                            bounds.drawingLeft + (i * keyWidth),
-                            bounds.drawingBottom - keyHeight,
-                            bounds.drawingLeft + ((i + 1) * keyWidth),
-                            keyBottom);
-                    // draw the key (white key)
-                    drawKey(canvas, keyRect, chord);
                     int letterColor = assets.letterPaint.getColor();
-                    canvas.drawText(Character.toString(noteLetter), keyRect.centerX(), keyRect.centerY(), assets.letterPaint);
-                    if (null != sharp && i < noteCount - 1) {
-                        // draw in the sharp
+                    char noteLetter = chord.root().getNotePrimitive();
+                    // draw in the normal note here (the white note)
+                    if (false == chord.hasFlat() && false == chord.hasSharp()) {
                         keyRect = new RectF(
-                                bounds.drawingLeft + (i * keyWidth) + halfKey,
+                                bounds.drawingLeft + (i * keyWidth),
+                                bounds.drawingBottom - keyHeight,
+                                bounds.drawingLeft + ((i + 1) * keyWidth),
+                                keyBottom);
+                        // draw the key (white key)
+                        drawKey(canvas, keyRect, chord);
+                        // and the letter for the note
+                        canvas.drawText(Character.toString(noteLetter), keyRect.centerX(), keyRect.centerY(), assets.letterPaint);
+                        // move on the white note counter
+                        ++i;
+                    }
+                    else {
+                        // draw in the sharp here (the black note)
+                        keyRect = new RectF(
+                                bounds.drawingLeft + ((i - 1) * keyWidth) + halfKey,
                                 bounds.drawingBottom - keyHeight * 1.5f,
-                                bounds.drawingLeft + ((i + 1) * keyWidth) + halfKey,
+                                bounds.drawingLeft + (i * keyWidth) + halfKey,
                                 bounds.drawingBottom - keyHeight);
-                        drawKey(canvas, keyRect, sharp);
+                        drawKey(canvas, keyRect, chord);
                         assets.letterPaint.setColor(Color.WHITE);
                         canvas.drawText(Character.toString(noteLetter) + '#', keyRect.centerX(), keyRect.centerY(), assets.letterPaint);
                         canvas.drawText(Character.toString(nextLetter(noteLetter)) + 'ᵇ', keyRect.centerX(), keyRect.centerY() + assets.letterPaint.getTextSize(), assets.letterPaint);
@@ -186,8 +157,6 @@ public class KeysView extends BaseView {
                         assets.letterPaint.setColor(letterColor);
                     }
                 }
-                // move onto the next letter
-                ++noteLetter;
             }
         }
     }

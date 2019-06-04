@@ -3,7 +3,10 @@ package uk.co.darkerwaters.staveinvaders.application;
 import android.content.SharedPreferences;
 
 import uk.co.darkerwaters.staveinvaders.Application;
+import uk.co.darkerwaters.staveinvaders.notes.Chords;
 import uk.co.darkerwaters.staveinvaders.notes.Clef;
+import uk.co.darkerwaters.staveinvaders.notes.Note;
+import uk.co.darkerwaters.staveinvaders.notes.Range;
 
 public class Settings {
     private final SharedPreferences preferences;
@@ -29,6 +32,9 @@ public class Settings {
     private final String K_ISMUTED = "isMuted";
     private final String K_ISKEYINPUTPIANO = "isKeyInputPiano";
     private final String K_ISSHOWPIANOLETTERS = "isShowPianoLetters";
+    private final String K_PIANOLETTERSRANGE = "pianoLettersRange";
+
+    private final String K_DEFAULTPIANOLETTERSRANGE = "C4-B4";
 
     // the settings - important for defaults
     private boolean isLogging;
@@ -43,6 +49,8 @@ public class Settings {
     private boolean isKeyInputPiano;
     private boolean isShowPianoLetters;
     private boolean isMuted;
+
+    private String pianoLettersRange;
 
     private String selectedClefs = Clef.treble.name();
 
@@ -77,6 +85,8 @@ public class Settings {
         this.activeInput = K_INPUTKEYS;
         this.lastConnectedUsbDevice = "";
         this.lastConnectedBtDevice = "";
+
+        this.pianoLettersRange = K_DEFAULTPIANOLETTERSRANGE;
     }
 
     public void wipeAllSettings() {
@@ -135,6 +145,25 @@ public class Settings {
     public Settings setIsKeyInputPiano(boolean isPiano) {
         this.isKeyInputPiano = isPiano;
         this.editor.putBoolean(K_ISKEYINPUTPIANO, this.isKeyInputPiano);
+        return this;
+    }
+
+    public Range getPianoLettersRange() {
+        // get the start of the letters range
+        this.pianoLettersRange = this.preferences.getString(K_PIANOLETTERSRANGE, this.pianoLettersRange);
+        String[] titles = this.pianoLettersRange.split("-");
+        if (titles.length != 2) {
+            // reset this
+            this.pianoLettersRange = K_DEFAULTPIANOLETTERSRANGE;
+            titles = this.pianoLettersRange.split("-");
+        }
+        Chords chords = this.application.getSingleChords();
+        return new Range(chords.getChord(titles[0]), chords.getChord(titles[1]));
+    }
+
+    public Settings setPianoLettersRange(Range range) {
+        this.pianoLettersRange = range.getStart().root().getName() + "-" + range.getEnd().root().getName();
+        this.editor.putString(K_PIANOLETTERSRANGE, this.pianoLettersRange);
         return this;
     }
 

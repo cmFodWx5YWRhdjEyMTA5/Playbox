@@ -135,7 +135,12 @@ public class GamePlayActivity extends HidingFullscreenActivity implements GamePl
         this.gamePlayer.addListener((GameProgress.GameProgressListener) this);
 
         // and the piano
-        this.pianoView.setNoteRange(this.selectedGame.getNoteRange(settings.getSelectedClefs()));
+        if (pianoView.getIsPiano()) {
+            this.pianoView.setNoteRange(this.selectedGame.getNoteRange(settings.getSelectedClefs()));
+        }
+        else {
+            this.pianoView.setNoteRange(this.application.getSettings().getPianoLettersRange());
+        }
         this.pianoView.setIsAllowTouch(true);
 
         // and the music view
@@ -332,20 +337,22 @@ public class GamePlayActivity extends HidingFullscreenActivity implements GamePl
 
     private void toggleMute() {
         Settings settings = this.application.getSettings();
-        settings.setIsMuted(!settings.getIsMuted());
+        settings.setIsMuted(!settings.getIsMuted()).commitChanges();
         updatePlayPauseButton();
     }
 
     @Override
     public void onGameClefChanged(Clef clef) {
         // set the range on the piano view accordingly
-        this.pianoView.setNoteRange(this.selectedGame.getNoteRange(new Clef[] {clef}));
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                pianoView.invalidate();
-            }
-        });
+        if (pianoView.getIsPiano()) {
+            this.pianoView.setNoteRange(this.selectedGame.getNoteRange(new Clef[]{clef}));
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    pianoView.invalidate();
+                }
+            });
+        }
     }
 
     @Override

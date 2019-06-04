@@ -72,11 +72,40 @@ public class PianoView extends KeysView {
     @Override
     public void setNoteRange(Range newRange) {
         super.setNoteRange(newRange);
-
+        // get the range as it is and check it
         Range noteRange = getNoteRange();
         if (null != noteRange && getIsPiano()) {
-            // set the members to remember this range to display
             Chords notes = this.application.getSingleChords();
+            // set the starting key, we don't want to start on a sharp or just after one
+            // as we won't draw it and it will look and behave weird, go down until we get to
+            // a normal kind of note (a white key without a flat, which is a sharp before it)
+            // basically this is an F or a C then
+            int startNoteIndex = notes.getChordIndex(noteRange.getStart().root());
+            int endNoteIndex = notes.getChordIndex(noteRange.getEnd().root());
+            boolean stretchToNoAdjacentSharps = false;
+
+            if (endNoteIndex - startNoteIndex < 10) {
+                // there are not many notes, stretch them down to the nice gappy bits
+                stretchToNoAdjacentSharps = true;
+            }
+
+            // if the starting key is a sharp or has a flat, move down away from it
+            while (startNoteIndex > 0 && (noteRange.getStart().hasSharp() ||
+                    (stretchToNoAdjacentSharps && notes.getChord(startNoteIndex - 1).hasSharp()))) {
+                // while there are notes before the start and the start is a sharp or there is a sharp
+                // before it, keep looking further down the scale
+                noteRange.setStart(notes.getChord(--startNoteIndex));
+            }
+
+            // while the end note is a sharp, or has a sharp - move up from it
+            while (endNoteIndex < notes.getSize() - 1 &&
+                    (noteRange.getEnd().hasSharp() ||
+                            (stretchToNoAdjacentSharps && notes.getChord(endNoteIndex + 1).hasSharp()))) {
+                // while there are notes after and the end is a sharp or has one, keep looking
+                noteRange.setEnd(notes.getChord(++endNoteIndex));
+            }
+            // set this adjusted range on the base
+            super.setNoteRange(noteRange);
             // and setup the white keys accordingly
             int keyCount = 0;
             for (int i = 0; i < notes.getSize(); ++i) {
@@ -102,14 +131,14 @@ public class PianoView extends KeysView {
         }
     }
 
-    protected boolean getIsPiano() {
-        return this.application.getSettings().getIsKeyInputPiano();
-    }
-
     @Override
     public boolean isDrawNoteNames() {
         Settings settings = this.application.getSettings();
         return false == settings.getIsKeyInputPiano() || settings.getIsShowPianoLetters();
+    }
+
+    public boolean getIsPiano() {
+        return this.application.getSettings().getIsKeyInputPiano();
     }
 
     @Override

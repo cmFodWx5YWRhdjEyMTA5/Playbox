@@ -191,6 +191,138 @@
 
             </android.support.constraint.ConstraintLayout>
 
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/lettersExtraLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@color/secondaryDarkColor"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/lettersChoiceLayout">
+
+                <Button
+                    android:id="@+id/agButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/a_to_g"
+                    app:layout_constraintEnd_toStartOf="@+id/cButton"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/cButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/c_key"
+                    app:layout_constraintEnd_toStartOf="@+id/ccButton"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/agButton"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/ccButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/c_range"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/cButton"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageButton
+                    android:id="@+id/startLessButton"
+                    android:layout_width="49dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/startMoreButton"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/agButton"
+                    app:srcCompat="@android:drawable/ic_media_previous" />
+
+                <ImageButton
+                    android:id="@+id/startMoreButton"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/startLetter"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/startLessButton"
+                    app:srcCompat="@android:drawable/ic_media_next" />
+
+                <EditText
+                    android:id="@+id/startLetter"
+                    android:layout_width="49dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:editable="false"
+                    android:ems="2"
+                    android:inputType="none"
+                    android:textAlignment="center"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/textView6"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/startMoreButton" />
+
+                <TextView
+                    android:id="@+id/textView6"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/to"
+                    android:textAlignment="center"
+                    app:layout_constraintBottom_toBottomOf="@+id/endLetter"
+                    app:layout_constraintEnd_toStartOf="@+id/endLetter"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/startLetter"
+                    app:layout_constraintTop_toTopOf="@+id/endLetter" />
+
+                <EditText
+                    android:id="@+id/endLetter"
+                    android:layout_width="49dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:editable="false"
+                    android:ems="2"
+                    android:inputType="none"
+                    android:textAlignment="center"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/endLessButton"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/textView6" />
+
+                <ImageButton
+                    android:id="@+id/endLessButton"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/endMoreButton"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/endLetter"
+                    app:srcCompat="@android:drawable/ic_media_previous" />
+
+                <ImageButton
+                    android:id="@+id/endMoreButton"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/endLessButton"
+                    app:layout_constraintTop_toBottomOf="@+id/ccButton"
+                    app:srcCompat="@android:drawable/ic_media_next" />
+
+            </android.support.constraint.ConstraintLayout>
+
             <view
                 android:id="@+id/microphone_setup_piano"
                 class="uk.co.darkerwaters.staveinvaders.views.PianoTouchable"
@@ -199,7 +331,7 @@
                 android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/lettersChoiceLayout" />
+                app:layout_constraintTop_toBottomOf="@+id/lettersExtraLayout" />
 
         </android.support.constraint.ConstraintLayout>
     </ScrollView>
