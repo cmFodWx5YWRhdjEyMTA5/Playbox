@@ -45,6 +45,7 @@ public class PianoView extends KeysView {
     private int startNoteIndex = 0;
 
     private boolean isShowPrimitives = true;
+    private boolean isForcePianoView = false;
 
     private long lastDrawnTime = 0L;
 
@@ -137,8 +138,15 @@ public class PianoView extends KeysView {
         return false == settings.getIsKeyInputPiano() || settings.getIsShowPianoLetters();
     }
 
+    public void setIsForcePiano(boolean isForcePiano) {
+        this.isForcePianoView = isForcePiano;
+    }
+
     public boolean getIsPiano() {
-        return this.application.getSettings().getIsKeyInputPiano();
+        Settings settings = this.application.getSettings();
+        return this.isForcePianoView ||
+                settings.getActiveInput() != Settings.InputType.keys ||
+                settings.getIsKeyInputPiano();
     }
 
     @Override

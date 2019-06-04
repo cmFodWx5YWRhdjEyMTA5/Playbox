@@ -47,8 +47,7 @@ public class KeysView extends BaseView {
     }
 
     public Range getDefaultNoteRange() {
-        Chords notes = this.application.getSingleChords();
-        return new Range(notes.getChord("C3"), notes.getChord("B5"));
+        return this.application.getSettings().getPianoLettersRange();
     }
 
     public void closeView() {
@@ -97,6 +96,10 @@ public class KeysView extends BaseView {
         Assets assets = getAssets();
         // Draw a solid color on the canvas as background
         canvas.drawColor(Color.WHITE);
+
+        if (null == this.noteRange) {
+            setNoteRange(getDefaultNoteRange());
+        }
 
         // get all the letters we want to draw, from A to G...
         Chords singleChords = this.application.getSingleChords();

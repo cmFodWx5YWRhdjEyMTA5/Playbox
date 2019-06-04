@@ -9,6 +9,8 @@ import uk.co.darkerwaters.staveinvaders.application.Settings;
 import uk.co.darkerwaters.staveinvaders.input.Input;
 import uk.co.darkerwaters.staveinvaders.input.InputMidi;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
+import uk.co.darkerwaters.staveinvaders.notes.Chords;
+import uk.co.darkerwaters.staveinvaders.notes.Range;
 import uk.co.darkerwaters.staveinvaders.views.KeysView;
 import uk.co.darkerwaters.staveinvaders.views.PianoPlaying;
 
@@ -25,6 +27,11 @@ public abstract class BaseSetupActivity extends AppCompatActivity implements
         this.application = (Application) this.getApplication();
 
         this.piano = findViewById(R.id.microphone_setup_piano);
+        this.piano.setIsForcePiano(true);
+
+        Chords singleChords = this.application.getSingleChords();
+        Range noteRange = new Range(singleChords.getChord("A1"), singleChords.getChord("C8"));
+        this.piano.setNoteRange(noteRange);
     }
 
     @Override
@@ -57,14 +64,18 @@ public abstract class BaseSetupActivity extends AppCompatActivity implements
         if (isDetection && probability > Input.K_DETECTION_PROBABILITY_THRESHOLD) {
             // depress this chord
             this.piano.depressNote(chord);
-            // invalidate the view, the piano released a note
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    piano.invalidate();
-                }
-            });
         }
+        else {
+            this.piano.releaseNote(chord);
+            noteReleased(chord);
+        }
+        // invalidate the view, the piano released a note
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                piano.invalidate();
+            }
+        });
     }
 
     @Override

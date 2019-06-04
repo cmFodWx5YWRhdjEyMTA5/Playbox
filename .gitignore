@@ -36,3 +36,4 @@ traindataserver/target/maven-status/maven-compiler-plugin/compile/default-compil
 .DS_Store
 SerialDebugger/jar-in-jar-loader.zip
 NoteInvaders/.idea/caches/build_file_checksums.ser
+*.aab

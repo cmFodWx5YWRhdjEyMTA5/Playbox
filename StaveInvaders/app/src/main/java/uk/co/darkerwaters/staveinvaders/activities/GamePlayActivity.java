@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import uk.co.darkerwaters.staveinvaders.Application;
 import uk.co.darkerwaters.staveinvaders.R;
+import uk.co.darkerwaters.staveinvaders.application.InputSelector;
 import uk.co.darkerwaters.staveinvaders.application.Log;
 import uk.co.darkerwaters.staveinvaders.application.Settings;
 import uk.co.darkerwaters.staveinvaders.games.Game;
@@ -17,11 +18,14 @@ import uk.co.darkerwaters.staveinvaders.games.GameList;
 import uk.co.darkerwaters.staveinvaders.games.GamePlayer;
 import uk.co.darkerwaters.staveinvaders.games.GameProgress;
 import uk.co.darkerwaters.staveinvaders.games.GameScore;
+import uk.co.darkerwaters.staveinvaders.input.Input;
+import uk.co.darkerwaters.staveinvaders.input.InputMidi;
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
 import uk.co.darkerwaters.staveinvaders.notes.ChordFactory;
 import uk.co.darkerwaters.staveinvaders.notes.Clef;
 import uk.co.darkerwaters.staveinvaders.sounds.SoundPlayer;
 import uk.co.darkerwaters.staveinvaders.views.CircleProgressView;
+import uk.co.darkerwaters.staveinvaders.views.KeysView;
 import uk.co.darkerwaters.staveinvaders.views.MusicViewPlaying;
 import uk.co.darkerwaters.staveinvaders.views.PianoTouchable;
 import uk.co.darkerwaters.staveinvaders.views.SlideInOutAnimator;
@@ -30,7 +34,10 @@ import static uk.co.darkerwaters.staveinvaders.activities.fragments.GameParentCa
 import static uk.co.darkerwaters.staveinvaders.activities.fragments.GameParentCardHolder.K_SELECTED_CARD_FULL_NAME;
 import static uk.co.darkerwaters.staveinvaders.activities.fragments.GameParentCardHolder.K_STARTING_TEMPO;
 
-public class GamePlayActivity extends HidingFullscreenActivity implements GamePlayer.GamePlayerListener, GameProgress.GameProgressListener {
+public class GamePlayActivity extends HidingFullscreenActivity implements
+        GamePlayer.GamePlayerListener,
+        GameProgress.GameProgressListener,
+        InputSelector.InputListener {
 
     private static final long K_PLAY_COUNTDOWN = 5000L;
     private Application application;
@@ -149,11 +156,18 @@ public class GamePlayActivity extends HidingFullscreenActivity implements GamePl
 
         // be sure sound is initialised
         SoundPlayer.initialise(this, this.application);
+
+        // also we need to listen to MIDI messages
+        Input input = this.application.getInputSelector().getActiveInput();
+        if (input instanceof InputMidi) {
+            this.application.getInputSelector().addListener(this);
+        }
     }
 
     @Override
     protected void onDestroy() {
         // remove us as listeners
+        this.application.getInputSelector().removeListener(this);
         this.gamePlayer.removeListener((GamePlayer.GamePlayerListener)this);
         this.gamePlayer.removeListener((GameProgress.GameProgressListener) this);
         // clear out the sound player
@@ -165,7 +179,6 @@ public class GamePlayActivity extends HidingFullscreenActivity implements GamePl
     @Override
     protected void onResume() {
         super.onResume();
-
         if (false == this.gamePlayer.isGameActive()) {
             // this game is over (we are coming back from the score card, just finish this
             // to jump back another one
@@ -433,5 +446,24 @@ public class GamePlayActivity extends HidingFullscreenActivity implements GamePl
         // and the progress of this tempo
         float progress = source.getPoints() / (float)this.gamePlayer.getPointLevelGoal();
         this.tempoProgressView.setProgress(progress, (int) (progress * 100f) + "%");
+    }
+
+    @Override
+    public void onNoteDetected(Settings.InputType type, Chord chord, boolean isDetection, float probability) {
+        // add to our range of notes we can detect
+        if (isDetection && probability > Input.K_DETECTION_PROBABILITY_THRESHOLD) {
+            // depress this chord
+            this.pianoView.depressNote(chord);
+        }
+        else {
+            this.pianoView.releaseNote(chord);
+        }
+        // invalidate the view, the piano released a note
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                pianoView.invalidate();
+            }
+        });
     }
 }

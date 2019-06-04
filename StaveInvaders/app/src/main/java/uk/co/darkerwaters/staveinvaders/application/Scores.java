@@ -76,7 +76,7 @@ public class Scores {
         }
 
         public boolean isClefPassed(Clef clef) {
-            return getTopTempo(clef) > GameScore.K_PASS_BPM || isClefSkipped(clef);
+            return getTopTempo(clef) >= GameScore.K_PASS_BPM || isClefSkipped(clef);
         }
     }
 
