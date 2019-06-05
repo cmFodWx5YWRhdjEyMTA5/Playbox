@@ -115,4 +115,10 @@
     <string name="c_key">Key of C</string>
     <string name="c_range">C to C</string>
     <string name="to">to</string>
+    <string name="content_startLetter">Start note of the keyboard</string>
+    <string name="content_endLetter">End note of the keyboard</string>
+    <string name="content_endLess">Move the end down</string>
+    <string name="content_endMore">Move the end up</string>
+    <string name="content_startLess">Move the start down</string>
+    <string name="content_startMore">Move the start up</string>
 </resources>

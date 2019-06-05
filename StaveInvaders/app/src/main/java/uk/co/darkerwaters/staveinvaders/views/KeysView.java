@@ -11,6 +11,8 @@ import java.util.List;
 
 import uk.co.darkerwaters.staveinvaders.notes.Chord;
 import uk.co.darkerwaters.staveinvaders.notes.Chords;
+import uk.co.darkerwaters.staveinvaders.notes.Clef;
+import uk.co.darkerwaters.staveinvaders.notes.Note;
 import uk.co.darkerwaters.staveinvaders.notes.Range;
 
 public class KeysView extends BaseView {
@@ -88,6 +90,29 @@ public class KeysView extends BaseView {
         return true;
     }
 
+    protected int getIndex(Chords chords, Note noteToFind) {
+        // don't use the matching functions because these ignore key when that input is
+        // used, as we always want to draw on the absolute correct line here, do our own
+        // search for the index
+        int noteIndex = -1;
+        for (int i = 0; i < chords.getSize(); ++i) {
+            Chord chord = chords.getChord(i);
+            boolean isNoteContained = false;
+            for (Note note : chord.notes) {
+                if (note.exactEquals(noteToFind)) {
+                    // this is the note
+                    isNoteContained = true;
+                    break;
+                }
+            }
+            if (isNoteContained) {
+                noteIndex = i;
+                break;
+            }
+        }
+        return noteIndex;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -103,8 +128,8 @@ public class KeysView extends BaseView {
 
         // get all the letters we want to draw, from A to G...
         Chords singleChords = this.application.getSingleChords();
-        int iStart = singleChords.getChordIndex(this.noteRange.getStart().root());
-        int iEnd = singleChords.getChordIndex(this.noteRange.getEnd().root());
+        int iStart = getIndex(singleChords, this.noteRange.getStart().root());
+        int iEnd = getIndex(singleChords, this.noteRange.getEnd().root());
 
         if (this.whiteNoteCount <= 0) {
             // calculate the note count again

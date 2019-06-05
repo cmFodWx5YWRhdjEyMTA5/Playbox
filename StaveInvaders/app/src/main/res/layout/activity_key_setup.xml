@@ -244,6 +244,7 @@
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/agButton"
+                    android:contentDescription="@string/content_startLess"
                     app:srcCompat="@android:drawable/ic_media_previous" />
 
                 <ImageButton
@@ -255,6 +256,7 @@
                     app:layout_constraintEnd_toStartOf="@+id/startLetter"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toEndOf="@+id/startLessButton"
+                    android:contentDescription="@string/content_startMore"
                     app:srcCompat="@android:drawable/ic_media_next" />
 
                 <EditText
@@ -266,6 +268,7 @@
                     android:ems="2"
                     android:inputType="none"
                     android:textAlignment="center"
+                    android:contentDescription="@string/content_startLetter"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/textView6"
                     app:layout_constraintHorizontal_bias="0.5"
@@ -292,6 +295,7 @@
                     android:ems="2"
                     android:inputType="none"
                     android:textAlignment="center"
+                    android:contentDescription="@string/content_endLetter"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/endLessButton"
                     app:layout_constraintHorizontal_bias="0.5"
@@ -306,6 +310,7 @@
                     app:layout_constraintEnd_toStartOf="@+id/endMoreButton"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toEndOf="@+id/endLetter"
+                    android:contentDescription="@string/content_endLess"
                     app:srcCompat="@android:drawable/ic_media_previous" />
 
                 <ImageButton
@@ -319,6 +324,7 @@
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toEndOf="@+id/endLessButton"
                     app:layout_constraintTop_toBottomOf="@+id/ccButton"
+                    android:contentDescription="@string/content_endMore"
                     app:srcCompat="@android:drawable/ic_media_next" />
 
             </android.support.constraint.ConstraintLayout>

@@ -431,6 +431,9 @@ public class MusicView extends BaseView {
         float noteAreaLeft = bounds.drawingLeft + clefWidth;
         // draw all the notes in here
         float noteRadius = noteHeight * 0.8f;
+        Paint.Align textAlign;
+        float textSize;
+        float lineYPosition;
         float beatsToPixels = (bounds.drawingRight - noteAreaLeft) / K_BEATS_ON_VIEW;
         float noteAnimationOffset = this.animator != null ? (this.animator.clefYOffset - this.animator.clefYTarget) : 0;
         if (null != this.noteProvider) {
@@ -444,40 +447,95 @@ public class MusicView extends BaseView {
                     float xPosition = noteAreaLeft + (note.getOffsetBeats() * beatsToPixels) - (noteRadius * 1.2f);
                     // for each note in the chord, find the position on the clef to draw it
                     float topYPosition = -1f;
+                    String noteTitle;
+                    boolean isActualCord = toDraw.chord.getNoteCount() > 1;
                     for (Note noteToDraw : toDraw.chord.notes) {
                         // for each note to draw, find it's location and draw it
-                        int noteToDrawIndex = this.clefNotes[toDraw.clef.val].getChordIndex(noteToDraw);
+                        int noteToDrawIndex = getNoteToDrawIndex(toDraw.clef, noteToDraw);
                         if (noteToDrawIndex >= 0) {
                             // this is a valid index, get the yPosition for this note
-                            noteToDrawIndex = noteCount - 1 - noteToDrawIndex;
-                            float yPosition = noteAnimationOffset + getYPosition(toDraw.clef, noteToDraw);
+                            float yPosition = noteAnimationOffset + getYPosition(noteToDrawIndex);
                             if (topYPosition == -1f) {
                                 topYPosition = yPosition;
                             } else {
                                 topYPosition = Math.min(topYPosition, yPosition);
                             }
                             // draw the note itself
-                            drawNote(toDraw, xPosition, yPosition, noteRadius, canvas, getAssets().blackPaint);
-                            if (noteToDrawIndex % 2 != 0) {
-                                // this is a lined note, do we need to add a line
-                                if (noteToDrawIndex <= K_LINES_ABOVEBELOW * 2 ||
-                                        noteToDrawIndex >= noteCount - K_LINES_ABOVEBELOW * 2) {
-                                    // add the line as below or above the mass of lines
-                                    canvas.drawLine(xPosition - noteRadius * 2f, yPosition, xPosition + noteRadius * 2f, yPosition, assets.blackPaint);
+                            drawNote(toDraw, xPosition, yPosition, noteRadius, canvas, assets.blackPaint);
+                            // draw the lines over and above low notes
+                            for (int i = noteToDrawIndex; i <= K_LINES_ABOVEBELOW + 1; ++i) {
+                                // while we are not at the bottom line, draw in the line
+                                // add the line as below the mass of lines
+                                if ((i + 1) % 2 == 0) {
+                                    lineYPosition = noteAnimationOffset + getYPosition(i);
+                                    canvas.drawLine(xPosition - noteRadius * 2f,
+                                            lineYPosition,
+                                            xPosition + noteRadius * 2f,
+                                            lineYPosition,
+                                            assets.blackPaint);
                                 }
+                            }
+                            // draw the lines over and below high notes
+                            for (int i = noteToDrawIndex; i > (K_LINES_ON_VIEW + K_LINES_ABOVEBELOW) * 2; --i) {
+                                // while we are not at the top line, draw in the line
+                                // add the line as or above the mass of lines
+                                if ((i + 1) % 2 == 0) {
+                                    lineYPosition = noteAnimationOffset + getYPosition(i);
+                                    canvas.drawLine(xPosition - noteRadius * 2f,
+                                            lineYPosition,
+                                            xPosition + noteRadius * 2f,
+                                            lineYPosition,
+                                            assets.blackPaint);
+                                }
+                            }
+                            if (isActualCord) {
+                                // when an actual chord, we can show the titles of the notes too
+                                if (getIsHelpLettersShowing()) {
+                                    noteTitle = Character.toString(noteToDraw.getNotePrimitive()).toLowerCase();
+                                }
+                                else {
+                                    noteTitle = "";
+                                }
+                                if (noteToDraw.isFlat()) {
+                                    noteTitle += "ᵇ";
+                                }
+                                else if (noteToDraw.isSharp()) {
+                                    noteTitle += "#";
+                                }
+                                textSize = assets.letterPaint.getTextSize();
+                                textAlign = assets.letterPaint.getTextAlign();
+                                assets.letterPaint.setTextSize(noteRadius * 2f);
+                                assets.letterPaint.setTextAlign(Paint.Align.LEFT);
+                                canvas.drawText(noteTitle, xPosition + noteRadius * 1.5f, yPosition, assets.letterPaint);
+                                assets.letterPaint.setTextSize(textSize);
+                                assets.letterPaint.setTextAlign(textAlign);
                             }
                         }
                     }
                     // and the title if we are showing this helpful thing
                     if (toDraw.name != null && toDraw.name.isEmpty() == false) {
                         // there is a name, should we draw it
-                        if (getIsHelpLettersShowing()) {
-                            float yText = topYPosition - noteRadius * 2f;
-                            /*Paint.FontMetrics fontMetrics = assets.letterPaint.getFontMetrics();
-                            float letterWidth = assets.letterPaint.measureText(toDraw.name);
-                            canvas.drawRect(xText, yText + fontMetrics.top, xPosition + letterWidth, yText + fontMetrics.bottom, assets.whitePaint);
-                            */
-                            canvas.drawText(toDraw.name, xPosition, yText, assets.letterPaint);
+                        if (isActualCord) {
+                            // this is an actual chord, do we want to show the letters of notes here?
+                            if (getIsHelpLettersShowing()) {
+                                // show the title of the chord
+                                float yText = topYPosition - noteRadius * 2f;
+                                canvas.drawText(toDraw.name, xPosition, yText, assets.letterPaint);
+                            }
+                        }
+                        else {
+                            // this is a single note, handle that here
+                            if (getIsHelpLettersShowing()) {
+                                // just show the full title text
+                                float yText = topYPosition - noteRadius * 2f;
+                                canvas.drawText(toDraw.name, xPosition, yText, assets.letterPaint);
+                            } else if (toDraw.name.length() == 2 &&
+                                    (toDraw.chord.hasFlat() || toDraw.chord.hasSharp())) {
+                                // we are not showing letters but this chord is just a single note
+                                // that is sharp or flat - we can show this...
+                                float yText = topYPosition - noteRadius * 2f;
+                                canvas.drawText(toDraw.name.substring(1), xPosition, yText, assets.letterPaint);
+                            }
                         }
                     }
                     if (toDraw.fingering != null && toDraw.fingering.isEmpty() == false) {
@@ -499,7 +557,7 @@ public class MusicView extends BaseView {
         return this.noteProvider == null ? Clef.treble : this.noteProvider.getCurrentClef();
     }
 
-    protected float getYPosition(Clef clef, Note noteToDraw) {
+    protected int getNoteToDrawIndex(Clef clef, Note noteToDraw) {
         // don't use the matching functions because these ignore key when that input is
         // used, as we always want to draw on the absolute correct line here, do our own
         // search for the index
@@ -509,7 +567,7 @@ public class MusicView extends BaseView {
             Chord chord = chords.getChord(i);
             boolean isNoteContained = false;
             for (Note note : chord.notes) {
-                if (note.exactEquals(noteToDraw)) {
+                if (note.getName().equals(noteToDraw.getName())) {
                     // this is the note
                     isNoteContained = true;
                     break;
@@ -520,6 +578,11 @@ public class MusicView extends BaseView {
                 break;
             }
         }
+        return noteToDrawIndex;
+    }
+
+    protected float getYPosition(int noteToDrawIndex) {
+        // get the y position for the passed index
         float yPosition = -1f;
         if (noteToDrawIndex >= 0) {
             // this is a valid index, get the yPosition for this note

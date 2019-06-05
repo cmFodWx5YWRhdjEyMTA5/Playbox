@@ -103,7 +103,7 @@ public class PianoPlaying extends PianoView {
         synchronized (this.depressedNotes) {
             List<Chord> toRemove = new ArrayList<>();
             for (Chord chord : this.depressedNotes) {
-                if (chord.equals(note)) {
+                if (chord.exactEquals(note)) {
                     // this is it
                     toRemove.add(chord);
                 }
@@ -148,7 +148,7 @@ public class PianoPlaying extends PianoView {
         boolean isNoteInDepressedList = false;
         synchronized (this.depressedNotes) {
             for (Chord chord : this.depressedNotes) {
-                if (chord.equals(note)) {
+                if (chord.exactEquals(note)) {
                     // this is it
                     isNoteInDepressedList = true;
                     break;

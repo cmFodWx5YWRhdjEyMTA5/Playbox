@@ -99,6 +99,31 @@ public class Chord {
         }
     }
 
+    public boolean exactEquals(Object obj) {
+        if (false == obj instanceof Chord) {
+            // not the same
+            return false;
+        }
+        else {
+            Chord toCompare = (Chord)obj;
+            if (this.notes.length != toCompare.notes.length) {
+                // different number of notes
+                return false;
+            }
+            else {
+                // compare the notes
+                for (int i = 0; i < this.notes.length; ++i) {
+                    if (0 != ChordFactory.CompareExactNoteFrequencies(this.notes[i], toCompare.notes[i])) {
+                        // the note is different
+                        return false;
+                    }
+                }
+                // if here okay then all the notes are the same frequency
+                return true;
+            }
+        }
+    }
+
     public boolean areNotesEqual(Note note1, Note note2) {
         return ChordFactory.CompareNoteFrequencies(note1, note2) == 0;
     }

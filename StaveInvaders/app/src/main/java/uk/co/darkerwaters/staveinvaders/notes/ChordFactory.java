@@ -53,6 +53,10 @@ public class ChordFactory {
             note1 = ReferenceNotes.get(GetOffkeyNoteName(note1));
             note2 = ReferenceNotes.get(GetOffkeyNoteName(note2));
         }
+        return CompareExactNoteFrequencies(note1, note2);
+    }
+
+    static int CompareExactNoteFrequencies(Note note1, Note note2) {
         return (int)((note1 == null ? 0 : note1.frequency * 10000) -
                      (note2 == null ? 0 : note2.frequency * 10000));
     }

@@ -161,7 +161,7 @@ public class MusicViewPlaying extends MusicView implements InputSelector.InputLi
                             note = targetNote;
                         }
                     }
-                    float yPosition = getYPosition(getCurrentClef(), note);
+                    float yPosition = getYPosition(getNoteToDrawIndex(getCurrentClef(), note));
                     if (yPosition > 0f) {
                         // shoot at this
                         shootAtTarget(startX, startY, this.target.xPosition, yPosition, canvas);
