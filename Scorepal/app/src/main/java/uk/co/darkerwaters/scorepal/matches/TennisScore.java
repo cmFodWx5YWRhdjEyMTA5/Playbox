@@ -152,18 +152,6 @@ public class TennisScore extends Score {
         return pointsString;
     }
 
-    private Team getGameWinner() {
-        // return the winner of the current game, or null if not yet over
-        for (Team team : getTeams()) {
-            if (getPointsString(team) == STR_GAME) {
-                // this team has 'game' so this is the winner
-                return team;
-            }
-        }
-        // if no team has game then no team is the winner
-        return null;
-    }
-
     private Team getOtherTeam(Team team) {
         for (Team other : getTeams()) {
             if (other != team) {

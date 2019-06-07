@@ -39,6 +39,8 @@ public class ScoreTest {
         }));
         Score score = new Score(this.teams, 1);
         assertEquals("incorrect team", 0, score.getPoint(0, new Team(new Player[0], CourtPosition.GetDefault())));
+
+        assertEquals("Score never over", false, score.isMatchOver());
     }
 
     @Test

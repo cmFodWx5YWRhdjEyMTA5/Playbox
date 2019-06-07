@@ -12,7 +12,7 @@ public class TennisScoreTest extends ScoreTest {
     @Test
     public void settingTennisValues() {
         // create a series of games
-        TennisScore score =new TennisScore(this.teams, TennisScore.Sets.FIVE);
+        TennisScore score = new TennisScore(this.teams, TennisScore.Sets.FIVE);
         for (int iSets = 0; iSets < 3; ++iSets) {
             for (int iGames = 0; iGames < 6; ++iGames) {
                 // set the points to player one wins
