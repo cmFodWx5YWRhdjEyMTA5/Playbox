@@ -54,8 +54,6 @@ public class TennisScore extends Score {
     public TennisScore(Team[] teams, Sets setsToPlay) {
         super(teams, K_LEVELS);
         this.setsToPlay = setsToPlay;
-        // initialise the server
-
     }
 
     public void setIsFinalSetTieBreaker(boolean isTieInFinalSet) {
@@ -152,18 +150,6 @@ public class TennisScore extends Score {
         return pointsString;
     }
 
-    private Team getOtherTeam(Team team) {
-        for (Team other : getTeams()) {
-            if (other != team) {
-                // this is the one
-                return other;
-            }
-        }
-        // quite serious this (only one team?)
-        Log.error("There are not enough teams when trying to find the other...");
-        return team;
-    }
-
     public int getGames(Team team, int setIndex) {
         // get the games for the set index specified
         int toReturn = INVALID_POINT;
@@ -215,7 +201,7 @@ public class TennisScore extends Score {
             else {
                 // we are in a tie-break, after the first, and subsequent two points, we have to
                 // change servers
-                int playedPoints = getPlayedPonts();
+                int playedPoints = getPlayedPoints();
                 if ((playedPoints - 1) % 2 == 0) {
                     // we are at point 1, 3, 5, 7 etc - change server
                     changeServer();
@@ -230,7 +216,7 @@ public class TennisScore extends Score {
         return point;
     }
 
-    private int getPlayedPonts() {
+    private int getPlayedPoints() {
         int playedPoints = 0;
         for (Team team : getTeams()) {
             playedPoints += getPoints(team);
@@ -336,7 +322,8 @@ public class TennisScore extends Score {
         }
     }
 
-    private void changeServer() {
+    @Override
+    protected void changeServer() {
         // the current server must yield now to the new one
         if (!this.isInTieBreak && null != this.tieBreakServer) {
             // we were in a tie break, the next server should be the one after the player
@@ -344,27 +331,7 @@ public class TennisScore extends Score {
             changeServer(this.tieBreakServer);
             this.tieBreakServer = null;
         }
-        // find the team that is serving at the moment
-        Team servingTeam = null;
-        for (Team team : getTeams()) {
-            // check the players
-            for (Player player : team.getPlayers()) {
-                // if this player is serving, we found the serving team
-                if (player.getIsServing()) {
-                    servingTeam = team;
-                    break;
-                }
-            }
-            if (null != servingTeam) {
-                break;
-            }
-        }
-        if (null != servingTeam) {
-            // we have a serving team, change team, and not the player that was last serving
-            Team otherTeam = getOtherTeam(servingTeam);
-            Player newServer = otherTeam.getNextServer();
-            // change the server to this new player
-            changeServer(newServer);
-        }
+        // and let the base change the server
+        super.changeServer();
     }
 }

@@ -147,6 +147,18 @@ public class Score {
         return 0;
     }
 
+    protected Team getOtherTeam(Team team) {
+        for (Team other : getTeams()) {
+            if (other != team) {
+                // this is the one
+                return other;
+            }
+        }
+        // quite serious this (only one team?)
+        Log.error("There are not enough teams when trying to find the other...");
+        return team;
+    }
+
     protected Team getWinner(int level) {
         int topPoints = INVALID_POINT;
         int topTeam = 0;
@@ -158,5 +170,31 @@ public class Score {
             }
         }
         return this.teams[topTeam];
+    }
+
+    protected void changeServer() {
+        // the current server must yield now to the new one
+        // find the team that is serving at the moment
+        Team servingTeam = null;
+        for (Team team : getTeams()) {
+            // check the players
+            for (Player player : team.getPlayers()) {
+                // if this player is serving, we found the serving team
+                if (player.getIsServing()) {
+                    servingTeam = team;
+                    break;
+                }
+            }
+            if (null != servingTeam) {
+                break;
+            }
+        }
+        if (null != servingTeam) {
+            // we have a serving team, change team, and not the player that was last serving
+            Team otherTeam = getOtherTeam(servingTeam);
+            Player newServer = otherTeam.getNextServer();
+            // change the server to this new player
+            changeServer(newServer);
+        }
     }
 }

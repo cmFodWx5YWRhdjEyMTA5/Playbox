@@ -516,11 +516,11 @@ public class TennisScoreTest extends ScoreTest {
         assertEquals("expected end", startingPosition, teams[0].getCourtPosition());
 
         // in a 6-6 tie break now
-        // server changes end after 6 points
+        // end changes end after 6 points
         winPoints(score, teams[0], 6);
         assertEquals("expected end", oppositePosition, teams[0].getCourtPosition());
 
-        // server changes end after 6 points
+        // end changes end after 6 points
         winPoints(score, teams[1], 6);
         assertEquals("expected end", startingPosition, teams[0].getCourtPosition());
 
@@ -558,16 +558,5 @@ public class TennisScoreTest extends ScoreTest {
         // and the next two
         winGame(score, teams[0], 2);
         assertEquals("expected end", startingPosition, teams[0].getCourtPosition());
-
-
-        //TODO check the history to get the result of the tie
-
-    }
-
-    @Test
-    public void changingEndsTie() {
-        // change ends every 6 points
-
-
     }
 }
