@@ -42,7 +42,14 @@ public class Score {
         }
     }
 
-    public void setPoint(int level, Team team, int point) {
+    public int incrementPoint(Team team) {
+        // just add a point to the base level
+        int point = getPoint(0, team) + 1;
+        setPoint(0, team, point);
+        return point;
+    }
+
+    void setPoint(int level, Team team, int point) {
         int teamIndex = getTeamIndex(team);
         this.points[level][teamIndex] = point;
     }
@@ -73,7 +80,7 @@ public class Score {
         return server;
     }
 
-    public void clearLevel(int level) {
+    void clearLevel(int level) {
         // we just set the points for a level that is not the bottom, we want to store
         // the points that were the level below in the history and clear them here
         storeHistory(level, this.points[level]);

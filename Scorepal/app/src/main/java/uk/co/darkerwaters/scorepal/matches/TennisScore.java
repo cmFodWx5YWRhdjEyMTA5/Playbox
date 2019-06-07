@@ -194,11 +194,10 @@ public class TennisScore extends Score {
         return toReturn;
     }
 
-    public void incrementPoint(Team team) {
+    @Override
+    public int incrementPoint(Team team) {
         // add one to the point already stored
-        int point = super.getPoint(POINT, team) + 1;
-        // set this back on the score
-        super.setPoint(POINT, team, point);
+        int point = super.incrementPoint(team);
         int otherPoint = getPoints(getOtherTeam(team));
         // has this team won the game with this new point addition (can't be the other)
         if (false == this.isInTieBreak) {
@@ -228,6 +227,7 @@ public class TennisScore extends Score {
                 }
             }
         }
+        return point;
     }
 
     private int getPlayedPonts() {
