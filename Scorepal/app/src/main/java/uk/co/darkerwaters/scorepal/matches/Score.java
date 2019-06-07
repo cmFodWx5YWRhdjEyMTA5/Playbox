@@ -20,7 +20,7 @@ public class Score {
     public Score(Team[] teams, int pointsLevels) {
         this.teams = teams;
         this.points = new int[pointsLevels][teams.length];
-        this.pointsHistory = new List[pointsLevels - 1];
+        this.pointsHistory = new List[pointsLevels];
 
         // also, we will use the players so much, store them in their own list
         List<Player> playerList = new ArrayList<Player>();
@@ -35,9 +35,10 @@ public class Score {
         }
         // and set the players on this class
         this.players = playerList.toArray(new Player[0]);
-        if (this.players.length > 0) {
+        // initialise the server for the first team
+        if (this.teams.length > 0) {
             // and initialise the server on the players
-            setServer(this.players[0]);
+            changeServer(this.teams[0].getNextServer());
         }
     }
 
@@ -50,7 +51,11 @@ public class Score {
         return Arrays.copyOf(this.players, this.players.length);
     }
 
-    public void setServer(Player server) {
+    public Team[] getTeams() {
+        return Arrays.copyOf(this.teams, this.teams.length);
+    }
+
+    public void changeServer(Player server) {
         for (Player player : this.players) {
             // set the server correctly for all players
             player.setIsServing(player == server);
@@ -69,11 +74,9 @@ public class Score {
     }
 
     public void clearLevel(int level) {
-        if (level > 0) {
-            // we just set the points for a level that is not the bottom, we want to store
-            // the points that were the level below in the history and clear them here
-            storeHistory(level - 1, this.points[level]);
-        }
+        // we just set the points for a level that is not the bottom, we want to store
+        // the points that were the level below in the history and clear them here
+        storeHistory(level, this.points[level]);
         // clear this data
         for (int i = 0; i < this.teams.length; ++i) {
             this.points[level][i] = CLEAR_POINT;
@@ -82,6 +85,11 @@ public class Score {
 
     public int getPoint(int level, Team team) {
         return this.points[level][getTeamIndex(team)];
+    }
+
+    public String getPointString(int level, Team team) {
+        // just return the point as a string
+        return Integer.toString(getPoint(level, team));
     }
 
     private void storeHistory(int level, int[] toStore) {
@@ -111,6 +119,16 @@ public class Score {
         }
     }
 
+    protected void changeEnds() {
+        // cycle each team's court position
+        for (Team team : this.teams) {
+            // set the court position to the next position in the list
+            team.setCourtPosition(team.getCourtPosition().getNext());
+        }
+    }
+
+    public boolean isMatchOver() { return false; }
+
     protected int getTeamIndex(Team team) {
         for (int i = 0; i < this.teams.length; ++i) {
             if (this.teams[i] == team) {
@@ -122,7 +140,7 @@ public class Score {
         return 0;
     }
 
-    public Team getWinner(int level) {
+    protected Team getWinner(int level) {
         int topPoints = INVALID_POINT;
         int topTeam = 0;
         for (int i = 0; i < this.points[level].length; ++i) {

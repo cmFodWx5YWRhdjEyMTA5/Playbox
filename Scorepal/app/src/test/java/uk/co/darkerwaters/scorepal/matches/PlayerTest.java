@@ -14,4 +14,13 @@ public class PlayerTest {
         playerOne.setPlayerName("player1");
         assertEquals("player name", "player1", playerOne.getPlayerName());
     }
+
+    @Test
+    public void serving() {
+        Player playerOne = new Player("playerOne");
+
+        assertEquals("player serving", false, playerOne.getIsServing());
+        playerOne.setIsServing(true);
+        assertEquals("player serving", true, playerOne.getIsServing());
+    }
 }

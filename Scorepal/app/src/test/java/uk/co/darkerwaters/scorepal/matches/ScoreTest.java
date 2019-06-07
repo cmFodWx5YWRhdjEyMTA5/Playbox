@@ -13,6 +13,11 @@ public class ScoreTest {
             new Team(new Player[] {new Player("playerTwo")}, CourtPosition.SOUTH),
     };
 
+    protected final Team[] doubles = new Team[] {
+            new Team(new Player[] {new Player("playerOneA"), new Player("playerOneB")}, CourtPosition.NORTH),
+            new Team(new Player[] {new Player("playerTwoA"), new Player("playerTwoB")}, CourtPosition.SOUTH),
+    };
+
     private boolean isThrown(Runnable code) {
         boolean isThrown = false;
         try {
@@ -32,24 +37,38 @@ public class ScoreTest {
                 new Score(null, 1);
             }
         }));
-        assertEquals("zero levels crashes", true, isThrown(new Runnable() {
-            @Override
-            public void run() {
-                new Score(teams, 0);
-            }
-        }));
-
         Score score = new Score(this.teams, 1);
         assertEquals("incorrect team", 0, score.getPoint(0, new Team(new Player[0], CourtPosition.GetDefault())));
+    }
+
+    @Test
+    public void scoreString() {
+        Score score = new Score(this.teams, 1);
+        for (int i = 0; i < 100; ++i) {
+            score.setPoint(0, this.teams[0], i);
+            score.setPoint(0, this.teams[1], 100 - i);
+            assertEquals("team one pt string", "" + i, score.getPointString(0, this.teams[0]));
+            assertEquals("team two pt string", "" + (100 - i), score.getPointString(0, this.teams[1]));
+        }
     }
 
     @Test
     public void server() {
         Score score = new Score(this.teams, 1);
         assertEquals("default server", this.teams[0].getPlayers()[0], score.getServer());
-        for (Player player : score.getPlayers()) {
-            score.setServer(player);
-            assertEquals("server", player, score.getServer());
+        for (Player server : score.getPlayers()) {
+            score.changeServer(server);
+            assertEquals("server", server, score.getServer());
+            for (Player nonServer : score.getPlayers()) {
+                if (nonServer != server) {
+                    // test the players that are not serving are not serving
+                    assertEquals("server", false, nonServer.getIsServing());
+                }
+                else {
+                    // test that the serving player is serving
+                    assertEquals("server", true, nonServer.getIsServing());
+                }
+            }
         }
     }
 
@@ -86,7 +105,7 @@ public class ScoreTest {
         score.clearLevel(2);
 
         // so check the history here
-        List<int[]> gameHistory = score.getPointHistory(0);
+        List<int[]> gameHistory = score.getPointHistory(1);
         // there should be 6 games, all won with 4 points each here
         assertEquals("History should contain 3 sets", 3, gameHistory.size());
         for (int[] gamePoints : gameHistory) {
