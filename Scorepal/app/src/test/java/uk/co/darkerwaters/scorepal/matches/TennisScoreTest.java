@@ -524,9 +524,8 @@ public class TennisScoreTest extends ScoreTest {
         winPoints(score, teams[1], 6);
         assertEquals("expected end", startingPosition, teams[0].getCourtPosition());
 
-        // we are at 6-6 in the tie
+        // we are at 6-6 in the tie add two to win the tie break.
         winPoints(score, teams[0], 2);
-        assertEquals("expected end", startingPosition, teams[0].getCourtPosition());
 
         // we are at 8-6 in the tie
         assertEquals("player one won the tie", 7, score.getGames(teams[0], 0));
@@ -538,19 +537,28 @@ public class TennisScoreTest extends ScoreTest {
         assertEquals("tie result", 8, tieResults[0]);
         assertEquals("tie result", 6, tieResults[1]);
 
-
-        // shouldn't have changed ends (not even number of games in set)
-        assertEquals("expected end", startingPosition, teams[0].getCourtPosition());
+        // should have changed ends (not even number of games in set)
+        assertEquals("expected end", oppositePosition, teams[0].getCourtPosition());
         winGame(score, teams[0], 1);
         // still change ends after the first game
-        assertEquals("expected end", oppositePosition, teams[0].getCourtPosition());
+        assertEquals("expected end", startingPosition, teams[0].getCourtPosition());
         // and the next two
         winGame(score, teams[0], 2);
-        assertEquals("expected end", startingPosition, teams[0].getCourtPosition());
+        assertEquals("expected end", oppositePosition, teams[0].getCourtPosition());
 
-        // 3 - 0, let player two win
-        winGame(score, teams[1], 6);
-        // and shouldn't swap ends as was odd
+        // 3 - 0, let player two win, but with even games
+        winGame(score, teams[0], 1);
+        winGame(score, teams[1], 1);
+        // 4 - 1, swap
+        assertEquals("expected end", startingPosition, teams[0].getCourtPosition());
+        winGame(score, teams[1], 2);
+        // 4 - 3, swap
+        assertEquals("expected end", oppositePosition, teams[0].getCourtPosition());
+        winGame(score, teams[1], 2);
+        // 4 - 5, swap
+        assertEquals("expected end", startingPosition, teams[0].getCourtPosition());
+        winGame(score, teams[1], 1);
+        // 4 - 6 so we shouldn't swap ends as was even
         assertEquals("expected end", startingPosition, teams[0].getCourtPosition());
         winGame(score, teams[0], 1);
         // still change ends after the first game

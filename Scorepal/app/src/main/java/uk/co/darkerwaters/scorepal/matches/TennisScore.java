@@ -314,9 +314,9 @@ public class TennisScore extends Score {
             super.clearLevel(SET);
         }
         else {
-            // we want to change ends at the end of any set in which the score was even
-            if (gamesPlayed % 2 == 0) {
-                // the set ended with
+            // we want to change ends at the end of any set in which the score wasn't even
+            if (gamesPlayed % 2 != 0) {
+                // the set ended with odd number of games
                 changeEnds();
             }
         }
