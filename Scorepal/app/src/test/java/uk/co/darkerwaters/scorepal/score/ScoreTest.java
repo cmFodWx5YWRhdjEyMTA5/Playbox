@@ -1,8 +1,13 @@
-package uk.co.darkerwaters.scorepal.matches;
+package uk.co.darkerwaters.scorepal.score;
 
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Random;
+
+import uk.co.darkerwaters.scorepal.players.CourtPosition;
+import uk.co.darkerwaters.scorepal.players.Player;
+import uk.co.darkerwaters.scorepal.players.Team;
 
 import static org.junit.Assert.assertEquals;
 
@@ -34,10 +39,10 @@ public class ScoreTest {
         assertEquals("null teams crashes", true, isThrown(new Runnable() {
             @Override
             public void run() {
-                new Score(null, 1);
+                new Score(null, 1, ScoreFactory.ScoreMode.K_UNKNOWN);
             }
         }));
-        Score score = new Score(this.teams, 1);
+        Score score = new Score(this.teams, 1, ScoreFactory.ScoreMode.K_UNKNOWN);
         assertEquals("incorrect team", 0, score.getPoint(0, new Team(new Player[0], CourtPosition.GetDefault())));
 
         assertEquals("Score never over", false, score.isMatchOver());
@@ -45,7 +50,8 @@ public class ScoreTest {
 
     @Test
     public void scoreString() {
-        Score score = new Score(this.teams, 1);
+        Score score = new Score(this.teams, 1, ScoreFactory.ScoreMode.K_UNKNOWN);
+        assertEquals("mode", ScoreFactory.ScoreMode.K_UNKNOWN, score.getScoreMode());
         for (int i = 0; i < 100; ++i) {
             score.setPoint(0, this.teams[0], i);
             score.setPoint(0, this.teams[1], 100 - i);
@@ -56,7 +62,8 @@ public class ScoreTest {
 
     @Test
     public void server() {
-        Score score = new Score(this.teams, 1);
+        Score score = new Score(this.teams, 1, ScoreFactory.ScoreMode.K_UNKNOWN);
+        assertEquals("levels", 1, score.getLevels());
         assertEquals("default server", this.teams[0].getPlayers()[0], score.getServer());
         for (Player server : score.getPlayers()) {
             score.changeServer(server);
@@ -75,9 +82,31 @@ public class ScoreTest {
     }
 
     @Test
+    public void resettingValues() {
+        Score score = new Score(this.teams, 3, ScoreFactory.ScoreMode.K_UNKNOWN);
+        assertEquals("levels", 3, score.getLevels());
+        Random random = new Random();
+        for (int i = 0; i < 100; ++i) {
+            score.incrementPoint(teams[random.nextInt(1)]);
+        }
+
+        score.resetScore();
+        assertEquals("Score should be reset", 0, score.getPoint(0, teams[0]));
+        assertEquals("Score should be reset", 0, score.getPoint(0, teams[1]));
+        assertEquals("Score should be reset", 0, score.getPoint(1, teams[0]));
+        assertEquals("Score should be reset", 0, score.getPoint(1, teams[1]));
+        assertEquals("Score should be reset", 0, score.getPoint(2, teams[0]));
+        assertEquals("Score should be reset", 0, score.getPoint(2, teams[1]));
+
+        assertEquals("Score should be reset", null, score.getPointHistory(0));
+        assertEquals("Score should be reset", null, score.getPointHistory(1));
+        assertEquals("Score should be reset", null, score.getPointHistory(2));
+    }
+
+    @Test
     public void settingValues() {
         // create a series of games
-        Score score = new Score(this.teams, 3);
+        Score score = new Score(this.teams, 3, ScoreFactory.ScoreMode.K_UNKNOWN);
         for (int iSets = 0; iSets < 3; ++iSets) {
             for (int iGames = 0; iGames < 6; ++iGames) {
                 // set the points to player one wins

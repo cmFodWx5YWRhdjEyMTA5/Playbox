@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.scorepal.matches;
+package uk.co.darkerwaters.scorepal.players;
 
 public class Player {
 
@@ -7,6 +7,12 @@ public class Player {
 
     public Player(String playerName) {
         this.playerName = playerName;
+        // ensure all our defaults are set here
+        resetPlayer();
+    }
+
+    public void resetPlayer() {
+        // reset our data to the defaults here
         this.isServing = false;
     }
 

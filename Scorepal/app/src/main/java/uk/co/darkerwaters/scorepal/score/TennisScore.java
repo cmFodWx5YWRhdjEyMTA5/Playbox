@@ -1,16 +1,18 @@
-package uk.co.darkerwaters.scorepal.matches;
+package uk.co.darkerwaters.scorepal.score;
 
 import java.util.List;
 
 import uk.co.darkerwaters.scorepal.application.Log;
+import uk.co.darkerwaters.scorepal.players.Player;
+import uk.co.darkerwaters.scorepal.players.Team;
 
-public class TennisScore extends Score {
+class TennisScore extends Score {
 
-    public final static int POINT = 0;
-    public final static int GAME = 1;
-    public final static int SET = 2;
+    final static int POINT = 0;
+    final static int GAME = 1;
+    final static int SET = 2;
 
-    public enum Sets {
+    enum Sets {
         FIVE(5),
         THREE(3),
         ONE(1);
@@ -24,15 +26,15 @@ public class TennisScore extends Score {
         }
     }
 
-    public final static String STR_LOVE = "Love";
-    public final static String STR_FIFTEEN = "15";
-    public final static String STR_THIRTY = "30";
-    public final static String STR_FORTY = "40";
-    public final static String STR_ADVANTAGE = "Advantage";
-    public final static String STR_DEUCE = "Deuce";
-    public final static String STR_GAME = "Game";
+    final static String STR_LOVE = "Love";
+    final static String STR_FIFTEEN = "15";
+    final static String STR_THIRTY = "30";
+    final static String STR_FORTY = "40";
+    final static String STR_ADVANTAGE = "Advantage";
+    final static String STR_DEUCE = "Deuce";
+    final static String STR_GAME = "Game";
 
-    public final static String[] POINTS_STRINGS = new String[] {STR_LOVE, STR_FIFTEEN, STR_THIRTY, STR_FORTY, STR_ADVANTAGE, STR_GAME};
+    final static String[] POINTS_STRINGS = new String[] {STR_LOVE, STR_FIFTEEN, STR_THIRTY, STR_FORTY, STR_ADVANTAGE, STR_GAME};
 
     private final int POINTS_TO_WIN_GAME = 4;
     private final int POINTS_AHEAD_IN_GAME = 2;
@@ -47,21 +49,31 @@ public class TennisScore extends Score {
 
     private final Sets setsToPlay;
 
-    private boolean isFinalSetTie = false;
-    private boolean isInTieBreak = false;
-    private Player tieBreakServer = null;
+    private boolean isFinalSetTie;
+    private boolean isInTieBreak;
+    private Player tieBreakServer;
 
-    public TennisScore(Team[] teams, Sets setsToPlay) {
-        super(teams, K_LEVELS);
+    TennisScore(Team[] teams, Sets setsToPlay) {
+        super(teams, K_LEVELS, ScoreFactory.ScoreMode.K_TENNIS);
         this.setsToPlay = setsToPlay;
+        this.isFinalSetTie = false;
     }
 
-    public void setIsFinalSetTieBreaker(boolean isTieInFinalSet) {
+    @Override
+    void resetScore() {
+        // let the base reset
+        super.resetScore();
+        // and reset our data
+        this.isInTieBreak = false;
+        this.tieBreakServer = null;
+    }
+
+    void setIsFinalSetTieBreaker(boolean isTieInFinalSet) {
         this.isFinalSetTie = isTieInFinalSet;
     }
 
     @Override
-    public boolean isMatchOver() {
+    boolean isMatchOver() {
         boolean isMatchOver = false;
         // return if a player has reached the number of sets required (this is just over half)
         for (Team team : getTeams()) {
@@ -73,12 +85,12 @@ public class TennisScore extends Score {
         return isMatchOver;
     }
 
-    public int getPoints(Team team) {
+    int getPoints(Team team) {
         return super.getPoint(POINT, team);
     }
 
     @Override
-    public String getPointString(int level, Team team) {
+    String getPointString(int level, Team team) {
         String pointsString;
         if (this.isInTieBreak) {
             // we are in a tie break, just use the numbers of the points
@@ -98,7 +110,7 @@ public class TennisScore extends Score {
         return pointsString;
     }
 
-    public String getPointsString(Team team) {
+    String getPointsString(Team team) {
         String pointsString;
         if (this.isInTieBreak) {
             pointsString = super.getPointString(POINT, team);
@@ -150,7 +162,7 @@ public class TennisScore extends Score {
         return pointsString;
     }
 
-    public int getGames(Team team, int setIndex) {
+    int getGames(Team team, int setIndex) {
         // get the games for the set index specified
         int toReturn = INVALID_POINT;
         List<int[]> gameResults = super.getPointHistory(GAME);
@@ -165,7 +177,7 @@ public class TennisScore extends Score {
         return toReturn;
     }
 
-    public int getSets(Team team) {
+    int getSets(Team team) {
         // get the history of sets to get the last one
         List<int[]> setResults = super.getPointHistory(SET);
         int toReturn;
@@ -181,7 +193,7 @@ public class TennisScore extends Score {
     }
 
     @Override
-    public int incrementPoint(Team team) {
+    int incrementPoint(Team team) {
         // add one to the point already stored
         int point = super.incrementPoint(team);
         int otherPoint = getPoints(getOtherTeam(team));
@@ -284,7 +296,7 @@ public class TennisScore extends Score {
         }
     }
 
-    public boolean isInTieBreak() {
+    boolean isInTieBreak() {
         return this.isInTieBreak;
     }
 

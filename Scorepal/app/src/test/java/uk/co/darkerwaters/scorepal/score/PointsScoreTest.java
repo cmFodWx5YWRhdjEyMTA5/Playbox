@@ -1,9 +1,12 @@
-package uk.co.darkerwaters.scorepal.matches;
+package uk.co.darkerwaters.scorepal.score;
 
 import org.junit.Test;
 
-import java.util.List;
 import java.util.Random;
+
+import uk.co.darkerwaters.scorepal.players.CourtPosition;
+import uk.co.darkerwaters.scorepal.players.Player;
+import uk.co.darkerwaters.scorepal.players.Team;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -14,6 +17,9 @@ public class PointsScoreTest extends ScoreTest {
     public void playShortPointsGame() {
         // create a short game
         PointsScore score = new PointsScore(this.teams, 10);
+        assertEquals("mode", ScoreFactory.ScoreMode.K_POINTS, score.getScoreMode());
+        assertEquals("levels", 1, score.getLevels());
+
         assertEquals("points to play to", 10, score.getPointsToPlayTo());
         for (int i = 0; i < 9; ++i) {
             score.incrementPoint(teams[0]);

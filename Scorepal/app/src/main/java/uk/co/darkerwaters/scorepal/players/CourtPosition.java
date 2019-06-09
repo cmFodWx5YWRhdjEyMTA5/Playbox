@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.scorepal.matches;
+package uk.co.darkerwaters.scorepal.players;
 
 public enum CourtPosition {
     /*for now we are doing north and south, but technically we could have more?*/

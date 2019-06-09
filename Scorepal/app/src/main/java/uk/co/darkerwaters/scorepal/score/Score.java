@@ -1,40 +1,68 @@
-package uk.co.darkerwaters.scorepal.matches;
+package uk.co.darkerwaters.scorepal.score;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import uk.co.darkerwaters.scorepal.application.Log;
+import uk.co.darkerwaters.scorepal.players.CourtPosition;
+import uk.co.darkerwaters.scorepal.players.Player;
+import uk.co.darkerwaters.scorepal.players.Team;
 
-public class Score {
+class Score {
 
-    public static final int INVALID_POINT = -1;
-    public static final int CLEAR_POINT = 0;
+    static final int INVALID_POINT = -1;
+    static final int CLEAR_POINT = 0;
 
     private final Team[] teams;
     private final int[][] points;
     private final List<int[]>[] pointsHistory;
+    private final ScoreFactory.ScoreMode scoreMode;
 
     private final Player[] players;
 
-    public Score(Team[] teams, int pointsLevels) {
+    // default access, make the users go through a scorer class to store history of the process
+    Score(Team[] teams, int pointsLevels, ScoreFactory.ScoreMode mode) {
         this.teams = teams;
         this.points = new int[pointsLevels][teams.length];
         this.pointsHistory = new List[pointsLevels];
-
+        this.scoreMode = mode;
         // also, we will use the players so much, store them in their own list
         List<Player> playerList = new ArrayList<Player>();
-        CourtPosition courtPosition = CourtPosition.GetDefault();
         for (Team team : this.teams) {
-            // while we are here set the court position for the team
-            team.setCourtPosition(courtPosition);
-            // and use the next for the next team
-            courtPosition = courtPosition.getNext();
             // add the players to the global list of players
             playerList.addAll(Arrays.asList(team.getPlayers()));
         }
         // and set the players on this class
         this.players = playerList.toArray(new Player[0]);
+        // make sure everything starts off the same each time
+        resetScore();
+    }
+
+    void resetScore() {
+        // set all the points to zero
+        for (int[] teamPoints : this.points) {
+            for (int i = 0; i < teamPoints.length; ++i) {
+                teamPoints[i] = 0;
+            }
+        }
+        // clear the history lists
+        for (int i = 0; i < this.pointsHistory.length; ++i) {
+            this.pointsHistory[i] = null;
+        }
+        // reset all the player data (server etc)
+        for (Player player : this.players) {
+            player.resetPlayer();
+        }
+        CourtPosition courtPosition = CourtPosition.GetDefault();
+        for (Team team : this.teams) {
+            // reset the data on the team here
+            team.resetTeam();
+            // while we are here set the court position for the team
+            team.setCourtPosition(courtPosition);
+            // and use the next for the next team
+            courtPosition = courtPosition.getNext();
+        }
         // initialise the server for the first team
         if (this.teams.length > 0) {
             // and initialise the server on the players
@@ -42,7 +70,16 @@ public class Score {
         }
     }
 
-    public int incrementPoint(Team team) {
+    ScoreFactory.ScoreMode getScoreMode() {
+        return this.scoreMode;
+    }
+
+    int getLevels() {
+        // return the number of levels we store the points at
+        return this.points.length;
+    }
+
+    int incrementPoint(Team team) {
         // just add a point to the base level
         int point = getPoint(0, team) + 1;
         setPoint(0, team, point);
@@ -54,22 +91,22 @@ public class Score {
         this.points[level][teamIndex] = point;
     }
 
-    public Player[] getPlayers() {
+    Player[] getPlayers() {
         return Arrays.copyOf(this.players, this.players.length);
     }
 
-    public Team[] getTeams() {
+    Team[] getTeams() {
         return Arrays.copyOf(this.teams, this.teams.length);
     }
 
-    public void changeServer(Player server) {
+    void changeServer(Player server) {
         for (Player player : this.players) {
             // set the server correctly for all players
             player.setIsServing(player == server);
         }
     }
 
-    public Player getServer() {
+    Player getServer() {
         Player server = null;
         for (Player player : this.players) {
             // set the server correctly for all players
@@ -90,11 +127,11 @@ public class Score {
         }
     }
 
-    public int getPoint(int level, Team team) {
+    int getPoint(int level, Team team) {
         return this.points[level][getTeamIndex(team)];
     }
 
-    public String getPointString(int level, Team team) {
+    String getPointString(int level, Team team) {
         // just return the point as a string
         return Integer.toString(getPoint(level, team));
     }
@@ -109,7 +146,7 @@ public class Score {
         points.add(Arrays.copyOf(toStore, toStore.length));
     }
 
-    public List<int[]> getPointHistory(int level) {
+    List<int[]> getPointHistory(int level) {
         List<int[]> history = this.pointsHistory[level];
         if (null != history) {
             List<int[]> toReturn = new ArrayList<int[]>();
@@ -134,7 +171,7 @@ public class Score {
         }
     }
 
-    public boolean isMatchOver() { return false; }
+    boolean isMatchOver() { return false; }
 
     protected int getTeamIndex(Team team) {
         for (int i = 0; i < this.teams.length; ++i) {
@@ -196,5 +233,19 @@ public class Score {
             // change the server to this new player
             changeServer(newServer);
         }
+    }
+
+    int getPointsTotal(int level, Team team) {
+        // add all the points for this team
+        int iTeam = getTeamIndex(team);
+        int total = getPoint(level, team);
+        List<int[]> history = getPointHistory(level);
+        if (null != history) {
+            // add all this history to the total
+            for (int[] points : history) {
+                total += points[iTeam];
+            }
+        }
+        return total;
     }
 }

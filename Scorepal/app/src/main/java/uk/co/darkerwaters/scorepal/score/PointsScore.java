@@ -1,22 +1,31 @@
-package uk.co.darkerwaters.scorepal.matches;
+package uk.co.darkerwaters.scorepal.score;
 
-public class PointsScore extends Score {
+import uk.co.darkerwaters.scorepal.players.Team;
+
+class PointsScore extends Score {
 
     private static final int K_POINTS_LEVEL = 1;
 
     private final int pointsToPlayTo;
 
-    public PointsScore(Team[] teams) {
+    PointsScore(Team[] teams) {
         this(teams, -1);
     }
 
-    public PointsScore(Team[] teams, int pointsToPlayTo) {
-        super(teams, K_POINTS_LEVEL);
-
+    PointsScore(Team[] teams, int pointsToPlayTo) {
+        super(teams, K_POINTS_LEVEL, ScoreFactory.ScoreMode.K_POINTS);
+        // remember our goal here
         this.pointsToPlayTo = pointsToPlayTo;
     }
 
-    public int getPointsToPlayTo() {
+    @Override
+    void resetScore() {
+        // let the super reset their data
+        super.resetScore();
+        // and reset any of our member data here
+    }
+
+    int getPointsToPlayTo() {
         return this.pointsToPlayTo;
     }
 
@@ -28,16 +37,16 @@ public class PointsScore extends Score {
         return playedPoints;
     }
 
-    public int getPoints(Team team) {
+    int getPoints(Team team) {
         return super.getPoint(0, team);
     }
 
-    public String getPointString(Team team) {
+    String getPointString(Team team) {
         return super.getPointString(0, team);
     }
 
     @Override
-    public int incrementPoint(Team team) {
+    int incrementPoint(Team team) {
         // add one to the point already stored
         int point = super.incrementPoint(team);
 
@@ -60,7 +69,7 @@ public class PointsScore extends Score {
     }
 
     @Override
-    public boolean isMatchOver() {
+    boolean isMatchOver() {
         boolean isMatchOver = false;
         if (this.pointsToPlayTo > 0) {
             // return if a player has reached the points to play to

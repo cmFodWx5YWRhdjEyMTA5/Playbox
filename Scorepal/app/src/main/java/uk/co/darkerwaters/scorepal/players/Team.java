@@ -1,17 +1,25 @@
-package uk.co.darkerwaters.scorepal.matches;
+package uk.co.darkerwaters.scorepal.players;
 
 public class Team {
 
     private final Player[] players;
     private CourtPosition currentPosition;
+    private CourtPosition initialPosition;
 
     private Player servingPlayer;
 
-    public Team(Player[] players, CourtPosition position) {
+    public Team(Player[] players, CourtPosition initialPosition) {
         this.players = players;
+        this.initialPosition = initialPosition;
+        // ensure all our defaults are set here
+        resetTeam();
+    }
+
+    public void resetTeam() {
+        // reset all our data here to the starting data
         this.servingPlayer = null;
         // set their current position too
-        this.currentPosition = position;
+        this.currentPosition = this.initialPosition;
     }
 
     public Player[] getPlayers() {
@@ -67,5 +75,16 @@ public class Team {
             }
         }
         return nextPlayer;
+    }
+
+    public boolean isPlayerInTeam(Player player) {
+        boolean isPlayerFound = false;
+        for (Player test : getPlayers()) {
+            if (player == test) {
+                isPlayerFound = true;
+                break;
+            }
+        }
+        return isPlayerFound;
     }
 }

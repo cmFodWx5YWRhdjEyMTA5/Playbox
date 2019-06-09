@@ -1,8 +1,12 @@
-package uk.co.darkerwaters.scorepal.matches;
+package uk.co.darkerwaters.scorepal.score;
 
 import org.junit.Test;
 
 import java.util.List;
+
+import uk.co.darkerwaters.scorepal.players.CourtPosition;
+import uk.co.darkerwaters.scorepal.players.Player;
+import uk.co.darkerwaters.scorepal.players.Team;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -13,6 +17,8 @@ public class TennisScoreTest extends ScoreTest {
     public void settingTennisValues() {
         // create a series of games
         TennisScore score = new TennisScore(this.teams, TennisScore.Sets.FIVE);
+        assertEquals("mode", ScoreFactory.ScoreMode.K_TENNIS, score.getScoreMode());
+        assertEquals("levels", 3, score.getLevels());
         for (int iSets = 0; iSets < 3; ++iSets) {
             for (int iGames = 0; iGames < 6; ++iGames) {
                 // set the points to player one wins
@@ -144,6 +150,18 @@ public class TennisScoreTest extends ScoreTest {
         assertEquals("player one won the tie set", 1, score.getSets(teams[0]));
         assertEquals("player two lost the tie set", 0, score.getSets(teams[1]));
 
+    }
+
+    @Test
+    public void pointsTotals() {
+        TennisScore score = new TennisScore(this.teams, TennisScore.Sets.ONE);
+        winGame(score, teams[0], 4);
+        winPoints(score, teams[0], 2);
+        assertEquals("total points inc games", 18, score.getPointsTotal(0, teams[0]));
+        assertEquals("total games ", 4, score.getPointsTotal(1, teams[0]));
+
+        winPoints(score, teams[1], 2);
+        assertEquals("total points no games", 2, score.getPointsTotal(0, teams[1]));
     }
 
     @Test
