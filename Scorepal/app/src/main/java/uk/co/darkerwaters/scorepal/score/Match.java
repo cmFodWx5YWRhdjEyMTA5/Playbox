@@ -32,12 +32,12 @@ public class Match {
         // setup the teams, will replace players in the structures as required
         this.teams = new Team[] {
                 new Team(new Player[] {
-                        new Player(context.getResources().getString(R.string.default_playerOneName)),
-                        new Player(context.getResources().getString(R.string.default_playerOnePartnerName))
+                        new Player(context.getString(R.string.default_playerOneName)),
+                        new Player(context.getString(R.string.default_playerOnePartnerName))
                 }, CourtPosition.GetDefault()),
                 new Team(new Player[] {
-                        new Player(context.getResources().getString(R.string.default_playerTwoName)),
-                        new Player(context.getResources().getString(R.string.default_playerTwoPartnerName))
+                        new Player(context.getString(R.string.default_playerTwoName)),
+                        new Player(context.getString(R.string.default_playerTwoPartnerName))
                 }, CourtPosition.GetDefault().getNext()),
         };
         // create the score here
@@ -80,7 +80,7 @@ public class Match {
                 this.score.incrementPoint(scoringTeam);
             }
         }
-        else {
+        if (this.pointHistory.isEmpty()) {
             // there are no points played, we can edit again
             this.isReadOnly = false;
         }
@@ -131,6 +131,14 @@ public class Match {
         else {
             this.matchPlayedDate = fileDateFormat.format(date);
         }
+    }
+
+    public Team getTeamOne() {
+        return this.teams[0];
+    }
+
+    public Team getTeamTwo() {
+        return this.teams[1];
     }
 
     public Player getPlayerOne() {
