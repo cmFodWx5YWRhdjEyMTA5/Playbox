@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.DisplayMetrics;
 import android.util.SizeF;
 
+import uk.co.darkerwaters.scorepal.activities.BaseActivity;
 import uk.co.darkerwaters.scorepal.activities.MainActivity;
 import uk.co.darkerwaters.scorepal.application.Log;
 import uk.co.darkerwaters.scorepal.application.Settings;
@@ -12,7 +13,8 @@ public class Application extends android.app.Application {
 
     private Log log = null;
     private Settings settings = null;
-    private MainActivity mainActivity = null;
+    private BaseActivity mainActivity = null;
+    private BaseActivity activeActivity = null;
 
     @Override
     public void onCreate() {
@@ -46,6 +48,8 @@ public class Application extends android.app.Application {
         // set everything to null, no longer around
         this.settings = null;
         this.log = null;
+        this.activeActivity = null;
+        this.mainActivity = null;
 
         // and terminate the app
         super.onTerminate();
@@ -60,12 +64,33 @@ public class Application extends android.app.Application {
         return this.settings;
     }
 
-    public void setMainActivity(MainActivity activity) {
+    public void setMainActivity(BaseActivity activity) {
         // set the activity to use to set things up
         this.mainActivity = activity;
     }
 
-    public MainActivity getMainActivity() {
+    public BaseActivity getMainActivity() {
         return this.mainActivity;
+    }
+
+    public BaseActivity getActiveActivity() {
+        return this.activeActivity;
+    }
+
+    public void setActiveActivity(BaseActivity activity) {
+        if (null == this.mainActivity) {
+            setMainActivity(activity);
+        }
+        this.activeActivity = activity;
+    }
+
+    public void activityDestroyed(BaseActivity activity) {
+        // clear the pointers as they go away
+        if (this.mainActivity == activity) {
+            this.mainActivity = null;
+        }
+        if (this.activeActivity == activity) {
+            this.activeActivity = null;
+        }
     }
 }

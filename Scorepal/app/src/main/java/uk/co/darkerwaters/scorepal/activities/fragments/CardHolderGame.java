@@ -18,7 +18,7 @@ import uk.co.darkerwaters.scorepal.Application;
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.application.Settings;
 
-public class GameParentCardHolder extends RecyclerView.ViewHolder {
+public class CardHolderGame extends RecyclerView.ViewHolder {
 
     public static final String K_SELECTED_CARD_FULL_NAME = "selected_parent";
     private final View parent;
@@ -27,7 +27,7 @@ public class GameParentCardHolder extends RecyclerView.ViewHolder {
     private final ImageView itemImage;
     private final TextView itemDetail;
 
-    public GameParentCardHolder(@NonNull View itemView) {
+    public CardHolderGame(@NonNull View itemView) {
         super(itemView);
         this.parent = itemView;
         // card is created, find all our children views and stuff here

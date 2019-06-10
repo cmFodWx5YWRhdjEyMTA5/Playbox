@@ -7,30 +7,30 @@ import android.view.ViewGroup;
 
 import uk.co.darkerwaters.scorepal.Application;
 import uk.co.darkerwaters.scorepal.R;
-import uk.co.darkerwaters.scorepal.activities.fragments.GameParentCardHolder;
+import uk.co.darkerwaters.scorepal.activities.fragments.CardHolderGame;
 
-public class GameParentRecyclerAdapter extends RecyclerView.Adapter<GameParentCardHolder> {
+public class GameRecyclerAdapter extends RecyclerView.Adapter<CardHolderGame> {
 
     // create the cards here
     private final Object[] cards;
     private final Application application;
 
-    public GameParentRecyclerAdapter(Application application, Object[] cards) {
+    public GameRecyclerAdapter(Application application, Object[] cards) {
         // create the list of cards to show here
         this.application = application;
         this.cards = cards;
     }
 
     @Override
-    public GameParentCardHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+    public CardHolderGame onCreateViewHolder(ViewGroup viewGroup, int i) {
         //GRR - have to use our own counter for getting the class to create as i == 0 regardless...
-        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.game_parent_card, viewGroup, false);
+        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.card_game, viewGroup, false);
         // create the holder and return it
-        return new GameParentCardHolder(v);
+        return new CardHolderGame(v);
     }
 
     @Override
-    public void onBindViewHolder(GameParentCardHolder viewHolder, int i) {
+    public void onBindViewHolder(CardHolderGame viewHolder, int i) {
         // initialise the card holder here
         viewHolder.initialiseCard(this.application, this.cards[i]);
     }
