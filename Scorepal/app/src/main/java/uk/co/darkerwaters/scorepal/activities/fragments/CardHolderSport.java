@@ -41,10 +41,7 @@ public class CardHolderSport extends RecyclerView.ViewHolder {
         this.itemTitle.setText(card.title);
         this.itemDetail.setText(card.subtitle);
         if (null != card.imageFilename && false == card.imageFilename.isEmpty()) {
-            this.itemImage.setImageBitmap(getBitmapFromAssets(card.imageFilename, parent.getContext()));
-        }
-        else {
-            this.itemImage.setImageResource(R.drawable.ic_baseline_settings_20px);
+            this.itemImage.setImageBitmap(application.GetBitmapFromAssets(card.imageFilename, parent.getContext()));
         }
 
         // also handle the click here, show the active game for this parent
@@ -56,17 +53,5 @@ public class CardHolderSport extends RecyclerView.ViewHolder {
                 context.startActivity(intent);
             }
         });
-    }
-
-    public static Bitmap getBitmapFromAssets(String fileName, Context context) {
-        // Custom method to get assets folder image as bitmap
-        AssetManager am = context.getAssets();
-        InputStream is = null;
-        try{
-            is = am.open(fileName);
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-        return BitmapFactory.decodeStream(is);
     }
 }

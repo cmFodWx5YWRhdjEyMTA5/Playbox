@@ -15,6 +15,7 @@ import uk.co.darkerwaters.scorepal.R;
 public class SettingsActivity extends AppCompatActivity {
 
     private Switch mute;
+    private Switch useContacts;
 
     private Switch dataWipeSwitch;
     private Button dataWipeButton;
@@ -30,6 +31,7 @@ public class SettingsActivity extends AppCompatActivity {
         this.application = (Application) getApplication();
 
         this.mute = findViewById(R.id.muteSwitch);
+        this.useContacts = findViewById(R.id.useContactSwitch);
 
         this.dataWipeButton = findViewById(R.id.dataWipeButton);
         this.dataWipeSwitch = findViewById(R.id.dataWipeSwitch);
@@ -39,6 +41,12 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 application.getSettings().setIsMuted(b);
+            }
+        });
+        this.useContacts.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                application.getSettings().setIsRequestContactsPermission(b);
             }
         });
         this.dataWipeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -87,5 +95,6 @@ public class SettingsActivity extends AppCompatActivity {
     private void setDataFromApp() {
         this.dataWipeSwitch.setChecked(false);
         this.mute.setChecked(application.getSettings().getIsMuted());
+        this.useContacts.setChecked(application.getSettings().getIsRequestContactsPermission());
     }
 }

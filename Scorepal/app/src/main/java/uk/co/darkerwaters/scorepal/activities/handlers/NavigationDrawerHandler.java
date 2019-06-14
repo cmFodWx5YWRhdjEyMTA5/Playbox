@@ -18,6 +18,7 @@ import android.widget.Toast;
 import uk.co.darkerwaters.scorepal.Application;
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.activities.MainActivity;
+import uk.co.darkerwaters.scorepal.activities.SettingsActivity;
 import uk.co.darkerwaters.scorepal.application.Settings;
 
 public class NavigationDrawerHandler extends ActionBarDrawerToggle {
@@ -58,6 +59,10 @@ public class NavigationDrawerHandler extends ActionBarDrawerToggle {
             case R.id.nav_home:
                 // go home
                 myIntent = new Intent(this.parent, MainActivity.class);
+                this.parent.startActivity(myIntent);
+                break;
+            case R.id.nav_settings:
+               myIntent = new Intent(this.parent, SettingsActivity.class);
                 this.parent.startActivity(myIntent);
                 break;
             default:

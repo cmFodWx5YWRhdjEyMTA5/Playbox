@@ -1,8 +1,14 @@
 package uk.co.darkerwaters.scorepal;
 
 import android.content.Context;
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.DisplayMetrics;
 import android.util.SizeF;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 import uk.co.darkerwaters.scorepal.activities.BaseActivity;
 import uk.co.darkerwaters.scorepal.activities.MainActivity;
@@ -92,5 +98,17 @@ public class Application extends android.app.Application {
         if (this.activeActivity == activity) {
             this.activeActivity = null;
         }
+    }
+
+    public static Bitmap GetBitmapFromAssets(String fileName, Context context) {
+        // Custom method to get assets folder image as bitmap
+        AssetManager am = context.getAssets();
+        InputStream is = null;
+        try{
+            is = am.open(fileName);
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+        return BitmapFactory.decodeStream(is);
     }
 }

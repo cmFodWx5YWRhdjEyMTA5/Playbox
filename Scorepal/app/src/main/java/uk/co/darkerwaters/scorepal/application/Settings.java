@@ -12,6 +12,7 @@ public class Settings {
     private final String K_ISLOGGING = "isLogging";
     private final String K_ISSHOWMENURIGHT = "isShowMenuRight";
     private final String K_ISMUTED = "isMuted";
+    private final String K_ISASKFORCONTACTS = "isAskForContacts";
 
     private final String K_ACTIVESPORT = "activeSport";
 
@@ -21,6 +22,7 @@ public class Settings {
     // the settings - important for defaults
     private boolean isLogging;
     private boolean isMuted;
+    private boolean isAskForContacts;
     private String activeSport;
 
     public Settings(Application app) {
@@ -39,6 +41,7 @@ public class Settings {
         // set all our defaults here so we can clear some other time easily
         this.isLogging = true;
         this.isMuted = false;
+        this.isAskForContacts = true;
         this.activeSport = K_DEFAULTACTIVESPORT;
     }
 
@@ -81,6 +84,17 @@ public class Settings {
     public boolean setActiveSport(String activeSport) {
         this.activeSport = activeSport;
         this.editor.putString(K_ACTIVESPORT, this.activeSport);
+        return this.editor.commit();
+    }
+
+    public boolean getIsRequestContactsPermission() {
+        this.isAskForContacts = this.preferences.getBoolean(K_ISASKFORCONTACTS, this.isAskForContacts);
+        return this.isAskForContacts;
+    }
+
+    public boolean setIsRequestContactsPermission(boolean isAskForContacts) {
+        this.isAskForContacts = isAskForContacts;
+        this.editor.putBoolean(K_ISASKFORCONTACTS, this.isAskForContacts);
         return this.editor.commit();
     }
 }
