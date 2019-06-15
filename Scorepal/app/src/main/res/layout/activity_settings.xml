@@ -32,7 +32,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@color/secondaryDarkColor"
+                android:background="@color/colorPrimary"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
@@ -88,7 +88,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@color/secondaryDarkColor"
+                android:background="@color/colorPrimary"
                 app:layout_constraintTop_toBottomOf="@id/contactsLayout">
 
                 <ImageView
@@ -144,7 +144,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@color/secondaryDarkColor"
+                android:background="@color/colorPrimary"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/muteLayout">
@@ -200,7 +200,7 @@
                 android:id="@+id/dataWipeExtraLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/secondaryDarkColor"
+                android:background="@color/colorPrimary"
                 android:visibility="invisible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

@@ -45,7 +45,7 @@ public class ScoreFactory {
             case K_POINTS:
                 return new PointsScore(teams);
             case K_TENNIS:
-                return new TennisScore(teams, TennisScore.Sets.FIVE);
+                return new TennisScore(teams, TennisSets.FIVE);
             default:
                 Log.error("Have not implemented this type of score yet " + mode.toString());
                 return null;

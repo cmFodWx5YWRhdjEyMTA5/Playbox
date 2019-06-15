@@ -1,29 +1,27 @@
 package uk.co.darkerwaters.scorepal.activities;
 
 import android.Manifest;
-import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 
 import uk.co.darkerwaters.scorepal.Application;
-import uk.co.darkerwaters.scorepal.ContactListAdapter;
-import uk.co.darkerwaters.scorepal.FragmentTeam;
+import uk.co.darkerwaters.scorepal.activities.handlers.ContactListAdapter;
+import uk.co.darkerwaters.scorepal.activities.fragments.FragmentTeam;
 import uk.co.darkerwaters.scorepal.R;
 
-public class FragmentTeamActivity extends FragmentActivity implements FragmentTeam.OnFragmentInteractionListener {
+public abstract class FragmentTeamActivity extends FragmentActivity implements FragmentTeam.OnFragmentInteractionListener {
 
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 101;
 
     protected Application application;
 
-    private FragmentTeam teamOneFragment;
-    private FragmentTeam teamTwoFragment;
+    protected FragmentTeam teamOneFragment;
+    protected FragmentTeam teamTwoFragment;
     private ContactListAdapter contactAdapter;
 
     @Override

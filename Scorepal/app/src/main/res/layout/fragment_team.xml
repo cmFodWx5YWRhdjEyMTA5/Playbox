@@ -5,17 +5,20 @@
     android:id="@+id/frameLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".FragmentTeam">
+    tools:context=".activities.fragments.FragmentTeam">
 
     <android.support.v7.widget.CardView
+        android:id="@+id/team_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardBackgroundColor="@color/colorPrimary"
         app:cardCornerRadius="20dp">
 
         <android.support.constraint.ConstraintLayout
+            android:id="@+id/team_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:paddingBottom="16dp">
 
             <TextView
                 android:id="@+id/titleText"
@@ -52,7 +55,6 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginBottom="16dp"
                 android:hint="@string/default_playerOnePartnerName"
                 android:minWidth="60dp"
                 app:layout_constraintBottom_toBottomOf="parent"

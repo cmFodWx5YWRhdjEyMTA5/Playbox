@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
-        app:cardBackgroundColor="@color/secondaryColor"
+        app:cardBackgroundColor="@color/colorPrimary"
         app:cardCornerRadius="12dp"
         app:cardElevation="3dp"
         app:contentPadding="4dp">
@@ -32,10 +32,10 @@
                 android:id="@+id/ccontName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Large Text"
-                android:textColor="#A5000000"
                 android:layout_toRightOf="@id/ccontImage"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:text="Large Text"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="#A5000000" />
 
             <TextView
                 android:id="@+id/ccontNo"

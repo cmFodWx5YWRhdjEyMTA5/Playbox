@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.TennisSetupActivity">
 
     <fragment
         android:id="@+id/team_one_fragment"
-        android:name="uk.co.darkerwaters.scorepal.FragmentTeam"
+        android:name="uk.co.darkerwaters.scorepal.activities.fragments.FragmentTeam"
         android:layout_width="0dp"
         android:layout_height="150dp"
         android:layout_marginStart="8dp"
@@ -22,7 +23,7 @@
 
     <fragment
         android:id="@+id/team_two_fragment"
-        android:name="uk.co.darkerwaters.scorepal.FragmentTeam"
+        android:name="uk.co.darkerwaters.scorepal.activities.fragments.FragmentTeam"
         android:layout_width="0dp"
         android:layout_height="150dp"
         android:layout_marginStart="8dp"
@@ -37,12 +38,12 @@
         android:id="@+id/view2"
         class="uk.co.darkerwaters.scorepal.views.ServerView"
         id="@+id/serverView"
-        custom:showText="true"
-        custom:labelPosition="bottom"
         android:layout_width="32dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
         app:layout_constraintBottom_toBottomOf="@+id/team_two_fragment"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/team_one_fragment" />
+        app:layout_constraintTop_toTopOf="@+id/team_one_fragment"
+        custom:labelPosition="bottom"
+        custom:showText="true" />
 </android.support.constraint.ConstraintLayout>

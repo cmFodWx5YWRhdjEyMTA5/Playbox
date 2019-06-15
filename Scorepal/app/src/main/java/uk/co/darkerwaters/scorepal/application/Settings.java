@@ -3,6 +3,7 @@ package uk.co.darkerwaters.scorepal.application;
 import android.content.SharedPreferences;
 
 import uk.co.darkerwaters.scorepal.Application;
+import uk.co.darkerwaters.scorepal.score.TennisSets;
 
 public class Settings {
     private final SharedPreferences preferences;
@@ -13,6 +14,8 @@ public class Settings {
     private final String K_ISSHOWMENURIGHT = "isShowMenuRight";
     private final String K_ISMUTED = "isMuted";
     private final String K_ISASKFORCONTACTS = "isAskForContacts";
+    private final String K_ISDOUBLES = "isDoubles";
+    private final String K_SETS = "sets";
 
     private final String K_ACTIVESPORT = "activeSport";
 
@@ -20,6 +23,8 @@ public class Settings {
     private final String[] availableSports = new String[] {K_DEFAULTACTIVESPORT};
 
     // the settings - important for defaults
+    private boolean isDoubles;
+    private TennisSets sets;
     private boolean isLogging;
     private boolean isMuted;
     private boolean isAskForContacts;
@@ -43,6 +48,8 @@ public class Settings {
         this.isMuted = false;
         this.isAskForContacts = true;
         this.activeSport = K_DEFAULTACTIVESPORT;
+        this.isDoubles = false;
+        this.sets = TennisSets.THREE;
     }
 
     public void wipeAllSettings() {
@@ -97,4 +104,30 @@ public class Settings {
         this.editor.putBoolean(K_ISASKFORCONTACTS, this.isAskForContacts);
         return this.editor.commit();
     }
+
+    public TennisSets getTennisSets() {
+        int setsValue = this.preferences.getInt(K_SETS, this.sets.val);
+        // set the member from this value
+        this.sets = TennisSets.fromValue(setsValue);
+        return this.sets;
+    }
+
+    public boolean setTennisSets(TennisSets sets) {
+        this.sets = sets;
+        this.editor.putInt(K_SETS, this.sets.val);
+        return this.editor.commit();
+    }
+
+    public boolean getIsDoubles() {
+        this.isDoubles = this.preferences.getBoolean(K_ISDOUBLES, this.isDoubles);
+        return this.isDoubles;
+    }
+
+    public boolean setIsDoubles(boolean isDoubles) {
+        this.isDoubles = isDoubles;
+        this.editor.putBoolean(K_ISDOUBLES, this.isDoubles);
+        return this.editor.commit();
+    }
+
+
 }

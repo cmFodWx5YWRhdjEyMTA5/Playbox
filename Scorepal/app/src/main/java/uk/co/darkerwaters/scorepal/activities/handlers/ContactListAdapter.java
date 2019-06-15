@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.scorepal;
+package uk.co.darkerwaters.scorepal.activities.handlers;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -12,6 +12,8 @@ import android.widget.CursorAdapter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import uk.co.darkerwaters.scorepal.R;
 
 public class ContactListAdapter extends CursorAdapter implements Filterable {
 

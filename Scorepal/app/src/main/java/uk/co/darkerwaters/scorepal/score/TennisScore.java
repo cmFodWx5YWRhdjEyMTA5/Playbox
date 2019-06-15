@@ -12,20 +12,6 @@ class TennisScore extends Score {
     final static int GAME = 1;
     final static int SET = 2;
 
-    enum Sets {
-        FIVE(5),
-        THREE(3),
-        ONE(1);
-
-        final int val;
-        final int target;
-
-        Sets(int value) {
-            this.val = value;
-            this.target = (int)((value + 1f) / 2f);
-        }
-    }
-
     final static String STR_LOVE = "Love";
     final static String STR_FIFTEEN = "15";
     final static String STR_THIRTY = "30";
@@ -47,13 +33,13 @@ class TennisScore extends Score {
 
     private final static int K_LEVELS = 3;
 
-    private final Sets setsToPlay;
+    private final TennisSets setsToPlay;
 
     private boolean isFinalSetTie;
     private boolean isInTieBreak;
     private Player tieBreakServer;
 
-    TennisScore(Team[] teams, Sets setsToPlay) {
+    TennisScore(Team[] teams, TennisSets setsToPlay) {
         super(teams, K_LEVELS, ScoreFactory.ScoreMode.K_TENNIS);
         this.setsToPlay = setsToPlay;
         this.isFinalSetTie = false;
