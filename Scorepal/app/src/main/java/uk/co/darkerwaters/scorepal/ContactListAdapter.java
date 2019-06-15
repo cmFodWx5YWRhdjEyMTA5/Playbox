@@ -52,7 +52,7 @@ public class ContactListAdapter extends CursorAdapter implements Filterable {
 
     private void setCardData(View contactCard, Cursor cursor) {
 
-        String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+        //String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
         String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
         String image = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.PHOTO_THUMBNAIL_URI));
         String email = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
@@ -64,12 +64,16 @@ public class ContactListAdapter extends CursorAdapter implements Filterable {
         textView = contactCard.findViewById(R.id.ccontNo);
         textView.setText(email);
 
-        if (null != image && !image.isEmpty()) {
-            // there is an image URI - use the image for niceness
-            ImageView imageView = contactCard.findViewById(R.id.ccontImage);
-            if (null != imageView) {
-                // have a view, set the image
+        // set the default image
+        ImageView imageView = contactCard.findViewById(R.id.ccontImage);
+        if (null != imageView) {
+            if (null != image && !image.isEmpty()) {
+                // there is an image URI - use the image for niceness
                 imageView.setImageURI(Uri.parse(image));
+            }
+            else {
+                // just use the icon
+                imageView.setImageResource(R.drawable.ic_baseline_person_outline_24px);
             }
         }
     }
