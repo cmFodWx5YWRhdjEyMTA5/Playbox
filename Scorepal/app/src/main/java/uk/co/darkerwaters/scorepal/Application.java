@@ -1,5 +1,6 @@
 package uk.co.darkerwaters.scorepal;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
@@ -19,8 +20,8 @@ public class Application extends android.app.Application {
 
     private Log log = null;
     private Settings settings = null;
-    private BaseActivity mainActivity = null;
-    private BaseActivity activeActivity = null;
+    private Activity mainActivity = null;
+    private Activity activeActivity = null;
 
     @Override
     public void onCreate() {
@@ -70,27 +71,27 @@ public class Application extends android.app.Application {
         return this.settings;
     }
 
-    public void setMainActivity(BaseActivity activity) {
+    public void setMainActivity(Activity activity) {
         // set the activity to use to set things up
         this.mainActivity = activity;
     }
 
-    public BaseActivity getMainActivity() {
+    public Activity getMainActivity() {
         return this.mainActivity;
     }
 
-    public BaseActivity getActiveActivity() {
+    public Activity getActiveActivity() {
         return this.activeActivity;
     }
 
-    public void setActiveActivity(BaseActivity activity) {
+    public void setActiveActivity(Activity activity) {
         if (null == this.mainActivity) {
             setMainActivity(activity);
         }
         this.activeActivity = activity;
     }
 
-    public void activityDestroyed(BaseActivity activity) {
+    public void activityDestroyed(Activity activity) {
         // clear the pointers as they go away
         if (this.mainActivity == activity) {
             this.mainActivity = null;

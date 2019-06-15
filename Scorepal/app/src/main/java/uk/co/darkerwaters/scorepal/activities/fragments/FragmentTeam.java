@@ -68,6 +68,11 @@ public class FragmentTeam extends Fragment {
         return parent;
     }
 
+    public void setIsReadOnly(boolean readOnly) {
+        this.playerName.setEnabled(!readOnly);
+        this.partnerName.setEnabled(!readOnly);
+    }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -167,6 +172,10 @@ public class FragmentTeam extends Fragment {
     public void onDetach() {
         super.onDetach();
         listener = null;
+    }
+
+    public void hideTitle() {
+        this.title.setVisibility(View.GONE);
     }
 
     public void setLabels(int teamNumber) {

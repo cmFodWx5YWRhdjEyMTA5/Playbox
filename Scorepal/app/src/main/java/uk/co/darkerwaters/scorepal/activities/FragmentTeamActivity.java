@@ -30,9 +30,18 @@ public abstract class FragmentTeamActivity extends FragmentActivity implements F
 
         // setup our pointers to each other so we an short-cut about the app
         this.application = (Application)getApplication();
+        // set this on the application
+        this.application.setActiveActivity(this);
 
         // check / request access to contacts and setup the editing controls accordingly
         requestContactAccess();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // tell the application this
+        this.application.activityDestroyed(this);
     }
 
     @Override
