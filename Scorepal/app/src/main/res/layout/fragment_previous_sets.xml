@@ -19,7 +19,7 @@
         android:paddingBottom="8dp">
 
         <TextView
-            android:id="@+id/title_textView"
+            android:id="@+id/sets_textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -42,7 +42,7 @@
             app:layout_constraintEnd_toStartOf="@+id/previousSet_teamOne_setTwo"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/title_textView" />
+            app:layout_constraintTop_toBottomOf="@+id/sets_textView" />
 
         <TextSwitcher
             android:id="@+id/previousSet_teamOne_setTwo"
@@ -55,7 +55,7 @@
             app:layout_constraintEnd_toStartOf="@+id/previousSet_teamOne_setThree"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/previousSet_teamOne_setOne"
-            app:layout_constraintTop_toBottomOf="@+id/title_textView" />
+            app:layout_constraintTop_toBottomOf="@+id/sets_textView" />
 
         <TextSwitcher
             android:id="@+id/previousSet_teamOne_setThree"
@@ -68,7 +68,7 @@
             app:layout_constraintEnd_toStartOf="@+id/previousSet_teamOne_setFour"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/previousSet_teamOne_setTwo"
-            app:layout_constraintTop_toBottomOf="@+id/title_textView" />
+            app:layout_constraintTop_toBottomOf="@+id/sets_textView" />
 
         <TextSwitcher
             android:id="@+id/previousSet_teamOne_setFour"
@@ -81,7 +81,7 @@
             app:layout_constraintEnd_toStartOf="@+id/previousSet_teamOne_setFive"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/previousSet_teamOne_setThree"
-            app:layout_constraintTop_toBottomOf="@+id/title_textView" />
+            app:layout_constraintTop_toBottomOf="@+id/sets_textView" />
 
         <TextSwitcher
             android:id="@+id/previousSet_teamOne_setFive"
@@ -95,7 +95,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/previousSet_teamOne_setFour"
-            app:layout_constraintTop_toBottomOf="@+id/title_textView" />
+            app:layout_constraintTop_toBottomOf="@+id/sets_textView" />
 
         <TextSwitcher
             android:id="@+id/previousSet_teamTwo_setOne"

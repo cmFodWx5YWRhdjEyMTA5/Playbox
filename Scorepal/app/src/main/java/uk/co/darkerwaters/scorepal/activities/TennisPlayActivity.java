@@ -5,18 +5,21 @@ import android.os.Handler;
 import android.view.View;
 
 import uk.co.darkerwaters.scorepal.activities.fragments.FragmentPreviousSets;
+import uk.co.darkerwaters.scorepal.activities.fragments.FragmentScore;
 import uk.co.darkerwaters.scorepal.activities.fragments.FragmentTeam;
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.score.TennisSets;
 
 public class TennisPlayActivity extends FragmentTeamActivity implements
         FragmentTeam.FragmentTeamInteractionListener,
-        FragmentPreviousSets.FragmentPreviousSetsInteractionListener {
+        FragmentPreviousSets.FragmentPreviousSetsInteractionListener,
+        FragmentScore.FragmentScoreInteractionListener {
 
     private int teamTwoHeight = 0;
     private float teamTwoY = 0f;
 
-    private FragmentPreviousSets previousSets;
+    private FragmentPreviousSets previousSetsFragment;
+    private FragmentScore scoreFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +52,12 @@ public class TennisPlayActivity extends FragmentTeamActivity implements
 
     @Override
     public void onAttachFragment(FragmentPreviousSets fragment) {
-        this.previousSets = fragment;
+        this.previousSetsFragment = fragment;
+    }
+
+    @Override
+    public void onAttachFragment(FragmentScore fragment) {
+        this.scoreFragment = fragment;
     }
 
     @Override
@@ -76,7 +84,7 @@ public class TennisPlayActivity extends FragmentTeamActivity implements
 
         for (int i = 0; i < 2; ++i) {
             for (int j = 0; j < 5; ++j) {
-                this.previousSets.setSetValue(i,j,i + j);
+                this.previousSetsFragment.setSetValue(i,j,i + j);
             }
         }
         for (int k = 0; k < 10; ++k) {
@@ -88,7 +96,7 @@ public class TennisPlayActivity extends FragmentTeamActivity implements
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            previousSets.setSetValue(teamIndex, setIndex, value);
+                            previousSetsFragment.setSetValue(teamIndex, setIndex, value);
                         }
                     }, 1000 * (j * value));
 
