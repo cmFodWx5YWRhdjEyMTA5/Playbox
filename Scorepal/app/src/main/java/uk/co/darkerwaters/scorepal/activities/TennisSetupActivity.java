@@ -96,11 +96,6 @@ public class TennisSetupActivity extends FragmentTeamActivity {
         }, 500);
     }
 
-    @Override
-    public void onAnimationUpdated(Float value) {
-        // re-arrange the layout
-    }
-
     private void setActivityDataShown() {
         this.singlesDoublesSwitch.setChecked(this.isDoubles);
         switch (this.currentSets) {

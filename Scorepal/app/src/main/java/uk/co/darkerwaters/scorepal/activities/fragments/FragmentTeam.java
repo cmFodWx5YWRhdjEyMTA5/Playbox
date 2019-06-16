@@ -32,13 +32,13 @@ public class FragmentTeam extends Fragment {
 
     private ObjectAnimator animation = null;
 
-    public interface OnFragmentInteractionListener {
+    public interface FragmentTeamInteractionListener {
         // the listener to set the data from this fragment
         void onAttachFragment(FragmentTeam fragmentTeam);
         void onAnimationUpdated(Float value);
     }
     
-    private OnFragmentInteractionListener listener;
+    private FragmentTeamInteractionListener listener;
 
     private int teamNumber = 0;
 
@@ -76,13 +76,13 @@ public class FragmentTeam extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            listener = (OnFragmentInteractionListener) context;
+        if (context instanceof FragmentTeamInteractionListener) {
+            listener = (FragmentTeamInteractionListener) context;
             // and inform this listener of our attachment
             listener.onAttachFragment(this);
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement FragmentTeamInteractionListener");
         }
     }
 

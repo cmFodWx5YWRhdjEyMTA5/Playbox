@@ -54,4 +54,8 @@
     <string name="singles">Singles</string>
     <string name="doubles">Doubles</string>
     <string name="contact_access_explanation">This app would like access to your contacts to show your friends as playing partners. Would you like to grant access?</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="previous_sets">Previous Sets</string>
 </resources>

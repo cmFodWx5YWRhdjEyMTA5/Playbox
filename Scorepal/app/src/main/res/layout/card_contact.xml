@@ -34,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@id/ccontImage"
                 android:text="Large Text"
-                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:textColor="#A5000000" />
 
             <TextView

@@ -14,7 +14,7 @@ import uk.co.darkerwaters.scorepal.activities.handlers.ContactListAdapter;
 import uk.co.darkerwaters.scorepal.activities.fragments.FragmentTeam;
 import uk.co.darkerwaters.scorepal.R;
 
-public abstract class FragmentTeamActivity extends FragmentActivity implements FragmentTeam.OnFragmentInteractionListener {
+public abstract class FragmentTeamActivity extends FragmentActivity implements FragmentTeam.FragmentTeamInteractionListener {
 
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 101;
 
@@ -60,6 +60,11 @@ public abstract class FragmentTeamActivity extends FragmentActivity implements F
         }
         // setup any adapters we have created here
         setupAdapters();
+    }
+
+    @Override
+    public void onAnimationUpdated(Float value) {
+        // nothing to do
     }
 
     private void requestContactAccess() {
