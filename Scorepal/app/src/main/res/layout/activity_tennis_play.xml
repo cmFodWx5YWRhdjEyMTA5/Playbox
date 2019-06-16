@@ -17,8 +17,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.494"
-        app:layout_constraintStart_toEndOf="@+id/view2"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <fragment
@@ -31,45 +30,32 @@
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.494"
-        app:layout_constraintStart_toEndOf="@+id/view2" />
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <view
-        android:id="@+id/view2"
-        class="uk.co.darkerwaters.scorepal.views.ServerView"
-        id="@+id/serverView"
-        android:layout_width="32dp"
+    <android.support.v4.view.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/score_pager"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/team_two_fragment"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/team_one_fragment"
-        custom:labelPosition="bottom"
-        custom:showText="true" />
-
-    <fragment
-        android:id="@+id/fragment"
-        android:name="uk.co.darkerwaters.scorepal.activities.fragments.FragmentPreviousSets"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/team_two_fragment"
-        app:layout_constraintStart_toEndOf="@+id/fragment2"
-        app:layout_constraintTop_toBottomOf="@+id/team_one_fragment" />
-
-    <fragment
-        android:id="@+id/fragment2"
-        android:name="uk.co.darkerwaters.scorepal.activities.fragments.FragmentScore"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/team_two_fragment"
+        app:layout_constraintBottom_toTopOf="@+id/scoreChangeButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/view2"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/team_one_fragment" />
+
+    <Button
+        android:id="@+id/scoreChangeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:drawableLeft="@drawable/ic_baseline_keyboard_arrow_left_24px"
+        android:drawableRight="@drawable/ic_baseline_keyboard_arrow_right_24px"
+        android:backgroundTint="@color/colorPrimary"
+        android:text="@string/previous_sets"
+        app:layout_constraintBottom_toTopOf="@+id/team_two_fragment"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
 </android.support.constraint.ConstraintLayout>
