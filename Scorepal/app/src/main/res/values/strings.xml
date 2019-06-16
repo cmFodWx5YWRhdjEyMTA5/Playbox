@@ -58,4 +58,7 @@
     <string name="previous_sets">Previous Sets</string>
     <string name="current_score">Current Score</string>
     <string name="tie_example">(7-5)</string>
+    <string name="time">Time</string>
+    <string name="match">Match</string>
+    <string name="time_seperator">.</string>
 </resources>

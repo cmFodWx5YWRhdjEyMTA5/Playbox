@@ -8,6 +8,7 @@ import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.Button;
 
+import uk.co.darkerwaters.scorepal.activities.fragments.FragmentTime;
 import uk.co.darkerwaters.scorepal.activities.handlers.DepthPageTransformer;
 import uk.co.darkerwaters.scorepal.activities.fragments.FragmentPreviousSets;
 import uk.co.darkerwaters.scorepal.activities.fragments.FragmentScore;
@@ -19,7 +20,8 @@ import uk.co.darkerwaters.scorepal.score.TennisSets;
 public class TennisPlayActivity extends FragmentTeamActivity implements
         FragmentTeam.FragmentTeamInteractionListener,
         FragmentPreviousSets.FragmentPreviousSetsInteractionListener,
-        FragmentScore.FragmentScoreInteractionListener {
+        FragmentScore.FragmentScoreInteractionListener,
+        FragmentTime.FragmentTimeInteractionListener {
 
     private int teamTwoHeight = 0;
     private float teamTwoY = 0f;
@@ -32,6 +34,7 @@ public class TennisPlayActivity extends FragmentTeamActivity implements
 
     private FragmentPreviousSets previousSetsFragment;
     private FragmentScore scoreFragment;
+    private FragmentTime timeFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,6 +142,11 @@ public class TennisPlayActivity extends FragmentTeamActivity implements
     }
 
     @Override
+    public void onAttachFragment(FragmentTime fragment) {
+        this.timeFragment = fragment;
+    }
+
+    @Override
     public void onAnimationUpdated(Float value) {
         // re-arrange the layout for singles to put the name at the bottom of the screen
         View view = this.teamTwoFragment.getView();
@@ -168,21 +176,5 @@ public class TennisPlayActivity extends FragmentTeamActivity implements
             }
         }
         this.previousSetsFragment.setTieBreakResult(2, 7, 5);
-        /*
-        for (int k = 0; k < 10; ++k) {
-            for (int i = 0; i < 2; ++i) {
-                for (int j = 0; j < 5; ++j) {
-                    final int value = k;
-                    final int teamIndex = i;
-                    final int setIndex = j;
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            previousSetsFragment.setSetValue(teamIndex, setIndex, value);
-                        }
-                    }, 1000 * (j * value));
-                }
-            }
-        }*/
     }
 }
