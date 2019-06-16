@@ -1,167 +1,251 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".activities.fragments.FragmentPreviousSets"
-    android:id="@+id/card_view"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="5dp"
-    app:cardBackgroundColor="@color/colorPrimary"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="3dp"
-    app:contentPadding="4dp">
+    android:layout_height="match_parent">
 
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/parentLayout"
+    <android.support.v7.widget.CardView
+        android:id="@+id/card_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingBottom="8dp">
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        app:cardBackgroundColor="@color/colorPrimary"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="3dp"
+        app:contentPadding="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="5dp">
 
-        <TextView
-            android:id="@+id/sets_textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:text="@string/previous_sets"
-            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-            android:textColor="@color/primaryTextColor"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/parentLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="8dp">
 
-        <TextSwitcher
-            android:id="@+id/previousSet_teamOne_setOne"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:background="@color/colorPrimaryDark"
-            app:layout_constraintDimensionRatio="H,1:1"
-            app:layout_constraintEnd_toStartOf="@+id/previousSet_teamOne_setTwo"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sets_textView" />
+            <TextView
+                android:id="@+id/sets_textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/previous_sets"
+                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                android:textColor="@color/primaryTextColor"
+                android:textSize="30sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <TextSwitcher
-            android:id="@+id/previousSet_teamOne_setTwo"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:background="@color/colorPrimaryDark"
-            app:layout_constraintDimensionRatio="H,1:1"
-            app:layout_constraintEnd_toStartOf="@+id/previousSet_teamOne_setThree"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/previousSet_teamOne_setOne"
-            app:layout_constraintTop_toBottomOf="@+id/sets_textView" />
+            <TextSwitcher
+                android:id="@+id/previousSet_teamOne_setOne"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/colorPrimaryDark"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toStartOf="@+id/previousSet_teamOne_setTwo"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/sets_textView" />
 
-        <TextSwitcher
-            android:id="@+id/previousSet_teamOne_setThree"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:background="@color/colorPrimaryDark"
-            app:layout_constraintDimensionRatio="H,1:1"
-            app:layout_constraintEnd_toStartOf="@+id/previousSet_teamOne_setFour"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/previousSet_teamOne_setTwo"
-            app:layout_constraintTop_toBottomOf="@+id/sets_textView" />
+            <TextSwitcher
+                android:id="@+id/previousSet_teamOne_setTwo"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/colorPrimaryDark"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toStartOf="@+id/previousSet_teamOne_setThree"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/previousSet_teamOne_setOne"
+                app:layout_constraintTop_toBottomOf="@+id/sets_textView" />
 
-        <TextSwitcher
-            android:id="@+id/previousSet_teamOne_setFour"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:background="@color/colorPrimaryDark"
-            app:layout_constraintDimensionRatio="H,1:1"
-            app:layout_constraintEnd_toStartOf="@+id/previousSet_teamOne_setFive"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/previousSet_teamOne_setThree"
-            app:layout_constraintTop_toBottomOf="@+id/sets_textView" />
+            <TextSwitcher
+                android:id="@+id/previousSet_teamOne_setThree"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/colorPrimaryDark"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toStartOf="@+id/previousSet_teamOne_setFour"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/previousSet_teamOne_setTwo"
+                app:layout_constraintTop_toBottomOf="@+id/sets_textView" />
 
-        <TextSwitcher
-            android:id="@+id/previousSet_teamOne_setFive"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:background="@color/colorPrimaryDark"
-            app:layout_constraintDimensionRatio="H,1:1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/previousSet_teamOne_setFour"
-            app:layout_constraintTop_toBottomOf="@+id/sets_textView" />
+            <TextSwitcher
+                android:id="@+id/previousSet_teamOne_setFour"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/colorPrimaryDark"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toStartOf="@+id/previousSet_teamOne_setFive"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/previousSet_teamOne_setThree"
+                app:layout_constraintTop_toBottomOf="@+id/sets_textView" />
 
-        <TextSwitcher
-            android:id="@+id/previousSet_teamTwo_setOne"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:background="@color/colorPrimaryDark"
-            app:layout_constraintDimensionRatio="H,1:1"
-            app:layout_constraintEnd_toStartOf="@+id/previousSet_teamTwo_setTwo"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/previousSet_teamOne_setThree" />
+            <TextSwitcher
+                android:id="@+id/previousSet_teamOne_setFive"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@color/colorPrimaryDark"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/previousSet_teamOne_setFour"
+                app:layout_constraintTop_toBottomOf="@+id/sets_textView" />
 
-        <TextSwitcher
-            android:id="@+id/previousSet_teamTwo_setTwo"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:background="@color/colorPrimaryDark"
-            app:layout_constraintDimensionRatio="H,1:1"
-            app:layout_constraintEnd_toStartOf="@+id/previousSet_teamTwo_setThree"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/previousSet_teamTwo_setOne"
-            app:layout_constraintTop_toBottomOf="@+id/previousSet_teamOne_setThree" />
+            <TextView
+                android:id="@+id/tieBreak_setOne"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/tie_example"
+                android:includeFontPadding="false"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="@color/primaryTextColor"
+                app:layout_constraintEnd_toEndOf="@+id/previousSet_teamOne_setOne"
+                app:layout_constraintStart_toStartOf="@+id/previousSet_teamOne_setOne"
+                app:layout_constraintTop_toBottomOf="@+id/previousSet_teamOne_setOne" />
 
-        <TextSwitcher
-            android:id="@+id/previousSet_teamTwo_setThree"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:background="@color/colorPrimaryDark"
-            app:layout_constraintDimensionRatio="H,1:1"
-            app:layout_constraintEnd_toStartOf="@+id/previousSet_teamTwo_setFour"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/previousSet_teamTwo_setTwo"
-            app:layout_constraintTop_toBottomOf="@+id/previousSet_teamOne_setThree" />
+            <TextView
+                android:id="@+id/tieBreak_setTwo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/tie_example"
+                android:includeFontPadding="false"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="@color/primaryTextColor"
+                app:layout_constraintEnd_toEndOf="@+id/previousSet_teamOne_setTwo"
+                app:layout_constraintStart_toStartOf="@+id/previousSet_teamOne_setTwo"
+                app:layout_constraintTop_toBottomOf="@+id/previousSet_teamOne_setTwo" />
 
-        <TextSwitcher
-            android:id="@+id/previousSet_teamTwo_setFour"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:background="@color/colorPrimaryDark"
-            app:layout_constraintDimensionRatio="H,1:1"
-            app:layout_constraintEnd_toStartOf="@+id/previousSet_teamTwo_setFive"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/previousSet_teamTwo_setThree"
-            app:layout_constraintTop_toBottomOf="@+id/previousSet_teamOne_setThree" />
+            <TextView
+                android:id="@+id/tieBreak_setThree"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/tie_example"
+                android:includeFontPadding="false"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="@color/primaryTextColor"
+                app:layout_constraintEnd_toEndOf="@+id/previousSet_teamOne_setThree"
+                app:layout_constraintStart_toStartOf="@+id/previousSet_teamOne_setThree"
+                app:layout_constraintTop_toBottomOf="@+id/previousSet_teamOne_setThree" />
 
-        <TextSwitcher
-            android:id="@+id/previousSet_teamTwo_setFive"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:background="@color/colorPrimaryDark"
-            app:layout_constraintDimensionRatio="H,1:1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/previousSet_teamTwo_setFour"
-            app:layout_constraintTop_toBottomOf="@+id/previousSet_teamOne_setThree" />
+            <TextView
+                android:id="@+id/tieBreak_setFour"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/tie_example"
+                android:includeFontPadding="false"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="@color/primaryTextColor"
+                app:layout_constraintEnd_toEndOf="@+id/previousSet_teamOne_setFour"
+                app:layout_constraintStart_toStartOf="@+id/previousSet_teamOne_setFour"
+                app:layout_constraintTop_toBottomOf="@+id/previousSet_teamOne_setFour" />
 
-    </android.support.constraint.ConstraintLayout>
-</android.support.v7.widget.CardView>
+            <TextView
+                android:id="@+id/tieBreak_setFive"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/tie_example"
+                android:includeFontPadding="false"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="@color/primaryTextColor"
+                app:layout_constraintEnd_toEndOf="@+id/previousSet_teamOne_setFive"
+                app:layout_constraintStart_toStartOf="@+id/previousSet_teamOne_setFive"
+                app:layout_constraintTop_toBottomOf="@+id/previousSet_teamOne_setFive" />
+
+            <TextSwitcher
+                android:id="@+id/previousSet_teamTwo_setOne"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/colorPrimaryDark"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toStartOf="@+id/previousSet_teamTwo_setTwo"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tieBreak_setOne" />
+
+            <TextSwitcher
+                android:id="@+id/previousSet_teamTwo_setTwo"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/colorPrimaryDark"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toStartOf="@+id/previousSet_teamTwo_setThree"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/previousSet_teamTwo_setOne"
+                app:layout_constraintTop_toBottomOf="@+id/tieBreak_setTwo" />
+
+            <TextSwitcher
+                android:id="@+id/previousSet_teamTwo_setThree"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/colorPrimaryDark"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toStartOf="@+id/previousSet_teamTwo_setFour"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/previousSet_teamTwo_setTwo"
+                app:layout_constraintTop_toBottomOf="@+id/tieBreak_setThree" />
+
+            <TextSwitcher
+                android:id="@+id/previousSet_teamTwo_setFour"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/colorPrimaryDark"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toStartOf="@+id/previousSet_teamTwo_setFive"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/previousSet_teamTwo_setThree"
+                app:layout_constraintTop_toBottomOf="@+id/tieBreak_setFour" />
+
+            <TextSwitcher
+                android:id="@+id/previousSet_teamTwo_setFive"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/colorPrimaryDark"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="H,1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/previousSet_teamTwo_setFour"
+                app:layout_constraintTop_toBottomOf="@+id/tieBreak_setFive" />
+
+        </android.support.constraint.ConstraintLayout>
+    </android.support.v7.widget.CardView>
+</android.support.constraint.ConstraintLayout>

@@ -14,11 +14,12 @@ import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import uk.co.darkerwaters.scorepal.R;
+import uk.co.darkerwaters.scorepal.score.TennisSets;
 
 public class FragmentPreviousSets extends Fragment {
 
     private final static int K_NO_TEAMS = 2;
-    private final static int K_NO_SETS = 5;
+    private final static int K_NO_SETS = TennisSets.FIVE.val;
 
     public interface FragmentPreviousSetsInteractionListener {
         void onAttachFragment(FragmentPreviousSets fragment);
@@ -28,6 +29,7 @@ public class FragmentPreviousSets extends Fragment {
 
     private TextSwitcher[][] switchers = new TextSwitcher[K_NO_TEAMS][K_NO_SETS];
     private ViewSwitcher.ViewFactory switcherFactory;
+    private TextView[] tieBreaks = new TextView[K_NO_SETS];
 
     public FragmentPreviousSets() {
         // Required empty public constructor
@@ -52,6 +54,13 @@ public class FragmentPreviousSets extends Fragment {
         this.switchers[1][2] = mainView.findViewById(R.id.previousSet_teamTwo_setThree);
         this.switchers[1][3] = mainView.findViewById(R.id.previousSet_teamTwo_setFour);
         this.switchers[1][4] = mainView.findViewById(R.id.previousSet_teamTwo_setFive);
+
+        // don't forget the tie-break scores
+        this.tieBreaks[0] = mainView.findViewById(R.id.tieBreak_setOne);
+        this.tieBreaks[1] = mainView.findViewById(R.id.tieBreak_setTwo);
+        this.tieBreaks[2] = mainView.findViewById(R.id.tieBreak_setThree);
+        this.tieBreaks[3] = mainView.findViewById(R.id.tieBreak_setFour);
+        this.tieBreaks[4] = mainView.findViewById(R.id.tieBreak_setFive);
 
         // make the factory to handle the switching of text here
         final Context context = this.getContext();
@@ -90,8 +99,29 @@ public class FragmentPreviousSets extends Fragment {
             this.switchers[1][j].setOutAnimation(out);
         }
 
+        for (int i = 0; i < K_NO_SETS; ++i) {
+            hideTieBreakResult(i);
+        }
+
         // and return the constructed parent view
         return mainView;
+    }
+
+    public void setSets(TennisSets sets) {
+        for (int i = 0; i < K_NO_SETS; ++i) {
+            // set the visibility of each control
+            this.switchers[0][i].setVisibility(i < sets.val ? View.VISIBLE : View.GONE);
+            this.switchers[1][i].setVisibility(i < sets.val ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    public void setTieBreakResult(int setIndex, int score1, int score2) {
+        this.tieBreaks[setIndex].setText("(" + score1 + "-" + score2 + ")");
+        this.tieBreaks[setIndex].setVisibility(View.VISIBLE);
+    }
+
+    public void hideTieBreakResult(int setIndex) {
+        this.tieBreaks[setIndex].setVisibility(View.INVISIBLE);
     }
 
     public void setSetValue(int teamIndex, int setIndex, int value) {

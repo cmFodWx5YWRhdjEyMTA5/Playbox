@@ -160,11 +160,15 @@ public class TennisPlayActivity extends FragmentTeamActivity implements
         this.teamOneFragment.setIsDoubles(isDoubles, false);
         this.teamTwoFragment.setIsDoubles(isDoubles, false);
 
+        // setup the number of sets properly
+        this.previousSetsFragment.setSets(sets);
         for (int i = 0; i < 2; ++i) {
             for (int j = 0; j < 5; ++j) {
-                this.previousSetsFragment.setSetValue(i,j,i + j);
+                this.previousSetsFragment.setSetValue(i,j,i * 5 + j);
             }
         }
+        this.previousSetsFragment.setTieBreakResult(2, 7, 5);
+        /*
         for (int k = 0; k < 10; ++k) {
             for (int i = 0; i < 2; ++i) {
                 for (int j = 0; j < 5; ++j) {
@@ -177,10 +181,8 @@ public class TennisPlayActivity extends FragmentTeamActivity implements
                             previousSetsFragment.setSetValue(teamIndex, setIndex, value);
                         }
                     }, 1000 * (j * value));
-
                 }
             }
-        }
-
+        }*/
     }
 }
