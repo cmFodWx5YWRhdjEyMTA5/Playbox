@@ -14,11 +14,9 @@ import uk.co.darkerwaters.scorepal.activities.handlers.ContactListAdapter;
 import uk.co.darkerwaters.scorepal.activities.fragments.FragmentTeam;
 import uk.co.darkerwaters.scorepal.R;
 
-public abstract class FragmentTeamActivity extends FragmentActivity implements FragmentTeam.FragmentTeamInteractionListener {
+public abstract class FragmentTeamActivity extends BaseFragmentActivity implements FragmentTeam.FragmentTeamInteractionListener {
 
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 101;
-
-    protected Application application;
 
     protected FragmentTeam teamOneFragment;
     protected FragmentTeam teamTwoFragment;
@@ -27,21 +25,8 @@ public abstract class FragmentTeamActivity extends FragmentActivity implements F
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // setup our pointers to each other so we an short-cut about the app
-        this.application = (Application)getApplication();
-        // set this on the application
-        this.application.setActiveActivity(this);
-
         // check / request access to contacts and setup the editing controls accordingly
         requestContactAccess();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // tell the application this
-        this.application.activityDestroyed(this);
     }
 
     @Override

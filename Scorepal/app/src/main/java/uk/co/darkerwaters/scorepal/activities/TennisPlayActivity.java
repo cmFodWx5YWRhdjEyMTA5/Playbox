@@ -1,16 +1,23 @@
 package uk.co.darkerwaters.scorepal.activities;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
+import android.widget.TextView;
 
 import java.util.Calendar;
 import java.util.Date;
 
+import uk.co.darkerwaters.scorepal.Application;
 import uk.co.darkerwaters.scorepal.activities.fragments.FragmentTime;
 import uk.co.darkerwaters.scorepal.activities.handlers.DepthPageTransformer;
 import uk.co.darkerwaters.scorepal.activities.fragments.FragmentPreviousSets;
@@ -18,11 +25,12 @@ import uk.co.darkerwaters.scorepal.activities.fragments.FragmentScore;
 import uk.co.darkerwaters.scorepal.activities.fragments.FragmentTeam;
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.activities.handlers.ScreenSliderPagerAdapter;
+import uk.co.darkerwaters.scorepal.players.Player;
+import uk.co.darkerwaters.scorepal.players.Team;
 import uk.co.darkerwaters.scorepal.score.Match;
 import uk.co.darkerwaters.scorepal.score.TennisSets;
 
-public class TennisPlayActivity extends FragmentTeamActivity implements
-        FragmentTeam.FragmentTeamInteractionListener,
+public class TennisPlayActivity extends BaseFragmentActivity implements
         FragmentPreviousSets.FragmentPreviousSetsInteractionListener,
         FragmentScore.FragmentScoreInteractionListener,
         FragmentTime.FragmentTimeInteractionListener {
@@ -35,10 +43,14 @@ public class TennisPlayActivity extends FragmentTeamActivity implements
     private PagerAdapter pagerAdapter;
 
     private Button scoreChangeButton;
+    private Button changeButton;
 
     private FragmentPreviousSets previousSetsFragment;
     private FragmentScore scoreFragment;
     private FragmentTime timeFragment;
+
+    private TextView teamOneText;
+    private TextView teamTwoText;
 
     private Match activeMatch;
 
@@ -50,9 +62,15 @@ public class TennisPlayActivity extends FragmentTeamActivity implements
         // get the match for which we are doing things
         this.activeMatch = this.application.getActiveMatch();
 
-        // make the names read-only
-        this.teamOneFragment.setIsReadOnly(true);
-        this.teamTwoFragment.setIsReadOnly(true);
+        this.changeButton = findViewById(R.id.changeButton);
+        this.changeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // make the text marquee
+                scrollTeamText(teamOneText);
+                scrollTeamText(teamTwoText);
+            }
+        });
 
         this.scoreChangeButton = findViewById(R.id.scoreChangeButton);
         this.scoreChangeButton.setOnClickListener(new View.OnClickListener() {
@@ -62,6 +80,12 @@ public class TennisPlayActivity extends FragmentTeamActivity implements
                 changeScorePages();
             }
         });
+
+        teamOneText = findViewById(R.id.team_one_textView);
+        teamTwoText = findViewById(R.id.team_two_textView);
+
+        teamOneText.setText(getTeamOneNames());
+        teamTwoText.setText(getTeamTwoNames());
 
         // Instantiate a ViewPager and a PagerAdapter to transition between scores
         scorePager = (ViewPager) findViewById(R.id.score_pager);
@@ -90,6 +114,67 @@ public class TennisPlayActivity extends FragmentTeamActivity implements
 
         // be sure the button is correct
         setScoreButtonText();
+    }
+
+    private void scrollTeamText(TextView teamText) {
+        // reset it back to not scrolling first
+        teamText.setSelected(false);
+        // reset te marquee limit
+        teamText.setMarqueeRepeatLimit(1);
+        // and start again
+        teamText.setSelected(true);
+    }
+
+    private String getTeamOneNames() {
+        Team team = this.activeMatch.getTeamOne();
+        Player[] players = team.getPlayers();
+        StringBuilder builder = new StringBuilder();
+        String playerName = players[0].getPlayerName();
+        if (playerName == null || playerName.isEmpty()) {
+            builder.append(getString(R.string.default_playerOneName));
+        }
+        else {
+            builder.append(playerName);
+        }
+
+        if (this.activeMatch.getIsDoubles()) {
+            builder.append(" -- ");
+            playerName = players[1].getPlayerName();
+            if (playerName == null || playerName.isEmpty()) {
+                builder.append(getString(R.string.default_playerOnePartnerName));
+            }
+            else {
+                builder.append(playerName);
+            }
+        }
+        builder.append("lots of chars to make the text marquee if it can at all...");
+        return builder.toString();
+    }
+
+    private String getTeamTwoNames() {
+        Team team = this.activeMatch.getTeamTwo();
+        Player[] players = team.getPlayers();
+        StringBuilder builder = new StringBuilder();
+        String playerName = players[0].getPlayerName();
+        if (playerName == null || playerName.isEmpty()) {
+            builder.append(getString(R.string.default_playerTwoName));
+        }
+        else {
+            builder.append(playerName);
+        }
+
+        if (this.activeMatch.getIsDoubles()) {
+            builder.append(" -- ");
+            playerName = players[1].getPlayerName();
+            if (playerName == null || playerName.isEmpty()) {
+                builder.append(getString(R.string.default_playerTwoPartnerName));
+            }
+            else {
+                builder.append(playerName);
+            }
+        }
+        builder.append("lots of chars to make the text marquee if it can at all...");
+        return builder.toString();
     }
 
     private void setScoreButtonText() {
@@ -171,27 +256,11 @@ public class TennisPlayActivity extends FragmentTeamActivity implements
         this.timeFragment.setMatchTime((int)diffMinutes);
     }
 
-    @Override
-    public void onAnimationUpdated(Float value) {
-        // re-arrange the layout for singles to put the name at the bottom of the screen
-        View view = this.teamTwoFragment.getView();
-        if (this.teamTwoHeight <= 0) {
-            // need to remember the first height
-            this.teamTwoHeight = view.getHeight();
-            this.teamTwoY = view.getY();
-        }
-        // move the view down the amount it is shrunk by
-        view.setY(this.teamTwoY - value);
-
-    }
-
     private void setupMatch() {
         // get the data from the match
         TennisSets sets = TennisSets.fromValue(this.activeMatch.getScoreGoal());
         boolean isDoubles = this.activeMatch.getIsDoubles();
         // show if we are doubles etc.
-        this.teamOneFragment.setIsDoubles(isDoubles, false);
-        this.teamTwoFragment.setIsDoubles(isDoubles, false);
 
         // and start the match by setting the start date
         this.activeMatch.setMatchPlayedDate(new Date());
