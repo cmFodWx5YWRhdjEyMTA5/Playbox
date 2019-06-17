@@ -15,6 +15,7 @@ import uk.co.darkerwaters.scorepal.activities.BaseActivity;
 import uk.co.darkerwaters.scorepal.activities.MainActivity;
 import uk.co.darkerwaters.scorepal.application.Log;
 import uk.co.darkerwaters.scorepal.application.Settings;
+import uk.co.darkerwaters.scorepal.score.Match;
 
 public class Application extends android.app.Application {
 
@@ -22,6 +23,7 @@ public class Application extends android.app.Application {
     private Settings settings = null;
     private Activity mainActivity = null;
     private Activity activeActivity = null;
+    private Match activeMatch = null;
 
     @Override
     public void onCreate() {
@@ -74,6 +76,14 @@ public class Application extends android.app.Application {
     public void setMainActivity(Activity activity) {
         // set the activity to use to set things up
         this.mainActivity = activity;
+    }
+
+    public void setActiveMatch(Match match) {
+        this.activeMatch = match;
+    }
+
+    public Match getActiveMatch() {
+        return this.activeMatch;
     }
 
     public Activity getMainActivity() {

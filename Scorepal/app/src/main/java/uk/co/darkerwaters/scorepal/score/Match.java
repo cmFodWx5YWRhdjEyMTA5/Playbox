@@ -133,6 +133,22 @@ public class Match {
         }
     }
 
+    public void setIsDoubles(boolean isDoubles) {
+        this.isDoubles = isDoubles;
+    }
+
+    public int getScoreGoal() {
+        return this.score.getScoreGoal();
+    }
+
+    public void setScoreGoal(int goal) {
+        this.score.setScoreGoal(goal);
+    }
+
+    public boolean getIsDoubles() {
+        return this.isDoubles;
+    }
+
     public Team getTeamOne() {
         return this.teams[0];
     }

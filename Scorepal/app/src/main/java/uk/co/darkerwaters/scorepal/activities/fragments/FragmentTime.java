@@ -29,6 +29,7 @@ public class FragmentTime extends Fragment {
 
     public interface FragmentTimeInteractionListener {
         void onAttachFragment(FragmentTime fragment);
+        void onTimeChanged();
     }
 
     private FragmentTimeInteractionListener listener;
@@ -55,7 +56,7 @@ public class FragmentTime extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View mainView = inflater.inflate(R.layout.fragment_previous_sets, container, false);
+        View mainView = inflater.inflate(R.layout.fragment_time, container, false);
 
         // find all the text switchers here for team one
         this.switchers[0][0] = mainView.findViewById(R.id.time_digitOne);
@@ -75,10 +76,11 @@ public class FragmentTime extends Fragment {
             public View makeView() {
                 // create a TextView
                 TextView t = new TextView(context);
-                // set the gravity of text to top and center horizontal
-                t.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL);
+                // set the gravity of text to centre it
+                t.setGravity(Gravity.CENTER);
                 // set displayed text size
                 t.setTextSize(36);
+                t.setTextColor(context.getColor(R.color.primaryTextColor));
                 return t;
             }
         };
@@ -108,17 +110,13 @@ public class FragmentTime extends Fragment {
         // need to listen for changes in time
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_TIME_CHANGED);
+        intentFilter.addAction(Intent.ACTION_TIME_TICK);
         // create the receiver
         this.timeChangedReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                final String action = intent.getAction();
-
-                if (action.equals(Intent.ACTION_TIME_CHANGED) ||
-                        action.equals(Intent.ACTION_TIMEZONE_CHANGED)) {
-                    // update the time
-                    onTimeChanged();
-                }
+                // update the time
+                onTimeChanged();
             }
         };
         // and register it
@@ -126,6 +124,16 @@ public class FragmentTime extends Fragment {
 
         // and return the constructed parent view
         return mainView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // clear out any data hanging around
+        Arrays.fill(this.timeDigits, -1);
+        Arrays.fill(this.matchDigits, -1);
+        // update this view
+        onTimeChanged();
     }
 
     @Override
@@ -142,13 +150,25 @@ public class FragmentTime extends Fragment {
             if (timeDigits[i] != newDigits[i]) {
                 // this is different
                 timeDigits[i] = newDigits[i];
-                this.switchers[0][i].setText(getTimeAsString(i, timeDigits[i]));
+                this.switchers[1][i].setText(getTimeAsString(i, timeDigits[i]));
             }
         }
+        // inform any listeners of this
+        this.listener.onTimeChanged();
     }
 
-    private void setMatchTime(int minutes) {
-        //TODO set the match time
+    public void setMatchTime(int minutes) {
+        // split the minutes to each digit
+        int hours = (int)(minutes / 60f);
+        minutes -= hours * 60;
+        int[] newDigits = splitTimeToDigits(hours, minutes);
+        for (int i = 0; i < K_NO_DIGITS; ++i) {
+            if (matchDigits[i] != newDigits[i]) {
+                // this is different
+                matchDigits[i] = newDigits[i];
+                this.switchers[0][i].setText(getTimeAsString(i, matchDigits[i]));
+            }
+        }
     }
 
     private String getTimeAsString(int position, int timeDigit) {
@@ -165,15 +185,20 @@ public class FragmentTime extends Fragment {
     }
 
     private int[] splitTimeToDigits(Calendar time) {
+        int currentHours = time.get(Calendar.HOUR_OF_DAY);
+        int currentMinutes = time.get(Calendar.MINUTE);
+        return splitTimeToDigits(currentHours, currentMinutes);
+    }
+
+    private int[] splitTimeToDigits(int hours, int minutes) {
         // do the hours
         int[] newDigits = new int[K_NO_DIGITS];
-        int currentHours = time.get(Calendar.HOUR_OF_DAY);
-        newDigits[0] = currentHours % 10;
-        newDigits[1] = currentHours - (newDigits[0] * 10);
+        // do the hours
+        newDigits[0] = (int)(hours / 10f);
+        newDigits[1] = hours - (newDigits[0] * 10);
         // do the minutes too
-        int currentMinutes = time.get(Calendar.MINUTE);
-        newDigits[2] = currentMinutes % 10;
-        newDigits[3] = currentMinutes - (newDigits[2] * 10);
+        newDigits[2] = (int)(minutes / 10f);
+        newDigits[3] = minutes - (newDigits[2] * 10);
         // and return this
         return newDigits;
     }

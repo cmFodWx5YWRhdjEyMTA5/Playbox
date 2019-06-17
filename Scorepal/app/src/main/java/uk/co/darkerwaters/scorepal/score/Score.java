@@ -21,6 +21,8 @@ class Score {
 
     private final Player[] players;
 
+    private int scoreGoal = -1;
+
     // default access, make the users go through a scorer class to store history of the process
     Score(Team[] teams, int pointsLevels, ScoreFactory.ScoreMode mode) {
         this.teams = teams;
@@ -169,6 +171,14 @@ class Score {
             // set the court position to the next position in the list
             team.setCourtPosition(team.getCourtPosition().getNext());
         }
+    }
+
+    public int getScoreGoal() {
+        return this.scoreGoal;
+    }
+
+    public void setScoreGoal(int goal) {
+        this.scoreGoal = goal;
     }
 
     boolean isMatchOver() { return false; }

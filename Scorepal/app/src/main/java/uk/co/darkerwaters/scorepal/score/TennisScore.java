@@ -33,16 +33,15 @@ class TennisScore extends Score {
 
     private final static int K_LEVELS = 3;
 
-    private final TennisSets setsToPlay;
-
     private boolean isFinalSetTie;
     private boolean isInTieBreak;
     private Player tieBreakServer;
 
     TennisScore(Team[] teams, TennisSets setsToPlay) {
         super(teams, K_LEVELS, ScoreFactory.ScoreMode.K_TENNIS);
-        this.setsToPlay = setsToPlay;
         this.isFinalSetTie = false;
+        // the score goal is the number of sets to play
+        setScoreGoal(setsToPlay.val);
     }
 
     @Override
@@ -61,14 +60,20 @@ class TennisScore extends Score {
     @Override
     boolean isMatchOver() {
         boolean isMatchOver = false;
+        TennisSets setsToPlay = getSetsToPlay();
         // return if a player has reached the number of sets required (this is just over half)
         for (Team team : getTeams()) {
-            if (getSets(team) >= this.setsToPlay.target) {
+            if (getSets(team) >= setsToPlay.target) {
                 // this team has reached the limit, match is over
                 isMatchOver = true;
             }
         }
         return isMatchOver;
+    }
+
+    TennisSets getSetsToPlay() {
+        // the sets to play are set from the score goal
+        return TennisSets.fromValue(getScoreGoal());
     }
 
     int getPoints(Team team) {
@@ -288,7 +293,7 @@ class TennisScore extends Score {
 
     private boolean isTieBreakSet() {
         // we are in a tie break set if not the final set, or the final set is a tie-break set
-        if (getPlayedSets() == this.setsToPlay.val - 1) {
+        if (getPlayedSets() == getSetsToPlay().val - 1) {
             // we are playing the final set
             return this.isFinalSetTie;
         }

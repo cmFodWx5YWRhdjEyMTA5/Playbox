@@ -8,6 +8,9 @@ import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.Button;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import uk.co.darkerwaters.scorepal.activities.fragments.FragmentTime;
 import uk.co.darkerwaters.scorepal.activities.handlers.DepthPageTransformer;
 import uk.co.darkerwaters.scorepal.activities.fragments.FragmentPreviousSets;
@@ -15,6 +18,7 @@ import uk.co.darkerwaters.scorepal.activities.fragments.FragmentScore;
 import uk.co.darkerwaters.scorepal.activities.fragments.FragmentTeam;
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.activities.handlers.ScreenSliderPagerAdapter;
+import uk.co.darkerwaters.scorepal.score.Match;
 import uk.co.darkerwaters.scorepal.score.TennisSets;
 
 public class TennisPlayActivity extends FragmentTeamActivity implements
@@ -36,10 +40,15 @@ public class TennisPlayActivity extends FragmentTeamActivity implements
     private FragmentScore scoreFragment;
     private FragmentTime timeFragment;
 
+    private Match activeMatch;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tennis_play);
+
+        // get the match for which we are doing things
+        this.activeMatch = this.application.getActiveMatch();
 
         // make the names read-only
         this.teamOneFragment.setIsReadOnly(true);
@@ -59,7 +68,8 @@ public class TennisPlayActivity extends FragmentTeamActivity implements
         pagerAdapter = new ScreenSliderPagerAdapter(getSupportFragmentManager(),
                 new Fragment[] {
                         new FragmentScore(),
-                        new FragmentPreviousSets()
+                        new FragmentPreviousSets(),
+                        new FragmentTime()
                 });
         scorePager.setAdapter(pagerAdapter);
         scorePager.setPageTransformer(true, new DepthPageTransformer());
@@ -147,6 +157,21 @@ public class TennisPlayActivity extends FragmentTeamActivity implements
     }
 
     @Override
+    public void onTimeChanged() {
+        // need to update the match time
+        Calendar matchStarted = Calendar.getInstance();
+        matchStarted.setTime(this.activeMatch.getMatchPlayedDate());
+        Calendar now = Calendar.getInstance();
+
+        // Calculate difference in milliseconds
+        long diff = now.getTimeInMillis() - matchStarted.getTimeInMillis();
+        long diffMinutes = diff / (60 * 1000);
+
+        // and show the match time
+        this.timeFragment.setMatchTime((int)diffMinutes);
+    }
+
+    @Override
     public void onAnimationUpdated(Float value) {
         // re-arrange the layout for singles to put the name at the bottom of the screen
         View view = this.teamTwoFragment.getView();
@@ -161,20 +186,15 @@ public class TennisPlayActivity extends FragmentTeamActivity implements
     }
 
     private void setupMatch() {
-        // setup the controls on the screen
-        TennisSets sets = this.application.getSettings().getTennisSets();
-        boolean isDoubles = this.application.getSettings().getIsDoubles();
-
+        // get the data from the match
+        TennisSets sets = TennisSets.fromValue(this.activeMatch.getScoreGoal());
+        boolean isDoubles = this.activeMatch.getIsDoubles();
+        // show if we are doubles etc.
         this.teamOneFragment.setIsDoubles(isDoubles, false);
         this.teamTwoFragment.setIsDoubles(isDoubles, false);
 
-        // setup the number of sets properly
-        this.previousSetsFragment.setSets(sets);
-        for (int i = 0; i < 2; ++i) {
-            for (int j = 0; j < 5; ++j) {
-                this.previousSetsFragment.setSetValue(i,j,i * 5 + j);
-            }
-        }
-        this.previousSetsFragment.setTieBreakResult(2, 7, 5);
+        // and start the match by setting the start date
+        this.activeMatch.setMatchPlayedDate(new Date());
+
     }
 }

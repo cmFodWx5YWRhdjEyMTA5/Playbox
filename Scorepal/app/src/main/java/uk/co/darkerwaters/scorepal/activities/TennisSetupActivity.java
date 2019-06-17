@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.application.Settings;
+import uk.co.darkerwaters.scorepal.score.Match;
 import uk.co.darkerwaters.scorepal.score.TennisSets;
 
 public class TennisSetupActivity extends FragmentTeamActivity {
@@ -23,8 +24,7 @@ public class TennisSetupActivity extends FragmentTeamActivity {
 
     private FloatingActionButton fabPlay;
 
-    private TennisSets currentSets;
-    private boolean isDoubles;
+    private Match currentMatch;
 
     public TennisSetupActivity() {
     }
@@ -34,6 +34,9 @@ public class TennisSetupActivity extends FragmentTeamActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tennis_setup);
 
+        // get the current match we are settingup
+        this.currentMatch = this.application.getActiveMatch();
+
         this.setsText = findViewById(R.id.setsNumberText);
         this.setsMoreButton = findViewById(R.id.setsMoreImageButton);
         this.setsLessButton = findViewById(R.id.setsLessImageButton);
@@ -42,27 +45,25 @@ public class TennisSetupActivity extends FragmentTeamActivity {
         this.setsMoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                currentSets = currentSets.next();
-                setActivityDataShown();
+                changeSets(+1);
             }
         });
         this.setsLessButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                currentSets = currentSets.prev();
-                setActivityDataShown();
+                changeSets(-1);
             }
         });
         this.singlesDoublesSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                TennisSetupActivity.this.isDoubles = b;
+                TennisSetupActivity.this.currentMatch.setIsDoubles(b);
                 setActivityDataShown();
             }
         });
         // get the default to start with
-        this.currentSets = this.application.getSettings().getTennisSets();
-        this.isDoubles = this.application.getSettings().getIsDoubles();
+        setCurrentSets(this.application.getSettings().getTennisSets());
+        this.currentMatch.setIsDoubles(this.application.getSettings().getIsDoubles());
 
         this.fabPlay = findViewById(R.id.fab_play);
         this.fabPlay.setOnClickListener(new View.OnClickListener() {
@@ -75,12 +76,36 @@ public class TennisSetupActivity extends FragmentTeamActivity {
         });
     }
 
+    private TennisSets getCurrentSets() {
+        return TennisSets.fromValue(this.currentMatch.getScoreGoal());
+    }
+
+    private void setCurrentSets(TennisSets sets) {
+        this.currentMatch.setScoreGoal(sets.val);
+    }
+
+    private void changeSets(int delta) {
+        // get the current set
+        TennisSets currentSets = getCurrentSets();
+        // and move it on, setting it on the match
+        if (delta > 0) {
+            setCurrentSets(currentSets.next());
+        }
+        else {
+            setCurrentSets(currentSets.prev());
+        }
+        // and update the screen
+        setActivityDataShown();
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
         Settings settings = this.application.getSettings();
-        settings.setIsDoubles(this.isDoubles);
-        settings.setTennisSets(this.currentSets);
+        // set the default for is doubles or not
+        settings.setIsDoubles(this.currentMatch.getIsDoubles());
+        // the tennis sets
+        settings.setTennisSets(getCurrentSets());
     }
 
     @Override
@@ -97,8 +122,9 @@ public class TennisSetupActivity extends FragmentTeamActivity {
     }
 
     private void setActivityDataShown() {
-        this.singlesDoublesSwitch.setChecked(this.isDoubles);
-        switch (this.currentSets) {
+        boolean isDoubles = this.currentMatch.getIsDoubles();
+        this.singlesDoublesSwitch.setChecked(isDoubles);
+        switch (getCurrentSets()) {
             case ONE:
                 this.setsText.setText(R.string.one_sets);
                 break;
@@ -109,7 +135,7 @@ public class TennisSetupActivity extends FragmentTeamActivity {
                 this.setsText.setText(R.string.five_sets);
                 break;
         }
-        this.teamOneFragment.setIsDoubles(this.isDoubles, false);
-        this.teamTwoFragment.setIsDoubles(this.isDoubles, false);
+        this.teamOneFragment.setIsDoubles(isDoubles, false);
+        this.teamTwoFragment.setIsDoubles(isDoubles, false);
     }
 }

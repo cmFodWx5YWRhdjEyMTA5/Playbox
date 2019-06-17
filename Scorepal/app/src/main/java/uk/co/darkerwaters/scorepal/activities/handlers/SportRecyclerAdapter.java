@@ -11,8 +11,8 @@ import uk.co.darkerwaters.scorepal.Application;
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.activities.PointsSetupActivity;
 import uk.co.darkerwaters.scorepal.activities.TennisSetupActivity;
-import uk.co.darkerwaters.scorepal.activities.fragments.CardHolderGame;
 import uk.co.darkerwaters.scorepal.activities.fragments.CardHolderSport;
+import uk.co.darkerwaters.scorepal.score.ScoreFactory;
 
 public class SportRecyclerAdapter extends RecyclerView.Adapter<CardHolderSport> {
 
@@ -21,11 +21,13 @@ public class SportRecyclerAdapter extends RecyclerView.Adapter<CardHolderSport> 
         public final String title;
         public final String subtitle;
         public final String imageFilename;
+        public final ScoreFactory.ScoreMode mode;
         public final Class<? extends Activity> activityClass;
 
-        Sport(String title, String subtitle, String imageFilename, Class<? extends Activity> activityClass) {
+        Sport(String title, String subtitle, String imageFilename, ScoreFactory.ScoreMode mode, Class<? extends Activity> activityClass) {
             this.title = title;
             this.subtitle = subtitle;
+            this.mode = mode;
             this.imageFilename = imageFilename;
             this.activityClass = activityClass;
         }
@@ -42,10 +44,12 @@ public class SportRecyclerAdapter extends RecyclerView.Adapter<CardHolderSport> 
                 new Sport(context.getString(R.string.tennis),
                         context.getString(R.string.tennisSubtitle),
                         "images/tennis.jpg",
+                        ScoreFactory.ScoreMode.K_TENNIS,
                         TennisSetupActivity.class),
                 new Sport(context.getString(R.string.points_sport),
                         context.getString(R.string.pointsSubtitle),
                         "images/points.jpg",
+                        ScoreFactory.ScoreMode.K_POINTS,
                         PointsSetupActivity.class)
 
         };
