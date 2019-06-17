@@ -1,6 +1,9 @@
 package uk.co.darkerwaters.scorepal.activities.fragments;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.Gravity;
@@ -12,6 +15,9 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
+
+import java.util.Arrays;
+import java.util.Calendar;
 
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.score.TennisSets;
@@ -30,8 +36,18 @@ public class FragmentTime extends Fragment {
     private TextSwitcher[][] switchers = new TextSwitcher[K_NO_TIMES][K_NO_DIGITS];
     private ViewSwitcher.ViewFactory switcherFactory;
 
+    private BroadcastReceiver timeChangedReceiver;
+
+    private final int[] timeDigits;
+    private final int[] matchDigits;
+
     public FragmentTime() {
         // Required empty public constructor
+        this.timeDigits = new int[K_NO_DIGITS];
+        this.matchDigits = new int[K_NO_DIGITS];
+        // fill with unset numbers
+        Arrays.fill(this.timeDigits, -1);
+        Arrays.fill(this.matchDigits, -1);
     }
 
 
@@ -89,8 +105,77 @@ public class FragmentTime extends Fragment {
             this.switchers[1][j].setOutAnimation(out);
         }
 
+        // need to listen for changes in time
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_TIME_CHANGED);
+        // create the receiver
+        this.timeChangedReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String action = intent.getAction();
+
+                if (action.equals(Intent.ACTION_TIME_CHANGED) ||
+                        action.equals(Intent.ACTION_TIMEZONE_CHANGED)) {
+                    // update the time
+                    onTimeChanged();
+                }
+            }
+        };
+        // and register it
+        getActivity().registerReceiver(timeChangedReceiver, intentFilter);
+
         // and return the constructed parent view
         return mainView;
+    }
+
+    @Override
+    public void onDestroy() {
+        // detach the time change receiver
+        getActivity().unregisterReceiver(timeChangedReceiver);
+        super.onDestroy();
+    }
+
+    private void onTimeChanged() {
+        Calendar rightNow = Calendar.getInstance();
+        int[] newDigits = splitTimeToDigits(rightNow);
+        for (int i = 0; i < K_NO_DIGITS; ++i) {
+            if (timeDigits[i] != newDigits[i]) {
+                // this is different
+                timeDigits[i] = newDigits[i];
+                this.switchers[0][i].setText(getTimeAsString(i, timeDigits[i]));
+            }
+        }
+    }
+
+    private void setMatchTime(int minutes) {
+        //TODO set the match time
+    }
+
+    private String getTimeAsString(int position, int timeDigit) {
+        String digit;
+        if (timeDigit < 0 || (position == 0 && timeDigit <= 0)) {
+            // should be blank
+            digit = "";
+        }
+        else {
+            // use as a number
+            digit = Integer.toString(timeDigit);
+        }
+        return digit;
+    }
+
+    private int[] splitTimeToDigits(Calendar time) {
+        // do the hours
+        int[] newDigits = new int[K_NO_DIGITS];
+        int currentHours = time.get(Calendar.HOUR_OF_DAY);
+        newDigits[0] = currentHours % 10;
+        newDigits[1] = currentHours - (newDigits[0] * 10);
+        // do the minutes too
+        int currentMinutes = time.get(Calendar.MINUTE);
+        newDigits[2] = currentMinutes % 10;
+        newDigits[3] = currentMinutes - (newDigits[2] * 10);
+        // and return this
+        return newDigits;
     }
 
     @Override

@@ -120,32 +120,37 @@ public class OptionsListAdapter extends RecyclerView.Adapter<OptionsListItemView
 
     private void addBtDevices(final Context context, OptionsListAdapterListener listener) {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
+        if (null != bluetoothAdapter) {
+            Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
 
-        final State state = State.GetInstance(context);
-        for(BluetoothDevice bt : pairedDevices) {
-            // for each device, add to the list they can choose from
-            final String btName = bt.getName();
-            addItem(new OptionsListItem(listener, btName, R.drawable.ic_baseline_bluetooth_24px) {
-                @Override
-                boolean isActive() {
-                    return isSelected() && state.getConnectedBtDevice(context).equals(btName);
-                }
-                @Override
-                boolean isSelected() {
-                    return state.isTalkBtDevice(btName);
-                }
-                @Override
-                void setSelected(boolean isSelected) {
-                    state.setIsTalkBtDevice(btName, isSelected);
-                    // inform the listener of this change
-                    listener.onOptionsListChanged(this);
-                }
-                @Override
-                boolean isBluetooth() {
-                    return true;
-                }
-            });
+            final State state = State.GetInstance(context);
+            for (BluetoothDevice bt : pairedDevices) {
+                // for each device, add to the list they can choose from
+                final String btName = bt.getName();
+                addItem(new OptionsListItem(listener, btName, R.drawable.ic_baseline_bluetooth_24px) {
+                    @Override
+                    boolean isActive() {
+                        return isSelected() && state.getConnectedBtDevice(context).equals(btName);
+                    }
+
+                    @Override
+                    boolean isSelected() {
+                        return state.isTalkBtDevice(btName);
+                    }
+
+                    @Override
+                    void setSelected(boolean isSelected) {
+                        state.setIsTalkBtDevice(btName, isSelected);
+                        // inform the listener of this change
+                        listener.onOptionsListChanged(this);
+                    }
+
+                    @Override
+                    boolean isBluetooth() {
+                        return true;
+                    }
+                });
+            }
         }
     }
 
