@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Calendar;
@@ -52,6 +53,9 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
     private TextView teamOneText;
     private TextView teamTwoText;
 
+    private ImageView pageRight;
+    private ImageView pageLeft;
+
     private Match activeMatch;
 
     @Override
@@ -71,6 +75,9 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
                 scrollTeamText(teamTwoText);
             }
         });
+
+        this.pageLeft = findViewById(R.id.viewPageLeftButton);
+        this.pageRight = findViewById(R.id.viewPageRightButton);
 
         this.scoreChangeButton = findViewById(R.id.scoreChangeButton);
         this.scoreChangeButton.setOnClickListener(new View.OnClickListener() {
@@ -179,6 +186,20 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
 
     private void setScoreButtonText() {
         int currentPage = scorePager.getCurrentItem();
+        switch(currentPage) {
+            case 0:
+                pageLeft.setVisibility(View.INVISIBLE);
+                pageRight.setVisibility(View.VISIBLE);
+                break;
+            case 1:
+                pageLeft.setVisibility(View.VISIBLE);
+                pageRight.setVisibility(View.VISIBLE);
+                break;
+            case 2:
+                pageLeft.setVisibility(View.VISIBLE);
+                pageRight.setVisibility(View.INVISIBLE);
+                break;
+        }
         if (currentPage == 0) {
             // button will change to the previous sets
             this.scoreChangeButton.setText(R.string.previous_sets);
