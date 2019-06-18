@@ -19,51 +19,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/team_one_card"
+    <FrameLayout
+        android:id="@+id/team_one_scene"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        app:cardBackgroundColor="@color/colorPrimary"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="3dp"
-        app:contentPadding="4dp"
         app:layout_constraintBottom_toTopOf="@+id/score_pager"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/team_one_imageButton">
+        app:layout_constraintStart_toStartOf="parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="4dp">
+        <include layout="@layout/scene_player_north" />
+    </FrameLayout>
 
-            <TextView
-                android:id="@+id/team_one_textView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_gravity="center_horizontal"
-                android:ellipsize="marquee"
-                android:freezesText="true"
-                android:gravity="center_horizontal"
-                android:paddingLeft="5dip"
-                android:paddingRight="5dip"
-                android:scrollHorizontally="true"
-                android:singleLine="true"
-                android:text="@string/default_playerOneName"
-                android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:textColor="@color/primaryTextColor" />
-
-            <uk.co.darkerwaters.scorepal.views.EndView
-                android:id="@+id/team_one_EndView"
-                android:layout_width="match_parent"
-                android:layout_height="18dp" />
-        </LinearLayout>
-
-    </android.support.v7.widget.CardView>
 
     <uk.co.darkerwaters.scorepal.views.WrapContentHeightViewPager
         android:id="@+id/score_pager"
@@ -111,79 +80,19 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/team_two_card"
+    <FrameLayout
+        android:id="@+id/team_two_scene"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        app:cardBackgroundColor="@color/colorPrimary"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="3dp"
-        app:contentPadding="4dp"
-        app:layout_constraintEnd_toStartOf="@+id/team_two_imageButton"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/score_pager">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingTop="4dp">
-
-            <uk.co.darkerwaters.scorepal.views.EndView
-                android:id="@+id/team_two_EndView"
-                android:layout_width="match_parent"
-                android:layout_height="18dp" />
-
-            <TextView
-                android:id="@+id/team_two_textView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_gravity="center_horizontal"
-                android:ellipsize="marquee"
-                android:freezesText="true"
-                android:gravity="center_horizontal"
-                android:paddingLeft="5dip"
-                android:paddingRight="5dip"
-                android:scrollHorizontally="true"
-                android:singleLine="true"
-                android:text="@string/default_playerTwoName"
-                android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:textColor="@color/primaryTextColor" />
-        </LinearLayout>
-
-    </android.support.v7.widget.CardView>
-
-    <ImageButton
-        android:id="@+id/team_one_imageButton"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        android:backgroundTint="@color/colorPrimaryDark"
-        android:elevation="8dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/ic_tennis_serve"
-        android:tint="@color/primaryTextColor"
-        app:layout_constraintBottom_toBottomOf="@+id/team_one_card"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/team_one_card" />
-
-    <ImageButton
-        android:id="@+id/team_two_imageButton"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginEnd="8dp"
-        android:backgroundTint="@color/colorPrimaryDark"
-        android:elevation="8dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/ic_tennis_receive"
-        android:tint="@color/primaryTextColor"
-        app:layout_constraintBottom_toBottomOf="@+id/team_two_card"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/team_two_card" />
+        <include layout="@layout/scene_player_south" />
+    </FrameLayout>
 
 
 </android.support.constraint.ConstraintLayout>

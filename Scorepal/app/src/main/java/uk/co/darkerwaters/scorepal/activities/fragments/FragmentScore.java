@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import uk.co.darkerwaters.scorepal.R;
+import uk.co.darkerwaters.scorepal.score.TennisScore;
 
 public class FragmentScore extends Fragment {
 
@@ -22,9 +23,18 @@ public class FragmentScore extends Fragment {
 
     public interface FragmentScoreInteractionListener {
         void onAttachFragment(FragmentScore fragment);
+        void onFragmentScorePointsClick(int teamIndex);
+    }
+
+    public enum ScoreState {
+        COMPLETED,
+        CHANGE_ENDS,
+        CHANGE_SERVER
     }
 
     private FragmentScoreInteractionListener listener;
+
+    private TextView informationText;
 
     private TextSwitcher[][] switchers = new TextSwitcher[K_NO_TEAMS][K_NO_LEVELS];
     private ViewSwitcher.ViewFactory switcherFactory;
@@ -40,6 +50,8 @@ public class FragmentScore extends Fragment {
         // Inflate the layout for this fragment
         View mainView = inflater.inflate(R.layout.fragment_score, container, false);
 
+        this.informationText = mainView.findViewById(R.id.information_textView);
+
         // find all the text switchers here for team one
         this.switchers[0][0] = mainView.findViewById(R.id.sets_teamOne);
         this.switchers[0][1] = mainView.findViewById(R.id.games_teamOne);
@@ -48,6 +60,20 @@ public class FragmentScore extends Fragment {
         this.switchers[1][0] = mainView.findViewById(R.id.sets_teamTwo);
         this.switchers[1][1] = mainView.findViewById(R.id.games_teamTwo);
         this.switchers[1][2] = mainView.findViewById(R.id.points_teamTwo);
+
+        // listen for clicks on the points to change the points
+        this.switchers[0][2].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                informListenerOfPointsClick(0);
+            }
+        });
+        this.switchers[1][2].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                informListenerOfPointsClick(1);
+            }
+        });
 
         // make the factory to handle the switching of text here
         final Context context = this.getContext();
@@ -90,16 +116,46 @@ public class FragmentScore extends Fragment {
         return mainView;
     }
 
-    public void setSetValue(int teamIndex, int value) {
-        this.switchers[teamIndex][2].setText(Integer.toString(value));
+    public void showMatchState(ScoreState state) {
+        //TODO a nice animation that goes away eventually (except game over - that stays)
+        switch(state) {
+            case COMPLETED:
+                this.informationText.setText("Game over man...");
+                break;
+            case CHANGE_ENDS:
+                this.informationText.setText("Change ends...");
+                break;
+            case CHANGE_SERVER:
+                //this.informationText.setText("Change server...");
+                break;
+        }
     }
 
-    public void setGamesValue(int teamIndex, int value) {
-        this.switchers[teamIndex][1].setText(Integer.toString(value));
+    private void informListenerOfPointsClick(int teamIndex) {
+        this.listener.onFragmentScorePointsClick(teamIndex);
     }
 
-    public void setPointsValue(int teamIndex, int value) {
-        this.switchers[teamIndex][0].setText(Integer.toString(value));
+    public void setSetValue(int teamIndex, String value) {
+        setSwitcherText(this.switchers[teamIndex][0], value);
+    }
+
+    public void setGamesValue(int teamIndex, String value) {
+        setSwitcherText(this.switchers[teamIndex][1], value);
+    }
+
+    public void setPointsValue(int teamIndex, String value) {
+        setSwitcherText(this.switchers[teamIndex][2], value);
+    }
+
+    private void setSwitcherText(TextSwitcher switcher, String content) {
+        if (switcher.getCurrentView() instanceof TextView) {
+            TextView currentTextView = (TextView) switcher.getCurrentView();
+            CharSequence text = currentTextView.getText();
+            if (null == text || false == text.toString().equals(content)) {
+                // this is different, set it to that passed
+                switcher.setText(content);
+            }
+        }
     }
 
     @Override

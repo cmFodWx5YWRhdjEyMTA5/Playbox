@@ -23,12 +23,23 @@ class Score {
 
     private int scoreGoal = -1;
 
+    interface ScoreListener {
+        void onScoreChanged(ScoreChange type);
+    }
+
+    public enum ScoreChange {
+        RESET, INCREMENT, SET, SERVER, ENDS, GOAL;
+    }
+
+    private final List<ScoreListener> listeners;
+
     // default access, make the users go through a scorer class to store history of the process
     Score(Team[] teams, int pointsLevels, ScoreFactory.ScoreMode mode) {
         this.teams = teams;
         this.points = new int[pointsLevels][teams.length];
         this.pointsHistory = new List[pointsLevels];
         this.scoreMode = mode;
+        this.listeners = new ArrayList<ScoreListener>();
         // also, we will use the players so much, store them in their own list
         List<Player> playerList = new ArrayList<Player>();
         for (Team team : this.teams) {
@@ -39,6 +50,26 @@ class Score {
         this.players = playerList.toArray(new Player[0]);
         // make sure everything starts off the same each time
         resetScore();
+    }
+
+    boolean addListener(ScoreListener listener) {
+        synchronized (this.listeners) {
+            return this.listeners.add(listener);
+        }
+    }
+
+    boolean removeListener(ScoreListener listener) {
+        synchronized (this.listeners) {
+            return this.listeners.remove(listener);
+        }
+    }
+
+    void informListeners(ScoreChange type) {
+        synchronized (this.listeners) {
+            for (ScoreListener listener : this.listeners) {
+                listener.onScoreChanged(type);
+            }
+        }
     }
 
     void resetScore() {
@@ -70,6 +101,8 @@ class Score {
             // and initialise the server on the players
             changeServer(this.teams[0].getNextServer());
         }
+        // inform listeners of this
+        informListeners(ScoreChange.RESET);
     }
 
     ScoreFactory.ScoreMode getScoreMode() {
@@ -85,12 +118,16 @@ class Score {
         // just add a point to the base level
         int point = getPoint(0, team) + 1;
         setPoint(0, team, point);
+        // inform listeners of this
+        informListeners(ScoreChange.INCREMENT);
         return point;
     }
 
     void setPoint(int level, Team team, int point) {
         int teamIndex = getTeamIndex(team);
         this.points[level][teamIndex] = point;
+        // inform listeners of this
+        informListeners(ScoreChange.SET);
     }
 
     Player[] getPlayers() {
@@ -106,6 +143,8 @@ class Score {
             // set the server correctly for all players
             player.setIsServing(player == server);
         }
+        // inform listeners of this
+        informListeners(ScoreChange.SERVER);
     }
 
     Player getServer() {
@@ -171,6 +210,8 @@ class Score {
             // set the court position to the next position in the list
             team.setCourtPosition(team.getCourtPosition().getNext());
         }
+        // inform listeners of this
+        informListeners(ScoreChange.ENDS);
     }
 
     public int getScoreGoal() {
@@ -179,6 +220,8 @@ class Score {
 
     public void setScoreGoal(int goal) {
         this.scoreGoal = goal;
+        // inform listeners of this
+        informListeners(ScoreChange.GOAL);
     }
 
     boolean isMatchOver() { return false; }

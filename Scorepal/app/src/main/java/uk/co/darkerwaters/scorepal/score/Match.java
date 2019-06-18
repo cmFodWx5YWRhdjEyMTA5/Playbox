@@ -4,7 +4,9 @@ import android.content.Context;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Stack;
 
 import uk.co.darkerwaters.scorepal.R;
@@ -13,7 +15,7 @@ import uk.co.darkerwaters.scorepal.players.CourtPosition;
 import uk.co.darkerwaters.scorepal.players.Player;
 import uk.co.darkerwaters.scorepal.players.Team;
 
-public class Match {
+public class Match implements Score.ScoreListener {
 
     private static final SimpleDateFormat fileDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
@@ -28,6 +30,16 @@ public class Match {
 
     private boolean isReadOnly = false;
 
+    public enum MatchChange {
+        RESET, INCREMENT, DECREMENT, STARTED, DOUBLES_SINGLES, GOAL, PLAYERS, ENDS, SERVER;
+    }
+
+    public interface MatchListener {
+        void onMatchChanged(MatchChange type);
+    }
+
+    private final List<MatchListener> listeners;
+
     public Match(Context context, ScoreFactory.ScoreMode scoreMode) {
         // setup the teams, will replace players in the structures as required
         this.teams = new Team[] {
@@ -40,16 +52,61 @@ public class Match {
                         new Player(context.getString(R.string.default_playerTwoPartnerName))
                 }, CourtPosition.GetDefault().getNext()),
         };
+        this.listeners = new ArrayList<MatchListener>();
         // create the score here
         this.score = ScoreFactory.CreateScore(teams, scoreMode);
+        // listen to this score to pass on the information to our listeners
+        this.score.addListener(this);
         // we will also store the entire history played
         this.pointHistory = new Stack<Team>();
+    }
+
+    public boolean addListener(MatchListener listener) {
+        synchronized (this.listeners) {
+            return this.listeners.add(listener);
+        }
+    }
+
+    public boolean removeListener(MatchListener listener) {
+        synchronized (this.listeners) {
+            return this.listeners.remove(listener);
+        }
+    }
+
+    private void informListeners(MatchChange type) {
+        synchronized (this.listeners) {
+            for (MatchListener listener : this.listeners) {
+                listener.onMatchChanged(type);
+            }
+        }
+    }
+
+    @Override
+    public void onScoreChanged(Score.ScoreChange type) {
+        // pass on the interesting changes to our listener
+        switch (type) {
+            case SET:
+            case INCREMENT:
+            case GOAL:
+            case RESET:
+                // none of this is interesting, we did all that from here and informed correctly
+                break;
+            case ENDS :
+                // this is interesting, someone will want to know this
+                informListeners(MatchChange.ENDS);
+                break;
+            case SERVER:
+                // this is interesting too, pass it on
+                informListeners(MatchChange.SERVER);
+                break;
+        }
     }
 
     private void resetScoreToStartingPosition() {
         // reset the score to the starting state in order to reset properly
         this.score.resetScore();
-        // set the player who is starting serve, location etc.
+        // inform listeners so they can set the player who is starting serve, location etc.
+        informListeners(MatchChange.RESET);
     }
 
     public int incrementPoint(Team team) {
@@ -60,6 +117,8 @@ public class Match {
         // from this point forward we cannot change anything on this match's data
         // else changing the starting position etc can really mess us up
         this.isReadOnly = true;
+        // inform listeners of this change to the score
+        informListeners(MatchChange.INCREMENT);
         // and return the new points for the team
         return pointToReturn;
     }
@@ -84,11 +143,13 @@ public class Match {
             // there are no points played, we can edit again
             this.isReadOnly = false;
         }
+        // inform listeners of this change to the score
+        informListeners(MatchChange.DECREMENT);
         // return the team who's point was popped
         return teamThatWonPoint;
     }
 
-    Score getScore() {
+    public Score getScore() {
         return this.score;
     }
 
@@ -114,6 +175,10 @@ public class Match {
         return this.score.getScoreMode();
     }
 
+    public Player getCurrentServer() {
+        return this.score.getServer();
+    }
+
     public Date getMatchPlayedDate() {
         Date played = null;
         try {
@@ -130,11 +195,15 @@ public class Match {
         }
         else {
             this.matchPlayedDate = fileDateFormat.format(date);
+            // inform listeners of this change to the score
+            informListeners(MatchChange.STARTED);
         }
     }
 
     public void setIsDoubles(boolean isDoubles) {
         this.isDoubles = isDoubles;
+        // inform listeners of this change to the score
+        informListeners(MatchChange.DOUBLES_SINGLES);
     }
 
     public int getScoreGoal() {
@@ -143,6 +212,8 @@ public class Match {
 
     public void setScoreGoal(int goal) {
         this.score.setScoreGoal(goal);
+        // inform listeners of this change to the score
+        informListeners(MatchChange.GOAL);
     }
 
     public boolean getIsDoubles() {
@@ -179,6 +250,8 @@ public class Match {
         }
         else {
             this.teams[0].getPlayers()[0] = player;
+            // inform listeners of this change to the score
+            informListeners(MatchChange.PLAYERS);
         }
     }
 
@@ -188,6 +261,8 @@ public class Match {
         }
         else {
             this.teams[1].getPlayers()[0] = player;
+            // inform listeners of this change to the score
+            informListeners(MatchChange.PLAYERS);
         }
     }
 
@@ -197,6 +272,8 @@ public class Match {
         }
         else {
             this.teams[0].getPlayers()[1] = player;
+            // inform listeners of this change to the score
+            informListeners(MatchChange.PLAYERS);
         }
     }
 
@@ -206,6 +283,8 @@ public class Match {
         }
         else {
             this.teams[1].getPlayers()[1] = player;
+            // inform listeners of this change to the score
+            informListeners(MatchChange.PLAYERS);
         }
     }
 
