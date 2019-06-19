@@ -51,7 +51,6 @@ public class FragmentTime extends Fragment {
         Arrays.fill(this.matchDigits, -1);
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -144,29 +143,33 @@ public class FragmentTime extends Fragment {
     }
 
     private void onTimeChanged() {
-        Calendar rightNow = Calendar.getInstance();
-        int[] newDigits = splitTimeToDigits(rightNow);
-        for (int i = 0; i < K_NO_DIGITS; ++i) {
-            if (timeDigits[i] != newDigits[i]) {
-                // this is different
-                timeDigits[i] = newDigits[i];
-                this.switchers[1][i].setText(getTimeAsString(i, timeDigits[i]));
+        if (!this.isDetached()) {
+            Calendar rightNow = Calendar.getInstance();
+            int[] newDigits = splitTimeToDigits(rightNow);
+            for (int i = 0; i < K_NO_DIGITS; ++i) {
+                if (timeDigits[i] != newDigits[i]) {
+                    // this is different
+                    timeDigits[i] = newDigits[i];
+                    this.switchers[1][i].setText(getTimeAsString(i, timeDigits[i]));
+                }
             }
+            // inform any listeners of this
+            this.listener.onTimeChanged();
         }
-        // inform any listeners of this
-        this.listener.onTimeChanged();
     }
 
     public void setMatchTime(int minutes) {
-        // split the minutes to each digit
-        int hours = (int)(minutes / 60f);
-        minutes -= hours * 60;
-        int[] newDigits = splitTimeToDigits(hours, minutes);
-        for (int i = 0; i < K_NO_DIGITS; ++i) {
-            if (matchDigits[i] != newDigits[i]) {
-                // this is different
-                matchDigits[i] = newDigits[i];
-                this.switchers[0][i].setText(getTimeAsString(i, matchDigits[i]));
+        if (!this.isDetached()) {
+            // split the minutes to each digit
+            int hours = (int) (minutes / 60f);
+            minutes -= hours * 60;
+            int[] newDigits = splitTimeToDigits(hours, minutes);
+            for (int i = 0; i < K_NO_DIGITS; ++i) {
+                if (matchDigits[i] != newDigits[i]) {
+                    // this is different
+                    matchDigits[i] = newDigits[i];
+                    this.switchers[0][i].setText(getTimeAsString(i, matchDigits[i]));
+                }
             }
         }
     }

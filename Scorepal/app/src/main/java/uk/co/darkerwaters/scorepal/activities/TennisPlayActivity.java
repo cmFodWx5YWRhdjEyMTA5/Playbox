@@ -6,17 +6,14 @@ import android.support.annotation.NonNull;
 import android.support.transition.ChangeBounds;
 import android.support.transition.Scene;
 import android.support.transition.Transition;
-import android.support.transition.TransitionInflater;
 import android.support.transition.TransitionManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -46,9 +43,6 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
     private ViewPager scorePager;
     private PagerAdapter pagerAdapter;
 
-    private Button scoreChangeButton;
-    private Button changeButton;
-
     private FragmentPreviousSets previousSetsFragment;
     private FragmentScore scoreFragment;
     private FragmentTime timeFragment;
@@ -70,6 +64,9 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
 
     private Match activeMatch;
 
+    private boolean isMessageStarted = false;
+    private boolean isMatchPlaying = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,50 +77,30 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
         // we want to listen to this match to show the score as it changes
         this.activeMatch.addListener(this);
 
-        this.changeButton = findViewById(R.id.changeButton);
-        this.changeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // make the text marquee
-                scrollTeamText(teamOneScene);
-                scrollTeamText(teamTwoScene);
-            }
-        });
-
         this.pageLeft = findViewById(R.id.viewPageLeftButton);
         this.pageRight = findViewById(R.id.viewPageRightButton);
 
-        this.scoreChangeButton = findViewById(R.id.scoreChangeButton);
-        this.scoreChangeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // change pages
-                for (int i = 0; i < 4; ++i) {
-                    activeMatch.incrementPoint(activeMatch.getTeamOne());
-                }
-                setEndScenes();
-                setServerIcons();
-            }
-        });
-
         // Instantiate a ViewPager and a PagerAdapter to transition between scores
-        scorePager = (ViewPager) findViewById(R.id.score_pager);
-        pagerAdapter = new ScreenSliderPagerAdapter(getSupportFragmentManager(),
+        this.scorePager = (ViewPager) findViewById(R.id.score_pager);
+        this.pagerAdapter = new ScreenSliderPagerAdapter(getSupportFragmentManager(),
                 new Fragment[] {
                         new FragmentScore(),
                         new FragmentPreviousSets(),
                         new FragmentTime()
                 });
-        scorePager.setAdapter(pagerAdapter);
-        scorePager.setPageTransformer(true, new DepthPageTransformer());
-        scorePager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        this.scorePager.setAdapter(this.pagerAdapter);
+        this.scorePager.setPageTransformer(true, new DepthPageTransformer());
+        this.scorePager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {
                 // nothing to do
             }
             @Override
             public void onPageSelected(int i) {
-                setScoreButtonText();
+                // show the correct images
+                setScoreNavigationImages();
+                // and be sure the score is set okay
+                showActiveScore();
             }
             @Override
             public void onPageScrollStateChanged(int i) {
@@ -133,12 +110,10 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
 
         // setup the controls from the active scenes
         setupScenes();
-
-        setEndScenes();
+        // transition to the correct ends and show the server icons properly
         setServerIcons();
-
         // be sure the button is correct
-        setScoreButtonText();
+        setScoreNavigationImages();
     }
 
     private void setupScenes() {
@@ -229,17 +204,6 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
             // and transition
             TransitionManager.go(teamOneScene.scenes[teamOneScene.activeScene], createTransition(teamOneScene));
             TransitionManager.go(teamTwoScene.scenes[teamTwoScene.activeScene], createTransition(teamTwoScene));
-            // show we are doing this as text
-            if (null != this.scoreFragment) {
-                this.scoreFragment.showMatchState(FragmentScore.ScoreState.CHANGE_ENDS);
-            }
-        }
-    }
-
-    private void onMatchCompleted() {
-        // show this on the score
-        if (null != this.scoreFragment) {
-            this.scoreFragment.showMatchState(FragmentScore.ScoreState.COMPLETED);
         }
     }
 
@@ -252,20 +216,32 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
             case STARTED:
                 // none of this is interesting, we are playing not setting up
                 // so none should actually be changed unless by us, ignore them
+                this.isMessageStarted = false;
                 break;
             case RESET:
             case DECREMENT:
             case INCREMENT:
                 // the points have changed, reflect this properly
                 showActiveScore();
+                // this is something that requires no message
+                this.isMessageStarted = false;
                 break;
             case ENDS:
                 // change ends
                 setEndScenes();
+                // this requires a message, so send it
+                if (false == this.isMessageStarted && null != this.scoreFragment) {
+                    this.scoreFragment.showMatchState(FragmentScore.ScoreState.CHANGE_ENDS);
+                }
+                this.isMessageStarted = true;
                 break;
             case SERVER:
                 // change server
                 setServerIcons();
+                if (false == this.isMessageStarted && null != this.scoreFragment) {
+                    // didn't change ends, but we have changed server, show this
+                    this.scoreFragment.showMatchState(FragmentScore.ScoreState.CHANGE_SERVER);
+                }
                 break;
         }
     }
@@ -276,7 +252,11 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
         TennisScore score = (TennisScore) this.activeMatch.getScore();
         if (score.isMatchOver()) {
             // show that the match is over
-            onMatchCompleted();
+            if (null != this.scoreFragment) {
+                this.scoreFragment.showMatchState(FragmentScore.ScoreState.COMPLETED);
+                this.isMessageStarted = true;
+            }
+            this.isMatchPlaying = false;
         }
         Team teamOne = this.activeMatch.getTeamOne();
         Team teamTwo = this.activeMatch.getTeamTwo();
@@ -318,6 +298,9 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
             public void onTransitionEnd(@NonNull Transition transition) {
                 // when the transition ends, setup the buttons again
                 setupTeamButtons(scene);
+                // and take the opportinity to marquee the team titles
+                scrollTeamText(teamOneScene);
+                scrollTeamText(teamTwoScene);
             }
             @Override
             public void onTransitionCancel(@NonNull Transition transition) {
@@ -333,7 +316,7 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
     }
 
     private void setupTeamButtons(final TeamScene scene) {
-        // do when click recevier button
+        // do when click receiver button
         ImageButton button = scene.root.findViewById(R.id.team_receiverButton);
         button.setOnClickListener(createTeamButtonListener(scene));
         // and when click server button
@@ -353,13 +336,16 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
     @Override
     public void onFragmentScorePointsClick(int teamIndex) {
         // clicked on a points button, increment the point
-        switch (teamIndex) {
-            case 0 :
-                this.activeMatch.incrementPoint(this.activeMatch.getTeamOne());
-                break;
-            case 1:
-                this.activeMatch.incrementPoint(this.activeMatch.getTeamTwo());
-                break;
+        if (this.isMatchPlaying) {
+            // only add points when the match is playing - not after game over...
+            switch (teamIndex) {
+                case 0:
+                    this.activeMatch.incrementPoint(this.activeMatch.getTeamOne());
+                    break;
+                case 1:
+                    this.activeMatch.incrementPoint(this.activeMatch.getTeamTwo());
+                    break;
+            }
         }
     }
 
@@ -382,10 +368,6 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
             // and animate out the team two receive button
             rxButton = this.teamTwoScene.root.findViewById(R.id.team_receiverButton);
             rxButton.startAnimation(this.teamTwoScene.outAnimation);
-        }
-        // show we are doing this as text
-        if (null != this.scoreFragment) {
-            this.scoreFragment.showMatchState(FragmentScore.ScoreState.CHANGE_SERVER);
         }
     }
 
@@ -421,11 +403,10 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
                 builder.append(playerName);
             }
         }
-        builder.append("lots of chars to make the text marquee if it can at all...");
         return builder.toString();
     }
 
-    private void setScoreButtonText() {
+    private void setScoreNavigationImages() {
         int currentPage = scorePager.getCurrentItem();
         switch(currentPage) {
             case 0:
@@ -441,51 +422,31 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
                 pageRight.setVisibility(View.INVISIBLE);
                 break;
         }
-        if (currentPage == 0) {
-            // button will change to the previous sets
-            this.scoreChangeButton.setText(R.string.previous_sets);
-            this.scoreChangeButton.setCompoundDrawablesWithIntrinsicBounds(
-                    0, 0, R.drawable.ic_baseline_keyboard_arrow_right_24px, 0);
-        }
-        else {
-            // button will change to the current score
-            this.scoreChangeButton.setText(R.string.current_score);
-            this.scoreChangeButton.setCompoundDrawablesWithIntrinsicBounds(
-                    R.drawable.ic_baseline_keyboard_arrow_left_24px, 0, 0, 0);
-        }
     }
 
-    private void changeScorePages() {
-        int currentPage = scorePager.getCurrentItem();
-        if (currentPage == 0) {
-            // change to previous sets
-            scorePager.setCurrentItem(1, true);
-            this.scoreChangeButton.setText(R.string.current_score);
-        }
-        else {
-            // change to the score
-            scorePager.setCurrentItem(0, true);
-            this.scoreChangeButton.setText(R.string.previous_sets);
+    private void showScorePage(int pageIndex) {
+        int currentPage = this.scorePager.getCurrentItem();
+        if (currentPage != pageIndex) {
+            // change to this new page
+            this.scorePager.setCurrentItem(pageIndex, true);
+            // update the images
+            setScoreNavigationImages();
         }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        // store the results of the match?
+        //TODO store the results of the match
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // animate the hiding of the partner in singles
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                // set this data on the activity
-                setupMatch();
-            }
-        }, 500);
+        //TODO load the last match played to restore the data
+
+        // start the new match by setting the start date
+        this.activeMatch.setMatchPlayedDate(new Date());
     }
 
     @Override
@@ -516,16 +477,5 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
 
         // and show the match time
         this.timeFragment.setMatchTime((int)diffMinutes);
-    }
-
-    private void setupMatch() {
-        // get the data from the match
-        TennisSets sets = TennisSets.fromValue(this.activeMatch.getScoreGoal());
-        boolean isDoubles = this.activeMatch.getIsDoubles();
-        // show if we are doubles etc.
-
-        // and start the match by setting the start date
-        this.activeMatch.setMatchPlayedDate(new Date());
-
     }
 }

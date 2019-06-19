@@ -9,11 +9,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.ScaleAnimation;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import uk.co.darkerwaters.scorepal.R;
+import uk.co.darkerwaters.scorepal.activities.handlers.ChangeEndsTextAnimation;
+import uk.co.darkerwaters.scorepal.activities.handlers.ChangeServerTextAnimation;
+import uk.co.darkerwaters.scorepal.activities.handlers.GameOverTextAnimation;
+import uk.co.darkerwaters.scorepal.activities.handlers.TextViewAnimation;
 import uk.co.darkerwaters.scorepal.score.TennisScore;
 
 public class FragmentScore extends Fragment {
@@ -34,6 +39,7 @@ public class FragmentScore extends Fragment {
 
     private FragmentScoreInteractionListener listener;
 
+    private TextViewAnimation informationAnimator = null;
     private TextView informationText;
 
     private TextSwitcher[][] switchers = new TextSwitcher[K_NO_TEAMS][K_NO_LEVELS];
@@ -42,7 +48,6 @@ public class FragmentScore extends Fragment {
     public FragmentScore() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -117,17 +122,25 @@ public class FragmentScore extends Fragment {
     }
 
     public void showMatchState(ScoreState state) {
-        //TODO a nice animation that goes away eventually (except game over - that stays)
-        switch(state) {
-            case COMPLETED:
-                this.informationText.setText("Game over man...");
-                break;
-            case CHANGE_ENDS:
-                this.informationText.setText("Change ends...");
-                break;
-            case CHANGE_SERVER:
-                //this.informationText.setText("Change server...");
-                break;
+        // show the state as a nice animation of text that scales up and slides away
+        // first cancel any active one
+        if (null != this.informationAnimator) {
+            this.informationAnimator.cancel();
+            this.informationAnimator = null;
+        }
+        // if we are not attached to a context, ignore this attempt to show things
+        if (!this.isDetached()) {
+            switch (state) {
+                case COMPLETED:
+                    this.informationAnimator = new GameOverTextAnimation(getActivity(), this.informationText);
+                    break;
+                case CHANGE_ENDS:
+                    this.informationAnimator = new ChangeEndsTextAnimation(getActivity(), this.informationText, 5);
+                    break;
+                case CHANGE_SERVER:
+                    this.informationAnimator = new ChangeServerTextAnimation(getActivity(), this.informationText, 3);
+                    break;
+            }
         }
     }
 
@@ -148,7 +161,8 @@ public class FragmentScore extends Fragment {
     }
 
     private void setSwitcherText(TextSwitcher switcher, String content) {
-        if (switcher.getCurrentView() instanceof TextView) {
+        // if we are not attached to a context, ignore this attempt to show things
+        if (false == this.isDetached() && switcher.getCurrentView() instanceof TextView) {
             TextView currentTextView = (TextView) switcher.getCurrentView();
             CharSequence text = currentTextView.getText();
             if (null == text || false == text.toString().equals(content)) {

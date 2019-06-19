@@ -8,16 +8,38 @@
     android:layout_height="match_parent"
     tools:context=".activities.TennisSetupActivity">
 
-    <Button
-        android:id="@+id/changeButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:backgroundTint="@color/colorPrimary"
-        android:text="some buttons here probably"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/match_setup_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/swapServerButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/colorPrimary"
+            android:drawableLeft="@drawable/ic_tennis_serve"
+            android:drawableRight="@drawable/ic_tennis_receive"
+            android:text="@string/change_server"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/swapEndsButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="@color/colorPrimary"
+            android:drawableLeft="@drawable/ic_baseline_keyboard_arrow_left_24px"
+            android:drawableRight="@drawable/ic_baseline_keyboard_arrow_right_24px"
+            android:text="@string/change_ends"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </android.support.constraint.ConstraintLayout>
 
     <FrameLayout
         android:id="@+id/team_one_scene"
@@ -32,7 +54,6 @@
 
         <include layout="@layout/scene_player_north" />
     </FrameLayout>
-
 
     <uk.co.darkerwaters.scorepal.views.WrapContentHeightViewPager
         android:id="@+id/score_pager"

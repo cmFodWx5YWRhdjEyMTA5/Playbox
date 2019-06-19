@@ -108,24 +108,32 @@ public class FragmentPreviousSets extends Fragment {
     }
 
     public void setSets(TennisSets sets) {
-        for (int i = 0; i < K_NO_SETS; ++i) {
-            // set the visibility of each control
-            this.switchers[0][i].setVisibility(i < sets.val ? View.VISIBLE : View.GONE);
-            this.switchers[1][i].setVisibility(i < sets.val ? View.VISIBLE : View.GONE);
+        if (!this.isDetached()) {
+            for (int i = 0; i < K_NO_SETS; ++i) {
+                // set the visibility of each control
+                this.switchers[0][i].setVisibility(i < sets.val ? View.VISIBLE : View.GONE);
+                this.switchers[1][i].setVisibility(i < sets.val ? View.VISIBLE : View.GONE);
+            }
         }
     }
 
     public void setTieBreakResult(int setIndex, int score1, int score2) {
-        this.tieBreaks[setIndex].setText("(" + score1 + "-" + score2 + ")");
-        this.tieBreaks[setIndex].setVisibility(View.VISIBLE);
+        if (!this.isDetached()) {
+            this.tieBreaks[setIndex].setText("(" + score1 + "-" + score2 + ")");
+            this.tieBreaks[setIndex].setVisibility(View.VISIBLE);
+        }
     }
 
     public void hideTieBreakResult(int setIndex) {
-        this.tieBreaks[setIndex].setVisibility(View.INVISIBLE);
+        if (!this.isDetached()) {
+            this.tieBreaks[setIndex].setVisibility(View.INVISIBLE);
+        }
     }
 
     public void setSetValue(int teamIndex, int setIndex, int value) {
-        this.switchers[teamIndex][setIndex].setText(Integer.toString(value));
+        if (!this.isDetached()) {
+            this.switchers[teamIndex][setIndex].setText(Integer.toString(value));
+        }
     }
 
     @Override
