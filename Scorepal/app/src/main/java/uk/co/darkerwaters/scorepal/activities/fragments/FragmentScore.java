@@ -92,6 +92,7 @@ public class FragmentScore extends Fragment {
                 t.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL);
                 // set displayed text size
                 t.setTextSize(36);
+                t.setTextColor(context.getColor(R.color.primaryTextColor));
                 return t;
             }
         };

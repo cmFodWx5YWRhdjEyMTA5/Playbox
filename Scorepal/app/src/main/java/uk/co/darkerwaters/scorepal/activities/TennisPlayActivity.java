@@ -1,6 +1,7 @@
 package uk.co.darkerwaters.scorepal.activities;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.transition.ChangeBounds;
 import android.support.transition.Scene;
@@ -152,7 +153,7 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
                 // show the correct images
                 setScoreNavigationImages();
                 // and be sure the score is set okay
-                showActiveScore();
+                updateActiveFragment();
             }
             @Override
             public void onPageScrollStateChanged(int i) {
@@ -301,6 +302,7 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
             case RESET:
                 // the points have changed, reflect this properly
                 showActiveScore();
+                showActivePreviousSets();
                 // this is something that requires no message
                 this.isMessageStarted = false;
                 break;
@@ -361,13 +363,46 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
         this.activeMatch.cycleTeamStartingEnds();
     }
 
+    private void updateActiveFragment() {
+        switch (this.scorePager.getCurrentItem()) {
+            case 0:
+                showActiveScore();
+                break;
+            case 1:
+                showActivePreviousSets();
+                break;
+            case 2:
+                onTimeChanged();
+                break;
+        }
+    }
+
     private void showActiveScore() {
+        // handle if play is over now
+        handlePlayEnded();
+        // and update the score on the controls
+        if (null != this.scoreFragment) {
+            TennisScore score = (TennisScore) this.activeMatch.getScore();
+            Team teamOne = this.activeMatch.getTeamOne();
+            Team teamTwo = this.activeMatch.getTeamTwo();
+            // set the sets - just numbers
+            this.scoreFragment.setSetValue(0, Integer.toString(score.getSets(teamOne)));
+            this.scoreFragment.setSetValue(1, Integer.toString(score.getSets(teamTwo)));
+            // and the games
+            this.scoreFragment.setGamesValue(0, Integer.toString(score.getGames(teamOne, -1)));
+            this.scoreFragment.setGamesValue(1, Integer.toString(score.getGames(teamTwo, -1)));
+            // and the points
+            this.scoreFragment.setPointsValue(0, score.getDisplayPoint(teamOne));
+            this.scoreFragment.setPointsValue(1, score.getDisplayPoint(teamTwo));
+        }
+    }
+
+    private void handlePlayEnded() {
         // once we are playing, we need to hide the controls that allow the match to be setup
         if (this.activeMatch.isReadOnly()) {
             // we are playing, cannot edit starting params
             this.setupMatchLayout.setVisibility(View.GONE);
-        }
-        else {
+        } else {
             // we can edit starting things
             this.setupMatchLayout.setVisibility(View.VISIBLE);
         }
@@ -386,33 +421,31 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
                 this.scoreFragment.showMatchState(FragmentScore.ScoreState.COMPLETED);
                 this.isMessageStarted = true;
             }
-        }
-        else {
+        } else {
             // the match is not over, this might be from an undo, get rid of the time either way
             this.playEnded = null;
         }
-        Team teamOne = this.activeMatch.getTeamOne();
-        Team teamTwo = this.activeMatch.getTeamTwo();
-        // set the sets - just numbers
-        this.scoreFragment.setSetValue(0, Integer.toString(score.getSets(teamOne)));
-        this.scoreFragment.setSetValue(1, Integer.toString(score.getSets(teamTwo)));
-        // and the games
-        this.scoreFragment.setGamesValue(0, Integer.toString(score.getGames(teamOne, -1)));
-        this.scoreFragment.setGamesValue(1, Integer.toString(score.getGames(teamTwo, -1)));
-        // and the points
-        this.scoreFragment.setPointsValue(0, score.getDisplayPoint(teamOne));
-        this.scoreFragment.setPointsValue(1, score.getDisplayPoint(teamTwo));
+    }
 
-        // want to do the previous sets too
-        for (int i = 0; i < score.getPlayedSets(); ++i) {
-            int gamesOne = score.getGames(teamOne, i);
-            int gamesTwo = score.getGames(teamTwo, i);
-            this.previousSetsFragment.setSetValue(0, i, gamesOne);
-            this.previousSetsFragment.setSetValue(1, i, gamesTwo);
-            if (score.isSetTieBreak(i)) {
-                // this set is / was a tie, show the score of this in brackets
-                int[] tiePoints = score.getPoints(teamOne, i, gamesOne + gamesTwo - 1);
-                this.previousSetsFragment.setTieBreakResult(i, tiePoints[0], tiePoints[1]);
+    private void showActivePreviousSets() {
+        // handle if play is over now
+        handlePlayEnded();
+        if (null != this.previousSetsFragment) {
+            // and update the score on the controls
+            TennisScore score = (TennisScore) this.activeMatch.getScore();
+            Team teamOne = this.activeMatch.getTeamOne();
+            Team teamTwo = this.activeMatch.getTeamTwo();
+            // want to do the previous sets
+            for (int i = 0; i < score.getPlayedSets(); ++i) {
+                int gamesOne = score.getGames(teamOne, i);
+                int gamesTwo = score.getGames(teamTwo, i);
+                this.previousSetsFragment.setSetValue(0, i, gamesOne);
+                this.previousSetsFragment.setSetValue(1, i, gamesTwo);
+                if (score.isSetTieBreak(i)) {
+                    // this set is / was a tie, show the score of this in brackets
+                    int[] tiePoints = score.getPoints(teamOne, i, gamesOne + gamesTwo - 1);
+                    this.previousSetsFragment.setTieBreakResult(i, tiePoints[0], tiePoints[1]);
+                }
             }
         }
     }
@@ -466,7 +499,10 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                activeMatch.incrementPoint(scene.team);
+                // only add a point when play has not ended
+                if (null == playEnded) {
+                    activeMatch.incrementPoint(scene.team);
+                }
             }
         };
     }
@@ -595,8 +631,18 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
         super.onResume();
         //TODO load the last match played to restore the data
 
-        // start the new match by setting the start date
-        this.activeMatch.setMatchPlayedDate(new Date());
+        if (this.activeMatch.getMatchPlayedDate() == null) {
+            // start the new match by setting the start date
+            this.activeMatch.setMatchPlayedDate(new Date());
+        }
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // and show this
+                updateActiveFragment();
+            }
+        }, 500);
+
     }
 
     @Override
@@ -625,7 +671,7 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
             playEndedMs = this.playEnded.getTime();
         }
         // Calculate difference in milliseconds
-        long diff = this.playStarted.getTime() - playEndedMs;
+        long diff = playEndedMs - this.playStarted.getTime();
         // and add the time played to the active match
         return (int)(diff / 60000L);
     }

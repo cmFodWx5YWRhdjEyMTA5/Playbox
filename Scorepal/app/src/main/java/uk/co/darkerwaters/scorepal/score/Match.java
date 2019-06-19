@@ -312,10 +312,12 @@ public class Match implements Score.ScoreListener {
 
     public Date getMatchPlayedDate() {
         Date played = null;
-        try {
-            played = fileDateFormat.parse(this.matchPlayedDate);
-        } catch (ParseException e) {
-            Log.error("Failed to create the match date", e);
+        if (null != this.matchPlayedDate) {
+            try {
+                played = fileDateFormat.parse(this.matchPlayedDate);
+            } catch (ParseException e) {
+                Log.error("Failed to create the match date", e);
+            }
         }
         return played;
     }
