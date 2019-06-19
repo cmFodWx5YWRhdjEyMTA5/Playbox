@@ -23,6 +23,7 @@ public class Match implements Score.ScoreListener {
     private String description;
     private boolean isDoubles;
     private String matchPlayedDate;
+    private int matchMinutesPlayed;
     private final Team[] teams;
     private Sport sport = Sport.TENNIS;
 
@@ -57,6 +58,8 @@ public class Match implements Score.ScoreListener {
                         new Player(context.getString(R.string.default_playerTwoPartnerName))
                 }, CourtPosition.GetDefault().getNext()),
         };
+        // no minutes so far
+        this.matchMinutesPlayed = 0;
         this.listeners = new ArrayList<MatchListener>();
         // create the score here
         this.score = ScoreFactory.CreateScore(teams, scoreMode);
@@ -172,6 +175,14 @@ public class Match implements Score.ScoreListener {
                 this.score.changeServer(startingServer);
             }
         }
+    }
+
+    public void addMatchMinutesPlayed(int minutesPlayed) {
+        this.matchMinutesPlayed += minutesPlayed;
+    }
+
+    public int getMatchMinutesPlayed() {
+        return this.matchMinutesPlayed;
     }
 
     @Override

@@ -70,7 +70,9 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
     private Match activeMatch;
 
     private boolean isMessageStarted = false;
-    private boolean isMatchPlaying = true;
+
+    private Date playStarted;
+    private Date playEnded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +83,10 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
         this.activeMatch = this.application.getActiveMatch();
         // we want to listen to this match to show the score as it changes
         this.activeMatch.addListener(this);
+
+        // remember the time we started this session
+        this.playStarted = Calendar.getInstance().getTime();
+        this.playEnded = null;
 
         this.pageLeft = findViewById(R.id.viewPageLeftButton);
         this.pageRight = findViewById(R.id.viewPageRightButton);
@@ -170,6 +176,8 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
     protected void onDestroy() {
         // remove us as a listener
         this.activeMatch.removeListener(this);
+        // and add the time played in this session to the active match
+        this.activeMatch.addMatchMinutesPlayed(getMinutesPlayedInActivity());
         // and kill the base
         super.onDestroy();
     }
@@ -367,12 +375,21 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
         // that we want to be using
         TennisScore score = (TennisScore) this.activeMatch.getScore();
         if (score.isMatchOver()) {
+            if (null == this.playEnded) {
+                // we have no record of when we won, store it here
+                this.playEnded = Calendar.getInstance().getTime();
+                // and update the match time displayed on the fragment
+                onTimeChanged();
+            }
             // show that the match is over
             if (null != this.scoreFragment) {
                 this.scoreFragment.showMatchState(FragmentScore.ScoreState.COMPLETED);
                 this.isMessageStarted = true;
             }
-            this.isMatchPlaying = false;
+        }
+        else {
+            // the match is not over, this might be from an undo, get rid of the time either way
+            this.playEnded = null;
         }
         Team teamOne = this.activeMatch.getTeamOne();
         Team teamTwo = this.activeMatch.getTeamTwo();
@@ -457,7 +474,7 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
     @Override
     public void onFragmentScorePointsClick(int teamIndex) {
         // clicked on a points button, increment the point
-        if (this.isMatchPlaying) {
+        if (null == this.playEnded) {
             // only add points when the match is playing - not after game over...
             switch (teamIndex) {
                 case 0:
@@ -597,18 +614,26 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
         this.timeFragment = fragment;
     }
 
+    private int getMinutesPlayedInActivity() {
+        long playEndedMs;
+        if (null == this.playEnded) {
+            // play isn't over yet, use now
+            playEndedMs = Calendar.getInstance().getTimeInMillis();
+        }
+        else {
+            // use the play ended time
+            playEndedMs = this.playEnded.getTime();
+        }
+        // Calculate difference in milliseconds
+        long diff = this.playStarted.getTime() - playEndedMs;
+        // and add the time played to the active match
+        return (int)(diff / 60000L);
+    }
+
     @Override
     public void onTimeChanged() {
-        // need to update the match time
-        Calendar matchStarted = Calendar.getInstance();
-        matchStarted.setTime(this.activeMatch.getMatchPlayedDate());
-        Calendar now = Calendar.getInstance();
-
-        // Calculate difference in milliseconds
-        long diff = now.getTimeInMillis() - matchStarted.getTimeInMillis();
-        long diffMinutes = diff / (60 * 1000);
-
-        // and show the match time
-        this.timeFragment.setMatchTime((int)diffMinutes);
+        // need to update the match time to include this session
+        int minutesPlayed = this.activeMatch.getMatchMinutesPlayed() + getMinutesPlayedInActivity();
+        this.timeFragment.setMatchTime(minutesPlayed);
     }
 }
