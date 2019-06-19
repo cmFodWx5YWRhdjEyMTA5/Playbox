@@ -17,7 +17,6 @@ public abstract class TextViewAnimation {
         this.context = context;
         this.view = view;
         this.repetitions = repetitions;
-        this.view.setText(context.getString(R.string.change_ends));
     }
 
     protected abstract void animateTextIn();

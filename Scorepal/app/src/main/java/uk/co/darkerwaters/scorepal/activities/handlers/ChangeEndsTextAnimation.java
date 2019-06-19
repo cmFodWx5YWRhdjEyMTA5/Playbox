@@ -16,15 +16,18 @@ public class ChangeEndsTextAnimation extends TextViewAnimation {
 
     private static final long K_FADE_IN_DURATION = 1500;
     private static final long K_SLIDE_OUT_DURATION = 1500;
+    private static final int K_REPETITIONS = 3;
 
     private Animation activeInAnimation;
     private ObjectAnimator activeOutAnimation;
 
-    public ChangeEndsTextAnimation(Activity context, TextView view, int repetitions) {
+    public ChangeEndsTextAnimation(Activity context, TextView view) {
         // set the content of the text view
-        super(context, view, repetitions);
+        super(context, view, K_REPETITIONS);
         // set our text here
-        this.view.setText(context.getString(R.string.change_ends));
+        if (null != this.view && null != this.context) {
+            this.view.setText(context.getString(R.string.change_ends));
+        }
 
         // no active animation yet
         this.activeInAnimation = null;

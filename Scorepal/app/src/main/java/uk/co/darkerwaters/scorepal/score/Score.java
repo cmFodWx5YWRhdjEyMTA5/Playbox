@@ -23,6 +23,8 @@ class Score {
 
     private int scoreGoal = -1;
 
+    private boolean isInformActive = true;
+
     interface ScoreListener {
         void onScoreChanged(ScoreChange type);
     }
@@ -64,10 +66,20 @@ class Score {
         }
     }
 
+    void silenceInformers(boolean isSilence) {
+        this.isInformActive = !isSilence;
+    }
+
+    boolean isInformActive() {
+        return this.isInformActive;
+    }
+
     void informListeners(ScoreChange type) {
-        synchronized (this.listeners) {
-            for (ScoreListener listener : this.listeners) {
-                listener.onScoreChanged(type);
+        if (isInformActive()) {
+            synchronized (this.listeners) {
+                for (ScoreListener listener : this.listeners) {
+                    listener.onScoreChanged(type);
+                }
             }
         }
     }
@@ -209,6 +221,16 @@ class Score {
         for (Team team : this.teams) {
             // set the court position to the next position in the list
             team.setCourtPosition(team.getCourtPosition().getNext());
+        }
+        // inform listeners of this
+        informListeners(ScoreChange.ENDS);
+    }
+
+    void refreshTeamEnds() {
+        // cycle each team's court position
+        for (Team team : this.teams) {
+            // set the court position to be where it wants to start from
+            team.setCourtPosition(team.getInitialPosition());
         }
         // inform listeners of this
         informListeners(ScoreChange.ENDS);

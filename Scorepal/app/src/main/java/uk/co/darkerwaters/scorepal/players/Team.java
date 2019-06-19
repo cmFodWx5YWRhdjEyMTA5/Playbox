@@ -26,12 +26,27 @@ public class Team {
         return this.players;
     }
 
+    public CourtPosition getInitialPosition() { return this.initialPosition; }
+
+    public void setInitialCourtPosition(CourtPosition position) {
+        this.initialPosition = position;
+    }
+
     public void setCourtPosition(CourtPosition position) {
         this.currentPosition = position;
     }
 
     public CourtPosition getCourtPosition() {
         return this.currentPosition;
+    }
+
+    public boolean isServingPlayerSet() {
+        return null != this.servingPlayer;
+    }
+
+    public void setServingPlayer(Player startingServer) {
+        // override the member to set the player to start serving
+        this.servingPlayer = servingPlayer;
     }
 
     public Player getServingPlayer() {

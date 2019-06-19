@@ -15,13 +15,16 @@ import uk.co.darkerwaters.scorepal.R;
 public class ChangeServerTextAnimation extends TextViewAnimation {
 
     private static final long K_FADE_IN_DURATION = 1500;
+    private static final int K_REPETITIONS = 2;
 
     private Animation activeAnimation;
 
-    public ChangeServerTextAnimation(Activity context, TextView view, int repetitions) {
-        super(context, view, repetitions);
+    public ChangeServerTextAnimation(Activity context, TextView view) {
+        super(context, view, K_REPETITIONS);
         // set the text content on the view
-        this.view.setText(context.getString(R.string.change_server));
+        if (null != this.view && null != this.context) {
+            this.view.setText(context.getString(R.string.change_server));
+        }
         // no active animation yet
         this.activeAnimation = null;
 

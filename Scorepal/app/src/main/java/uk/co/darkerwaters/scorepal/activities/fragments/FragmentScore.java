@@ -121,13 +121,18 @@ public class FragmentScore extends Fragment {
         return mainView;
     }
 
-    public void showMatchState(ScoreState state) {
-        // show the state as a nice animation of text that scales up and slides away
-        // first cancel any active one
+    public void cancelMatchState() {
+        // stop showing any messages
         if (null != this.informationAnimator) {
             this.informationAnimator.cancel();
             this.informationAnimator = null;
         }
+    }
+
+    public void showMatchState(ScoreState state) {
+        // show the state as a nice animation of text that scales up and slides away
+        // first cancel any active one
+        cancelMatchState();
         // if we are not attached to a context, ignore this attempt to show things
         if (!this.isDetached()) {
             switch (state) {
@@ -135,10 +140,10 @@ public class FragmentScore extends Fragment {
                     this.informationAnimator = new GameOverTextAnimation(getActivity(), this.informationText);
                     break;
                 case CHANGE_ENDS:
-                    this.informationAnimator = new ChangeEndsTextAnimation(getActivity(), this.informationText, 5);
+                    this.informationAnimator = new ChangeEndsTextAnimation(getActivity(), this.informationText);
                     break;
                 case CHANGE_SERVER:
-                    this.informationAnimator = new ChangeServerTextAnimation(getActivity(), this.informationText, 3);
+                    this.informationAnimator = new ChangeServerTextAnimation(getActivity(), this.informationText);
                     break;
             }
         }

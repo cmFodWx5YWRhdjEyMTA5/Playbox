@@ -122,4 +122,8 @@ public class Application extends android.app.Application {
         }
         return BitmapFactory.decodeStream(is);
     }
+
+    public boolean getIsTrackDoublesServes() {
+        return false;
+    }
 }

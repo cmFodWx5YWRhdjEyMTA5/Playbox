@@ -9,37 +9,54 @@
     tools:context=".activities.TennisSetupActivity">
 
 
-    <android.support.constraint.ConstraintLayout
+    <LinearLayout
         android:id="@+id/match_setup_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <Button
-            android:id="@+id/swapServerButton"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:backgroundTint="@color/colorPrimary"
-            android:drawableLeft="@drawable/ic_tennis_serve"
-            android:drawableRight="@drawable/ic_tennis_receive"
-            android:text="@string/change_server"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/swapTeamStarterButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@color/colorPrimary"
+                android:drawableLeft="@drawable/ic_tennis_serve"
+                android:drawableRight="@drawable/ic_tennis_receive"
+                android:text="@string/btn_change_starter" />
+
+            <Button
+                android:id="@+id/swapTeamServerButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@color/colorPrimary"
+                android:drawableLeft="@drawable/ic_tennis_serve"
+                android:drawableRight="@drawable/ic_tennis_receive"
+                android:text="@string/btn_change_server" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/swapEndsButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:backgroundTint="@color/colorPrimary"
             android:drawableLeft="@drawable/ic_baseline_keyboard_arrow_left_24px"
             android:drawableRight="@drawable/ic_baseline_keyboard_arrow_right_24px"
-            android:text="@string/change_ends"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </android.support.constraint.ConstraintLayout>
+            android:text="@string/btn_change_ends" />
+    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/team_one_scene"
@@ -88,19 +105,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/score_pager" />
 
-    <Button
-        android:id="@+id/scoreChangeButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
-        android:backgroundTint="@color/colorPrimary"
-        android:drawableLeft="@drawable/ic_baseline_keyboard_arrow_left_24px"
-        android:drawableRight="@drawable/ic_baseline_keyboard_arrow_right_24px"
-        android:text="@string/previous_sets"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
     <FrameLayout
         android:id="@+id/team_two_scene"
         android:layout_width="0dp"
@@ -114,6 +118,18 @@
 
         <include layout="@layout/scene_player_south" />
     </FrameLayout>
+
+    <Button
+        android:id="@+id/undoButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/colorPrimary"
+        android:drawableLeft="@drawable/ic_baseline_undo_24px"
+        android:text="@string/btn_undo"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 
 </android.support.constraint.ConstraintLayout>

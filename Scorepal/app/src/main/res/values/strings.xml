@@ -61,7 +61,13 @@
     <string name="time">Time</string>
     <string name="match">Match</string>
     <string name="time_seperator">.</string>
+
     <string name="change_ends">Change Ends...</string>
     <string name="change_server">Change Server...</string>
     <string name="game_over">Game Over</string>
+
+    <string name="btn_change_ends">Change Ends</string>
+    <string name="btn_change_server">Change Server</string>
+    <string name="btn_change_starter">Change Starter</string>
+    <string name="btn_undo">Undo Last Point</string>
 </resources>

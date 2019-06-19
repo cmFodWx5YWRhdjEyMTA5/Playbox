@@ -55,6 +55,9 @@ public class TennisScore extends Score {
         // and reset our data
         this.isInTieBreak = false;
         this.tieBreakServer = null;
+        if (null != this.tieBreakSets) {
+            this.tieBreakSets.clear();
+        }
     }
 
     void setIsFinalSetTieBreaker(boolean isTieInFinalSet) {

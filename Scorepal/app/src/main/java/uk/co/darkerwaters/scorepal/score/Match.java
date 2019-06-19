@@ -5,6 +5,7 @@ import android.content.Context;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Stack;
@@ -29,6 +30,10 @@ public class Match implements Score.ScoreListener {
     private final Stack<Team> pointHistory;
 
     private boolean isReadOnly = false;
+
+    private Team startingTeam;
+    private Player[] startingServers;
+    private CourtPosition[] startingEnds;
 
     public enum MatchChange {
         RESET, INCREMENT, DECREMENT, STARTED, DOUBLES_SINGLES, GOAL, PLAYERS, ENDS, SERVER;
@@ -59,6 +64,21 @@ public class Match implements Score.ScoreListener {
         this.score.addListener(this);
         // we will also store the entire history played
         this.pointHistory = new Stack<Team>();
+        // setup the starting server
+        this.startingServers = new Player[this.teams.length];
+        Arrays.fill(this.startingServers, null);
+        // and the starting ends
+        this.startingEnds = new CourtPosition[this.teams.length];
+        Arrays.fill(this.startingEnds, null);
+        // find the default starting team to start with each time
+        Player startingServer = score.getServer();
+        this.startingTeam = null;
+        for (Team team : this.teams) {
+            if (team.isPlayerInTeam(startingServer)) {
+                // this is the starting team
+                this.startingTeam = team;
+            }
+        }
     }
 
     public boolean addListener(MatchListener listener) {
@@ -74,9 +94,82 @@ public class Match implements Score.ScoreListener {
     }
 
     private void informListeners(MatchChange type) {
-        synchronized (this.listeners) {
-            for (MatchListener listener : this.listeners) {
-                listener.onMatchChanged(type);
+        if (null == this.score || this.score.isInformActive()) {
+            synchronized (this.listeners) {
+                for (MatchListener listener : this.listeners) {
+                    listener.onMatchChanged(type);
+                }
+            }
+        }
+    }
+
+    public void setTeamStarting(Team startingTeam) {
+        if (isReadOnly) {
+            Log.error("cannot edit a match once it is started!");
+        }
+        else {
+            // set the starting team to start serving
+            this.startingTeam = startingTeam;
+            // this sets the starting server to the server from that team
+            // so change the server on the score to be the one from the starting team
+            this.score.changeServer(this.startingTeam.getServingPlayer());
+        }
+    }
+
+    public Team getTeamStarting() {
+        return this.startingTeam;
+    }
+
+    public Team getTeamServing() {
+        Team servingTeam = null;
+        Player currentServer = this.getCurrentServer();
+        for (Team team : this.teams) {
+            if (team.isPlayerInTeam(currentServer)) {
+                // this is the serving team
+                servingTeam = team;
+                break;
+            }
+        }
+        return servingTeam;
+    }
+
+    public void cycleTeamStartingEnds() {
+        if (isReadOnly) {
+            Log.error("cannot edit a match once it is started!");
+        }
+        else {
+            // set the starting ends for each team
+            for (int i = 0; i < this.teams.length; ++i) {
+                CourtPosition newPosition = this.teams[i].getCourtPosition().getNext();
+                this.teams[i].setInitialCourtPosition(newPosition);
+                // and remember this for when we have to reset back to the start of the match
+                this.startingEnds[i] = newPosition;
+            }
+            // and refresh the ends on the score
+            this.score.refreshTeamEnds();
+        }
+    }
+
+    public void setTeamStartingServer(Player startingServer) {
+        // set the starting server for their team
+        //TODO you can only do this on the first game of each set, choose who starts.
+        if (isReadOnly) {
+            Log.error("cannot edit a match once it is started - need to allowing editing team servers on first game!");
+        }
+        else {
+            for (int i = 0; i < this.teams.length; ++i) {
+                if (this.teams[i].isPlayerInTeam(startingServer)) {
+                    // found their team, set their starting server
+                    this.teams[i].setServingPlayer(startingServer);
+                    // also remember this for when we have to reset back to the start of the match
+                    this.startingServers[i] = startingServer;
+                    break;
+                }
+            }
+            Team servingTeam = getTeamServing();
+            if (null != servingTeam && servingTeam.isPlayerInTeam(startingServer)) {
+                // the starting server for the serving team has changed, this is the new server
+                this.score.changeServer(startingServer);
             }
         }
     }
@@ -102,9 +195,34 @@ public class Match implements Score.ScoreListener {
         }
     }
 
+    public boolean isReadOnly() {
+        return this.isReadOnly;
+    }
+
     private void resetScoreToStartingPosition() {
         // reset the score to the starting state in order to reset properly
         this.score.resetScore();
+        // this is no longer read-only all reset to zero
+        this.isReadOnly = false;
+        // need to re-establish the starting servers for each team that was decided on
+        // at match startup
+        for (int i = 0; i < this.startingServers.length; ++i) {
+            if (null != this.startingServers[i]) {
+                // there was one decided on for this team, set this
+                this.teams[i].setServingPlayer(this.startingServers[i]);
+            }
+        }
+        // also we need to do the ends
+        for (int i = 0; i < this.startingEnds.length; ++i) {
+            if (null != this.startingEnds[i]) {
+                // there was one decided on for this team, set this
+                this.teams[i].setInitialCourtPosition(this.startingEnds[i]);
+                // as we are in the reset stage then this sets the current position too
+                this.teams[i].setCourtPosition(this.startingEnds[i]);
+            }
+        }
+        // change the server on the score to be from the starting team
+        setTeamStarting(this.startingTeam);
         // inform listeners so they can set the player who is starting serve, location etc.
         informListeners(MatchChange.RESET);
     }
@@ -130,6 +248,8 @@ public class Match implements Score.ScoreListener {
         // the score and re-populate based on the history
         Team teamThatWonPoint = null;
         if (false == this.pointHistory.isEmpty()) {
+            // stop the score from sending out update messages while we reconstruct it
+            this.score.silenceInformers(true);
             // reset the score
             resetScoreToStartingPosition();
             // pop the last point from the history
@@ -138,13 +258,13 @@ public class Match implements Score.ScoreListener {
             for (Team scoringTeam : this.pointHistory) {
                 this.score.incrementPoint(scoringTeam);
             }
+            // stop the score from sending out update messages while we reconstruct it
+            this.score.silenceInformers(false);
+            // we are read only if there are points in the history
+            this.isReadOnly = false == this.pointHistory.isEmpty();
+            // inform listeners of this change to the score
+            informListeners(MatchChange.DECREMENT);
         }
-        if (this.pointHistory.isEmpty()) {
-            // there are no points played, we can edit again
-            this.isReadOnly = false;
-        }
-        // inform listeners of this change to the score
-        informListeners(MatchChange.DECREMENT);
         // return the team who's point was popped
         return teamThatWonPoint;
     }
@@ -201,7 +321,12 @@ public class Match implements Score.ScoreListener {
     }
 
     public void setIsDoubles(boolean isDoubles) {
-        this.isDoubles = isDoubles;
+        if (isReadOnly) {
+            Log.error("cannot edit a match once it is started!");
+        }
+        else {
+            this.isDoubles = isDoubles;
+        }
         // inform listeners of this change to the score
         informListeners(MatchChange.DOUBLES_SINGLES);
     }

@@ -1,7 +1,6 @@
 package uk.co.darkerwaters.scorepal.activities;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.transition.ChangeBounds;
 import android.support.transition.Scene;
@@ -14,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -32,7 +32,6 @@ import uk.co.darkerwaters.scorepal.players.Player;
 import uk.co.darkerwaters.scorepal.players.Team;
 import uk.co.darkerwaters.scorepal.score.Match;
 import uk.co.darkerwaters.scorepal.score.TennisScore;
-import uk.co.darkerwaters.scorepal.score.TennisSets;
 
 public class TennisPlayActivity extends BaseFragmentActivity implements
         FragmentPreviousSets.FragmentPreviousSetsInteractionListener,
@@ -62,6 +61,12 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
     private ImageView pageRight;
     private ImageView pageLeft;
 
+    private View setupMatchLayout;
+    private Button swapTeamStarterButton;
+    private Button swapTeamServerButton;
+    private Button swapEndsButton;
+    private Button undoButton;
+
     private Match activeMatch;
 
     private boolean isMessageStarted = false;
@@ -79,6 +84,47 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
 
         this.pageLeft = findViewById(R.id.viewPageLeftButton);
         this.pageRight = findViewById(R.id.viewPageRightButton);
+
+        this.setupMatchLayout = findViewById(R.id.match_setup_layout);
+        this.swapEndsButton = findViewById(R.id.swapEndsButton);
+        this.swapTeamStarterButton = findViewById(R.id.swapTeamStarterButton);
+        this.swapTeamServerButton = findViewById(R.id.swapTeamServerButton);
+
+        this.undoButton = findViewById(R.id.undoButton);
+        this.undoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // just undo the last point
+                undoLastPoint();
+            }
+        });
+
+        // listen for swapping ends and servers while we are setting up a match
+        this.swapTeamStarterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                swapStartingTeam();
+            }
+        });// listen for swapping ends and servers while we are setting up a match
+        this.swapTeamServerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                swapServerInTeam();
+            }
+        });
+        this.swapEndsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                swapStartingEnds();
+            }
+        });
+        if (false == this.activeMatch.getIsDoubles() || false == application.getIsTrackDoublesServes()) {
+            // we are not playing doubles, setting the starting team is like setting the start
+            // server, so make the text say that
+            this.swapTeamStarterButton.setText(R.string.btn_change_server);
+            // and hide the between-team change button
+            this.swapTeamServerButton.setVisibility(View.INVISIBLE);
+        }
 
         // Instantiate a ViewPager and a PagerAdapter to transition between scores
         this.scorePager = (ViewPager) findViewById(R.id.score_pager);
@@ -114,6 +160,18 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
         setServerIcons();
         // be sure the button is correct
         setScoreNavigationImages();
+    }
+
+    private void undoLastPoint() {
+        this.activeMatch.undoLastPoint();
+    }
+
+    @Override
+    protected void onDestroy() {
+        // remove us as a listener
+        this.activeMatch.removeListener(this);
+        // and kill the base
+        super.onDestroy();
     }
 
     private void setupScenes() {
@@ -218,9 +276,21 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
                 // so none should actually be changed unless by us, ignore them
                 this.isMessageStarted = false;
                 break;
-            case RESET:
             case DECREMENT:
+                // decrement is kind of special, we might have changed sides or ends
+                // without knowing about it, set the end scene and server scenes here
+                setEndScenes();
+                setServerIcons();
             case INCREMENT:
+                // points have gone up / down, make this the active fragment
+                showScorePage(0);
+                if (null != this.scoreFragment && false == this.isMessageStarted) {
+                    // this is after we showed something and added the point
+                    // cancel the state scrolling already
+                    this.scoreFragment.cancelMatchState();
+                }
+                // flow through to show the score
+            case RESET:
                 // the points have changed, reflect this properly
                 showActiveScore();
                 // this is something that requires no message
@@ -230,7 +300,9 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
                 // change ends
                 setEndScenes();
                 // this requires a message, so send it
-                if (false == this.isMessageStarted && null != this.scoreFragment) {
+                if (this.activeMatch.isReadOnly()
+                        && false == this.isMessageStarted
+                        && null != this.scoreFragment) {
                     this.scoreFragment.showMatchState(FragmentScore.ScoreState.CHANGE_ENDS);
                 }
                 this.isMessageStarted = true;
@@ -238,15 +310,59 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
             case SERVER:
                 // change server
                 setServerIcons();
-                if (false == this.isMessageStarted && null != this.scoreFragment) {
+                if (this.activeMatch.isReadOnly()
+                        && false == this.isMessageStarted
+                        && null != this.scoreFragment) {
                     // didn't change ends, but we have changed server, show this
                     this.scoreFragment.showMatchState(FragmentScore.ScoreState.CHANGE_SERVER);
                 }
+                this.isMessageStarted = true;
                 break;
         }
     }
 
+    private void swapServerInTeam() {
+        // the team that is currently serving wants to start with the other player serving
+        Team teamServing = this.activeMatch.getTeamServing();
+        Player currentServer = teamServing.getServingPlayer();
+        // use the other player from the team as the starting server
+        for (Player player : teamServing.getPlayers()) {
+            if (player != currentServer) {
+                // this is the other player
+                this.activeMatch.setTeamStartingServer(player);
+                break;
+            }
+        }
+    }
+
+    private void swapStartingTeam() {
+        // swap over the team that is starting the match
+        Team teamStarting = this.activeMatch.getTeamStarting();
+        if (teamStarting == this.activeMatch.getTeamOne()) {
+            // team one is starting, change this
+            this.activeMatch.setTeamStarting(this.activeMatch.getTeamTwo());
+        }
+        else {
+            // team two is starting, change this
+            this.activeMatch.setTeamStarting(this.activeMatch.getTeamOne());
+        }
+    }
+
+    private void swapStartingEnds() {
+        // for each team, set their starting end to be the next one from where they currently are
+        this.activeMatch.cycleTeamStartingEnds();
+    }
+
     private void showActiveScore() {
+        // once we are playing, we need to hide the controls that allow the match to be setup
+        if (this.activeMatch.isReadOnly()) {
+            // we are playing, cannot edit starting params
+            this.setupMatchLayout.setVisibility(View.GONE);
+        }
+        else {
+            // we can edit starting things
+            this.setupMatchLayout.setVisibility(View.VISIBLE);
+        }
         // need to get the tennis score, there are things here
         // that we want to be using
         TennisScore score = (TennisScore) this.activeMatch.getScore();
@@ -293,6 +409,10 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
                 // transition has started, set the title properly
                 TextView title = scene.root.findViewById(R.id.team_textView);
                 title.setText(getTeamNames(scene));
+                if (activeMatch.getTeamServing() == scene.team) {
+                    // this team is currently serving
+                    scene.root.findViewById(R.id.team_receiverButton).setVisibility(View.INVISIBLE);
+                }
             }
             @Override
             public void onTransitionEnd(@NonNull Transition transition) {
@@ -316,6 +436,7 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
     }
 
     private void setupTeamButtons(final TeamScene scene) {
+        scene.root.setOnClickListener(createTeamButtonListener(scene));
         // do when click receiver button
         ImageButton button = scene.root.findViewById(R.id.team_receiverButton);
         button.setOnClickListener(createTeamButtonListener(scene));
@@ -351,23 +472,35 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
 
     private void setServerIcons() {
         // change the icons over
-        Player currentServer = this.activeMatch.getCurrentServer();
+        Team servingTeam = this.activeMatch.getTeamServing();
         // which team is serving?
-        if (this.activeMatch.getTeamOne().isPlayerInTeam(currentServer)) {
+        if (this.activeMatch.getTeamOne() == servingTeam) {
             // team one has the server, remove the receiver icon
             ImageButton rxButton = this.teamOneScene.root.findViewById(R.id.team_receiverButton);
-            rxButton.startAnimation(this.teamOneScene.outAnimation);
+            if (rxButton.getVisibility() != View.INVISIBLE) {
+                // this is not gone, need to remove it
+                rxButton.startAnimation(this.teamOneScene.outAnimation);
+            }
             // and animate in the team two receive button
             rxButton = this.teamTwoScene.root.findViewById(R.id.team_receiverButton);
-            rxButton.startAnimation(this.teamTwoScene.inAnimation);
+            if (rxButton.getVisibility() != View.VISIBLE) {
+                // this is not shown, bring it in
+                rxButton.startAnimation(this.teamTwoScene.inAnimation);
+            }
         }
         else {
             // other way around
             ImageButton rxButton = this.teamOneScene.root.findViewById(R.id.team_receiverButton);
-            rxButton.startAnimation(this.teamOneScene.inAnimation);
+            if (rxButton.getVisibility() != View.VISIBLE) {
+                // this is not shown, bring it in
+                rxButton.startAnimation(this.teamOneScene.inAnimation);
+            }
             // and animate out the team two receive button
             rxButton = this.teamTwoScene.root.findViewById(R.id.team_receiverButton);
-            rxButton.startAnimation(this.teamTwoScene.outAnimation);
+            if (rxButton.getVisibility() != View.INVISIBLE) {
+                // this is not gone, need to remove it
+                rxButton.startAnimation(this.teamTwoScene.outAnimation);
+            }
         }
     }
 
