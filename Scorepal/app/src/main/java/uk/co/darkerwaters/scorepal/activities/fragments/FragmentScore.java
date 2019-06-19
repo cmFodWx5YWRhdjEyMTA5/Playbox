@@ -19,6 +19,7 @@ import uk.co.darkerwaters.scorepal.activities.handlers.ChangeEndsTextAnimation;
 import uk.co.darkerwaters.scorepal.activities.handlers.ChangeServerTextAnimation;
 import uk.co.darkerwaters.scorepal.activities.handlers.GameOverTextAnimation;
 import uk.co.darkerwaters.scorepal.activities.handlers.TextViewAnimation;
+import uk.co.darkerwaters.scorepal.score.Point;
 import uk.co.darkerwaters.scorepal.score.TennisScore;
 
 public class FragmentScore extends Fragment {
@@ -161,8 +162,8 @@ public class FragmentScore extends Fragment {
         setSwitcherText(this.switchers[teamIndex][1], value);
     }
 
-    public void setPointsValue(int teamIndex, String value) {
-        setSwitcherText(this.switchers[teamIndex][2], value);
+    public void setPointsValue(int teamIndex, Point value) {
+        setSwitcherText(this.switchers[teamIndex][2], value.displayString(getContext()));
     }
 
     private void setSwitcherText(TextSwitcher switcher, String content) {

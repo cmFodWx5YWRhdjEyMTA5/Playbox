@@ -400,8 +400,8 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
         this.scoreFragment.setGamesValue(0, Integer.toString(score.getGames(teamOne, -1)));
         this.scoreFragment.setGamesValue(1, Integer.toString(score.getGames(teamTwo, -1)));
         // and the points
-        this.scoreFragment.setPointsValue(0, score.getPointsString(teamOne));
-        this.scoreFragment.setPointsValue(1, score.getPointsString(teamTwo));
+        this.scoreFragment.setPointsValue(0, score.getDisplayPoint(teamOne));
+        this.scoreFragment.setPointsValue(1, score.getDisplayPoint(teamTwo));
 
         // want to do the previous sets too
         for (int i = 0; i < score.getPlayedSets(); ++i) {
@@ -634,6 +634,8 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
     public void onTimeChanged() {
         // need to update the match time to include this session
         int minutesPlayed = this.activeMatch.getMatchMinutesPlayed() + getMinutesPlayedInActivity();
-        this.timeFragment.setMatchTime(minutesPlayed);
+        if (null != this.timeFragment) {
+            this.timeFragment.setMatchTime(minutesPlayed);
+        }
     }
 }

@@ -1,5 +1,7 @@
 package uk.co.darkerwaters.scorepal.score;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,6 +22,26 @@ class Score {
     private final ScoreFactory.ScoreMode scoreMode;
 
     private final Player[] players;
+
+    static class SimplePoint implements Point {
+        private final int value;
+
+        SimplePoint(int value) {
+            this.value = value;
+        }
+        @Override
+        public int val() {
+            return this.value;
+        }
+        @Override
+        public String displayString(Context context) {
+            return Integer.toString(this.value);
+        }
+        @Override
+        public String speakString(Context context) {
+            return Integer.toString(this.value);
+        }
+    }
 
     private int scoreGoal = -1;
 
@@ -184,9 +206,9 @@ class Score {
         return this.points[level][getTeamIndex(team)];
     }
 
-    String getPointString(int level, Team team) {
+    Point getDisplayPoint(int level, Team team) {
         // just return the point as a string
-        return Integer.toString(getPoint(level, team));
+        return new SimplePoint(getPoint(level, team));
     }
 
     private void storeHistory(int level, int[] toStore) {

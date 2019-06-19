@@ -37,12 +37,12 @@ class PointsScore extends Score {
         return playedPoints;
     }
 
-    int getPoints(Team team) {
-        return super.getPoint(0, team);
+    Point getDisplayPoint(Team team) {
+        return super.getDisplayPoint(0, team);
     }
 
-    String getPointString(Team team) {
-        return super.getPointString(0, team);
+    int getPoints(Team team) {
+        return super.getPoint(0, team);
     }
 
     @Override

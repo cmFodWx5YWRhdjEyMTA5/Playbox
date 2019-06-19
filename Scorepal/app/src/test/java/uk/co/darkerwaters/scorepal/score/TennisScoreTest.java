@@ -16,7 +16,7 @@ public class TennisScoreTest extends ScoreTest {
     @Test
     public void settingTennisValues() {
         // create a series of games
-        TennisScore score = new TennisScore(this.teams, TennisScore.Sets.FIVE);
+        TennisScore score = new TennisScore(this.teams, TennisSets.FIVE);
         assertEquals("mode", ScoreFactory.ScoreMode.K_TENNIS, score.getScoreMode());
         assertEquals("levels", 3, score.getLevels());
         for (int iSets = 0; iSets < 3; ++iSets) {
@@ -43,65 +43,65 @@ public class TennisScoreTest extends ScoreTest {
 
     @Test
     public void scoreBasicString() {
-        Score score = new TennisScore(this.teams, TennisScore.Sets.ONE);
+        Score score = new TennisScore(this.teams, TennisSets.ONE);
         for (int i = 0; i < 4; ++i) {
             score.setPoint(0, this.teams[0], i);
-            assertEquals("team one pt string", TennisScore.POINTS_STRINGS[i], score.getPointString(0, this.teams[0]));
+            assertEquals("team one pt string", TennisScore.TennisPoint.values()[i], score.getDisplayPoint(0, this.teams[0]));
         }
         // check the invalid number
         score.setPoint(0, this.teams[0], 6);
         score.setPoint(0, this.teams[1], 7);
-        assertEquals("team one pt string", "6", score.getPointString(0, this.teams[0]));
-        assertEquals("team two pt string", "7", score.getPointString(0, this.teams[1]));
+        assertEquals("team one pt string", TennisScore.TennisPoint.FORTY, score.getDisplayPoint(0, this.teams[0]));
+        assertEquals("team two pt string", TennisScore.TennisPoint.ADVANTAGE, score.getDisplayPoint(0, this.teams[1]));
     }
 
     @Test
     public void scoreString() {
-        Score score = new TennisScore(this.teams, TennisScore.Sets.ONE);
+        Score score = new TennisScore(this.teams, TennisSets.ONE);
 
         // LOVE all
         score.setPoint(0, this.teams[0], 0);
         score.setPoint(0, this.teams[0], 0);
-        assertEquals("team one pt string", TennisScore.STR_LOVE, score.getPointString(0, this.teams[0]));
-        assertEquals("team two pt string", TennisScore.STR_LOVE, score.getPointString(0, this.teams[0]));
+        assertEquals("team one pt string", TennisScore.TennisPoint.LOVE, score.getDisplayPoint(0, this.teams[0]));
+        assertEquals("team two pt string", TennisScore.TennisPoint.LOVE, score.getDisplayPoint(0, this.teams[0]));
 
         // 15 love
         score.setPoint(0, this.teams[0], 1);
-        assertEquals("team one pt string", TennisScore.STR_FIFTEEN, score.getPointString(0, this.teams[0]));
+        assertEquals("team one pt string", TennisScore.TennisPoint.FIFTEEN, score.getDisplayPoint(0, this.teams[0]));
 
         // 30 love
         score.setPoint(0, this.teams[0], 2);
-        assertEquals("team one pt string", TennisScore.STR_THIRTY, score.getPointString(0, this.teams[0]));
+        assertEquals("team one pt string", TennisScore.TennisPoint.THIRTY, score.getDisplayPoint(0, this.teams[0]));
 
         // 40 love
         score.setPoint(0, this.teams[0], 3);
-        assertEquals("team one pt string", TennisScore.STR_FORTY, score.getPointString(0, this.teams[0]));
+        assertEquals("team one pt string", TennisScore.TennisPoint.FORTY, score.getDisplayPoint(0, this.teams[0]));
 
         // Game love
         score.setPoint(0, this.teams[0], 4);
-        assertEquals("team one pt string", TennisScore.STR_GAME, score.getPointString(0, this.teams[0]));
+        assertEquals("team one pt string", TennisScore.TennisPoint.GAME, score.getDisplayPoint(0, this.teams[0]));
 
         // Deuce
         score.setPoint(0, this.teams[0], 3);
         score.setPoint(0, this.teams[1], 3);
-        assertEquals("team one pt string", TennisScore.STR_DEUCE, score.getPointString(0, this.teams[0]));
+        assertEquals("team one pt string", TennisScore.TennisPoint.DEUCE, score.getDisplayPoint(0, this.teams[0]));
 
         // ad 40
         score.setPoint(0, this.teams[0], 4);
-        assertEquals("team one pt string", TennisScore.STR_ADVANTAGE, score.getPointString(0, this.teams[0]));
+        assertEquals("team one pt string", TennisScore.TennisPoint.ADVANTAGE, score.getDisplayPoint(0, this.teams[0]));
 
         // Game 40
         score.setPoint(0, this.teams[0], 5);
-        assertEquals("team one pt string", TennisScore.STR_GAME, score.getPointString(0, this.teams[0]));
+        assertEquals("team one pt string", TennisScore.TennisPoint.GAME, score.getDisplayPoint(0, this.teams[0]));
 
         // 40 ad
         score.setPoint(0, this.teams[0], 3);
         score.setPoint(0, this.teams[1], 4);
-        assertEquals("team two pt string", TennisScore.STR_ADVANTAGE, score.getPointString(0, this.teams[1]));
+        assertEquals("team two pt string", TennisScore.TennisPoint.ADVANTAGE, score.getDisplayPoint(0, this.teams[1]));
 
         // 40 Game
         score.setPoint(0, this.teams[1], 5);
-        assertEquals("team two pt string", TennisScore.STR_GAME, score.getPointString(0, this.teams[1]));
+        assertEquals("team two pt string", TennisScore.TennisPoint.GAME, score.getDisplayPoint(0, this.teams[1]));
     }
 
     private void winPoints(TennisScore score, Team team, int points) {
@@ -119,7 +119,7 @@ public class TennisScoreTest extends ScoreTest {
         // in a tie the points are 0, 1, 2, 3 etc
         // wins the game ('game') when 7 points and 2 ahead
 
-        TennisScore score = new TennisScore(teams, TennisScore.Sets.THREE);
+        TennisScore score = new TennisScore(teams, TennisSets.THREE);
         // quickly put is into a tie break
         winGame(score, teams[0], 5);
         winGame(score, teams[1], 5);
@@ -131,8 +131,8 @@ public class TennisScoreTest extends ScoreTest {
         // check the score from now on is output as numbers
         for (int i = 0; i < 6; ++i) {
             // should be 0, 1, 2...
-            assertEquals("in tie point number", Integer.toString(i), score.getPointString(0, teams[0]));
-            assertEquals("in tie point number", Integer.toString(i), score.getPointsString(teams[1]));
+            assertEquals("in tie point number", Integer.toString(i), score.getDisplayPoint(0, teams[0]).displayString(null));
+            assertEquals("in tie point number", i, score.getDisplayPoint(teams[1]).val());
             // add a point to each
             score.incrementPoint(teams[0]);
             score.incrementPoint(teams[1]);
@@ -140,8 +140,8 @@ public class TennisScoreTest extends ScoreTest {
 
         // we are at 6 - 6 now, add one, shouldn't win
         score.incrementPoint(teams[0]);
-        assertEquals("7-6 doesn't win", "7", score.getPointString(0, teams[0]));
-        assertEquals("7-6 doesn't win", "6", score.getPointString(0, teams[1]));
+        assertEquals("7-6 doesn't win", "7", score.getDisplayPoint(0, teams[0]).displayString(null));
+        assertEquals("7-6 doesn't win", "6", score.getDisplayPoint(0, teams[1]).displayString(null));
         // but going to 8 - 6 should win
         score.incrementPoint(teams[0]);
         assertEquals("player one won the tie", 0, score.getPoints(teams[0]));
@@ -154,7 +154,7 @@ public class TennisScoreTest extends ScoreTest {
 
     @Test
     public void pointsTotals() {
-        TennisScore score = new TennisScore(this.teams, TennisScore.Sets.ONE);
+        TennisScore score = new TennisScore(this.teams, TennisSets.ONE);
         winGame(score, teams[0], 4);
         winPoints(score, teams[0], 2);
         assertEquals("total points inc games", 18, score.getPointsTotal(0, teams[0]));
@@ -167,7 +167,7 @@ public class TennisScoreTest extends ScoreTest {
     @Test
     public void tieBreakServing() {
         // player who's turn to serve starts the tie
-        TennisScore score = new TennisScore(teams, TennisScore.Sets.THREE);
+        TennisScore score = new TennisScore(teams, TennisSets.THREE);
         // player one should server
         Player firstServer = score.getServer();
         Player secondServer = firstServer == teams[0].getPlayers()[0] ? teams[1].getPlayers()[0] : teams[0].getPlayers()[0];
@@ -235,7 +235,7 @@ public class TennisScoreTest extends ScoreTest {
     @Test
     public void tieBreakServingDoubles() {
         // player who's turn to serve starts the tie
-        TennisScore score = new TennisScore(doubles, TennisScore.Sets.THREE);
+        TennisScore score = new TennisScore(doubles, TennisSets.THREE);
         // player one should serve
         Player playerOneA = doubles[0].getPlayers()[0];
         Player playerOneB = doubles[0].getPlayers()[1];
@@ -314,7 +314,7 @@ public class TennisScoreTest extends ScoreTest {
     @Test
     public void doublesServing() {
         // the players in a team cycle alternately
-        TennisScore score = new TennisScore(doubles, TennisScore.Sets.THREE);
+        TennisScore score = new TennisScore(doubles, TennisSets.THREE);
         // player one should serve
         Player playerOneA = doubles[0].getPlayers()[0];
         Player playerOneB = doubles[0].getPlayers()[1];
@@ -361,7 +361,7 @@ public class TennisScoreTest extends ScoreTest {
     @Test
     public void tieBreakFinalSet() {
         // 6 games all triggers a tie in all sets but last
-        TennisScore score = new TennisScore(doubles, TennisScore.Sets.THREE);
+        TennisScore score = new TennisScore(doubles, TennisSets.THREE);
         winGame(score, doubles[0], 5);
         winGame(score, doubles[1], 5);
         winGame(score, doubles[0], 1);
@@ -418,7 +418,7 @@ public class TennisScoreTest extends ScoreTest {
     @Test
     public void tieBreakInFinalSet() {
         // 6 games all triggers a tie in all sets
-        TennisScore score = new TennisScore(doubles, TennisScore.Sets.THREE);
+        TennisScore score = new TennisScore(doubles, TennisSets.THREE);
         score.setIsFinalSetTieBreaker(true);
 
         winGame(score, doubles[0], 5);
@@ -458,28 +458,28 @@ public class TennisScoreTest extends ScoreTest {
     @Test
     public void setsToWin() {
         // best of 1, 3 or 5
-        TennisScore score = new TennisScore(doubles, TennisScore.Sets.ONE);
+        TennisScore score = new TennisScore(doubles, TennisSets.ONE);
         // win this set
         winGame(score, doubles[0], 6);
         assertEquals("set won", 1, score.getSets(doubles[0]));
         assertEquals("match won", true, score.isMatchOver());
 
         // win a three setter
-        score = new TennisScore(doubles, TennisScore.Sets.THREE);
+        score = new TennisScore(doubles, TennisSets.THREE);
         // do a straight win in 2 sets
         winGame(score, doubles[0], 12);
         assertEquals("set won", 2, score.getSets(doubles[0]));
         assertEquals("match won", true, score.isMatchOver());
 
         // win a five setter
-        score = new TennisScore(doubles, TennisScore.Sets.FIVE);
+        score = new TennisScore(doubles, TennisSets.FIVE);
         // do a straight win in 3 sets
         winGame(score, doubles[0], 18);
         assertEquals("sets won", 3, score.getSets(doubles[0]));
         assertEquals("match won", true, score.isMatchOver());
 
         // win a three setter, closer
-        score = new TennisScore(doubles, TennisScore.Sets.THREE);
+        score = new TennisScore(doubles, TennisSets.THREE);
         // do a win in the whole sets
         winGame(score, doubles[1], 9);
         winGame(score, doubles[0], 12);
@@ -487,7 +487,7 @@ public class TennisScoreTest extends ScoreTest {
         assertEquals("match won", true, score.isMatchOver());
 
         // win a five setter
-        score = new TennisScore(doubles, TennisScore.Sets.FIVE);
+        score = new TennisScore(doubles, TennisSets.FIVE);
         // do a win in the whole sets
         winGame(score, doubles[1], 15);
         winGame(score, doubles[0], 18);
@@ -500,7 +500,7 @@ public class TennisScoreTest extends ScoreTest {
     @Test
     public void changingEnds() {
         // we want to change ends at the correct time
-        TennisScore score = new TennisScore(teams, TennisScore.Sets.THREE);
+        TennisScore score = new TennisScore(teams, TennisSets.THREE);
 
         // just track the position of team zero, 1 should be opposite
         CourtPosition startingPosition = teams[0].getCourtPosition();

@@ -24,18 +24,18 @@ public class PointsScoreTest extends ScoreTest {
         for (int i = 0; i < 9; ++i) {
             score.incrementPoint(teams[0]);
             assertEquals("point", i + 1, score.getPoints(teams[0]));
-            assertEquals("point string", Integer.toString(i + 1), score.getPointString(teams[0]));
+            assertEquals("point string", Integer.toString(i + 1), score.getDisplayPoint(teams[0]).displayString(null));
         }
         for (int i = 0; i < 9; ++i) {
             score.incrementPoint(teams[1]);
             assertEquals("point", i + 1, score.getPoints(teams[1]));
-            assertEquals("point string", Integer.toString(i + 1), score.getPointString(teams[1]));
+            assertEquals("point string", Integer.toString(i + 1), score.getDisplayPoint(teams[1]).displayString(null));
         }
         // not over
         assertEquals("not won", false, score.isMatchOver());
         score.incrementPoint(teams[0]);
         assertEquals("point", 10, score.getPoints(teams[0]));
-        assertEquals("point string", "10", score.getPointString(teams[0]));
+        assertEquals("point string", "10", score.getDisplayPoint(teams[0]).displayString(null));
         assertEquals("match won", true, score.isMatchOver());
     }
 

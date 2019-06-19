@@ -1,8 +1,11 @@
 package uk.co.darkerwaters.scorepal.score;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.application.Log;
 import uk.co.darkerwaters.scorepal.players.Player;
 import uk.co.darkerwaters.scorepal.players.Team;
@@ -13,15 +16,57 @@ public class TennisScore extends Score {
     final static int GAME = 1;
     final static int SET = 2;
 
-    final static String STR_LOVE = "0";
-    final static String STR_FIFTEEN = "15";
-    final static String STR_THIRTY = "30";
-    final static String STR_FORTY = "40";
-    final static String STR_ADVANTAGE = "AD";
-    final static String STR_DEUCE = "40";
-    final static String STR_GAME = "Game";
+    static enum TennisPoint implements Point {
+        LOVE(0, R.string.display_love, R.string.speak_love),
+        FIFTEEN(1, R.string.display_15, R.string.speak_15),
+        THIRTY(2, R.string.display_30, R.string.speak_30),
+        FORTY(3, R.string.display_40, R.string.speak_40),
+        DEUCE(4, R.string.display_deuce, R.string.speak_deuce),
+        ADVANTAGE(5, R.string.display_advantage, R.string.speak_advantage),
+        GAME(6, R.string.display_game, R.string.speak_game);
 
-    final static String[] POINTS_STRINGS = new String[] {STR_LOVE, STR_FIFTEEN, STR_THIRTY, STR_FORTY, STR_ADVANTAGE, STR_GAME};
+        private final int value;
+        private final int displayStrId;
+        private final int speakStrId;
+
+        TennisPoint(int value, int displayStrId, int speakStrId) {
+            this.value = value;
+            this.displayStrId = displayStrId;
+            this.speakStrId = speakStrId;
+        }
+        @Override
+        public int val() {
+            return this.value;
+        }
+        @Override
+        public String displayString(Context context) {
+            if (null != context && 0 != this.displayStrId) {
+                return context.getString(this.displayStrId);
+            }
+            else {
+                return Integer.toString(this.value);
+            }
+        }
+        @Override
+        public String speakString(Context context) {
+            if (null != context && 0 != this.speakStrId) {
+                return context.getString(this.speakStrId);
+            }
+            else {
+                return Integer.toString(this.value);
+            }
+        }
+
+        public static Point fromVal(int points) {
+            for (TennisPoint point : TennisPoint.values()) {
+                if (point.val() == points) {
+                    return point;
+                }
+            }
+            // if here then we don't have a tennis point, return a simple number one
+            return new SimplePoint(points);
+        }
+    }
 
     private final int POINTS_TO_WIN_GAME = 4;
     private final int POINTS_AHEAD_IN_GAME = 2;
@@ -88,30 +133,30 @@ public class TennisScore extends Score {
     }
 
     @Override
-    String getPointString(int level, Team team) {
-        String pointsString;
+    Point getDisplayPoint(int level, Team team) {
+        Point displayPoint;
         if (this.isInTieBreak) {
             // we are in a tie break, just use the numbers of the points
-            pointsString = super.getPointString(level, team);
+            displayPoint = super.getDisplayPoint(level, team);
         }
         else {
             switch (level) {
                 case POINT:
                     // return the point string
-                    pointsString = getPointsString(team);
+                    displayPoint = getDisplayPoint(team);
                     break;
                 default:
-                    pointsString = super.getPointString(level, team);
+                    displayPoint = super.getDisplayPoint(level, team);
                     break;
             }
         }
-        return pointsString;
+        return displayPoint;
     }
 
-    public String getPointsString(Team team) {
-        String pointsString;
+    public Point getDisplayPoint(Team team) {
+        Point displayPoint;
         if (this.isInTieBreak) {
-            pointsString = super.getPointString(POINT, team);
+            displayPoint = super.getDisplayPoint(POINT, team);
         }
         else {
             // not in a tie, show the points string correctly
@@ -123,16 +168,16 @@ public class TennisScore extends Score {
                 case 1: // 15
                 case 2: // 30
                     // we are less than 40, just return the string from the array
-                    pointsString = POINTS_STRINGS[points];
+                    displayPoint = TennisPoint.fromVal(points);
                     break;
                 case 3:
                     // we have 40, if the other player has 40 too, we are at deuce
                     if (otherPoints == 3) {
                         // this is 40-40
-                        pointsString = STR_DEUCE;
+                        displayPoint = TennisPoint.DEUCE;
                     } else {
                         // they have fewer, or advantage, we just have 40
-                        pointsString = STR_FORTY;
+                        displayPoint = TennisPoint.FORTY;
                     }
                     break;
                 default:
@@ -141,24 +186,24 @@ public class TennisScore extends Score {
                     switch(delta) {
                         case 0 :
                             //this is deuce
-                            pointsString = STR_DEUCE;
+                            displayPoint = TennisPoint.DEUCE;
                             break;
                         case 1:
                             // we have ad
-                            pointsString = STR_ADVANTAGE;
+                            displayPoint = TennisPoint.ADVANTAGE;
                             break;
                         case -1:
                             // we are disadvantaged
-                            pointsString = STR_FORTY;
+                            displayPoint = TennisPoint.FORTY;
                             break;
                         default:
-                           pointsString = STR_GAME;
+                            displayPoint = TennisPoint.GAME;
                            break;
                     }
             }
         }
         // return the string
-        return pointsString;
+        return displayPoint;
     }
 
     public int[] getPoints(Team team, int setIndex, int gameIndex) {

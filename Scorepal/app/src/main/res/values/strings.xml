@@ -39,6 +39,21 @@
     <string name="three_sets">3</string>
     <string name="one_sets">1</string>
 
+    <string name="display_love">0</string>
+    <string name="speak_love">love</string>
+    <string name="display_15">15</string>
+    <string name="speak_15">fifteen</string>
+    <string name="display_30">30</string>
+    <string name="speak_30">thirty</string>
+    <string name="display_40">40</string>
+    <string name="speak_40">forty</string>
+    <string name="display_advantage">AD</string>
+    <string name="speak_advantage">advantage</string>
+    <string name="display_deuce">40</string>
+    <string name="speak_deuce">deuce</string>
+    <string name="display_game">game</string>
+    <string name="speak_game">game</string>
+
     <string name="team_one_title">Team One</string>
     <string name="team_two_title">Team Two</string>
     <string name="default_playerOneName">Player One</string>

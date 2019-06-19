@@ -55,8 +55,8 @@ public class ScoreTest {
         for (int i = 0; i < 100; ++i) {
             score.setPoint(0, this.teams[0], i);
             score.setPoint(0, this.teams[1], 100 - i);
-            assertEquals("team one pt string", "" + i, score.getPointString(0, this.teams[0]));
-            assertEquals("team two pt string", "" + (100 - i), score.getPointString(0, this.teams[1]));
+            assertEquals("team one pt string", "" + i, score.getDisplayPoint(0, this.teams[0]).displayString(null));
+            assertEquals("team two pt string", "" + (100 - i), score.getDisplayPoint(0, this.teams[1]).displayString(null));
         }
     }
 
