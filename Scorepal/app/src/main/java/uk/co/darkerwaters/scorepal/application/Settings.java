@@ -17,6 +17,7 @@ public class Settings {
     private final String K_ISDOUBLES = "isDoubles";
     private final String K_SETS = "sets";
     private final String K_ISSPEAKING = "isSpeaking";
+    private final String K_ISSPEAKINGMESSAGES = "isSpeakingMessages";
     private final String K_PLAYERNAME = "playerName";
 
     private final String K_ACTIVESPORT = "activeSport";
@@ -32,6 +33,7 @@ public class Settings {
     private boolean isMuted;
     private boolean isAskForContacts;
     private boolean isSpeaking;
+    private boolean isSpeakingMessages;
     private String activeSport;
 
     public Settings(Application app) {
@@ -54,6 +56,7 @@ public class Settings {
         this.activeSport = K_DEFAULTACTIVESPORT;
         this.isDoubles = false;
         this.isSpeaking = true;
+        this.isSpeakingMessages = true;
         this.sets = TennisSets.THREE;
     }
 
@@ -88,14 +91,25 @@ public class Settings {
         return this.editor.commit();
     }
 
-    public boolean getIsSpeaking() {
+    public boolean getIsSpeakingPoints() {
         this.isSpeaking = this.preferences.getBoolean(K_ISSPEAKING, this.isSpeaking);
         return this.isSpeaking;
     }
 
-    public boolean setIsSpeaking(boolean isSpeaking) {
+    public boolean setIsSpeakingPoints(boolean isSpeaking) {
         this.isSpeaking = isSpeaking;
         this.editor.putBoolean(K_ISSPEAKING, this.isSpeaking);
+        return this.editor.commit();
+    }
+
+    public boolean getIsSpeakingMessages() {
+        this.isSpeakingMessages = this.preferences.getBoolean(K_ISSPEAKINGMESSAGES, this.isSpeakingMessages);
+        return this.isSpeakingMessages;
+    }
+
+    public boolean setIsSpeakingMessages(boolean isSpeakingMessages) {
+        this.isSpeakingMessages = isSpeakingMessages;
+        this.editor.putBoolean(K_ISSPEAKINGMESSAGES, this.isSpeakingMessages);
         return this.editor.commit();
     }
 

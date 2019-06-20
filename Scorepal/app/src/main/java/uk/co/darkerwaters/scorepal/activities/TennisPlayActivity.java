@@ -22,7 +22,6 @@ import android.widget.TextView;
 import java.util.Calendar;
 import java.util.Date;
 
-import uk.co.darkerwaters.scorepal.Application;
 import uk.co.darkerwaters.scorepal.activities.fragments.FragmentTime;
 import uk.co.darkerwaters.scorepal.activities.handlers.DepthPageTransformer;
 import uk.co.darkerwaters.scorepal.activities.fragments.FragmentPreviousSets;
@@ -30,7 +29,6 @@ import uk.co.darkerwaters.scorepal.activities.fragments.FragmentScore;
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.activities.handlers.ScreenSliderPagerAdapter;
 import uk.co.darkerwaters.scorepal.announcer.SpeakService;
-import uk.co.darkerwaters.scorepal.application.Log;
 import uk.co.darkerwaters.scorepal.players.CourtPosition;
 import uk.co.darkerwaters.scorepal.players.Player;
 import uk.co.darkerwaters.scorepal.players.Team;
@@ -280,100 +278,120 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
 
     @Override
     public void onMatchPointsChanged(Match.PointChange[] levelsChanged) {
-        // if we are speaking then we need to announce the new score
-        if (this.application.getSettings().getIsSpeaking()) {
-            // the score of the match changed, need to announce this, find the top level
-            // that changed, if we won a set we don't care abou the game...
-            Match.PointChange topChange = null;
-            for (Match.PointChange change : levelsChanged) {
-                // we want to find the highest change
-                if (topChange == null || change.level > topChange.level) {
-                    // this is the biggest - remember this
-                    topChange = change;
-                }
-            }
-            if (null != topChange) {
-                TennisScore score = (TennisScore) this.activeMatch.getScore();
-                Team teamOne = this.activeMatch.getTeamOne();
-                Team teamTwo = this.activeMatch.getTeamTwo();
-                String message = null;
-                switch (topChange.level) {
-                    case TennisScore.LEVEL_POINT:
-                        // the points changed, announce the points
-                        Point t1Point = score.getDisplayPoint(teamOne);
-                        Point t2Point = score.getDisplayPoint(teamTwo);
-                        if (t1Point == TennisScore.TennisPoint.ADVANTAGE) {
-                            // read advantage team one
-                            message = t1Point.speakString(this)
-                                    + " "
-                                    + teamOne.getTeamName();
-                        }
-                        else if (t2Point == TennisScore.TennisPoint.ADVANTAGE) {
-                            // read advantage team two
-                            message = t2Point.speakString(this)
-                                    + " "
-                                    + teamTwo.getTeamName();
-                        }
-                        else if (t1Point == TennisScore.TennisPoint.DEUCE
-                            && t2Point == TennisScore.TennisPoint.DEUCE) {
-                            // read deuce
-                            message = t1Point.speakString(this);
-                        }
-                        else if (t1Point.val() == t2Point.val()) {
-                            // they have the same score, use the special "all" values
-                            message = t1Point.speakAllString(this);
-                        }
-                        else {
-                            // just read the score, but we want to say the server first
-                            // so who is that?
-                            if (teamOne.isPlayerInTeam(this.activeMatch.getCurrentServer())) {
-                                // team one is serving
-                                message = t1Point.speakString(this)
-                                        + " "
-                                        + t2Point.speakString(this);
-                            }
-                            else {
-                                // team two is serving
-                                message = t2Point.speakString(this)
-                                        + " "
-                                        + t1Point.speakString(this);
-                            }
-
-                        }
-                        break;
-                    case TennisScore.LEVEL_GAME:
-                        // the games changed, announce who won the game
-                        message = TennisScore.TennisPoint.GAME.speakString(this)
-                                + " "
-                                + topChange.team.getTeamName();
-                        break;
-                    case TennisScore.LEVEL_SET:
-                        // the sets changed, announce who won the set
-                        message = TennisScore.TennisPoint.SET.speakString(this)
-                                + " "
-                                + topChange.team.getTeamName();
-                        break;
-                }
-                if (null != message) {
-                    // speak it, there might be dots in the string (initials) which cause
-                    // the speaking to pause too much, remove them here
-                    message = message.replaceAll("[.]", "");
-                    // we might also be changing ends
-                    // or something, get from the score fragment the state it is showing
-                    if (null != scoreFragment) {
-                        String state = scoreFragment.getMatchState();
-                        if (null != state && false == state.isEmpty()) {
-                            // there is a state showing, speak it here
-                            // we are speaking, say this after the score is announced
-                            message += ". " + state;
-
-                        }
-                    }
-                    // speak what we have made
-                    SpeakService.SpeakMessage(this, message, true);
-                }
+        // the score of the match changed, need to announce this, find the top level
+        // that changed, if we won a set we don't care about the game...
+        Match.PointChange topChange = null;
+        for (Match.PointChange change : levelsChanged) {
+            // we want to find the highest change
+            if (topChange == null || change.level > topChange.level) {
+                // this is the biggest - remember this
+                topChange = change;
             }
         }
+        if (null != topChange) {
+            String message = "";
+            if (this.application.getSettings().getIsSpeakingPoints()) {
+                // we want to say the points, create the phrase to say
+                message = createPointsPhrase(topChange);
+            }
+            if (null != scoreFragment && this.application.getSettings().getIsSpeakingMessages()) {
+                // we might also be changing ends
+                // or something, get from the score fragment the state it is showing
+                String state = scoreFragment.getMatchState();
+                if (null != state && false == state.isEmpty()) {
+                    // there is a state showing, speak it here
+                    if (false == message.isEmpty()) {
+                        // we are speaking, say this after the score is announced
+                        message += ". ";
+                    }
+                    // add the message to what is said
+                    message += state;
+                }
+            }
+            if (false == message.isEmpty()) {
+                // speak what we have made
+                SpeakService.SpeakMessage(this, message, true);
+            }
+        }
+    }
+
+    private String createPointsPhrase(Match.PointChange change) {
+        TennisScore score = (TennisScore) this.activeMatch.getScore();
+        Team teamOne = this.activeMatch.getTeamOne();
+        Team teamTwo = this.activeMatch.getTeamTwo();
+        String message = "";
+        switch (change.level) {
+            case TennisScore.LEVEL_POINT:
+                // the points changed, announce the points
+                Point t1Point = score.getDisplayPoint(teamOne);
+                Point t2Point = score.getDisplayPoint(teamTwo);
+                if (t1Point == TennisScore.TennisPoint.ADVANTAGE) {
+                    // read advantage team one
+                    message = t1Point.speakString(this)
+                            + " "
+                            + teamOne.getTeamName();
+                } else if (t2Point == TennisScore.TennisPoint.ADVANTAGE) {
+                    // read advantage team two
+                    message = t2Point.speakString(this)
+                            + " "
+                            + teamTwo.getTeamName();
+                } else if (t1Point == TennisScore.TennisPoint.DEUCE
+                        && t2Point == TennisScore.TennisPoint.DEUCE) {
+                    // read deuce
+                    message = t1Point.speakString(this);
+                } else if (t1Point.val() == t2Point.val()) {
+                    // they have the same score, use the special "all" values
+                    message = t1Point.speakAllString(this);
+                } else if (score.isInTieBreak()) {
+                    // in a tie-break we read the score with the winner first
+                    if (t1Point.val() > t2Point.val()) {
+                        // player one has more
+                        message = t1Point.speakString(this)
+                                + " "
+                                + t2Point.speakString(this)
+                                + " "
+                                + teamOne.getTeamName();
+                    } else {
+                        // player two has more
+                        message = t2Point.speakString(this)
+                                + " "
+                                + t1Point.speakString(this)
+                                + " "
+                                + teamTwo.getTeamName();
+                    }
+                } else {
+                    // just read the numbers out, but we want to say the server first
+                    // so who is that?
+                    if (teamOne.isPlayerInTeam(this.activeMatch.getCurrentServer())) {
+                        // team one is serving
+                        message = t1Point.speakString(this)
+                                + " "
+                                + t2Point.speakString(this);
+                    } else {
+                        // team two is serving
+                        message = t2Point.speakString(this)
+                                + " "
+                                + t1Point.speakString(this);
+                    }
+
+                }
+                break;
+            case TennisScore.LEVEL_GAME:
+                // the games changed, announce who won the game
+                message = TennisScore.TennisPoint.GAME.speakString(this)
+                        + " "
+                        + change.team.getTeamName();
+                break;
+            case TennisScore.LEVEL_SET:
+                // the sets changed, announce who won the set
+                message = TennisScore.TennisPoint.SET.speakString(this)
+                        + " "
+                        + change.team.getTeamName();
+                break;
+        }
+        // there might be dots in the string (initials) which cause
+        // the speaking to pause too much, remove them here
+        return message.replaceAll("[.]", "");
     }
 
     @Override
