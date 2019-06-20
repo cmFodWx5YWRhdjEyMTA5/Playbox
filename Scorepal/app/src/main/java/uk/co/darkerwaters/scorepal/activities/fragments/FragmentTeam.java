@@ -6,6 +6,7 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.CardView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -18,12 +19,16 @@ import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import uk.co.darkerwaters.scorepal.Application;
 import uk.co.darkerwaters.scorepal.R;
+import uk.co.darkerwaters.scorepal.application.Settings;
 
 public class FragmentTeam extends Fragment {
 
     private static final long K_ANIMATION_DURATION = 1000;
     private static final String K_NAME_SEPERATOR = " / ";
+
+    private Application application;
 
     public enum TeamNamingMode {
         ROLE,
@@ -88,6 +93,8 @@ public class FragmentTeam extends Fragment {
         // Inflate the layout for this fragment
         View parent = inflater.inflate(R.layout.fragment_team, container, false);
 
+        this.application = (Application) getActivity().getApplication();
+
         this.title = parent.findViewById(R.id.titleText);
         this.titleModeButton = parent.findViewById(R.id.teamTitleModeButton);
         this.playerName = parent.findViewById(R.id.playerAutoTextView);
@@ -114,6 +121,16 @@ public class FragmentTeam extends Fragment {
         // setup our adapters here
         setupAdapters();
         return parent;
+    }
+
+    @Override
+    public void onDestroy() {
+        Settings settings = this.application.getSettings();
+        // these are the new defaults to use the next time we come here
+        settings.setPlayerName(this.playerName.getText().toString(), this.teamNumber - 1, 0);
+        settings.setPlayerName(this.partnerName.getText().toString(), this.teamNumber - 1, 1);
+        // and destroy this
+        super.onDestroy();
     }
 
     private TextWatcher createTextChangeLisener() {
@@ -407,6 +424,7 @@ public class FragmentTeam extends Fragment {
     public void setLabels(int teamNumber) {
         this.teamNumber = teamNumber;
 
+        // set the names and hints to use
         if (null != this.title) {
             switch (this.teamNumber) {
                 case 1:
@@ -420,6 +438,15 @@ public class FragmentTeam extends Fragment {
             }
             // and do the team title
             createTeamName();
+
+            // we can get the default names from the application too
+            Settings settings = this.application.getSettings();
+            // set the main player's name
+            String defaultName = this.playerName.getText().toString();
+            this.playerName.setText(settings.getPlayerName(teamNumber - 1, 0, defaultName));
+            // and set the partner's name
+            defaultName = this.partnerName.getText().toString();
+            this.partnerName.setText(settings.getPlayerName(teamNumber - 1, 1, defaultName));
         }
     }
 }

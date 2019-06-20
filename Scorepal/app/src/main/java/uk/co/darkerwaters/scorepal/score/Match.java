@@ -99,6 +99,20 @@ public class Match implements Score.ScoreListener {
         }
     }
 
+    public String getMatchSummary(Context context) {
+        //TODO show the time we play etc then add the score summary
+        return this.score.getScoreSummary(context);
+    }
+
+    public void resetMatch() {
+        // reset the score
+        resetScoreToStartingPosition();
+        // and clear the history
+        this.pointHistory.clear();
+        // and the time played
+        this.matchMinutesPlayed = 0;
+    }
+
     public boolean addListener(MatchListener listener) {
         synchronized (this.listeners) {
             return this.listeners.add(listener);

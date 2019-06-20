@@ -1,10 +1,13 @@
 package uk.co.darkerwaters.scorepal.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.Switch;
@@ -23,6 +26,11 @@ public class TennisSetupActivity extends FragmentTeamActivity {
     private TextView setsText;
     private ImageButton setsLessButton;
     private ImageButton setsMoreButton;
+
+    private View doublesCard;
+    private View summaryCard;
+    private TextView matchSummary;
+    private Button resetButton;
 
     private FloatingActionButton fabPlay;
 
@@ -44,6 +52,38 @@ public class TennisSetupActivity extends FragmentTeamActivity {
         this.setsLessButton = findViewById(R.id.setsLessImageButton);
         this.singlesDoublesSwitch = findViewById(R.id.switchSinglesDoubles);
 
+        this.doublesCard = findViewById(R.id.doublesCard);
+        this.summaryCard = findViewById(R.id.summaryCard);
+        this.matchSummary = findViewById(R.id.match_summary_text);
+        this.resetButton = findViewById(R.id.match_reset_button);
+
+        // set the click handler for resetting the match
+        this.resetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which){
+                            case DialogInterface.BUTTON_POSITIVE:
+                                //Yes button clicked
+                                currentMatch.resetMatch();
+                                setActivityDataShown();
+                                break;
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                //No button clicked
+                                break;
+                        }
+                    }
+                };
+                // show the dialog to check for totally sure
+                AlertDialog.Builder builder = new AlertDialog.Builder(TennisSetupActivity.this);
+                builder.setMessage(R.string.matchWipeConfirmation)
+                        .setPositiveButton(R.string.yes, dialogClickListener)
+                        .setNegativeButton(R.string.no, dialogClickListener).show();
+            }
+        });
+
         this.setsMoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -64,8 +104,9 @@ public class TennisSetupActivity extends FragmentTeamActivity {
             }
         });
         // get the default to start with
-        setCurrentSets(this.application.getSettings().getTennisSets());
-        this.currentMatch.setIsDoubles(this.application.getSettings().getIsDoubles());
+        Settings settings = this.application.getSettings();
+        setCurrentSets(settings.getTennisSets());
+        this.currentMatch.setIsDoubles(settings.getIsDoubles());
 
         this.fabPlay = findViewById(R.id.fab_play);
         this.fabPlay.setOnClickListener(new View.OnClickListener() {
@@ -129,6 +170,7 @@ public class TennisSetupActivity extends FragmentTeamActivity {
         // set the names on the teams, even when the user didn't change anything
         onTeamNameChanged(this.teamOneFragment);
         onTeamNameChanged(this.teamTwoFragment);
+
         // and update the settings
         Settings settings = this.application.getSettings();
         // set the default for is doubles or not
@@ -166,5 +208,19 @@ public class TennisSetupActivity extends FragmentTeamActivity {
         }
         this.teamOneFragment.setIsDoubles(isDoubles, false);
         this.teamTwoFragment.setIsDoubles(isDoubles, false);
+
+        // we need to show the summary of the current match
+        if (this.currentMatch.isMatchStarted()) {
+            // show the summary and the card
+            this.matchSummary.setText(this.currentMatch.getMatchSummary(this));
+            this.summaryCard.setVisibility(View.VISIBLE);
+            // can't change between doubles and singles any more - already started
+            this.doublesCard.setVisibility(View.GONE);
+        }
+        else {
+            // hide the card - this is a new game
+            this.summaryCard.setVisibility(View.GONE);
+            this.doublesCard.setVisibility(View.VISIBLE);
+        }
     }
 }

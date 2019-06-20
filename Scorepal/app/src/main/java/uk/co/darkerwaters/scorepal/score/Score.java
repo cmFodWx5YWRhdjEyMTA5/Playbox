@@ -122,6 +122,17 @@ class Score {
         }
     }
 
+    public String getScoreSummary(Context context) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = this.points.length - 1; i >= 0; --i) {
+            builder.append(this.points[i][0]);
+            builder.append(" - ");
+            builder.append(this.points[i][1]);
+            builder.append("   ");
+        }
+        return builder.toString().trim();
+    }
+
     void resetScore() {
         // set all the points to zero
         for (int[] teamPoints : this.points) {

@@ -7,203 +7,283 @@
     android:layout_height="match_parent"
     tools:context=".activities.TennisSetupActivity">
 
-    <ImageView
-        android:id="@+id/titleImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:src="@mipmap/ic_launcher_round"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/item_title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_toEndOf="@+id/item_image"
-        android:text="@string/tennis"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-        android:textSize="30sp"
-        app:layout_constraintBottom_toBottomOf="@+id/titleImage"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/titleImage"
-        app:layout_constraintTop_toTopOf="@+id/titleImage" />
-
-    <TextView
-        android:id="@+id/item_detail"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/item_image"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:text="@string/tennisSubtitle"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/titleImage"
-        app:layout_constraintTop_toBottomOf="@+id/item_title" />
-
-    <android.support.v7.widget.CardView
-        android:id="@+id/setsCard"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        app:cardBackgroundColor="@color/colorPrimary"
-        app:cardCornerRadius="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/item_detail">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:paddingBottom="64dp"
+            android:focusableInTouchMode="true">
 
-            <TextView
-                android:id="@+id/textViewSets"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/sets"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-                android:textColor="@color/primaryTextColor"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/setsLessImageButton"
-                app:layout_constraintHorizontal_chainStyle="packed"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageButton
-                android:id="@+id/setsLessImageButton"
-                android:layout_width="51dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:backgroundTint="@color/colorPrimaryDark"
-                android:src="@android:drawable/ic_media_previous"
-                app:layout_constraintBottom_toBottomOf="@+id/textViewSets"
-                app:layout_constraintEnd_toStartOf="@+id/setsNumberText"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/textViewSets"
-                app:layout_constraintTop_toTopOf="@+id/textViewSets" />
-
-            <TextView
-                android:id="@+id/setsNumberText"
-                android:layout_width="45dp"
-                android:layout_height="0dp"
-                android:layout_marginEnd="8dp"
-                android:ems="10"
-                android:text="@string/five_sets"
-                android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-                android:textColor="@color/primaryTextColor"
-                app:layout_constraintBottom_toBottomOf="@+id/setsLessImageButton"
-                app:layout_constraintEnd_toStartOf="@+id/setsMoreImageButton"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/setsLessImageButton"
-                app:layout_constraintTop_toTopOf="@+id/setsLessImageButton" />
-
-            <ImageButton
-                android:id="@+id/setsMoreImageButton"
-                android:layout_width="51dp"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/colorPrimaryDark"
-                android:src="@android:drawable/ic_media_next"
-                app:layout_constraintBottom_toBottomOf="@+id/setsNumberText"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/setsNumberText"
-                app:layout_constraintTop_toTopOf="@+id/setsNumberText" />
-        </android.support.constraint.ConstraintLayout>
-    </android.support.v7.widget.CardView>
-
-    <android.support.v7.widget.CardView
-        android:id="@+id/doublesCard"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        app:cardBackgroundColor="@color/colorPrimary"
-        app:cardCornerRadius="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/setsCard">
-
-        <android.support.constraint.ConstraintLayout
-            android:id="@+id/doublesLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/singlesTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:text="@string/singles"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-                android:textColor="@color/primaryTextColor"
-                app:layout_constraintBottom_toBottomOf="@+id/switchSinglesDoubles"
-                app:layout_constraintEnd_toStartOf="@+id/switchSinglesDoubles"
-                app:layout_constraintTop_toTopOf="@+id/switchSinglesDoubles" />
-
-            <TextView
-                android:id="@+id/doublesTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/doubles"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-                android:textColor="@color/primaryTextColor"
-                app:layout_constraintBottom_toBottomOf="@+id/switchSinglesDoubles"
-                app:layout_constraintStart_toEndOf="@+id/switchSinglesDoubles"
-                app:layout_constraintTop_toTopOf="@+id/switchSinglesDoubles" />
-
-            <Switch
-                android:id="@+id/switchSinglesDoubles"
+            <ImageView
+                android:id="@+id/titleImage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:src="@mipmap/ic_launcher_round"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/item_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_toEndOf="@+id/item_image"
+                android:text="@string/tennis"
+                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                android:textSize="30sp"
+                app:layout_constraintBottom_toBottomOf="@+id/titleImage"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/titleImage"
+                app:layout_constraintTop_toTopOf="@+id/titleImage" />
+
+            <TextView
+                android:id="@+id/item_detail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/item_image"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/tennisSubtitle"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/titleImage"
+                app:layout_constraintTop_toBottomOf="@+id/item_title" />
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/setsCard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="8dp"
+                app:cardBackgroundColor="@color/colorPrimary"
+                app:cardCornerRadius="20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/item_detail">
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/textViewSets"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:text="@string/sets"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                        android:textColor="@color/primaryTextColor"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/setsLessImageButton"
+                        app:layout_constraintHorizontal_chainStyle="packed"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageButton
+                        android:id="@+id/setsLessImageButton"
+                        android:layout_width="51dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:backgroundTint="@color/colorPrimaryDark"
+                        android:src="@android:drawable/ic_media_previous"
+                        app:layout_constraintBottom_toBottomOf="@+id/textViewSets"
+                        app:layout_constraintEnd_toStartOf="@+id/setsNumberText"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintStart_toEndOf="@+id/textViewSets"
+                        app:layout_constraintTop_toTopOf="@+id/textViewSets" />
+
+                    <TextView
+                        android:id="@+id/setsNumberText"
+                        android:layout_width="45dp"
+                        android:layout_height="0dp"
+                        android:layout_marginEnd="8dp"
+                        android:ems="10"
+                        android:text="@string/five_sets"
+                        android:textAlignment="center"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                        android:textColor="@color/primaryTextColor"
+                        app:layout_constraintBottom_toBottomOf="@+id/setsLessImageButton"
+                        app:layout_constraintEnd_toStartOf="@+id/setsMoreImageButton"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintStart_toEndOf="@+id/setsLessImageButton"
+                        app:layout_constraintTop_toTopOf="@+id/setsLessImageButton" />
+
+                    <ImageButton
+                        android:id="@+id/setsMoreImageButton"
+                        android:layout_width="51dp"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@color/colorPrimaryDark"
+                        android:src="@android:drawable/ic_media_next"
+                        app:layout_constraintBottom_toBottomOf="@+id/setsNumberText"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintStart_toEndOf="@+id/setsNumberText"
+                        app:layout_constraintTop_toTopOf="@+id/setsNumberText" />
+                </android.support.constraint.ConstraintLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/doublesCard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                app:cardBackgroundColor="@color/colorPrimary"
+                app:cardCornerRadius="20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/setsCard">
+
+                <android.support.constraint.ConstraintLayout
+                    android:id="@+id/doublesLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/singlesTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:text="@string/singles"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                        android:textColor="@color/primaryTextColor"
+                        app:layout_constraintBottom_toBottomOf="@+id/switchSinglesDoubles"
+                        app:layout_constraintEnd_toStartOf="@+id/switchSinglesDoubles"
+                        app:layout_constraintTop_toTopOf="@+id/switchSinglesDoubles" />
+
+                    <TextView
+                        android:id="@+id/doublesTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="@string/doubles"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                        android:textColor="@color/primaryTextColor"
+                        app:layout_constraintBottom_toBottomOf="@+id/switchSinglesDoubles"
+                        app:layout_constraintStart_toEndOf="@+id/switchSinglesDoubles"
+                        app:layout_constraintTop_toTopOf="@+id/switchSinglesDoubles" />
+
+                    <Switch
+                        android:id="@+id/switchSinglesDoubles"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </android.support.constraint.ConstraintLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/summaryCard"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                app:cardBackgroundColor="@color/colorPrimary"
+                app:cardCornerRadius="20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/doublesCard">
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/textView3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:text="@string/current_match"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                        android:textColor="@color/primaryTextColor"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/match_summary_text"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:ellipsize="none"
+                        android:scrollHorizontally="false"
+                        android:text="Sets: [2-3] Games: (6-2) (3-6) (6-2) (2-6) (12-10)"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="@color/primaryTextColor"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/match_reset_button"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+                    <Button
+                        android:id="@+id/match_reset_button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:backgroundTint="@color/colorPrimaryDark"
+                        android:drawableLeft="@drawable/ic_baseline_delete_forever_24px"
+                        android:text="@string/reset_match"
+                        android:textColor="@color/primaryTextColor"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+                </android.support.constraint.ConstraintLayout>
+            </android.support.v7.widget.CardView>
+
+            <fragment
+                android:id="@+id/team_one_fragment"
+                android:name="uk.co.darkerwaters.scorepal.activities.fragments.FragmentTeam"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/summaryCard" />
+
+            <fragment
+                android:id="@+id/team_two_fragment"
+                android:name="uk.co.darkerwaters.scorepal.activities.fragments.FragmentTeam"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/team_one_fragment" />
+
         </android.support.constraint.ConstraintLayout>
-    </android.support.v7.widget.CardView>
-
-    <fragment
-        android:id="@+id/team_one_fragment"
-        android:name="uk.co.darkerwaters.scorepal.activities.fragments.FragmentTeam"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/doublesCard" />
-
-    <fragment
-        android:id="@+id/team_two_fragment"
-        android:name="uk.co.darkerwaters.scorepal.activities.fragments.FragmentTeam"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/team_one_fragment" />
+    </ScrollView>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_play"

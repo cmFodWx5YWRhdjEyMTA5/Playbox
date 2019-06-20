@@ -17,10 +17,12 @@ public class Settings {
     private final String K_ISDOUBLES = "isDoubles";
     private final String K_SETS = "sets";
     private final String K_ISSPEAKING = "isSpeaking";
+    private final String K_PLAYERNAME = "playerName";
 
     private final String K_ACTIVESPORT = "activeSport";
 
     private final String K_DEFAULTACTIVESPORT = "Tennis";
+
     private final String[] availableSports = new String[] {K_DEFAULTACTIVESPORT};
 
     // the settings - important for defaults
@@ -143,5 +145,12 @@ public class Settings {
         return this.editor.commit();
     }
 
+    public String getPlayerName(int teamIndex, int playerIndex, String defaultName) {
+        return this.preferences.getString(K_PLAYERNAME + "-" + teamIndex + "-" + playerIndex, defaultName);
+    }
 
+    public boolean setPlayerName(String name, int teamIndex, int playerIndex) {
+        this.editor.putString(K_PLAYERNAME + "-" + teamIndex + "-" + playerIndex, name);
+        return this.editor.commit();
+    }
 }

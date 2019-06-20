@@ -135,6 +135,32 @@ public class TennisScore extends Score {
         return isMatchOver;
     }
 
+    @Override
+    public String getScoreSummary(Context context) {
+        // build the summary, team one then team two
+        Team[] teams = this.getTeams();
+        StringBuilder builder = new StringBuilder();
+        // put in the sets
+        builder.append(context.getString(R.string.sets));
+        builder.append(": ");
+        builder.append(getSets(teams[0]));
+        builder.append(" - ");
+        builder.append(getSets(teams[1]));
+
+        //gap
+        builder.append("   ");
+
+        // put in the games
+        builder.append(context.getString(R.string.games));
+        builder.append(": ");
+        builder.append(getGames(teams[0], -1));
+        builder.append(" - ");
+        builder.append(getGames(teams[1], -1));
+
+        // return the score string
+        return builder.toString().trim();
+    }
+
     TennisSets getSetsToPlay() {
         // the sets to play are set from the score goal
         return TennisSets.fromValue(getScoreGoal());

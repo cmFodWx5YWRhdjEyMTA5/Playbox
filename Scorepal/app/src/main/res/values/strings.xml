@@ -31,6 +31,8 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
 
+    <string name="matchWipeConfirmation">Are you sure? Current match data will be lost forever...</string>
+
     <string name="points">Points</string>
     <string name="sets">Sets</string>
     <string name="games">Games</string>
@@ -64,8 +66,8 @@
     <string name="team_two_title">Team Two</string>
     <string name="default_playerOneName">Player One</string>
     <string name="default_playerTwoName">Player Two</string>
-    <string name="default_playerOnePartnerName">Partner One Partner</string>
-    <string name="default_playerTwoPartnerName">Partner Two Partner</string>
+    <string name="default_playerOnePartnerName">Player One Partner</string>
+    <string name="default_playerTwoPartnerName">Player Two Partner</string>
 
     <string name="tennis">Tennis</string>
     <string name="tennisSubtitle">Play a match of sets / games / points</string>
@@ -93,4 +95,6 @@
     <string name="btn_change_server">Change Server</string>
     <string name="btn_change_starter">Change Starter</string>
     <string name="btn_undo">Undo Last Point</string>
+    <string name="reset_match">Reset</string>
+    <string name="current_match">Current Match</string>
 </resources>
