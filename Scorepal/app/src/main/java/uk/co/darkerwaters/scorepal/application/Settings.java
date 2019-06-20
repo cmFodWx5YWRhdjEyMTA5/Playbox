@@ -16,6 +16,7 @@ public class Settings {
     private final String K_ISASKFORCONTACTS = "isAskForContacts";
     private final String K_ISDOUBLES = "isDoubles";
     private final String K_SETS = "sets";
+    private final String K_ISSPEAKING = "isSpeaking";
 
     private final String K_ACTIVESPORT = "activeSport";
 
@@ -28,6 +29,7 @@ public class Settings {
     private boolean isLogging;
     private boolean isMuted;
     private boolean isAskForContacts;
+    private boolean isSpeaking;
     private String activeSport;
 
     public Settings(Application app) {
@@ -49,6 +51,7 @@ public class Settings {
         this.isAskForContacts = true;
         this.activeSport = K_DEFAULTACTIVESPORT;
         this.isDoubles = false;
+        this.isSpeaking = true;
         this.sets = TennisSets.THREE;
     }
 
@@ -80,6 +83,17 @@ public class Settings {
     public boolean setIsMuted(boolean isMuted) {
         this.isMuted = isMuted;
         this.editor.putBoolean(K_ISMUTED, this.isMuted);
+        return this.editor.commit();
+    }
+
+    public boolean getIsSpeaking() {
+        this.isSpeaking = this.preferences.getBoolean(K_ISSPEAKING, this.isSpeaking);
+        return this.isSpeaking;
+    }
+
+    public boolean setIsSpeaking(boolean isSpeaking) {
+        this.isSpeaking = isSpeaking;
+        this.editor.putBoolean(K_ISSPEAKING, this.isSpeaking);
         return this.editor.commit();
     }
 

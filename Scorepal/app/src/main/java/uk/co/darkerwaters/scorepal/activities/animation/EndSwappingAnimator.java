@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.scorepal.activities.handlers;
+package uk.co.darkerwaters.scorepal.activities.animation;
 
 import android.support.annotation.NonNull;
 import android.support.transition.ChangeBounds;

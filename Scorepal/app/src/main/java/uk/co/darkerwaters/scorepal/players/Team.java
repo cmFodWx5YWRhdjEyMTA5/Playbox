@@ -6,11 +6,14 @@ public class Team {
     private CourtPosition currentPosition;
     private CourtPosition initialPosition;
 
+    private String teamName;
+
     private Player servingPlayer;
 
     public Team(Player[] players, CourtPosition initialPosition) {
         this.players = players;
         this.initialPosition = initialPosition;
+        this.teamName = "";
         // ensure all our defaults are set here
         resetTeam();
     }
@@ -20,6 +23,15 @@ public class Team {
         this.servingPlayer = null;
         // set their current position too
         this.currentPosition = this.initialPosition;
+        //this.teamName -- leave the name alone, this is fine to change (doesn't effect the match)
+    }
+
+    public void setTeamName(String name) {
+        this.teamName = name;
+    }
+
+    public String getTeamName() {
+        return this.teamName;
     }
 
     public Player[] getPlayers() {

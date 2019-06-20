@@ -41,6 +41,7 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 application.getSettings().setIsMuted(b);
+                application.getSettings().setIsSpeaking(b);
             }
         });
         this.useContacts.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

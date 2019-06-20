@@ -11,7 +11,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import uk.co.darkerwaters.scorepal.R;
+import uk.co.darkerwaters.scorepal.activities.fragments.FragmentTeam;
 import uk.co.darkerwaters.scorepal.application.Settings;
+import uk.co.darkerwaters.scorepal.players.Player;
 import uk.co.darkerwaters.scorepal.score.Match;
 import uk.co.darkerwaters.scorepal.score.TennisSets;
 
@@ -76,6 +78,28 @@ public class TennisSetupActivity extends FragmentTeamActivity {
         });
     }
 
+    @Override
+    public void onTeamNameChanged(FragmentTeam fragmentTeam) {
+        // as the names change we need to set them on the active match
+        if (null != this.currentMatch) {
+            if (this.teamOneFragment == fragmentTeam) {
+                // set the team one names
+                this.currentMatch.setPlayerOneName(this.teamOneFragment.getPlayerName());
+                this.currentMatch.setPlayerOnePartnerName(this.teamOneFragment.getPlayerPartnerName());
+                this.currentMatch.setTeamOneName(this.teamOneFragment.getTeamName());
+                // change the mode of the other fragment to match the mode of this one
+                this.teamTwoFragment.setTeamNameMode(this.teamOneFragment.getTeamNameMode());
+            } else {
+                // set the team two names
+                this.currentMatch.setPlayerTwoName(this.teamTwoFragment.getPlayerName());
+                this.currentMatch.setPlayerTwoPartnerName(this.teamTwoFragment.getPlayerPartnerName());
+                this.currentMatch.setTeamTwoName(this.teamTwoFragment.getTeamName());
+                // change the mode of the other fragment to match the mode of this one
+                this.teamOneFragment.setTeamNameMode(this.teamTwoFragment.getTeamNameMode());
+            }
+        }
+    }
+
     private TennisSets getCurrentSets() {
         return TennisSets.fromValue(this.currentMatch.getScoreGoal());
     }
@@ -101,6 +125,11 @@ public class TennisSetupActivity extends FragmentTeamActivity {
     @Override
     protected void onPause() {
         super.onPause();
+
+        // set the names on the teams, even when the user didn't change anything
+        onTeamNameChanged(this.teamOneFragment);
+        onTeamNameChanged(this.teamTwoFragment);
+        // and update the settings
         Settings settings = this.application.getSettings();
         // set the default for is doubles or not
         settings.setIsDoubles(this.currentMatch.getIsDoubles());

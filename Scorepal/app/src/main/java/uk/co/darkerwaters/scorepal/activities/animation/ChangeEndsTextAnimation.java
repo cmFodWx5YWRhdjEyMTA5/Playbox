@@ -1,4 +1,4 @@
-package uk.co.darkerwaters.scorepal.activities.handlers;
+package uk.co.darkerwaters.scorepal.activities.animation;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
@@ -25,9 +25,7 @@ public class ChangeEndsTextAnimation extends TextViewAnimation {
         // set the content of the text view
         super(context, view, K_REPETITIONS);
         // set our text here
-        if (null != this.view && null != this.context) {
-            this.view.setText(context.getString(R.string.change_ends));
-        }
+        setAnimatedText(context.getString(R.string.change_ends));
 
         // no active animation yet
         this.activeInAnimation = null;

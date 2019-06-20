@@ -20,6 +20,17 @@ public class Match implements Score.ScoreListener {
 
     private static final SimpleDateFormat fileDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
+    public class PointChange {
+        public final Team team;
+        public final int level;
+        public final int point;
+        PointChange(Team team, int level, int point) {
+            this.team = team;
+            this.level = level;
+            this.point = point;
+        }
+    }
+
     private String description;
     private boolean isDoubles;
     private String matchPlayedDate;
@@ -36,12 +47,15 @@ public class Match implements Score.ScoreListener {
     private Player[] startingServers;
     private CourtPosition[] startingEnds;
 
+    private ArrayList<PointChange> pointLevelsChanged;
+
     public enum MatchChange {
         RESET, INCREMENT, DECREMENT, STARTED, DOUBLES_SINGLES, GOAL, PLAYERS, ENDS, SERVER;
     }
 
     public interface MatchListener {
         void onMatchChanged(MatchChange type);
+        void onMatchPointsChanged(PointChange[] levelsChanged);
     }
 
     private final List<MatchListener> listeners;
@@ -61,6 +75,7 @@ public class Match implements Score.ScoreListener {
         // no minutes so far
         this.matchMinutesPlayed = 0;
         this.listeners = new ArrayList<MatchListener>();
+        this.pointLevelsChanged = null;
         // create the score here
         this.score = ScoreFactory.CreateScore(teams, scoreMode);
         // listen to this score to pass on the information to our listeners
@@ -103,6 +118,19 @@ public class Match implements Score.ScoreListener {
                     listener.onMatchChanged(type);
                 }
             }
+        }
+    }
+
+    private void informListenersOfPointChange() {
+        if (null != this.pointLevelsChanged
+                && (null == this.score || this.score.isInformActive())) {
+            synchronized (this.listeners) {
+                for (MatchListener listener : this.listeners) {
+                    listener.onMatchPointsChanged(this.pointLevelsChanged.toArray(new PointChange[0]));
+                }
+            }
+            // clear the list of levels that changed
+            this.pointLevelsChanged = null;
         }
     }
 
@@ -186,10 +214,19 @@ public class Match implements Score.ScoreListener {
     }
 
     @Override
+    public void onScoreChanged(Team team, int level, int newPoint) {
+        // this is an actual change in score, store all the changes so we can inform
+        // in a nice informative batch of levels that changed during an increment of score
+        if (null != this.pointLevelsChanged) {
+            this.pointLevelsChanged.add(new PointChange(team, level, newPoint));
+        }
+    }
+
+    @Override
     public void onScoreChanged(Score.ScoreChange type) {
         // pass on the interesting changes to our listener
         switch (type) {
-            case SET:
+            case POINTS_SET:
             case INCREMENT:
             case GOAL:
             case RESET:
@@ -239,6 +276,8 @@ public class Match implements Score.ScoreListener {
     }
 
     public int incrementPoint(Team team) {
+        // before we increment, create the list that will be added to as points change
+        this.pointLevelsChanged = new ArrayList<PointChange>();
         // just add a point to the base level
         int pointToReturn = this.score.incrementPoint(team);
         // and store the history of this action in this scorer
@@ -248,6 +287,8 @@ public class Match implements Score.ScoreListener {
         this.isReadOnly = true;
         // inform listeners of this change to the score
         informListeners(MatchChange.INCREMENT);
+        // now we will have gathered all the changes, inform the listeners
+        informListenersOfPointChange();
         // and return the new points for the team
         return pointToReturn;
     }
@@ -380,6 +421,36 @@ public class Match implements Score.ScoreListener {
 
     public Player getPlayerTwoPartner() {
         return this.teams[1].getPlayers()[1];
+    }
+
+    public void setTeamOneName(String name) {
+        // can change names whenever we like... just change it
+        this.teams[0].setTeamName(name);
+    }
+
+    public void setTeamTwoName(String name) {
+        // can change names whenever we like... just change it
+        this.teams[1].setTeamName(name);
+    }
+
+    public void setPlayerOneName(String name) {
+        // can change names whenever we like... just change it
+        this.teams[0].getPlayers()[0].setPlayerName(name);
+    }
+
+    public void setPlayerOnePartnerName(String name) {
+        // can change names whenever we like... just change it
+        this.teams[0].getPlayers()[1].setPlayerName(name);
+    }
+
+    public void setPlayerTwoName(String name) {
+        // can change names whenever we like... just change it
+        this.teams[1].getPlayers()[0].setPlayerName(name);
+    }
+
+    public void setPlayerTwoPartnerName(String name) {
+        // can change names whenever we like... just change it
+        this.teams[1].getPlayers()[1].setPlayerName(name);
     }
 
     public void setPlayerOne(Player player) {

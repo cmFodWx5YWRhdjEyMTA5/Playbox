@@ -8,4 +8,5 @@ public interface Point {
 
     String displayString(Context context);
     String speakString(Context context);
+    String speakAllString(Context context);
 }

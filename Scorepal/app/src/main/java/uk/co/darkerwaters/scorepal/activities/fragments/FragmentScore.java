@@ -9,18 +9,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.ScaleAnimation;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import uk.co.darkerwaters.scorepal.R;
-import uk.co.darkerwaters.scorepal.activities.handlers.ChangeEndsTextAnimation;
-import uk.co.darkerwaters.scorepal.activities.handlers.ChangeServerTextAnimation;
-import uk.co.darkerwaters.scorepal.activities.handlers.GameOverTextAnimation;
-import uk.co.darkerwaters.scorepal.activities.handlers.TextViewAnimation;
+import uk.co.darkerwaters.scorepal.activities.animation.ChangeEndsTextAnimation;
+import uk.co.darkerwaters.scorepal.activities.animation.ChangeServerTextAnimation;
+import uk.co.darkerwaters.scorepal.activities.animation.GameOverTextAnimation;
+import uk.co.darkerwaters.scorepal.activities.animation.TextViewAnimation;
 import uk.co.darkerwaters.scorepal.score.Point;
-import uk.co.darkerwaters.scorepal.score.TennisScore;
 
 public class FragmentScore extends Fragment {
 
@@ -121,6 +119,15 @@ public class FragmentScore extends Fragment {
 
         // and return the constructed parent view
         return mainView;
+    }
+
+    public String getMatchState() {
+        // return the active match state we are animating
+        String state = null;
+        if (null != this.informationAnimator) {
+            state = this.informationAnimator.getAnimatedText();
+        }
+        return state;
     }
 
     public void cancelMatchState() {

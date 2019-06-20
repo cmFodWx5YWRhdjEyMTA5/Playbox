@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.application.Log;
 import uk.co.darkerwaters.scorepal.players.CourtPosition;
 import uk.co.darkerwaters.scorepal.players.Player;
@@ -41,6 +42,10 @@ class Score {
         public String speakString(Context context) {
             return Integer.toString(this.value);
         }
+        @Override
+        public String speakAllString(Context context) {
+            return this.value + " " + context.getString(R.string.speak_all);
+        }
     }
 
     private int scoreGoal = -1;
@@ -49,10 +54,11 @@ class Score {
 
     interface ScoreListener {
         void onScoreChanged(ScoreChange type);
+        void onScoreChanged(Team team, int level, int newPoint);
     }
 
     public enum ScoreChange {
-        RESET, INCREMENT, SET, SERVER, ENDS, GOAL;
+        RESET, INCREMENT, POINTS_SET, SERVER, ENDS, GOAL;
     }
 
     private final List<ScoreListener> listeners;
@@ -101,6 +107,16 @@ class Score {
             synchronized (this.listeners) {
                 for (ScoreListener listener : this.listeners) {
                     listener.onScoreChanged(type);
+                }
+            }
+        }
+    }
+
+    void informListenersOfScoreChange(Team team, int level, int newPoint) {
+        if (isInformActive()) {
+            synchronized (this.listeners) {
+                for (ScoreListener listener : this.listeners) {
+                    listener.onScoreChanged(team, level, newPoint);
                 }
             }
         }
@@ -161,7 +177,9 @@ class Score {
         int teamIndex = getTeamIndex(team);
         this.points[level][teamIndex] = point;
         // inform listeners of this
-        informListeners(ScoreChange.SET);
+        informListeners(ScoreChange.POINTS_SET);
+        // and send the special message
+        informListenersOfScoreChange(team, level, point);
     }
 
     Player[] getPlayers() {

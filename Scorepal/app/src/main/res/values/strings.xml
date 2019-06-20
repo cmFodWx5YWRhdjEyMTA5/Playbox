@@ -39,12 +39,16 @@
     <string name="three_sets">3</string>
     <string name="one_sets">1</string>
 
+    <string name="speak_all">all</string>
     <string name="display_love">0</string>
     <string name="speak_love">love</string>
+    <string name="speak_love_all">love all</string>
     <string name="display_15">15</string>
     <string name="speak_15">fifteen</string>
+    <string name="speak_15_all">fifteen all</string>
     <string name="display_30">30</string>
     <string name="speak_30">thirty</string>
+    <string name="speak_30_all">thirty all</string>
     <string name="display_40">40</string>
     <string name="speak_40">forty</string>
     <string name="display_advantage">AD</string>
@@ -53,19 +57,23 @@
     <string name="speak_deuce">deuce</string>
     <string name="display_game">game</string>
     <string name="speak_game">game</string>
+    <string name="display_set">set</string>
+    <string name="speak_set">set</string>
 
     <string name="team_one_title">Team One</string>
     <string name="team_two_title">Team Two</string>
     <string name="default_playerOneName">Player One</string>
     <string name="default_playerTwoName">Player Two</string>
-    <string name="default_playerOnePartnerName">Player One Partner</string>
-    <string name="default_playerTwoPartnerName">Player Two Partner</string>
+    <string name="default_playerOnePartnerName">Partner One Partner</string>
+    <string name="default_playerTwoPartnerName">Partner Two Partner</string>
 
     <string name="tennis">Tennis</string>
     <string name="tennisSubtitle">Play a match of sets / games / points</string>
     <string name="points_sport">Points</string>
     <string name="pointsSubtitle">Play a match of just points</string>
 
+    <string name="server">Server</string>
+    <string name="receiver">Receiver</string>
     <string name="singles">Singles</string>
     <string name="doubles">Doubles</string>
     <string name="contact_access_explanation">This app would like access to your contacts to show your friends as playing partners. Would you like to grant access?</string>

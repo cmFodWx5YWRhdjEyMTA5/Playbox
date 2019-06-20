@@ -1,10 +1,6 @@
-package uk.co.darkerwaters.scorepal.activities.handlers;
+package uk.co.darkerwaters.scorepal.activities.animation;
 
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
 import android.app.Activity;
-import android.graphics.Point;
-import android.view.Display;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
@@ -12,19 +8,19 @@ import android.widget.TextView;
 
 import uk.co.darkerwaters.scorepal.R;
 
-public class ChangeServerTextAnimation extends TextViewAnimation {
+public class GameOverTextAnimation extends TextViewAnimation {
 
-    private static final long K_FADE_IN_DURATION = 1500;
-    private static final int K_REPETITIONS = 2;
+    private static final long K_FADE_IN_DURATION = 500;
+    private static final long K_FADE_OUT_DURATION = 1000;
+    private static final float K_ENLARGED_SIZE = 1.2f;
 
     private Animation activeAnimation;
 
-    public ChangeServerTextAnimation(Activity context, TextView view) {
-        super(context, view, K_REPETITIONS);
+    public GameOverTextAnimation(Activity context, TextView view) {
+        super(context, view, -1);
         // set the text content on the view
-        if (null != this.view && null != this.context) {
-            this.view.setText(context.getString(R.string.change_server));
-        }
+        setAnimatedText(context.getString(R.string.game_over));
+
         // no active animation yet
         this.activeAnimation = null;
 
@@ -35,10 +31,10 @@ public class ChangeServerTextAnimation extends TextViewAnimation {
     @Override
     protected synchronized void animateTextIn() {
         if (false == this.isCancel) {
-            // scale this from nothing up to size
+            // scale this from size to a little larger...
             this.activeAnimation = new ScaleAnimation(
-                    1f, 1f, // Start and end values for the X axis scaling
-                    0f, 1f, // Start and end values for the Y axis scaling
+                    1f, K_ENLARGED_SIZE, // Start and end values for the X axis scaling
+                    1f, K_ENLARGED_SIZE, // Start and end values for the Y axis scaling
                     Animation.RELATIVE_TO_SELF, 0.5f, // Pivot point of X scaling
                     Animation.RELATIVE_TO_SELF, 0.5f); // Pivot point of Y scaling
 
@@ -50,13 +46,11 @@ public class ChangeServerTextAnimation extends TextViewAnimation {
                     view.setVisibility(View.VISIBLE);
                     view.setTranslationX(0f);
                 }
-
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     // we animated in, now we need to slide out
                     animateTextOut();
                 }
-
                 @Override
                 public void onAnimationRepeat(Animation animation) {
                 }
@@ -70,28 +64,21 @@ public class ChangeServerTextAnimation extends TextViewAnimation {
         if (false == isCancel) {
             // scale this back down to nothing
             this.activeAnimation = new ScaleAnimation(
-                    1f, 1f, // Start and end values for the X axis scaling
-                    1f, 0f, // Start and end values for the Y axis scaling
+                    K_ENLARGED_SIZE, 1f, // Start and end values for the X axis scaling
+                    K_ENLARGED_SIZE, 1f, // Start and end values for the Y axis scaling
                     Animation.RELATIVE_TO_SELF, 0.5f, // Pivot point of X scaling
                     Animation.RELATIVE_TO_SELF, 0.5f); // Pivot point of Y scaling
 
-            this.activeAnimation.setDuration(K_FADE_IN_DURATION);
+            this.activeAnimation.setDuration(K_FADE_OUT_DURATION);
             this.activeAnimation.setAnimationListener(new Animation.AnimationListener() {
                 @Override
                 public void onAnimationStart(Animation animation) {
-                    // fine, starting, show the view
-                    view.setVisibility(View.VISIBLE);
+                    // fine, starting
                 }
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     // need to do it all again
-                    if (--repetitions > 0) {
-                        animateTextIn();
-                    } else {
-                        // all done
-                        activeAnimation = null;
-                        cancel();
-                    }
+                    animateTextIn();
                 }
                 @Override
                 public void onAnimationRepeat(Animation animation) {

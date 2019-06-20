@@ -6,33 +6,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.darkerwaters.scorepal.R;
-import uk.co.darkerwaters.scorepal.application.Log;
 import uk.co.darkerwaters.scorepal.players.Player;
 import uk.co.darkerwaters.scorepal.players.Team;
 
 public class TennisScore extends Score {
 
-    final static int POINT = 0;
-    final static int GAME = 1;
-    final static int SET = 2;
+    public final static int LEVEL_POINT = 0;
+    public final static int LEVEL_GAME = 1;
+    public final static int LEVEL_SET = 2;
 
-    static enum TennisPoint implements Point {
-        LOVE(0, R.string.display_love, R.string.speak_love),
-        FIFTEEN(1, R.string.display_15, R.string.speak_15),
-        THIRTY(2, R.string.display_30, R.string.speak_30),
-        FORTY(3, R.string.display_40, R.string.speak_40),
-        DEUCE(4, R.string.display_deuce, R.string.speak_deuce),
-        ADVANTAGE(5, R.string.display_advantage, R.string.speak_advantage),
-        GAME(6, R.string.display_game, R.string.speak_game);
+    public enum TennisPoint implements Point {
+        LOVE(0, R.string.display_love, R.string.speak_love, R.string.speak_love_all),
+        FIFTEEN(1, R.string.display_15, R.string.speak_15, R.string.speak_15_all),
+        THIRTY(2, R.string.display_30, R.string.speak_30, R.string.speak_30_all),
+        FORTY(3, R.string.display_40, R.string.speak_40, R.string.speak_deuce),
+        DEUCE(4, R.string.display_deuce, R.string.speak_deuce, 0),
+        ADVANTAGE(5, R.string.display_advantage, R.string.speak_advantage, 0),
+        GAME(6, R.string.display_game, R.string.speak_game, 0),
+        SET(7, R.string.display_set, R.string.speak_set, 0);
 
         private final int value;
         private final int displayStrId;
         private final int speakStrId;
+        private final int speakAllStrId;
 
-        TennisPoint(int value, int displayStrId, int speakStrId) {
+        TennisPoint(int value, int displayStrId, int speakStrId, int speakAllStrId) {
             this.value = value;
             this.displayStrId = displayStrId;
             this.speakStrId = speakStrId;
+            this.speakAllStrId = speakAllStrId;
         }
         @Override
         public int val() {
@@ -54,6 +56,16 @@ public class TennisScore extends Score {
             }
             else {
                 return Integer.toString(this.value);
+            }
+        }
+        @Override
+        public String speakAllString(Context context) {
+            if (null != context && 0 != this.speakAllStrId) {
+                return context.getString(this.speakAllStrId);
+            }
+            else {
+                // just say the number then 'all'
+                return speakString(context) + " " + context.getString(R.string.speak_all);
             }
         }
 
@@ -129,7 +141,7 @@ public class TennisScore extends Score {
     }
 
     public int getPoints(Team team) {
-        return super.getPoint(POINT, team);
+        return super.getPoint(LEVEL_POINT, team);
     }
 
     @Override
@@ -141,7 +153,7 @@ public class TennisScore extends Score {
         }
         else {
             switch (level) {
-                case POINT:
+                case LEVEL_POINT:
                     // return the point string
                     displayPoint = getDisplayPoint(team);
                     break;
@@ -156,7 +168,7 @@ public class TennisScore extends Score {
     public Point getDisplayPoint(Team team) {
         Point displayPoint;
         if (this.isInTieBreak) {
-            displayPoint = super.getDisplayPoint(POINT, team);
+            displayPoint = super.getDisplayPoint(LEVEL_POINT, team);
         }
         else {
             // not in a tie, show the points string correctly
@@ -212,8 +224,8 @@ public class TennisScore extends Score {
         // to get the points for this game, we need to find the index of that game
         // so for that we need to add up all the games for all the previous sets
         // before we get to this one
-        List<int[]> gameResults = super.getPointHistory(POINT);
-        List<int[]> setResults = super.getPointHistory(GAME);
+        List<int[]> gameResults = super.getPointHistory(LEVEL_POINT);
+        List<int[]> setResults = super.getPointHistory(LEVEL_GAME);
         if (null != setResults && null != gameResults) {
             // there are results for the sets (a record of the games for each)
             // we need to add these up to find the start of the set as a number of games
@@ -237,10 +249,10 @@ public class TennisScore extends Score {
     public int getGames(Team team, int setIndex) {
         // get the games for the set index specified
         int toReturn = INVALID_POINT;
-        List<int[]> gameResults = super.getPointHistory(GAME);
+        List<int[]> gameResults = super.getPointHistory(LEVEL_GAME);
         if (null == gameResults || setIndex < 0 || setIndex >= gameResults.size()) {
             // there is no history for this set, return the current games instead
-            toReturn = super.getPoint(GAME, team);
+            toReturn = super.getPoint(LEVEL_GAME, team);
         }
         else {
             int[] setGames = gameResults.get(setIndex);
@@ -251,7 +263,7 @@ public class TennisScore extends Score {
 
     public int getSets(Team team) {
         // get the history of sets to get the last one
-        List<int[]> setResults = super.getPointHistory(SET);
+        List<int[]> setResults = super.getPointHistory(LEVEL_SET);
         int toReturn;
         if (null != setResults && false == setResults.isEmpty()) {
             int[] setGames = setResults.get(setResults.size() - 1);
@@ -259,7 +271,7 @@ public class TennisScore extends Score {
         }
         else {
             // return the running set count
-            toReturn = super.getPoint(SET, team);
+            toReturn = super.getPoint(LEVEL_SET, team);
         }
         return toReturn;
     }
@@ -330,11 +342,11 @@ public class TennisScore extends Score {
 
     private void incrementGame(Team team) {
         // add one to the game already stored
-        int point = super.getPoint(GAME, team) + 1;
+        int point = super.getPoint(LEVEL_GAME, team) + 1;
         // set this back on the score
-        super.setPoint(GAME, team, point);
+        super.setPoint(LEVEL_GAME, team, point);
         // also clear the points
-        super.clearLevel(POINT);
+        super.clearLevel(LEVEL_POINT);
 
         boolean isSetChanged = false;
         if (point >= GAMES_TO_WIN_SET) {
@@ -392,16 +404,16 @@ public class TennisScore extends Score {
 
     private void incrementSet(Team team) {
         // add one to the set already stored
-        int point = super.getPoint(SET, team) + 1;
+        int point = super.getPoint(LEVEL_SET, team) + 1;
         // set this back on the score
-        super.setPoint(SET, team, point);
+        super.setPoint(LEVEL_SET, team, point);
         // remember how many games were played before we clear then
         int gamesPlayed = getPlayedGames(-1);
         // also clear the games
-        super.clearLevel(GAME);
+        super.clearLevel(LEVEL_GAME);
         if (isMatchOver()) {
             // clear the sets to end this and wipe current scores
-            super.clearLevel(SET);
+            super.clearLevel(LEVEL_SET);
         }
         else {
             // we want to change ends at the end of any set in which the score wasn't even
