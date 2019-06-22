@@ -1,12 +1,13 @@
 package uk.co.darkerwaters.scorepal.score;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import uk.co.darkerwaters.scorepal.players.Team;
 
 class PointsScore extends Score {
 
     private static final int K_POINTS_LEVEL = 1;
-
-    private final int pointsToPlayTo;
 
     PointsScore(Team[] teams) {
         this(teams, -1);
@@ -15,7 +16,7 @@ class PointsScore extends Score {
     PointsScore(Team[] teams, int pointsToPlayTo) {
         super(teams, K_POINTS_LEVEL, ScoreFactory.ScoreMode.K_POINTS);
         // remember our goal here
-        this.pointsToPlayTo = pointsToPlayTo;
+        setScoreGoal(pointsToPlayTo);
     }
 
     @Override
@@ -25,8 +26,17 @@ class PointsScore extends Score {
         // and reset any of our member data here
     }
 
-    int getPointsToPlayTo() {
-        return this.pointsToPlayTo;
+    @Override
+    void setDataToJson(JSONObject json) throws JSONException {
+        super.setDataToJson(json);
+        // put any extra data we need to this JSON file, very little on this
+        // as this can entirely be reconstructed from the history
+    }
+
+    @Override
+    void setDataFromJson(JSONObject json) throws JSONException {
+        super.setDataFromJson(json);
+        // get any data we put on the JSON back off it, again little here
     }
 
     private int getPlayedPoints() {
@@ -50,7 +60,8 @@ class PointsScore extends Score {
         // add one to the point already stored
         int point = super.incrementPoint(team);
 
-        if (this.pointsToPlayTo <= 0 || point < this.pointsToPlayTo) {
+        int pointsToPlayTo = getScoreGoal();
+        if (pointsToPlayTo <= 0 || point < pointsToPlayTo) {
             // they have not finished, could we swap ends / servers?
             // play a bit like a tie-break, after the first, and subsequent two points,
             // we have to change servers
@@ -71,7 +82,8 @@ class PointsScore extends Score {
     @Override
     boolean isMatchOver() {
         boolean isMatchOver = false;
-        if (this.pointsToPlayTo > 0) {
+        int pointsToPlayTo = getScoreGoal();
+        if (pointsToPlayTo > 0) {
             // return if a player has reached the points to play to
             for (Team team : getTeams()) {
                 if (getPoint(0, team) >= pointsToPlayTo) {

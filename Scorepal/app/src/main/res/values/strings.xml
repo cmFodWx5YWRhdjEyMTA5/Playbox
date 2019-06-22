@@ -61,6 +61,8 @@
     <string name="speak_game">game</string>
     <string name="display_set">set</string>
     <string name="speak_set">set</string>
+    <string name="display_match">match</string>
+    <string name="speak_match">match</string>
 
     <string name="team_one_title">Team One</string>
     <string name="team_two_title">Team Two</string>

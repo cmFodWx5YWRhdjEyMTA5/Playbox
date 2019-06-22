@@ -12,10 +12,13 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 
+import java.io.File;
+
 import uk.co.darkerwaters.scorepal.Application;
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.activities.handlers.GameRecyclerAdapter;
 import uk.co.darkerwaters.scorepal.activities.handlers.NavigationDrawerHandler;
+import uk.co.darkerwaters.scorepal.score.MatchPersistanceManager;
 
 public class MainActivity extends ListedActivity {
 
@@ -38,7 +41,8 @@ public class MainActivity extends ListedActivity {
         this.navigationActor = new NavigationDrawerHandler(this, drawer, toolbar);
 
         this.fabPlay = findViewById(R.id.fab_play);
-        setupRecyclerView(R.id.recyclerView, new GameRecyclerAdapter(application, new Object[10]));
+        File[] matchList = new MatchPersistanceManager(this).listMatches();
+        setupRecyclerView(R.id.recyclerView, new GameRecyclerAdapter(application, matchList));
 
         this.fabPlay.setOnClickListener(new View.OnClickListener() {
             @Override

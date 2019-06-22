@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.io.File;
+
 import uk.co.darkerwaters.scorepal.Application;
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.activities.fragments.CardHolderGame;
@@ -12,13 +14,13 @@ import uk.co.darkerwaters.scorepal.activities.fragments.CardHolderGame;
 public class GameRecyclerAdapter extends RecyclerView.Adapter<CardHolderGame> {
 
     // create the cards here
-    private final Object[] cards;
+    private final File[] matches;
     private final Application application;
 
-    public GameRecyclerAdapter(Application application, Object[] cards) {
+    public GameRecyclerAdapter(Application application, File[] matches) {
         // create the list of cards to show here
         this.application = application;
-        this.cards = cards;
+        this.matches = matches;
     }
 
     @Override
@@ -32,11 +34,11 @@ public class GameRecyclerAdapter extends RecyclerView.Adapter<CardHolderGame> {
     @Override
     public void onBindViewHolder(CardHolderGame viewHolder, int i) {
         // initialise the card holder here
-        viewHolder.initialiseCard(this.application, this.cards[i]);
+        viewHolder.initialiseCard(this.application, this.matches[i]);
     }
 
     @Override
     public int getItemCount() {
-        return this.cards.length;
+        return this.matches.length;
     }
 }

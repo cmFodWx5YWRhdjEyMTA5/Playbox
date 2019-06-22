@@ -13,6 +13,29 @@ public enum CourtPosition {
         return NORTH;
     }
 
+    public static String toString(CourtPosition position) {
+        if (position == NORTH) {
+            return "north";
+        }
+        else if (position == NORTH) {
+            return "south";
+        }
+        else {
+            return "none";
+        }
+    }
+
+    public static CourtPosition fromString(String string) {
+        switch (string) {
+            case "north" :
+                return NORTH;
+            case "south" :
+                return SOUTH;
+            default:
+                return null;
+        }
+    }
+
     public CourtPosition getNext() {
         int index = this.ordinal() + 1;
         if (index >= CourtPosition.values().length) {

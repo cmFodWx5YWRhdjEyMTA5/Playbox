@@ -1,5 +1,7 @@
 package uk.co.darkerwaters.scorepal.players;
 
+import uk.co.darkerwaters.scorepal.application.Log;
+
 public class Team {
 
     private final Player[] players;
@@ -24,6 +26,36 @@ public class Team {
         // set their current position too
         this.currentPosition = this.initialPosition;
         //this.teamName -- leave the name alone, this is fine to change (doesn't effect the match)
+    }
+
+    public String toPlayerString(Player player) {
+        for (int i = 0; i < this.players.length; ++i) {
+            if (this.players[i] == player) {
+                // this is it
+                return "Player" + (i + 1);
+            }
+        }
+        // not found
+        return "none";
+    }
+
+    public Player fromPlayerString(String string) {
+        Player player = null;
+        if (string.startsWith("Player")) {
+            // remove this
+            String numberString = string.replace("Player", "");
+            try {
+                int playerIndex = Integer.parseInt(numberString);
+                if (playerIndex >= 0 && playerIndex < this.players.length) {
+                    player = this.players[playerIndex];
+                }
+            }
+            catch (NumberFormatException e) {
+                // oops
+                Log.error("Player string '" + string + "' invalid", e);
+            }
+        }
+        return player;
     }
 
     public void setTeamName(String name) {

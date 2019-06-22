@@ -11,12 +11,15 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
 import uk.co.darkerwaters.scorepal.Application;
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.application.Settings;
+import uk.co.darkerwaters.scorepal.score.Match;
+import uk.co.darkerwaters.scorepal.score.MatchPersistanceManager;
 
 public class CardHolderGame extends RecyclerView.ViewHolder {
 
@@ -36,11 +39,19 @@ public class CardHolderGame extends RecyclerView.ViewHolder {
         this.itemDetail = this.parent.findViewById(R.id.item_detail);
     }
 
-    public void initialiseCard(final Application application, Object card) {
+    public void initialiseCard(final Application application, File matchFile) {
         // hide the old game progress view
         Settings settings = application.getSettings();
 
-        this.itemTitle.setText("name goes here");
+        MatchPersistanceManager persistanceManager = new MatchPersistanceManager(this.parent.getContext());
+        boolean isLoaded = persistanceManager.loadFromFile(matchFile);
+        Match match = persistanceManager.getMatch();
+        if (false == isLoaded) {
+            this.itemTitle.setText("invalid");
+        }
+        else {
+            this.itemTitle.setText(match.getMatchPlayedDate().toString());
+        }
         this.itemDetail.setText("detail goes here");
         /*if (null != card.image && false == card.image.isEmpty()) {
             this.itemImage.setImageBitmap(getBitmapFromAssets(card.image, parent.getContext()));

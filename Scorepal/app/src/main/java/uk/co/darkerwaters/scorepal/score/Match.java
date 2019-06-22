@@ -2,6 +2,14 @@ package uk.co.darkerwaters.scorepal.score;
 
 import android.content.Context;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -76,6 +84,8 @@ public class Match implements Score.ScoreListener {
         this.matchMinutesPlayed = 0;
         this.listeners = new ArrayList<MatchListener>();
         this.pointLevelsChanged = null;
+        // set the description
+        this.description = "A match played";
         // create the score here
         this.score = ScoreFactory.CreateScore(teams, scoreMode);
         // listen to this score to pass on the information to our listeners
@@ -111,6 +121,221 @@ public class Match implements Score.ScoreListener {
         this.pointHistory.clear();
         // and the time played
         this.matchMinutesPlayed = 0;
+    }
+
+    public boolean setDataToJson(JSONObject obj) {
+        boolean isSuccess = false;
+        try {
+            // do all the house keeping
+            obj.put("description", this.description);
+            obj.put("doubles", this.isDoubles);
+            obj.put("played_date", this.matchPlayedDate);
+            obj.put("match_minutes", this.matchMinutesPlayed);
+            obj.put("sport", this.sport.toString());
+
+            // do the player names
+            obj.put("player_one_name", getPlayerOne().getPlayerName());
+            obj.put("partner_one_name", getPlayerOnePartner().getPlayerName());
+            obj.put("player_two_name", getPlayerTwo().getPlayerName());
+            obj.put("partner_two_name", getPlayerTwoPartner().getPlayerName());
+            // starting servers
+            obj.put("team_one_starting_server", getTeamOne().toPlayerString(this.startingServers[0]));
+            obj.put("team_two_starting_server", getTeamTwo().toPlayerString(this.startingServers[1]));
+            // starting ends
+            obj.put("team_one_starting_end", CourtPosition.toString(this.startingEnds[0]));
+            obj.put("team_two_starting_end", CourtPosition.toString(this.startingEnds[1]));
+
+            // and do the starting team as a nice number to
+            if (this.startingTeam == getTeamOne()) {
+                obj.put("starting_team", "Team1");
+            }
+            else if (this.startingTeam == getTeamTwo()) {
+                obj.put("starting_team", "Team2");
+            }
+            else {
+                obj.put("starting_team", "none");
+            }
+            // create a child for the score
+            JSONObject scoreObj = new JSONObject();
+            // add any data from the score
+            this.score.setDataToJson(scoreObj);
+            // and, perhaps most importantly - the score history
+            scoreObj.put("score_history", getPointHistoryAsString());
+            // being sure to add this to the root
+            obj.put("score", scoreObj);
+
+            // if here then everything is ok
+            isSuccess = true;
+        }
+        catch (JSONException e) {
+            Log.error("Failed to write something to JSON", e);
+        }
+        return isSuccess;
+    }
+
+    public boolean setDataFromJson(JSONObject obj) {
+        boolean isSuccess = false;
+
+        try {
+            // do all the house keeping
+            this.description = obj.getString("description");
+            this.isDoubles = obj.getBoolean("doubles");
+            this.matchPlayedDate = obj.getString("played_date");
+            this.matchMinutesPlayed = obj.getInt("match_minutes");
+            this.sport = Sport.fromString(obj.getString("sport"));
+
+            // do the player names
+            setPlayerOneName(obj.getString("player_one_name"));
+            setPlayerOnePartnerName(obj.getString("partner_one_name"));
+            setPlayerTwoName(obj.getString("player_two_name"));
+            setPlayerTwoPartnerName(obj.getString("partner_two_name"));
+            // starting servers
+            this.startingServers[0] = getTeamOne().fromPlayerString(obj.getString("team_one_starting_server"));
+            this.startingServers[1] = getTeamOne().fromPlayerString(obj.getString("team_two_starting_server"));
+            // starting ends
+            this.startingEnds[0] = CourtPosition.fromString(obj.getString("team_one_starting_end"));
+            this.startingEnds[1] = CourtPosition.fromString(obj.getString("team_two_starting_end"));
+
+            // and do the starting team
+            switch (obj.getString("starting_team")) {
+                case "Team1" :
+                    this.startingTeam = getTeamOne();
+                    break;
+                case "Team2" :
+                    this.startingTeam = getTeamTwo();
+                    break;
+                default :
+                    this.startingTeam = null;
+                    break;
+            }
+
+            // find the child that is the score
+            JSONObject scoreObj = obj.getJSONObject("score");
+            // add any data from the score
+            this.score.setDataFromJson(scoreObj);
+            // and, perhaps most importantly - the score history
+            StringBuilder scoreHistory = new StringBuilder(scoreObj.getString("score_history"));
+            // and set the history from this
+            restorePointHistoryFromString(scoreHistory);
+            // finally - LAST THING TO DO - restore our state from this history
+            restorePointHisory();
+
+            // and if all this is done, it was a success
+            isSuccess = true;
+        }
+        catch (JSONException e) {
+            Log.error("Failed to get something from JSON", e);
+            isSuccess = false;
+        }
+        return isSuccess;
+    }
+
+    public String getPointHistoryAsString() {
+        StringBuilder recDataString = new StringBuilder();
+        int noHistoricPoints = this.pointHistory.size();
+        // first write the number of historic points we are going to store
+        recDataString.append(noHistoricPoints);
+        recDataString.append(':');
+        // and then all the historic points we have
+        int bitCounter = 0;
+        int dataPacket = 0;
+        Team teamOne = getTeamOne();
+        for (int i = 0; i < noHistoricPoints; ++i) {
+            // get the team as a binary value
+            int binaryValue;
+            if (this.pointHistory.get(i) == teamOne) {
+                // this is team one, so this is zero
+                binaryValue = 0;
+            }
+            else {
+                // it can only be team two
+                binaryValue = 1;
+            }
+            // add this value to the data packet
+            dataPacket |= binaryValue << bitCounter;
+            // and increment the counter, sending as radix32 number means we can store 10 bits of data (up to 1023 base 10)
+            if (++bitCounter >= 10) {
+                // exceeded the size for next time, send this packet
+                if (dataPacket < 32) {
+                    // this will be print as '0' up to 'F' but we need it to be '0F' as expecting a fixed length...
+                    // this is true for hex - who knows how a radix32 number is printed - but whatever nice that we get 10 values
+                    recDataString.append('0');
+                }
+                recDataString.append(Integer.toString(dataPacket, 32));
+                // and reset the counter and data
+                bitCounter = 0;
+                dataPacket = 0;
+            }
+        }
+        if (bitCounter > 0) {
+            // there was data we failed to send, only partially filled - send this anyway
+            if (dataPacket < 32) {
+                // this will be print as '0' up to 'F' but we need it to be '0F' as expecting a fixed length...
+                // this is true for hex - who knows how a radix64 number is printed - but whatever nice that we get 10 values
+                recDataString.append('0');
+            }
+            recDataString.append(Integer.toString(dataPacket, 32));
+        }
+        return recDataString.toString();
+    }
+
+    private void restorePointHistoryFromString(StringBuilder pointHistoryString) {
+        // the value before the colon is the number of subsequent values
+        int noHistoricPoints = extractValueToColon(pointHistoryString);
+        int dataCounter = 0;
+        Team teamOne = getTeamOne();
+        Team teamTwo = getTeamTwo();
+        while (dataCounter < noHistoricPoints) {
+            // while there are points to get, get them
+            int dataReceived = extractHistoryValue(pointHistoryString);
+            // this char contains somewhere between one and eight values all bit-shifted, extract them now
+            int bitCounter = 0;
+            while (bitCounter < 10 && dataCounter < noHistoricPoints) {
+                int bitValue = 1 & (dataReceived >> bitCounter++);
+                // add this to the list of value received and inc the counter of data
+                switch (bitValue) {
+                    case 0 :
+                        this.pointHistory.push(teamOne);
+                        break;
+                    case 1:
+                        this.pointHistory.push(teamTwo);
+                        break;
+                }
+                // increment the counter
+                ++dataCounter;
+            }
+        }
+    }
+
+    private int extractHistoryValue(StringBuilder recDataString) {
+        // get the string as a double char value
+        String hexString = extractChars(2, recDataString);
+        return Integer.parseInt(hexString, 32);
+    }
+
+    private int extractValueToColon(StringBuilder recDataString) {
+        int colonIndex = recDataString.indexOf(":");
+        if (colonIndex == -1) {
+            throw new StringIndexOutOfBoundsException();
+        }
+        // extract this data as a string
+        String extracted = extractChars(colonIndex, recDataString);
+        // and the colon
+        recDataString.delete(0, 1);
+        // return the data as an integer
+        return Integer.parseInt(extracted);
+    }
+
+    private String extractChars(int charsLength, StringBuilder recDataString) {
+        String extracted = "";
+        if (recDataString.length() >= charsLength) {
+            extracted = recDataString.substring(0, charsLength);
+        }
+        else {
+            throw new StringIndexOutOfBoundsException();
+        }
+        recDataString.delete(0, charsLength);
+        return extracted;
     }
 
     public boolean addListener(MatchListener listener) {
@@ -314,25 +539,30 @@ public class Match implements Score.ScoreListener {
         // the score and re-populate based on the history
         Team teamThatWonPoint = null;
         if (false == this.pointHistory.isEmpty()) {
-            // stop the score from sending out update messages while we reconstruct it
-            this.score.silenceInformers(true);
-            // reset the score
-            resetScoreToStartingPosition();
             // pop the last point from the history
             teamThatWonPoint = this.pointHistory.pop();
-            // and restore the rest
-            for (Team scoringTeam : this.pointHistory) {
-                this.score.incrementPoint(scoringTeam);
-            }
-            // stop the score from sending out update messages while we reconstruct it
-            this.score.silenceInformers(false);
-            // we are read only if there are points in the history
-            this.isReadOnly = false == this.pointHistory.isEmpty();
+            // and restore the history that remains
+            restorePointHisory();
             // inform listeners of this change to the score
             informListeners(MatchChange.DECREMENT);
         }
         // return the team who's point was popped
         return teamThatWonPoint;
+    }
+
+    private void restorePointHisory() {
+        // stop the score from sending out update messages while we reconstruct it
+        this.score.silenceInformers(true);
+        // reset the score
+        resetScoreToStartingPosition();
+        // and restore the rest
+        for (Team scoringTeam : this.pointHistory) {
+            this.score.incrementPoint(scoringTeam);
+        }
+        // stop the score from sending out update messages while we reconstruct it
+        this.score.silenceInformers(false);
+        // we are read only if there are points in the history
+        this.isReadOnly = false == this.pointHistory.isEmpty();
     }
 
     public Score getScore() {
@@ -351,6 +581,17 @@ public class Match implements Score.ScoreListener {
 
     public String getMatchId() {
         return this.matchPlayedDate;
+    }
+
+    public static boolean isMatchIdValid(String matchId) {
+        boolean isValid = false;
+        try {
+            fileDateFormat.parse(matchId);
+            isValid = true;
+        } catch (ParseException e) {
+            // whatever, just isn't valid is all
+        }
+        return isValid;
     }
 
     public String createScoreDataMessage() {

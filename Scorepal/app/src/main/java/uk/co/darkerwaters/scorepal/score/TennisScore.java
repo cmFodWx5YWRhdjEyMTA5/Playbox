@@ -2,6 +2,9 @@ package uk.co.darkerwaters.scorepal.score;
 
 import android.content.Context;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +26,8 @@ public class TennisScore extends Score {
         DEUCE(4, R.string.display_deuce, R.string.speak_deuce, 0),
         ADVANTAGE(5, R.string.display_advantage, R.string.speak_advantage, 0),
         GAME(6, R.string.display_game, R.string.speak_game, 0),
-        SET(7, R.string.display_set, R.string.speak_set, 0);
+        SET(7, R.string.display_set, R.string.speak_set, 0),
+        MATCH(8, R.string.display_match, R.string.speak_match, 0);
 
         private final int value;
         private final int displayStrId;
@@ -115,6 +119,21 @@ public class TennisScore extends Score {
         if (null != this.tieBreakSets) {
             this.tieBreakSets.clear();
         }
+    }
+
+    @Override
+    void setDataToJson(JSONObject json) throws JSONException {
+        super.setDataToJson(json);
+        // put any extra data we need to this JSON file, very little on this
+        // as this can entirely be reconstructed from the history
+        json.put("final_set_tie", this.isFinalSetTie);
+    }
+
+    @Override
+    void setDataFromJson(JSONObject json) throws JSONException {
+        super.setDataFromJson(json);
+        // get any data we put on the JSON back off it, again little here
+        this.isFinalSetTie = json.getBoolean("final_set_tie");
     }
 
     void setIsFinalSetTieBreaker(boolean isTieInFinalSet) {

@@ -2,6 +2,9 @@ package uk.co.darkerwaters.scorepal.score;
 
 import android.content.Context;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,6 +66,13 @@ class Score {
 
     private final List<ScoreListener> listeners;
 
+    class DataException extends Exception {
+
+        DataException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
+
     // default access, make the users go through a scorer class to store history of the process
     Score(Team[] teams, int pointsLevels, ScoreFactory.ScoreMode mode) {
         this.teams = teams;
@@ -80,6 +90,17 @@ class Score {
         this.players = playerList.toArray(new Player[0]);
         // make sure everything starts off the same each time
         resetScore();
+    }
+
+    void setDataToJson(JSONObject json) throws JSONException {
+        // put any extra data we need to this JSON file, very little on this
+        // as this can entirely be reconstructed from the history
+        json.put("score_goal", this.scoreGoal);
+    }
+
+    void setDataFromJson(JSONObject json) throws JSONException {
+        // get any data we put on the JSON back off it, again little here
+        this.scoreGoal = json.getInt("score_goal");
     }
 
     boolean addListener(ScoreListener listener) {

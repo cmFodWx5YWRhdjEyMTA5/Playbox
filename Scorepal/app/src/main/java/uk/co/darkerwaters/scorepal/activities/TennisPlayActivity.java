@@ -33,6 +33,7 @@ import uk.co.darkerwaters.scorepal.players.CourtPosition;
 import uk.co.darkerwaters.scorepal.players.Player;
 import uk.co.darkerwaters.scorepal.players.Team;
 import uk.co.darkerwaters.scorepal.score.Match;
+import uk.co.darkerwaters.scorepal.score.MatchPersistanceManager;
 import uk.co.darkerwaters.scorepal.score.Point;
 import uk.co.darkerwaters.scorepal.score.TennisScore;
 
@@ -298,8 +299,10 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
                 // we might also be changing ends
                 // or something, get from the score fragment the state it is showing
                 String state = scoreFragment.getMatchState();
-                if (null != state && false == state.isEmpty()) {
-                    // there is a state showing, speak it here
+            if (null != state
+                    && false == state.isEmpty()
+                    && false == ((TennisScore)activeMatch.getScore()).isMatchOver()) {
+                    // there is a state showing and the match isn't over, speak it here
                     if (false == message.isEmpty()) {
                         // we are speaking, say this after the score is announced
                         message += ". ";
@@ -379,14 +382,22 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
             case TennisScore.LEVEL_GAME:
                 // the games changed, announce who won the game
                 message = TennisScore.TennisPoint.GAME.speakString(this)
-                        + " "
+                        + ". "
                         + change.team.getTeamName();
                 break;
             case TennisScore.LEVEL_SET:
-                // the sets changed, announce who won the set
-                message = TennisScore.TennisPoint.SET.speakString(this)
-                        + " "
-                        + change.team.getTeamName();
+                // the sets changed, announce who won the game and the set
+                message = TennisScore.TennisPoint.GAME.speakString(this)
+                        + ". "
+                        + TennisScore.TennisPoint.SET.speakString(this)
+                        + ". ";
+                // also match?
+                if (false == score.isMatchOver()) {
+                    message += TennisScore.TennisPoint.MATCH.speakString(this)
+                            + ". ";
+                }
+                // add the winner's name
+                message += change.team.getTeamName();
                 break;
         }
         // there might be dots in the string (initials) which cause
@@ -708,13 +719,15 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
     @Override
     protected void onPause() {
         super.onPause();
-        //TODO store the results of the match
+
+        // store the results of the match
+        MatchPersistanceManager persistanceManager = new MatchPersistanceManager(this);
+        persistanceManager.saveMatchToFile(this.activeMatch, this.activeMatch.getMatchId());
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        //TODO load the last match played to restore the data
 
         if (this.activeMatch.getMatchPlayedDate() == null) {
             // start the new match by setting the start date
