@@ -8,6 +8,7 @@ import android.support.transition.Scene;
 import android.support.transition.Transition;
 import android.support.transition.TransitionManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
@@ -51,6 +52,7 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
     private FragmentTime timeFragment;
 
     private class TeamScene {
+        int teamColor;
         int activeScene = -1;
         Team team;
         ViewGroup root;
@@ -190,6 +192,9 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
         // create each class then populate with all the controls that could be there
         this.teamOneScene = new TeamScene();
         this.teamTwoScene = new TeamScene();
+        // set the colours
+        this.teamOneScene.teamColor = getColor(R.color.teamOneColor);
+        this.teamTwoScene.teamColor = getColor(R.color.teamTwoColor);
         // set the teams here
         this.teamOneScene.team = this.activeMatch.getTeamOne();
         this.teamTwoScene.team = this.activeMatch.getTeamTwo();
@@ -392,12 +397,37 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
                         + TennisScore.TennisPoint.SET.speakString(this)
                         + ". ";
                 // also match?
-                if (false == score.isMatchOver()) {
+                if (score.isMatchOver()) {
                     message += TennisScore.TennisPoint.MATCH.speakString(this)
                             + ". ";
                 }
                 // add the winner's name
                 message += change.team.getTeamName();
+
+                if (score.isMatchOver()) {
+                    // we want to also read out the games from each set
+                    message += "...";
+
+                    Team winnerTeam;
+                    Team loserTeam;
+                    if (change.team == teamOne) {
+                        // team one is the winner
+                        winnerTeam = teamOne;
+                        loserTeam = teamTwo;
+                    }
+                    else {
+                        // team two is the winner
+                        winnerTeam = teamTwo;
+                        loserTeam = teamOne;
+                    }
+                    for (int i = 0; i < score.getPlayedSets(); ++i) {
+                        message += score.getGames(winnerTeam, i)
+                                + ", "
+                                + score.getGames(loserTeam, i)
+                                + ", ";
+                    }
+                }
+
                 break;
         }
         // there might be dots in the string (initials) which cause
@@ -590,9 +620,17 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
                 // transition has started, set the title properly
                 TextView title = scene.root.findViewById(R.id.team_textView);
                 title.setText(scene.team.getTeamName());
+                title.setTextColor(scene.teamColor);
+                // set the colours of the buttons also
+                ImageButton rxButton = scene.root.findViewById(R.id.team_receiverButton);
+                DrawableCompat.setTint(rxButton.getDrawable(), scene.teamColor);
+                // colour the server too
+                ImageButton txButton = scene.root.findViewById(R.id.team_serverButton);
+                DrawableCompat.setTint(txButton.getDrawable(), scene.teamColor);
+                // and show / hide the rx button accordingly
                 if (activeMatch.getTeamServing() == scene.team) {
                     // this team is currently serving
-                    scene.root.findViewById(R.id.team_receiverButton).setVisibility(View.INVISIBLE);
+                    rxButton.setVisibility(View.INVISIBLE);
                 }
             }
             @Override

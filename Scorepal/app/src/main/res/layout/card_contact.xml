@@ -38,7 +38,7 @@
                 android:layout_toRightOf="@id/ccontImage"
                 android:text="Large Text"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:textColor="#A5000000" />
+                android:textColor="@color/primaryTextColor" />
 
             <TextView
                 android:id="@+id/ccontNo"
@@ -48,7 +48,7 @@
                 android:layout_toRightOf="@id/ccontImage"
                 android:text="Medium Text"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="#A5000000"
+                android:textColor="@color/primaryTextColor"
                 android:textSize="12sp" />
 
         </RelativeLayout>

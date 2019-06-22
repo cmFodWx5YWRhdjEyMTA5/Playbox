@@ -42,8 +42,8 @@ public class SettingsActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 application.getSettings().setIsMuted(b);
                 //TODO - put different settings in for speaking points and messages
-                application.getSettings().setIsSpeakingPoints(b);
-                application.getSettings().setIsSpeakingMessages(b);
+                application.getSettings().setIsSpeakingPoints(!b);
+                application.getSettings().setIsSpeakingMessages(!b);
             }
         });
         this.useContacts.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

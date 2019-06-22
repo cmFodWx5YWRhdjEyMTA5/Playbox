@@ -426,16 +426,30 @@ public class FragmentTeam extends Fragment {
 
         // set the names and hints to use
         if (null != this.title) {
+            int playerHint = 0;
+            int partnerHint = 0;
+            int colorResId = 0;
             switch (this.teamNumber) {
                 case 1:
-                    this.playerName.setHint(R.string.default_playerOneName);
-                    this.partnerName.setHint(R.string.default_playerOnePartnerName);
+                    colorResId = R.color.teamOneColor;
+                    playerHint = R.string.default_playerOneName;
+                    partnerHint = R.string.default_playerOnePartnerName;
+
                     break;
                 case 2:
-                    this.playerName.setHint(R.string.default_playerTwoName);
-                    this.partnerName.setHint(R.string.default_playerTwoPartnerName);
+                    colorResId = R.color.teamTwoColor;
+                    playerHint = R.string.default_playerTwoName;
+                    partnerHint = R.string.default_playerTwoPartnerName;
                     break;
             }
+            // set the hints
+            this.playerName.setHint(playerHint);
+            this.partnerName.setHint(partnerHint);
+            // set the colours
+            int color = getContext().getColor(colorResId);
+            this.title.setTextColor(color);
+            this.playerName.setTextColor(color);
+            this.partnerName.setTextColor(color);
             // and do the team title
             createTeamName();
 

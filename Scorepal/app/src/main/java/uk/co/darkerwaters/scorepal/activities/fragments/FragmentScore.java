@@ -1,6 +1,8 @@
 package uk.co.darkerwaters.scorepal.activities.fragments;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.Gravity;
@@ -9,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.FrameLayout;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
@@ -19,6 +22,7 @@ import uk.co.darkerwaters.scorepal.activities.animation.ChangeServerTextAnimatio
 import uk.co.darkerwaters.scorepal.activities.animation.GameOverTextAnimation;
 import uk.co.darkerwaters.scorepal.activities.animation.TextViewAnimation;
 import uk.co.darkerwaters.scorepal.score.Point;
+import uk.co.darkerwaters.scorepal.score.TennisScore;
 
 public class FragmentScore extends Fragment {
 
@@ -42,7 +46,7 @@ public class FragmentScore extends Fragment {
     private TextView informationText;
 
     private TextSwitcher[][] switchers = new TextSwitcher[K_NO_TEAMS][K_NO_LEVELS];
-    private ViewSwitcher.ViewFactory switcherFactory;
+    private ViewSwitcher.ViewFactory[] switcherFactorys;
 
     public FragmentScore() {
         // Required empty public constructor
@@ -81,16 +85,24 @@ public class FragmentScore extends Fragment {
 
         // make the factory to handle the switching of text here
         final Context context = this.getContext();
+        this.switcherFactorys = new ViewSwitcher.ViewFactory[2];
+        final String scoreRef = TennisScore.TennisPoint.ADVANTAGE.displayString(getContext());
         // Set the ViewFactory of the TextSwitcher that will create TextView object when asked
-        this.switcherFactory = new ViewSwitcher.ViewFactory() {
+        this.switcherFactorys[0] = new ViewSwitcher.ViewFactory() {
             public View makeView() {
                 // create a TextView
-                TextView t = new TextView(context);
-                // set the gravity of text to top and center horizontal
-                t.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL);
-                // set displayed text size
-                t.setTextSize(36);
-                t.setTextColor(context.getColor(R.color.primaryTextColor));
+                TextView t = new ResizeTextView(context, scoreRef);
+                t.setGravity(Gravity.CENTER);
+                t.setTextColor(context.getColor(R.color.teamOneColor));
+                return t;
+            }
+        };
+        this.switcherFactorys[1] = new ViewSwitcher.ViewFactory() {
+            public View makeView() {
+                // create a TextView
+                TextView t = new ResizeTextView(context, scoreRef);
+                t.setGravity(Gravity.CENTER);
+                t.setTextColor(context.getColor(R.color.teamTwoColor));
                 return t;
             }
         };
@@ -101,7 +113,7 @@ public class FragmentScore extends Fragment {
         Animation out = AnimationUtils.loadAnimation(context, R.anim.slide_out_bottom);
         for (int j = 0; j < K_NO_LEVELS; ++j) {
             // set the factory
-            this.switchers[0][j].setFactory(this.switcherFactory);
+            this.switchers[0][j].setFactory(this.switcherFactorys[0]);
             // and the animations
             this.switchers[0][j].setInAnimation(in);
             this.switchers[0][j].setOutAnimation(out);
@@ -111,7 +123,7 @@ public class FragmentScore extends Fragment {
         out = AnimationUtils.loadAnimation(context, R.anim.slide_out_top);
         for (int j = 0; j < K_NO_LEVELS; ++j) {
             // set the factory
-            this.switchers[1][j].setFactory(this.switcherFactory);
+            this.switchers[1][j].setFactory(this.switcherFactorys[1]);
             // and the animations
             this.switchers[1][j].setInAnimation(in);
             this.switchers[1][j].setOutAnimation(out);

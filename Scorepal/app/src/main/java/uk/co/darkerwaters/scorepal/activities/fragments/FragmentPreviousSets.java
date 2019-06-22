@@ -14,12 +14,14 @@ import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import uk.co.darkerwaters.scorepal.R;
+import uk.co.darkerwaters.scorepal.score.TennisScore;
 import uk.co.darkerwaters.scorepal.score.TennisSets;
 
 public class FragmentPreviousSets extends Fragment {
 
     private final static int K_NO_TEAMS = 2;
     private final static int K_NO_SETS = TennisSets.FIVE.val;
+    private static final String K_SETS_REFERENCE = "00";
 
     public interface FragmentPreviousSetsInteractionListener {
         void onAttachFragment(FragmentPreviousSets fragment);
@@ -28,7 +30,7 @@ public class FragmentPreviousSets extends Fragment {
     private FragmentPreviousSetsInteractionListener listener;
 
     private TextSwitcher[][] switchers = new TextSwitcher[K_NO_TEAMS][K_NO_SETS];
-    private ViewSwitcher.ViewFactory switcherFactory;
+    private ViewSwitcher.ViewFactory[] switcherFactorys;
     private TextView[] tieBreaks = new TextView[K_NO_SETS];
 
     public FragmentPreviousSets() {
@@ -64,16 +66,23 @@ public class FragmentPreviousSets extends Fragment {
 
         // make the factory to handle the switching of text here
         final Context context = this.getContext();
+        this.switcherFactorys = new ViewSwitcher.ViewFactory[2];
         // Set the ViewFactory of the TextSwitcher that will create TextView object when asked
-        this.switcherFactory = new ViewSwitcher.ViewFactory() {
+        this.switcherFactorys[0] = new ViewSwitcher.ViewFactory() {
             public View makeView() {
                 // create a TextView
-                TextView t = new TextView(context);
-                // set the gravity of text to top and center horizontal
-                t.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL);
-                // set displayed text size
-                t.setTextSize(36);
-                t.setTextColor(context.getColor(R.color.primaryTextColor));
+                TextView t = new ResizeTextView(context, K_SETS_REFERENCE);
+                t.setGravity(Gravity.CENTER);
+                t.setTextColor(context.getColor(R.color.teamOneColor));
+                return t;
+            }
+        };
+        this.switcherFactorys[1] = new ViewSwitcher.ViewFactory() {
+            public View makeView() {
+                // create a TextView
+                TextView t = new ResizeTextView(context, K_SETS_REFERENCE);
+                t.setGravity(Gravity.CENTER);
+                t.setTextColor(context.getColor(R.color.teamTwoColor));
                 return t;
             }
         };
@@ -84,7 +93,7 @@ public class FragmentPreviousSets extends Fragment {
         Animation out = AnimationUtils.loadAnimation(context, R.anim.slide_out_bottom);
         for (int j = 0; j < K_NO_SETS; ++j) {
             // set the factory
-            this.switchers[0][j].setFactory(this.switcherFactory);
+            this.switchers[0][j].setFactory(this.switcherFactorys[0]);
             // and the animations
             this.switchers[0][j].setInAnimation(in);
             this.switchers[0][j].setOutAnimation(out);
@@ -94,7 +103,7 @@ public class FragmentPreviousSets extends Fragment {
         out = AnimationUtils.loadAnimation(context, R.anim.slide_out_top);
         for (int j = 0; j < K_NO_SETS; ++j) {
             // set the factory
-            this.switchers[1][j].setFactory(this.switcherFactory);
+            this.switchers[1][j].setFactory(this.switcherFactorys[1]);
             // and the animations
             this.switchers[1][j].setInAnimation(in);
             this.switchers[1][j].setOutAnimation(out);
