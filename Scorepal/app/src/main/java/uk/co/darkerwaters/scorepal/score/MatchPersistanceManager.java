@@ -60,7 +60,7 @@ public class MatchPersistanceManager {
             // somewhere in this file is the type of game that was played
             ScoreFactory.ScoreMode mode = ScoreFactory.ScoreMode.from(obj.getString("score_mode"));
             // create the match from this
-            this.match = new Match(context, mode);
+            this.match = ScoreFactory.CreateMatchFromMode(context, mode);
             // load in the data
             this.match.setDataFromJson(obj);
             // success if here

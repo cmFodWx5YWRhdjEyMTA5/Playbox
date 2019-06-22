@@ -19,6 +19,7 @@ import android.widget.ViewSwitcher;
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.activities.animation.ChangeEndsTextAnimation;
 import uk.co.darkerwaters.scorepal.activities.animation.ChangeServerTextAnimation;
+import uk.co.darkerwaters.scorepal.activities.animation.DecidingPointTextAnimation;
 import uk.co.darkerwaters.scorepal.activities.animation.GameOverTextAnimation;
 import uk.co.darkerwaters.scorepal.activities.animation.TextViewAnimation;
 import uk.co.darkerwaters.scorepal.score.Point;
@@ -37,7 +38,8 @@ public class FragmentScore extends Fragment {
     public enum ScoreState {
         COMPLETED,
         CHANGE_ENDS,
-        CHANGE_SERVER
+        CHANGE_SERVER,
+        DECIDING_POINT
     }
 
     private FragmentScoreInteractionListener listener;
@@ -159,6 +161,9 @@ public class FragmentScore extends Fragment {
             switch (state) {
                 case COMPLETED:
                     this.informationAnimator = new GameOverTextAnimation(getActivity(), this.informationText);
+                    break;
+                case DECIDING_POINT:
+                    this.informationAnimator = new DecidingPointTextAnimation(getActivity(), this.informationText);
                     break;
                 case CHANGE_ENDS:
                     this.informationAnimator = new ChangeEndsTextAnimation(getActivity(), this.informationText);

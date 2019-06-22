@@ -1,5 +1,6 @@
 package uk.co.darkerwaters.scorepal.score;
 
+import android.content.Context;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -16,7 +17,7 @@ import java.util.Map;
 import uk.co.darkerwaters.scorepal.application.Log;
 import uk.co.darkerwaters.scorepal.players.Team;
 
-public class ScoreFactory {
+public abstract class ScoreFactory<T extends Score> {
 
     private static final String K_FILEVERSION = "a";
 
@@ -62,18 +63,16 @@ public class ScoreFactory {
         }
     }
 
-    public static Score CreateScore(Team[] teams, ScoreMode mode) {
+    public static Match<?> CreateMatchFromMode(Context context, ScoreMode mode) {
         switch (mode) {
-            case K_BADMINTON:
-                Log.error("Have not implemented BADMINTON yet...");
-                return null;
-            case K_POINTS:
-                return new PointsScore(teams);
             case K_TENNIS:
-                return new TennisScore(teams, TennisSets.FIVE);
+                return new TennisMatch(context);
+            case K_POINTS:
+                return new PointsMatch(context);
             default:
-                Log.error("Have not implemented this type of score yet " + mode.toString());
                 return null;
         }
     }
+
+    public abstract T createScore(Team[] teams);
 }

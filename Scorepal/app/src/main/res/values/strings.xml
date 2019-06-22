@@ -99,4 +99,9 @@
     <string name="btn_undo">Undo Last Point</string>
     <string name="reset_match">Reset</string>
     <string name="current_match">Current Match</string>
+    <string name="deciding_point_deuce">Deciding point following Deuce</string>
+    <string name="tie_on_final_set">Tie-break in final set</string>
+    <string name="at">at</string>
+    <string name="default_final_set_target">6 - 6</string>
+    <string name="deciding_point">Deciding Point...</string>
 </resources>

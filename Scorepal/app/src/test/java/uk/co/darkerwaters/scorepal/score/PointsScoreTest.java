@@ -20,7 +20,7 @@ public class PointsScoreTest extends ScoreTest {
         assertEquals("mode", ScoreFactory.ScoreMode.K_POINTS, score.getScoreMode());
         assertEquals("levels", 1, score.getLevels());
 
-        assertEquals("points to play to", 10, score.getPointsToPlayTo());
+        assertEquals("points to play to", 10, score.getScoreGoal());
         for (int i = 0; i < 9; ++i) {
             score.incrementPoint(teams[0]);
             assertEquals("point", i + 1, score.getPoints(teams[0]));

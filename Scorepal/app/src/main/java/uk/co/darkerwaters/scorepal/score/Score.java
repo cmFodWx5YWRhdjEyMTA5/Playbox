@@ -61,7 +61,7 @@ class Score {
     }
 
     public enum ScoreChange {
-        RESET, INCREMENT, POINTS_SET, SERVER, ENDS, GOAL;
+        RESET, INCREMENT, POINTS_SET, SERVER, ENDS, GOAL, DECIDING_POINT;
     }
 
     private final List<ScoreListener> listeners;

@@ -16,25 +16,76 @@ import android.widget.TextView;
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.activities.fragments.FragmentTeam;
 import uk.co.darkerwaters.scorepal.application.Settings;
-import uk.co.darkerwaters.scorepal.players.Player;
-import uk.co.darkerwaters.scorepal.score.Match;
+import uk.co.darkerwaters.scorepal.score.TennisMatch;
+import uk.co.darkerwaters.scorepal.score.TennisScore;
 import uk.co.darkerwaters.scorepal.score.TennisSets;
 
 public class TennisSetupActivity extends FragmentTeamActivity {
+
+    private enum FinalSetTarget {
+        K_IMMEDIATE(6),
+        K_EIGHT(8),
+        K_TEN(10),
+        K_WIMBLEDON(12),
+        K_EIGHTEEN(18),
+        K_TWENTYFOUR(24);
+
+        static FinalSetTarget K_DEFAULT = K_IMMEDIATE;
+
+        final int games;
+        FinalSetTarget(int games) {
+            this.games = games;
+        }
+
+        public static FinalSetTarget fromGames(int games) {
+            for (FinalSetTarget target : values()) {
+                if (games == target.games) {
+                    return target;
+                }
+            }
+            return K_DEFAULT;
+        }
+
+        public FinalSetTarget next() {
+            boolean isFound = false;
+            for (FinalSetTarget target : values()) {
+                if (isFound) {
+                    // this is the next one
+                    return target;
+                }
+                else if (target == this) {
+                    isFound = true;
+                }
+            }
+            // overflowed, return the first
+            return values()[0];
+        }
+
+        @Override
+        public String toString() {
+            return this.games + " - " + this.games;
+        }
+    }
 
     private Switch singlesDoublesSwitch;
     private TextView setsText;
     private ImageButton setsLessButton;
     private ImageButton setsMoreButton;
 
+    private Switch deuceDecidingPointSwitch;
+    private Switch tieOnFinalSetSwitch;
+
+    private TextView tieFinalSetTargetTextView;
+
     private View doublesCard;
     private View summaryCard;
     private TextView matchSummary;
     private Button resetButton;
+    private View finalSetTieLayout;
 
     private FloatingActionButton fabPlay;
 
-    private Match currentMatch;
+    private TennisMatch currentMatch;
 
     public TennisSetupActivity() {
     }
@@ -45,12 +96,17 @@ public class TennisSetupActivity extends FragmentTeamActivity {
         setContentView(R.layout.activity_tennis_setup);
 
         // get the current match we are settingup
-        this.currentMatch = this.application.getActiveMatch();
+        this.currentMatch = (TennisMatch) this.application.getActiveMatch();
 
         this.setsText = findViewById(R.id.setsNumberText);
         this.setsMoreButton = findViewById(R.id.setsMoreImageButton);
         this.setsLessButton = findViewById(R.id.setsLessImageButton);
         this.singlesDoublesSwitch = findViewById(R.id.switchSinglesDoubles);
+
+        this.deuceDecidingPointSwitch = findViewById(R.id.deuceDecidingPointSwitch);
+        this.tieOnFinalSetSwitch = findViewById(R.id.tieOnFinalSetSwitch);
+        this.tieFinalSetTargetTextView = findViewById(R.id.tieFinalSetTargetTextView);
+        this.finalSetTieLayout = findViewById(R.id.finalSetTieLayout);
 
         this.doublesCard = findViewById(R.id.doublesCard);
         this.summaryCard = findViewById(R.id.summaryCard);
@@ -103,10 +159,49 @@ public class TennisSetupActivity extends FragmentTeamActivity {
                 setActivityDataShown();
             }
         });
+        this.deuceDecidingPointSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                TennisScore score = TennisSetupActivity.this.currentMatch.getScore();
+                score.setIsDecidingPointOnDeuce(b);
+                setActivityDataShown();
+            }
+        });
+        this.tieOnFinalSetSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                TennisScore score = TennisSetupActivity.this.currentMatch.getScore();
+                if (b) {
+                    // turn on
+                    score.setFinalSetTieTarget(FinalSetTarget.K_DEFAULT.games);
+                }
+                else {
+                    // turn off
+                    score.setFinalSetTieTarget(-1);
+                }
+                setActivityDataShown();
+            }
+        });
+        this.tieFinalSetTargetTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TennisScore score = TennisSetupActivity.this.currentMatch.getScore();
+                int target = score.getFinalSetTieTarget();
+                if (target > 0) {
+                    // this is on, cycle it
+                    score.setFinalSetTieTarget(FinalSetTarget.fromGames(target).next().games);
+                    setActivityDataShown();
+                }
+            }
+        });
         // get the default to start with
         Settings settings = this.application.getSettings();
         setCurrentSets(settings.getTennisSets());
         this.currentMatch.setIsDoubles(settings.getIsDoubles());
+        TennisScore score = this.currentMatch.getScore();
+        // setup the score defaults too
+        score.setFinalSetTieTarget(settings.getFinalSetTieTarget());
+        score.setIsDecidingPointOnDeuce(settings.getIsDecidingPointOnDeuce());
 
         this.fabPlay = findViewById(R.id.fab_play);
         this.fabPlay.setOnClickListener(new View.OnClickListener() {
@@ -175,6 +270,11 @@ public class TennisSetupActivity extends FragmentTeamActivity {
         Settings settings = this.application.getSettings();
         // set the default for is doubles or not
         settings.setIsDoubles(this.currentMatch.getIsDoubles());
+
+        // and the score settings
+        TennisScore score = this.currentMatch.getScore();
+        settings.setFinalSetTieTarget(score.getFinalSetTieTarget());
+        settings.setIsDecidingPointOnDeuce(score.getIsDecidingPointOnDeuce());
         // the tennis sets
         settings.setTennisSets(getCurrentSets());
     }
@@ -208,6 +308,22 @@ public class TennisSetupActivity extends FragmentTeamActivity {
         }
         this.teamOneFragment.setIsDoubles(isDoubles, false);
         this.teamTwoFragment.setIsDoubles(isDoubles, false);
+
+        // and the tennis extras here
+        TennisScore score = this.currentMatch.getScore();
+        this.deuceDecidingPointSwitch.setChecked(score.getIsDecidingPointOnDeuce());
+        int target = score.getFinalSetTieTarget();
+        this.tieOnFinalSetSwitch.setChecked(target > 0);
+        if (target > 0) {
+            // this is set, set the value
+            this.tieFinalSetTargetTextView.setText(FinalSetTarget.fromGames(target).toString());
+            this.finalSetTieLayout.setVisibility(View.VISIBLE);
+        }
+        else {
+            // hide all this
+            this.tieFinalSetTargetTextView.setText(FinalSetTarget.K_DEFAULT.toString());
+            this.finalSetTieLayout.setVisibility(View.GONE);
+        }
 
         // we need to show the summary of the current match
         if (this.currentMatch.isMatchStarted()) {

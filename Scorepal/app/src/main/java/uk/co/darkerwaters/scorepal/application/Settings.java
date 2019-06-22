@@ -19,6 +19,8 @@ public class Settings {
     private final String K_ISSPEAKING = "isSpeaking";
     private final String K_ISSPEAKINGMESSAGES = "isSpeakingMessages";
     private final String K_PLAYERNAME = "playerName";
+    private final String K_FINALSETTIETARGET = "finalSetTieTarget";
+    private final String K_ISDECIDERONDEUCE = "deciderOnDeuce";
 
     private final String K_ACTIVESPORT = "activeSport";
 
@@ -34,6 +36,8 @@ public class Settings {
     private boolean isAskForContacts;
     private boolean isSpeaking;
     private boolean isSpeakingMessages;
+    private int finalSetTieTarget;
+    private boolean isDeciderOnDeuce;
     private String activeSport;
 
     public Settings(Application app) {
@@ -57,6 +61,8 @@ public class Settings {
         this.isDoubles = false;
         this.isSpeaking = true;
         this.isSpeakingMessages = true;
+        this.finalSetTieTarget = -1;
+        this.isDeciderOnDeuce = false;
         this.sets = TennisSets.THREE;
     }
 
@@ -111,6 +117,28 @@ public class Settings {
         this.isSpeakingMessages = isSpeakingMessages;
         this.editor.putBoolean(K_ISSPEAKINGMESSAGES, this.isSpeakingMessages);
         return this.editor.commit();
+    }
+
+    public boolean setIsDecidingPointOnDeuce(boolean isDeciderOnDeuce) {
+        this.isDeciderOnDeuce = isDeciderOnDeuce;
+        this.editor.putBoolean(K_ISDECIDERONDEUCE, this.isDeciderOnDeuce);
+        return this.editor.commit();
+    }
+
+    public boolean getIsDecidingPointOnDeuce() {
+        this.isDeciderOnDeuce = this.preferences.getBoolean(K_ISDECIDERONDEUCE, this.isDeciderOnDeuce);
+        return this.isDeciderOnDeuce;
+    }
+
+    public boolean setFinalSetTieTarget(int finalSetTieTarget) {
+        this.finalSetTieTarget = finalSetTieTarget;
+        this.editor.putInt(K_FINALSETTIETARGET, this.finalSetTieTarget);
+        return this.editor.commit();
+    }
+
+    public int getFinalSetTieTarget() {
+        this.finalSetTieTarget = this.preferences.getInt(K_FINALSETTIETARGET, this.finalSetTieTarget);
+        return this.finalSetTieTarget;
     }
 
     public String getActiveSport() {

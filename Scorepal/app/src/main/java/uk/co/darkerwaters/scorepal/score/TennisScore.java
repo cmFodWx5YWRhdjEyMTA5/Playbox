@@ -95,7 +95,8 @@ public class TennisScore extends Score {
 
     private final static int K_LEVELS = 3;
 
-    private boolean isFinalSetTie;
+    private int finalSetTieTarget = -1;
+    private boolean isDecidingPointOnDeuce = false;
     private boolean isInTieBreak;
     private Player tieBreakServer;
 
@@ -103,7 +104,8 @@ public class TennisScore extends Score {
 
     TennisScore(Team[] teams, TennisSets setsToPlay) {
         super(teams, K_LEVELS, ScoreFactory.ScoreMode.K_TENNIS);
-        this.isFinalSetTie = false;
+        this.finalSetTieTarget = -1;
+        this.isDecidingPointOnDeuce = false;
         this.tieBreakSets = new ArrayList<Integer>();
         // the score goal is the number of sets to play
         setScoreGoal(setsToPlay.val);
@@ -126,18 +128,30 @@ public class TennisScore extends Score {
         super.setDataToJson(json);
         // put any extra data we need to this JSON file, very little on this
         // as this can entirely be reconstructed from the history
-        json.put("final_set_tie", this.isFinalSetTie);
+        json.put("final_set_tie", this.finalSetTieTarget);
+        json.put("deciding_point", this.isDecidingPointOnDeuce);
     }
 
     @Override
     void setDataFromJson(JSONObject json) throws JSONException {
         super.setDataFromJson(json);
         // get any data we put on the JSON back off it, again little here
-        this.isFinalSetTie = json.getBoolean("final_set_tie");
+        this.finalSetTieTarget = json.getInt("final_set_tie");
+        this.isDecidingPointOnDeuce = json.getBoolean("deciding_point");
     }
 
-    void setIsFinalSetTieBreaker(boolean isTieInFinalSet) {
-        this.isFinalSetTie = isTieInFinalSet;
+    public void setFinalSetTieTarget(int target) {
+        this.finalSetTieTarget = target;
+    }
+
+    public int getFinalSetTieTarget() {
+        return this.finalSetTieTarget;
+    }
+
+    public void setIsDecidingPointOnDeuce(boolean isDecidingPoint) { this.isDecidingPointOnDeuce = isDecidingPoint; }
+
+    public boolean getIsDecidingPointOnDeuce() {
+        return this.isDecidingPointOnDeuce;
     }
 
     @Override
@@ -332,9 +346,21 @@ public class TennisScore extends Score {
         int otherPoint = getPoints(getOtherTeam(team));
         // has this team won the game with this new point addition (can't be the other)
         if (false == this.isInTieBreak) {
-            if (point >= POINTS_TO_WIN_GAME && point - otherPoint >= POINTS_AHEAD_IN_GAME) {
-                // not in a tie and we have enough points (and enough ahead) to win the game
-                incrementGame(team);
+            if (this.isDecidingPointOnDeuce && point == otherPoint && point >= TennisPoint.FORTY.val()) {
+                // this is a draw in points, not enough to win but we are interested
+                // if this is a deciding point, in order to tell people
+                informListeners(ScoreChange.DECIDING_POINT);
+            }
+            else if (point >= POINTS_TO_WIN_GAME) {
+                // we have enough points to win, either we are 2 ahead (won the ad)
+                // or the deuce deciding point is on and we are 2 ahead
+                int pointsAhead = point - otherPoint;
+                if ((this.isDecidingPointOnDeuce && pointsAhead > 0)
+                    || pointsAhead >= POINTS_AHEAD_IN_GAME) {
+                    // we are enough ahead to win the game
+                    // not in a tie and we have enough points (and enough ahead) to win the game
+                    incrementGame(team);
+                }
             }
         }
         else {
@@ -406,7 +432,7 @@ public class TennisScore extends Score {
                 this.isInTieBreak = false;
                 isSetChanged = true;
             }
-            else if (isTieBreakSet() && otherPoints >= GAMES_TO_WIN_SET){
+            else if (isTieBreak(point, otherPoints)){
                 // we are not ahead enough, we both have more than 6 and are in a tie break set
                 // time to initiate a tie break
                 this.isInTieBreak = true;
@@ -435,15 +461,26 @@ public class TennisScore extends Score {
         return this.isInTieBreak;
     }
 
-    private boolean isTieBreakSet() {
+    private boolean isTieBreak(int games1, int games2) {
         // we are in a tie break set if not the final set, or the final set is a tie-break set
-        if (getPlayedSets() == getSetsToPlay().val - 1) {
+        if (games1 != games2) {
+            // not equal - not a tie
+            return false;
+        }
+        else if (getPlayedSets() == getSetsToPlay().val - 1) {
             // we are playing the final set
-            return this.isFinalSetTie;
+            if (this.finalSetTieTarget <= 0) {
+                // we never tie
+                return false;
+            }
+            else {
+                // have we played enough games to initiate a tie?
+                return games1 >= this.finalSetTieTarget;
+            }
         }
         else {
-            // not the final set, this is a tie
-            return true;
+            // not the final set, this is a tie if we played enough games
+            return games1 >= GAMES_TO_WIN_SET;
         }
     }
 

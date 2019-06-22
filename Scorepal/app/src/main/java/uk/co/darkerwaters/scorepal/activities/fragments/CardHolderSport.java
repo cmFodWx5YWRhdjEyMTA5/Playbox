@@ -19,6 +19,7 @@ import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.activities.handlers.SportRecyclerAdapter;
 import uk.co.darkerwaters.scorepal.application.Settings;
 import uk.co.darkerwaters.scorepal.score.Match;
+import uk.co.darkerwaters.scorepal.score.ScoreFactory;
 
 public class CardHolderSport extends RecyclerView.ViewHolder {
 
@@ -51,7 +52,7 @@ public class CardHolderSport extends RecyclerView.ViewHolder {
             @Override
             public void onClick(View view) {
                 // create the match from that the user just selected
-                application.setActiveMatch(new Match(context, card.mode));
+                application.setActiveMatch(ScoreFactory.CreateMatchFromMode(context, card.mode));
                 // and show the activity for this created match
                 Intent intent = new Intent(context, card.activityClass);
                 context.startActivity(intent);

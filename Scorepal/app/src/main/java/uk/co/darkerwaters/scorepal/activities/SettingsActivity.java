@@ -46,6 +46,16 @@ public class SettingsActivity extends AppCompatActivity {
                 application.getSettings().setIsSpeakingMessages(!b);
             }
         });
+
+        //TODO settings for speak points
+
+        //TODO settings for speak messages
+
+        //TODO settings for is deciding point on deuce
+
+        //TODO settings for tie-break target in final set
+
+
         this.useContacts.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {

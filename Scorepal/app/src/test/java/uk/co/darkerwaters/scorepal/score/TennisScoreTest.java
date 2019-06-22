@@ -419,7 +419,7 @@ public class TennisScoreTest extends ScoreTest {
     public void tieBreakInFinalSet() {
         // 6 games all triggers a tie in all sets
         TennisScore score = new TennisScore(doubles, TennisSets.THREE);
-        score.setIsFinalSetTieBreaker(true);
+        score.setFinalSetTieTarget(6);
 
         winGame(score, doubles[0], 5);
         winGame(score, doubles[1], 5);

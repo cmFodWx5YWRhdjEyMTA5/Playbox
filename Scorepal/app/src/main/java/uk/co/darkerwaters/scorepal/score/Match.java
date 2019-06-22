@@ -24,11 +24,11 @@ import uk.co.darkerwaters.scorepal.players.CourtPosition;
 import uk.co.darkerwaters.scorepal.players.Player;
 import uk.co.darkerwaters.scorepal.players.Team;
 
-public class Match implements Score.ScoreListener {
+public class Match<T extends Score> implements Score.ScoreListener {
 
     private static final SimpleDateFormat fileDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
-    public class PointChange {
+    public static class PointChange {
         public final Team team;
         public final int level;
         public final int point;
@@ -46,7 +46,7 @@ public class Match implements Score.ScoreListener {
     private final Team[] teams;
     private Sport sport = Sport.TENNIS;
 
-    private final Score score;
+    private final T score;
     private final Stack<Team> pointHistory;
 
     private boolean isReadOnly = false;
@@ -58,7 +58,7 @@ public class Match implements Score.ScoreListener {
     private ArrayList<PointChange> pointLevelsChanged;
 
     public enum MatchChange {
-        RESET, INCREMENT, DECREMENT, STARTED, DOUBLES_SINGLES, GOAL, PLAYERS, ENDS, SERVER;
+        RESET, INCREMENT, DECREMENT, STARTED, DOUBLES_SINGLES, GOAL, PLAYERS, ENDS, SERVER, DECIDING_POINT;
     }
 
     public interface MatchListener {
@@ -68,7 +68,7 @@ public class Match implements Score.ScoreListener {
 
     private final List<MatchListener> listeners;
 
-    public Match(Context context, ScoreFactory.ScoreMode scoreMode) {
+    public Match(Context context, ScoreFactory<T> scoreFactory) {
         // setup the teams, will replace players in the structures as required
         this.teams = new Team[] {
                 new Team(new Player[] {
@@ -87,7 +87,7 @@ public class Match implements Score.ScoreListener {
         // set the description
         this.description = "A match played";
         // create the score here
-        this.score = ScoreFactory.CreateScore(teams, scoreMode);
+        this.score = scoreFactory.createScore(teams);
         // listen to this score to pass on the information to our listeners
         this.score.addListener(this);
         // we will also store the entire history played
@@ -471,6 +471,10 @@ public class Match implements Score.ScoreListener {
             case RESET:
                 // none of this is interesting, we did all that from here and informed correctly
                 break;
+            case DECIDING_POINT:
+                // this is interesting, someone will want to know this
+                informListeners(MatchChange.DECIDING_POINT);
+                break;
             case ENDS :
                 // this is interesting, someone will want to know this
                 informListeners(MatchChange.ENDS);
@@ -565,7 +569,7 @@ public class Match implements Score.ScoreListener {
         this.isReadOnly = false == this.pointHistory.isEmpty();
     }
 
-    public Score getScore() {
+    public T getScore() {
         return this.score;
     }
 

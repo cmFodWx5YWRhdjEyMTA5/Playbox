@@ -467,6 +467,15 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
                 // this is something that requires no message
                 this.isMessageStarted = false;
                 break;
+            case DECIDING_POINT:
+                // inform the players that this is 'sudden death'
+                if (this.activeMatch.isReadOnly()
+                        && false == this.isMessageStarted
+                        && null != this.scoreFragment) {
+                    this.scoreFragment.showMatchState(FragmentScore.ScoreState.DECIDING_POINT);
+                }
+                this.isMessageStarted = true;
+                break;
             case ENDS:
                 // change ends
                 setEndScenes();
