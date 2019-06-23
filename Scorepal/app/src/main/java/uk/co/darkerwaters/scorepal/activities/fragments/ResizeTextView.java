@@ -1,12 +1,9 @@
 package uk.co.darkerwaters.scorepal.activities.fragments;
 
 import android.content.Context;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.TypedValue;
-import android.widget.TextView;
 
 public class ResizeTextView extends android.support.v7.widget.AppCompatTextView {
 
@@ -15,6 +12,10 @@ public class ResizeTextView extends android.support.v7.widget.AppCompatTextView 
 
     public ResizeTextView(Context context, String referenceText) {
         this(context, referenceText, null);
+    }
+
+    public ResizeTextView(Context context, AttributeSet attrs) {
+        this(context, "AZ", attrs);
     }
 
     public ResizeTextView(Context context, String referenceText, AttributeSet attrs) {

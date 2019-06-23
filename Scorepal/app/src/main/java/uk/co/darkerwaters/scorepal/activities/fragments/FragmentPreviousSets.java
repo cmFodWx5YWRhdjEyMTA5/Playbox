@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import uk.co.darkerwaters.scorepal.R;
+import uk.co.darkerwaters.scorepal.activities.BaseActivity;
 import uk.co.darkerwaters.scorepal.score.TennisScore;
 import uk.co.darkerwaters.scorepal.score.TennisSets;
 
@@ -140,9 +141,16 @@ public class FragmentPreviousSets extends Fragment {
         }
     }
 
-    public void setSetValue(int teamIndex, int setIndex, int value) {
+    public void setSetValue(int teamIndex, int setIndex, int value, boolean isBold) {
         if (!this.isDetached()) {
-            this.switchers[teamIndex][setIndex].setText(Integer.toString(value));
+            TextView textView = (TextView) this.switchers[teamIndex][setIndex].getCurrentView();
+            textView.setText(Integer.toString(value));
+            if (isBold) {
+                BaseActivity.SetTextViewBold(textView);
+            }
+            else {
+                BaseActivity.SetTextViewNoBold(textView);
+            }
         }
     }
 

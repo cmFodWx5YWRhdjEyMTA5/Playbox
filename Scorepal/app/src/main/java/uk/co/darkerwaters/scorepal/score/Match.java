@@ -139,6 +139,10 @@ public class Match<T extends Score> implements Score.ScoreListener {
             obj.put("match_minutes", this.matchMinutesPlayed);
             obj.put("sport", this.sport.toString());
 
+            // do the team names
+            obj.put("team_one_name", getTeamOne().getTeamName());
+            obj.put("team_two_name", getTeamTwo().getTeamName());
+
             // do the player names
             obj.put("player_one_name", getPlayerOne().getPlayerName());
             obj.put("partner_one_name", getPlayerOnePartner().getPlayerName());
@@ -189,6 +193,10 @@ public class Match<T extends Score> implements Score.ScoreListener {
             this.matchPlayedDate = obj.getString("played_date");
             this.matchMinutesPlayed = obj.getInt("match_minutes");
             this.sport = Sport.fromString(obj.getString("sport"));
+
+            // do the team names
+            setTeamOneName(obj.getString("team_one_name"));
+            setTeamTwoName(obj.getString("team_two_name"));
 
             // do the player names
             setPlayerOneName(obj.getString("player_one_name"));

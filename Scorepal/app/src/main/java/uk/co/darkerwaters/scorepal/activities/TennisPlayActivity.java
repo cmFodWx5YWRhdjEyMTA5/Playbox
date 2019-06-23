@@ -638,8 +638,8 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
             for (int i = 0; i < score.getPlayedSets(); ++i) {
                 int gamesOne = score.getGames(teamOne, i);
                 int gamesTwo = score.getGames(teamTwo, i);
-                this.previousSetsFragment.setSetValue(0, i, gamesOne);
-                this.previousSetsFragment.setSetValue(1, i, gamesTwo);
+                this.previousSetsFragment.setSetValue(0, i, gamesOne, gamesOne > gamesTwo);
+                this.previousSetsFragment.setSetValue(1, i, gamesTwo, gamesTwo > gamesOne);
                 if (score.isSetTieBreak(i)) {
                     // this set is / was a tie, show the score of this in brackets
                     int[] tiePoints = score.getPoints(teamOne, i, gamesOne + gamesTwo - 1);

@@ -1,5 +1,6 @@
 package uk.co.darkerwaters.scorepal.activities;
 
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -7,6 +8,7 @@ import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import uk.co.darkerwaters.scorepal.Application;
 
@@ -50,5 +52,13 @@ public class BaseActivity extends AppCompatActivity {
 
     protected void setIconTint(Button button, int tint) {
         BaseActivity.SetIconTint(button, tint);
+    }
+
+    public static void SetTextViewBold(TextView textView) {
+        textView.setTypeface(textView.getTypeface(), Typeface.BOLD);
+    }
+
+    public static void SetTextViewNoBold(TextView textView) {
+        textView.setTypeface(textView.getTypeface(), Typeface.NORMAL);
     }
 }

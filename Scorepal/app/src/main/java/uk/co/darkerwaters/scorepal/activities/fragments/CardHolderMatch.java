@@ -8,7 +8,9 @@ import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -20,10 +22,8 @@ import uk.co.darkerwaters.scorepal.Application;
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.activities.TennisPlayActivity;
 import uk.co.darkerwaters.scorepal.application.Log;
-import uk.co.darkerwaters.scorepal.application.Settings;
 import uk.co.darkerwaters.scorepal.score.Match;
 import uk.co.darkerwaters.scorepal.score.MatchPersistanceManager;
-import uk.co.darkerwaters.scorepal.score.ScoreFactory;
 
 public class CardHolderMatch extends RecyclerView.ViewHolder {
 
@@ -38,6 +38,10 @@ public class CardHolderMatch extends RecyclerView.ViewHolder {
     private final View dataLayout;
     private Application application;
 
+    private ViewGroup scoreSummaryContainer;
+
+    private LayoutScoreSummary summaryLayout = null;
+
     public CardHolderMatch(@NonNull View itemView) {
         super(itemView);
         this.parent = itemView;
@@ -48,6 +52,8 @@ public class CardHolderMatch extends RecyclerView.ViewHolder {
         this.itemImage = this.parent.findViewById(R.id.item_image);
         this.itemTitle = this.parent.findViewById(R.id.item_title);
         this.itemDetail = this.parent.findViewById(R.id.item_detail);
+
+        this.scoreSummaryContainer = this.parent.findViewById(R.id.scoreSummaryLayout);
 
         // show the progress
         this.progressLayout.setVisibility(View.VISIBLE);
@@ -86,6 +92,33 @@ public class CardHolderMatch extends RecyclerView.ViewHolder {
         // we are no longer loading, hide the progress
         this.progressLayout.setVisibility(View.GONE);
         this.dataLayout.setVisibility(View.VISIBLE);
+
+        // so when we are here we need to get the layout for the match type
+        // and inflate it to show the summary of the score
+        switch (match.getScoreMode()) {
+            case K_TENNIS:
+                // inflate the tennis score summary and show the data
+                this.summaryLayout = new LayoutTennisSummary();
+                break;
+            case K_BADMINTON:
+                //TODO the other types of score
+                break;
+            case K_POINTS:
+                //TODO the other types of score
+                break;
+            case K_UNKNOWN:
+                break;
+        }
+
+        if (null != this.summaryLayout) {
+            // create this layout
+            LayoutInflater inflater = LayoutInflater.from(this.parent.getContext());
+            View layout = this.summaryLayout.createView(inflater, this.scoreSummaryContainer);
+            // add this to the container
+            this.scoreSummaryContainer.addView(layout);
+            // now we are added, we need to initialise the data here too
+            this.summaryLayout.setDataFromMatch(match);
+        }
 
         // now we can get all the data we need and show it on the card
         if (false == isValid) {
