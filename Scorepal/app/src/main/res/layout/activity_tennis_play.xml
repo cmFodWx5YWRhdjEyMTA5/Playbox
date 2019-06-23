@@ -31,7 +31,8 @@
                 android:backgroundTint="@color/colorPrimary"
                 android:drawableLeft="@drawable/ic_tennis_serve"
                 android:drawableRight="@drawable/ic_tennis_receive"
-                android:text="@string/btn_change_starter" />
+                android:text="@string/btn_change_starter"
+                android:textColor="@color/primaryTextColor" />
 
             <Button
                 android:id="@+id/swapTeamServerButton"
@@ -42,7 +43,8 @@
                 android:backgroundTint="@color/colorPrimary"
                 android:drawableLeft="@drawable/ic_tennis_serve"
                 android:drawableRight="@drawable/ic_tennis_receive"
-                android:text="@string/btn_change_server" />
+                android:text="@string/btn_change_server"
+                android:textColor="@color/primaryTextColor" />
         </LinearLayout>
 
         <Button
@@ -55,7 +57,8 @@
             android:backgroundTint="@color/colorPrimary"
             android:drawableLeft="@drawable/ic_baseline_keyboard_arrow_left_24px"
             android:drawableRight="@drawable/ic_baseline_keyboard_arrow_right_24px"
-            android:text="@string/btn_change_ends" />
+            android:text="@string/btn_change_ends"
+            android:textColor="@color/primaryTextColor" />
     </LinearLayout>
 
     <FrameLayout
@@ -128,8 +131,22 @@
         android:backgroundTint="@color/colorPrimary"
         android:drawableLeft="@drawable/ic_baseline_undo_24px"
         android:text="@string/btn_undo"
+        android:textColor="@color/primaryTextColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/endMatchButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/colorPrimary"
+        android:drawableLeft="@drawable/ic_baseline_stop_24px"
+        android:text="@string/btn_endMatch"
+        android:textColor="@color/primaryTextColor"
+        app:layout_constraintStart_toStartOf="parent"
+        custom:layout_constraintBottom_toBottomOf="parent" />
 
 
 </android.support.constraint.ConstraintLayout>

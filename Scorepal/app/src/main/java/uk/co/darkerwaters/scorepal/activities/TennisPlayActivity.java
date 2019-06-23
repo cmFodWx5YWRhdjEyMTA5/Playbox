@@ -1,5 +1,7 @@
 package uk.co.darkerwaters.scorepal.activities;
 
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -72,6 +74,7 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
     private Button swapTeamServerButton;
     private Button swapEndsButton;
     private Button undoButton;
+    private Button stopButton;
 
     private Match activeMatch;
 
@@ -79,6 +82,8 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
 
     private Date playStarted;
     private Date playEnded;
+
+    private SpeakService speakService = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,13 +106,28 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
         this.swapEndsButton = findViewById(R.id.swapEndsButton);
         this.swapTeamStarterButton = findViewById(R.id.swapTeamStarterButton);
         this.swapTeamServerButton = findViewById(R.id.swapTeamServerButton);
-
         this.undoButton = findViewById(R.id.undoButton);
+        this.stopButton = findViewById(R.id.endMatchButton);
+
+        // set the button colours correctly
+        BaseActivity.SetIconTint(this.swapEndsButton, Color.WHITE);
+        BaseActivity.SetIconTint(this.swapTeamStarterButton, Color.WHITE);
+        BaseActivity.SetIconTint(this.swapTeamServerButton, Color.WHITE);
+        BaseActivity.SetIconTint(this.undoButton, Color.WHITE);
+        BaseActivity.SetIconTint(this.stopButton, Color.WHITE);
+
         this.undoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // just undo the last point
                 undoLastPoint();
+            }
+        });
+        this.stopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // end the match
+                endMatch();
             }
         });
 
@@ -176,6 +196,15 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
 
     private void undoLastPoint() {
         this.activeMatch.undoLastPoint();
+    }
+
+    private void endMatch() {
+        // go back to the main activity and clear the activity history so back
+        // doesn't come back here
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        // start this main activity now then
+        startActivity(intent);
     }
 
     @Override
@@ -317,8 +346,8 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
                 }
             }
             if (false == message.isEmpty()) {
-                // speak what we have made
-                SpeakService.SpeakMessage(this, message, true);
+                // speak what we have made, overriding everything before it
+                this.speakService.speakMessage(message, true);
             }
         }
     }
@@ -632,10 +661,10 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
                 title.setTextColor(scene.teamColor);
                 // set the colours of the buttons also
                 ImageButton rxButton = scene.root.findViewById(R.id.team_receiverButton);
-                DrawableCompat.setTint(rxButton.getDrawable(), scene.teamColor);
+                BaseActivity.SetIconTint(rxButton, scene.teamColor);
                 // colour the server too
                 ImageButton txButton = scene.root.findViewById(R.id.team_serverButton);
-                DrawableCompat.setTint(txButton.getDrawable(), scene.teamColor);
+                BaseActivity.SetIconTint(txButton, scene.teamColor);
                 // and show / hide the rx button accordingly
                 if (activeMatch.getTeamServing() == scene.team) {
                     // this team is currently serving
@@ -767,9 +796,22 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
     protected void onPause() {
         super.onPause();
 
+        // stop speaking
+        this.speakService.close();
+        this.speakService = null;
+
+        // store these results for sure
+        storeMatchResults(true);
+    }
+
+    private void storeMatchResults(boolean storeIfPersisted) {
         // store the results of the match
         MatchPersistanceManager persistanceManager = new MatchPersistanceManager(this);
-        persistanceManager.saveMatchToFile(this.activeMatch, this.activeMatch.getMatchId());
+        if (storeIfPersisted
+                || false == persistanceManager.isMatchDataPersisted(this.activeMatch)) {
+            // we are forcing a save, or the data is different, so save
+            persistanceManager.saveMatchToFile(this.activeMatch, this.activeMatch.getMatchId());
+        }
     }
 
     @Override
@@ -780,6 +822,10 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
             // start the new match by setting the start date
             this.activeMatch.setMatchPlayedDate(new Date());
         }
+        // create the thing for speaking
+        this.speakService = new SpeakService(this);
+
+        // and start up the screen to set everything up
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -828,5 +874,8 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
         if (null != this.timeFragment) {
             this.timeFragment.setMatchTime(minutesPlayed);
         }
+        // this is a little tick we can rely on - why don't we store the match results
+        // in case there is a little crash...
+        storeMatchResults(false);
     }
 }

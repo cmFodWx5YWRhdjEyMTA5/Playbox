@@ -10,18 +10,15 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.UUID;
 
-public class SpeakService extends Service implements TextToSpeech.OnInitListener {
+public class SpeakService implements TextToSpeech.OnInitListener {
 
-    private TextToSpeech ttsEngine;
-    private volatile int activeMessages = 0;
-    private String utteranceId;
+    private final Context context;
+    private final TextToSpeech ttsEngine;
+    private volatile int activeMessages = -1;
 
-    private static class InstanceRunner {
-        SpeakService RunningInstance = null;
-        boolean isServiceRequested = false;
-        final ArrayList<ToSpeak> toSpeakList = new ArrayList<ToSpeak>();
-    }
+    final ArrayList<ToSpeak> toSpeakList = new ArrayList<ToSpeak>();
 
     private static class ToSpeak {
         final String message;
@@ -34,42 +31,11 @@ public class SpeakService extends Service implements TextToSpeech.OnInitListener
         }
     }
 
-    private static final InstanceRunner Instance = new InstanceRunner();
+    public SpeakService(Context context) {
+        this.context = context;
 
-    public static void SpeakMessage(Context context, String message, boolean isFlushOld) {
-        synchronized (Instance) {
-            // add the thing to speak to the list
-            Instance.toSpeakList.add(new ToSpeak(message, isFlushOld, false));
-            // if there is a service, we need to add to the stack of what it is saying at this moment
-            if (null == Instance.RunningInstance && false == Instance.isServiceRequested) {
-                // there is no instance and one has not been requested, start one here
-                Intent intent = new Intent(context.getApplicationContext(), SpeakService.class);
-                intent.putExtra("message", message);
-                // start the service that will speak this out
-                context.getApplicationContext().startService(intent);
-            }
-        }
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        /*
-        this.message = intent.getStringExtra("message");
-        */
-        // we are started, remember this with our instance
-        synchronized (Instance) {
-            Instance.RunningInstance = this;
-            Instance.isServiceRequested = false;
-        }
-        // and create with the base
-        return super.onStartCommand(intent, flags, startId);
-    }
-
-    @Override
-    public void onCreate() {
         // initialise the engine
-        this.ttsEngine = new TextToSpeech(this, this);
-        this.utteranceId = Integer.toString(this.hashCode());
+        this.ttsEngine = new TextToSpeech(this.context, this);
 
         this.ttsEngine.setOnUtteranceProgressListener(new UtteranceProgressListener() {
             @Override
@@ -79,33 +45,36 @@ public class SpeakService extends Service implements TextToSpeech.OnInitListener
             }
             @Override
             public void onDone(String s) {
-                // when done, close this service down
                 --activeMessages;
-                endSpeaking();
+                // now we can flush any new messages out
+                flushMessages();
+
             }
             @Override
             public void onError(String s) {
-                // if errored, close this service down
                 --activeMessages;
-                endSpeaking();
+                // now we can flush any new messages out
+                flushMessages();
             }
         });
     }
 
-    private void endSpeaking() {
-        if (this.activeMessages <= 0) {
-            synchronized (Instance) {
-                if (false == Instance.toSpeakList.isEmpty()) {
-                    flushMessages();
-                }
-                else {
-                    // done
-                    Instance.RunningInstance = null;
-                    // and stop the service
-                    stopSelf();
-                }
+    public void speakMessage(String message, boolean isFlushOld) {
+        synchronized (this.toSpeakList) {
+            if (isFlushOld) {
+                // remove anything proceeding this
+                this.toSpeakList.clear();
             }
+            // add the new one to speak to the end
+            this.toSpeakList.add(new ToSpeak(message, isFlushOld, false));
         }
+        // speak all in the list
+        flushMessages();
+    }
+
+    public void close() {
+        this.ttsEngine.stop();
+        this.ttsEngine.shutdown();
     }
 
     @Override
@@ -115,32 +84,32 @@ public class SpeakService extends Service implements TextToSpeech.OnInitListener
             if (result == TextToSpeech.LANG_MISSING_DATA ||
                     result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 // show the user that this doesn't work
-                Toast.makeText(this, "TTS language is not supported", Toast.LENGTH_LONG).show();
+                Toast.makeText(this.context, "TTS language is not supported", Toast.LENGTH_LONG).show();
             }
+            // else we are successfully initialised, start working
+            this.activeMessages = 0;
         }
         flushMessages();
     }
 
     private void flushMessages() {
-        boolean isKeepLooking = true;
         ToSpeak toSpeak;
-        while (isKeepLooking) {
-            synchronized (Instance) {
-                if (false == Instance.toSpeakList.isEmpty()) {
+        // while we are without error and initialised, flush the next message from the queue
+        while (this.activeMessages >= 0) {
+            synchronized (this.toSpeakList) {
+                if (false == this.toSpeakList.isEmpty()) {
                     // get the thing to speak
-                    toSpeak = Instance.toSpeakList.remove(0);
+                    toSpeak = this.toSpeakList.remove(0);
                 } else {
-                    // we are done and will quit, set the pointer to null so another will try again
-                    Instance.RunningInstance = null;
-                    toSpeak = null;
-                    isKeepLooking = false;
+                    // we are done quit looking
+                    break;
                 }
             }
             if (null != toSpeak) {
                 // speak this
                 this.ttsEngine.speak(toSpeak.message,
                         toSpeak.isFlush ? TextToSpeech.QUEUE_FLUSH : TextToSpeech.QUEUE_ADD,
-                        null, this.utteranceId);
+                        null, UUID.randomUUID().toString());
                 if (toSpeak.isMessagePart) {
                     // we are just a part of a message, break from the loop
                     // we we speak this part and come back here as we ended
@@ -148,19 +117,5 @@ public class SpeakService extends Service implements TextToSpeech.OnInitListener
                 }
             }
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        if (this.ttsEngine != null) {
-            this.ttsEngine.stop();
-            this.ttsEngine.shutdown();
-        }
-        super.onDestroy();
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
     }
 }

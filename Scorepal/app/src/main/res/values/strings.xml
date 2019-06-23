@@ -104,4 +104,6 @@
     <string name="at">at</string>
     <string name="default_final_set_target">6 - 6</string>
     <string name="deciding_point">Deciding Point...</string>
+    <string name="btn_endMatch">End Match</string>
+    <string name="loading_match_details">Loading Match Details...</string>
 </resources>

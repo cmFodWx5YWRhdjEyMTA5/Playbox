@@ -13,6 +13,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import uk.co.darkerwaters.scorepal.Application;
 import uk.co.darkerwaters.scorepal.R;
@@ -27,6 +29,7 @@ public class MainActivity extends ListedActivity {
     private NavigationDrawerHandler navigationActor = null;
 
     private FloatingActionButton fabPlay;
+    private GameRecyclerAdapter listAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +44,8 @@ public class MainActivity extends ListedActivity {
         this.navigationActor = new NavigationDrawerHandler(this, drawer, toolbar);
 
         this.fabPlay = findViewById(R.id.fab_play);
-        File[] matchList = new MatchPersistanceManager(this).listMatches();
-        setupRecyclerView(R.id.recyclerView, new GameRecyclerAdapter(application, matchList));
+        this.listAdapter = new GameRecyclerAdapter(application);
+        setupRecyclerView(R.id.recyclerView, this.listAdapter);
 
         this.fabPlay.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,6 +66,25 @@ public class MainActivity extends ListedActivity {
                 }
             }, 250);
         }
+    }
+
+    private File[] getMatchList() {
+        File[] matchList = new MatchPersistanceManager(this).listMatches();
+        Arrays.sort(matchList, new Comparator<File>() {
+            @Override
+            public int compare(File file1, File file2) {
+                // sort in reverse filename order to put the latest at the top
+                return -(file1.getName().compareTo(file2.getName()));
+            }
+        });
+        return matchList;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // setup the list to show each time we are shown in case another one appeared
+        this.listAdapter.setMatches(getMatchList());
     }
 
     @Override

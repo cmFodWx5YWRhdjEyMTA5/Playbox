@@ -57,6 +57,8 @@ public class Match<T extends Score> implements Score.ScoreListener {
 
     private ArrayList<PointChange> pointLevelsChanged;
 
+    private boolean isDataPersisted = false;
+
     public enum MatchChange {
         RESET, INCREMENT, DECREMENT, STARTED, DOUBLES_SINGLES, GOAL, PLAYERS, ENDS, SERVER, DECIDING_POINT;
     }
@@ -107,6 +109,8 @@ public class Match<T extends Score> implements Score.ScoreListener {
                 this.startingTeam = team;
             }
         }
+        // this data is not saved yet
+        this.isDataPersisted = false;
     }
 
     public String getMatchSummary(Context context) {
@@ -121,6 +125,8 @@ public class Match<T extends Score> implements Score.ScoreListener {
         this.pointHistory.clear();
         // and the time played
         this.matchMinutesPlayed = 0;
+        // this data is not saved yet
+        this.isDataPersisted = false;
     }
 
     public boolean setDataToJson(JSONObject obj) {
@@ -357,6 +363,8 @@ public class Match<T extends Score> implements Score.ScoreListener {
                     listener.onMatchChanged(type);
                 }
             }
+            // this data is not saved yet
+            this.isDataPersisted = false;
         }
     }
 
@@ -370,6 +378,8 @@ public class Match<T extends Score> implements Score.ScoreListener {
             }
             // clear the list of levels that changed
             this.pointLevelsChanged = null;
+            // this data is not saved yet
+            this.isDataPersisted = false;
         }
     }
 
@@ -383,6 +393,8 @@ public class Match<T extends Score> implements Score.ScoreListener {
             // this sets the starting server to the server from that team
             // so change the server on the score to be the one from the starting team
             this.score.changeServer(this.startingTeam.getServingPlayer());
+            // this data is not saved yet
+            this.isDataPersisted = false;
         }
     }
 
@@ -417,6 +429,8 @@ public class Match<T extends Score> implements Score.ScoreListener {
             }
             // and refresh the ends on the score
             this.score.refreshTeamEnds();
+            // this data is not saved yet
+            this.isDataPersisted = false;
         }
     }
 
@@ -441,16 +455,23 @@ public class Match<T extends Score> implements Score.ScoreListener {
                 // the starting server for the serving team has changed, this is the new server
                 this.score.changeServer(startingServer);
             }
+            // this data is not saved yet
+            this.isDataPersisted = false;
         }
     }
 
     public void addMatchMinutesPlayed(int minutesPlayed) {
         this.matchMinutesPlayed += minutesPlayed;
+        // this data is not saved yet
+        this.isDataPersisted = false;
     }
 
     public int getMatchMinutesPlayed() {
         return this.matchMinutesPlayed;
     }
+
+    boolean isDataPersisted() { return this.isDataPersisted; }
+    void setDataPersisted() { this.isDataPersisted = true; }
 
     @Override
     public void onScoreChanged(Team team, int level, int newPoint) {
@@ -459,6 +480,8 @@ public class Match<T extends Score> implements Score.ScoreListener {
         if (null != this.pointLevelsChanged) {
             this.pointLevelsChanged.add(new PointChange(team, level, newPoint));
         }
+        // this data is not saved yet
+        this.isDataPersisted = false;
     }
 
     @Override
@@ -484,6 +507,8 @@ public class Match<T extends Score> implements Score.ScoreListener {
                 informListeners(MatchChange.SERVER);
                 break;
         }
+        // this data is not saved yet
+        this.isDataPersisted = false;
     }
 
     public boolean isReadOnly() {

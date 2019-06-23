@@ -77,6 +77,10 @@ public class MatchPersistanceManager {
         return isSuccess;
     }
 
+    public boolean isMatchDataPersisted(Match match) {
+        return match.isDataPersisted();
+    }
+
     public boolean saveMatchToFile(Match match, String matchId) {
         boolean isSuccess = false;
         this.match = match;
@@ -88,6 +92,8 @@ public class MatchPersistanceManager {
             obj.put("score_mode", this.match.getScoreMode().toString());
             // and the data from the match
             isSuccess = this.match.setDataToJson(obj);
+            // inform the match the data is saved
+            this.match.setDataPersisted();
             // close the file
             output.write(obj.toString());
             output.close();

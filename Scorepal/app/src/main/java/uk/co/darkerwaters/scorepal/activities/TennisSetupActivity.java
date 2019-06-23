@@ -2,10 +2,14 @@ package uk.co.darkerwaters.scorepal.activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -113,6 +117,8 @@ public class TennisSetupActivity extends FragmentTeamActivity {
         this.matchSummary = findViewById(R.id.match_summary_text);
         this.resetButton = findViewById(R.id.match_reset_button);
 
+        // set the icon button to be white
+        BaseActivity.SetIconTint(this.resetButton, Color.WHITE);
         // set the click handler for resetting the match
         this.resetButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -173,7 +179,12 @@ public class TennisSetupActivity extends FragmentTeamActivity {
                 TennisScore score = TennisSetupActivity.this.currentMatch.getScore();
                 if (b) {
                     // turn on
-                    score.setFinalSetTieTarget(FinalSetTarget.K_DEFAULT.games);
+                    int target = score.getFinalSetTieTarget();
+                    if (target < 0) {
+                        // this isn't ok - we want it on - use the default
+                        target = FinalSetTarget.K_DEFAULT.games;
+                    }
+                    score.setFinalSetTieTarget(target);
                 }
                 else {
                     // turn off

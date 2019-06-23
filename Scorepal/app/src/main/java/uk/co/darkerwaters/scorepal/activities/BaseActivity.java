@@ -1,8 +1,12 @@
 package uk.co.darkerwaters.scorepal.activities;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Button;
+import android.widget.ImageButton;
 
 import uk.co.darkerwaters.scorepal.Application;
 
@@ -26,5 +30,25 @@ public class BaseActivity extends AppCompatActivity {
         this.application.activityDestroyed(this);
         // and destroy us
         super.onDestroy();
+    }
+
+    public static void SetIconTint(ImageButton button, int tint) {
+        DrawableCompat.setTint(button.getDrawable(), tint);
+    }
+
+    public static void SetIconTint(Button button, int tint) {
+        for (Drawable icon : button.getCompoundDrawables()) {
+            if (null != icon) {
+                DrawableCompat.setTint(icon, tint);
+            }
+        }
+    }
+
+    protected void setIconTint(ImageButton button, int tint) {
+        BaseActivity.SetIconTint(button, tint);
+    }
+
+    protected void setIconTint(Button button, int tint) {
+        BaseActivity.SetIconTint(button, tint);
     }
 }
