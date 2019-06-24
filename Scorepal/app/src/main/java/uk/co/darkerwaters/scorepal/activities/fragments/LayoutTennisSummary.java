@@ -119,8 +119,13 @@ public class LayoutTennisSummary extends LayoutScoreSummary {
         Team teamOne = match.getTeamOne();
         Team teamTwo = match.getTeamTwo();
 
+        // set the titles
         this.teamOneTitle.setText(teamOne.getTeamName());
         this.teamTwoTitle.setText(teamTwo.getTeamName());
+
+        // scroll these names
+        this.teamOneTitle.setSelected(true);
+        this.teamTwoTitle.setSelected(true);
 
         // set the points
         Point teamOnePoint = score.getDisplayPoint(teamOne);
@@ -144,6 +149,9 @@ public class LayoutTennisSummary extends LayoutScoreSummary {
         if (score.isMatchOver()) {
             // match is over, get rid of the points boxes
             setColumnVisibility(0, View.INVISIBLE);
+            // and change the title from points to sets
+            this.textViews[K_TITLES][0].setText(R.string.sets);
+            this.textViews[K_TITLES][0].setVisibility(View.VISIBLE);
         }
 
         // and all the previous sets
@@ -155,7 +163,8 @@ public class LayoutTennisSummary extends LayoutScoreSummary {
             int playerOneGames = score.getGames(teamOne, i);
             int playerTwoGames = score.getGames(teamTwo, i);
             if (i  > setsPlayed || (playerOneGames == 0 && playerTwoGames == 0)) {
-                // this set wasn't played, need to hide this column
+                // this set wasn't played, need to hide this column (don't delete them all
+                // as this makes things massive!)
                 setColumnVisibility(colIndex, View.INVISIBLE);
             }
             else {

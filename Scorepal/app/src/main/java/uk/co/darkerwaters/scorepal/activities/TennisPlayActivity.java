@@ -211,8 +211,6 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
     protected void onDestroy() {
         // remove us as a listener
         this.activeMatch.removeListener(this);
-        // and add the time played in this session to the active match
-        this.activeMatch.addMatchMinutesPlayed(getMinutesPlayedInActivity());
         // and kill the base
         super.onDestroy();
     }
@@ -800,6 +798,15 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
         this.speakService.close();
         this.speakService = null;
 
+        // and add the time played in this session to the active match
+        int activityMinutes = getMinutesPlayedInActivity();
+        if (activityMinutes > 0) {
+            this.activeMatch.addMatchMinutesPlayed(activityMinutes);
+        }
+        // now we added these minutes, we need to not add them again, reset the
+        // play started time to be now
+        this.playStarted = Calendar.getInstance().getTime();
+
         // store these results for sure
         storeMatchResults(true);
     }
@@ -870,9 +877,12 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
     @Override
     public void onTimeChanged() {
         // need to update the match time to include this session
-        int minutesPlayed = this.activeMatch.getMatchMinutesPlayed() + getMinutesPlayedInActivity();
-        if (null != this.timeFragment) {
-            this.timeFragment.setMatchTime(minutesPlayed);
+        int activityMinutes = getMinutesPlayedInActivity();
+        if (activityMinutes > 0) {
+            int minutesPlayed = activityMinutes + this.activeMatch.getMatchMinutesPlayed();
+            if (null != this.timeFragment) {
+                this.timeFragment.setMatchTime(minutesPlayed);
+            }
         }
         // this is a little tick we can rely on - why don't we store the match results
         // in case there is a little crash...

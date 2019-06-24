@@ -22,19 +22,11 @@ import uk.co.darkerwaters.scorepal.players.Team;
 public class TennisMatch extends Match<TennisScore> {
 
     public TennisMatch(Context context) {
-        this(context, TennisSets.FIVE);
+        super(context, Sport.TENNIS);
     }
 
-    public TennisMatch(Context context, TennisSets setsToPlay) {
-        super(context, CreateScoreFactory(setsToPlay));
-    }
-
-    private static ScoreFactory<TennisScore> CreateScoreFactory(final TennisSets setsToPlay) {
-        return new ScoreFactory<TennisScore>() {
-            @Override
-            public TennisScore createScore(Team[] teams) {
-                return new TennisScore(teams, setsToPlay);
-            }
-        };
+    @Override
+    protected TennisScore createScore(Team[] teams) {
+        return new TennisScore(teams, TennisSets.FIVE);
     }
 }

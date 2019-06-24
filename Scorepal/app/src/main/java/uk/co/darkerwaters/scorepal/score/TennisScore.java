@@ -103,7 +103,7 @@ public class TennisScore extends Score {
     private final List<Integer> tieBreakSets;
 
     TennisScore(Team[] teams, TennisSets setsToPlay) {
-        super(teams, K_LEVELS, ScoreFactory.ScoreMode.K_TENNIS);
+        super(teams, K_LEVELS, Sport.TENNIS);
         this.finalSetTieTarget = -1;
         this.isDecidingPointOnDeuce = false;
         this.tieBreakSets = new ArrayList<Integer>();

@@ -58,11 +58,11 @@ public class MatchPersistanceManager {
             // now we have ths string, we can create JSON from it
             JSONObject obj = new JSONObject(json.toString());
             // somewhere in this file is the type of game that was played
-            ScoreFactory.ScoreMode mode = ScoreFactory.ScoreMode.from(obj.getString("score_mode"));
+            Sport sport = Sport.from(obj.getString("score_mode"), context);
             // create the match from this
-            this.match = ScoreFactory.CreateMatchFromMode(context, mode);
+            this.match = sport.createMatch(context);
             // load in the data
-            this.match.setDataFromJson(obj);
+            this.match.setDataFromJson(obj, context);
             // success if here
             isSuccess = true;
         } catch (FileNotFoundException e) {
@@ -89,7 +89,7 @@ public class MatchPersistanceManager {
             Writer output = new BufferedWriter(new FileWriter(this.file));
             JSONObject obj = new JSONObject();
             // we have to put the mode in to create the correct match each time
-            obj.put("score_mode", this.match.getScoreMode().toString());
+            obj.put("score_mode", this.match.getSport().getTitle(context));
             // and the data from the match
             isSuccess = this.match.setDataToJson(obj);
             // inform the match the data is saved

@@ -7,6 +7,27 @@
     android:layout_height="wrap_content"
     android:paddingBottom="8dp">
 
+    <TextView
+        android:id="@+id/textViewTeamOne"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
+        android:ellipsize="marquee"
+        android:freezesText="true"
+        android:gravity="center_horizontal"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:maxWidth="80dp"
+        android:paddingLeft="5dip"
+        android:paddingRight="5dip"
+        android:scrollHorizontally="true"
+        android:singleLine="true"
+        android:text="@string/team_one_title"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintBottom_toBottomOf="@+id/teamOne_Points"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/teamOne_Points" />
+
     <uk.co.darkerwaters.scorepal.activities.fragments.ResizeTextView
         android:id="@+id/teamOne_Points"
         android:layout_width="0dp"
@@ -151,6 +172,27 @@
         app:layout_constraintStart_toStartOf="@+id/teamOne_setFive"
         app:layout_constraintTop_toBottomOf="@+id/teamOne_setFive" />
 
+    <TextView
+        android:id="@+id/textViewTeamTwo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
+        android:ellipsize="marquee"
+        android:freezesText="true"
+        android:gravity="center_horizontal"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:maxWidth="80dp"
+        android:paddingLeft="5dip"
+        android:paddingRight="5dip"
+        android:scrollHorizontally="true"
+        android:singleLine="true"
+        android:text="@string/team_two_title"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintBottom_toBottomOf="@+id/teamTwo_Points"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/teamTwo_Points" />
+
     <uk.co.darkerwaters.scorepal.activities.fragments.ResizeTextView
         android:id="@+id/teamTwo_Points"
         android:layout_width="0dp"
@@ -235,29 +277,6 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/teamTwo_setFour"
         app:layout_constraintTop_toBottomOf="@+id/tieBreak_setFive" />
-
-    <TextView
-        android:id="@+id/textViewTeamOne"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginBottom="8dp"
-        android:text="TextView"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        app:layout_constraintBottom_toBottomOf="@+id/teamOne_Points"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/teamOne_Points" />
-
-    <TextView
-        android:id="@+id/textViewTeamTwo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="TextView"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        app:layout_constraintBottom_toBottomOf="@+id/teamTwo_Points"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/teamTwo_Points" />
 
     <TextView
         android:id="@+id/textViewPointsTitle"

@@ -70,7 +70,7 @@ public class Match<T extends Score> implements Score.ScoreListener {
 
     private final List<MatchListener> listeners;
 
-    public Match(Context context, ScoreFactory<T> scoreFactory) {
+    public Match(Context context, Sport sport) {
         // setup the teams, will replace players in the structures as required
         this.teams = new Team[] {
                 new Team(new Player[] {
@@ -89,7 +89,7 @@ public class Match<T extends Score> implements Score.ScoreListener {
         // set the description
         this.description = "A match played";
         // create the score here
-        this.score = scoreFactory.createScore(teams);
+        this.score = createScore(teams);
         // listen to this score to pass on the information to our listeners
         this.score.addListener(this);
         // we will also store the entire history played
@@ -118,7 +118,12 @@ public class Match<T extends Score> implements Score.ScoreListener {
         return this.score.getScoreSummary(context);
     }
 
+    public boolean isMatchOver() {
+        return this.score.isMatchOver();
+    }
+
     public void resetMatch() {
+
         // reset the score
         resetScoreToStartingPosition();
         // and clear the history
@@ -183,7 +188,7 @@ public class Match<T extends Score> implements Score.ScoreListener {
         return isSuccess;
     }
 
-    public boolean setDataFromJson(JSONObject obj) {
+    public boolean setDataFromJson(JSONObject obj, Context context) {
         boolean isSuccess = false;
 
         try {
@@ -192,7 +197,7 @@ public class Match<T extends Score> implements Score.ScoreListener {
             this.isDoubles = obj.getBoolean("doubles");
             this.matchPlayedDate = obj.getString("played_date");
             this.matchMinutesPlayed = obj.getInt("match_minutes");
-            this.sport = Sport.fromString(obj.getString("sport"));
+            this.sport = Sport.from(obj.getString("sport"), context);
 
             // do the team names
             setTeamOneName(obj.getString("team_one_name"));
@@ -635,8 +640,12 @@ public class Match<T extends Score> implements Score.ScoreListener {
         return "{" + new ScoreData(this) + "}";
     }
 
-    public ScoreFactory.ScoreMode getScoreMode() {
-        return this.score.getScoreMode();
+    public Sport getSport() {
+        return this.score.getSport();
+    }
+
+    protected T createScore(Team[] teams) {
+        return null;
     }
 
     public Player getCurrentServer() {

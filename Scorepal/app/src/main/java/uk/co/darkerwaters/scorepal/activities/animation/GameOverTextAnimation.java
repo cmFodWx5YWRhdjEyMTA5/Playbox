@@ -19,7 +19,7 @@ public class GameOverTextAnimation extends TextViewAnimation {
     public GameOverTextAnimation(Activity context, TextView view) {
         super(context, view, -1);
         // set the text content on the view
-        setAnimatedText(context.getString(R.string.game_over));
+        setAnimatedText(context.getString(R.string.match_over));
 
         // no active animation yet
         this.activeAnimation = null;

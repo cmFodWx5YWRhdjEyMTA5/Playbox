@@ -39,10 +39,10 @@ public class ScoreTest {
         assertEquals("null teams crashes", true, isThrown(new Runnable() {
             @Override
             public void run() {
-                new Score(null, 1, ScoreFactory.ScoreMode.K_UNKNOWN);
+                new Score(null, 1, Sport.DEFAULT);
             }
         }));
-        Score score = new Score(this.teams, 1, ScoreFactory.ScoreMode.K_UNKNOWN);
+        Score score = new Score(this.teams, 1, Sport.DEFAULT);
         assertEquals("incorrect team", 0, score.getPoint(0, new Team(new Player[0], CourtPosition.GetDefault())));
 
         assertEquals("Score never over", false, score.isMatchOver());
@@ -50,8 +50,8 @@ public class ScoreTest {
 
     @Test
     public void scoreString() {
-        Score score = new Score(this.teams, 1, ScoreFactory.ScoreMode.K_UNKNOWN);
-        assertEquals("mode", ScoreFactory.ScoreMode.K_UNKNOWN, score.getScoreMode());
+        Score score = new Score(this.teams, 1, Sport.DEFAULT);
+        assertEquals("mode", Sport.DEFAULT, score.getSport());
         for (int i = 0; i < 100; ++i) {
             score.setPoint(0, this.teams[0], i);
             score.setPoint(0, this.teams[1], 100 - i);
@@ -62,7 +62,7 @@ public class ScoreTest {
 
     @Test
     public void server() {
-        Score score = new Score(this.teams, 1, ScoreFactory.ScoreMode.K_UNKNOWN);
+        Score score = new Score(this.teams, 1, Sport.DEFAULT);
         assertEquals("levels", 1, score.getLevels());
         assertEquals("default server", this.teams[0].getPlayers()[0], score.getServer());
         for (Player server : score.getPlayers()) {
@@ -83,7 +83,7 @@ public class ScoreTest {
 
     @Test
     public void resettingValues() {
-        Score score = new Score(this.teams, 3, ScoreFactory.ScoreMode.K_UNKNOWN);
+        Score score = new Score(this.teams, 3, Sport.DEFAULT);
         assertEquals("levels", 3, score.getLevels());
         Random random = new Random();
         for (int i = 0; i < 100; ++i) {
@@ -106,7 +106,7 @@ public class ScoreTest {
     @Test
     public void settingValues() {
         // create a series of games
-        Score score = new Score(this.teams, 3, ScoreFactory.ScoreMode.K_UNKNOWN);
+        Score score = new Score(this.teams, 3, Sport.DEFAULT);
         for (int iSets = 0; iSets < 3; ++iSets) {
             for (int iGames = 0; iGames < 6; ++iGames) {
                 // set the points to player one wins

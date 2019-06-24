@@ -76,7 +76,7 @@ public class MatchTest {
 
     @Test
     public void playersCreation() {
-        Match match = ScoreFactory.CreateMatchFromMode(mockContext, ScoreFactory.ScoreMode.K_TENNIS);
+        Match match = Sport.TENNIS.createMatch(mockContext);
 
         assertEquals("player created ok", "playerNameOne", match.getPlayerOne().getPlayerName());
         assertEquals("player created ok", "playerNameOnePartner", match.getPlayerOnePartner().getPlayerName());
@@ -104,15 +104,15 @@ public class MatchTest {
 
     @Test
     public void dataSetting() {
-        Match match = ScoreFactory.CreateMatchFromMode(mockContext, ScoreFactory.ScoreMode.K_POINTS);
+        Match match = Sport.POINTS.createMatch(mockContext);
 
-        assertEquals("score mode", ScoreFactory.ScoreMode.K_POINTS, match.getScoreMode());
+        assertEquals("score mode", Sport.POINTS, match.getSport());
         assertNotNull("score ok", match.getScore());
     }
 
     @Test
     public void dateSetting() {
-        Match match = ScoreFactory.CreateMatchFromMode(mockContext, ScoreFactory.ScoreMode.K_POINTS);
+        Match match = Sport.POINTS.createMatch(mockContext);
 
         Date now = new Date();
         match.setMatchPlayedDate(now);
@@ -122,7 +122,7 @@ public class MatchTest {
 
     @Test
     public void matchPlaying() {
-        Match match = ScoreFactory.CreateMatchFromMode(mockContext, ScoreFactory.ScoreMode.K_POINTS);
+        Match match = Sport.POINTS.createMatch(mockContext);
 
         assertFalse("not started", match.isMatchStarted());
         match.incrementPoint(match.getTeamOne());

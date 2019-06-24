@@ -17,7 +17,7 @@ public class TennisScoreTest extends ScoreTest {
     public void settingTennisValues() {
         // create a series of games
         TennisScore score = new TennisScore(this.teams, TennisSets.FIVE);
-        assertEquals("mode", ScoreFactory.ScoreMode.K_TENNIS, score.getScoreMode());
+        assertEquals("mode", Sport.TENNIS, score.getSport());
         assertEquals("levels", 3, score.getLevels());
         for (int iSets = 0; iSets < 3; ++iSets) {
             for (int iGames = 0; iGames < 6; ++iGames) {

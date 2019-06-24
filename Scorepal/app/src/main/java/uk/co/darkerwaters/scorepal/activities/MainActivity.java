@@ -18,9 +18,10 @@ import java.util.Comparator;
 
 import uk.co.darkerwaters.scorepal.Application;
 import uk.co.darkerwaters.scorepal.R;
-import uk.co.darkerwaters.scorepal.activities.handlers.GameRecyclerAdapter;
+import uk.co.darkerwaters.scorepal.activities.handlers.MatchRecyclerAdapter;
 import uk.co.darkerwaters.scorepal.activities.handlers.NavigationDrawerHandler;
 import uk.co.darkerwaters.scorepal.score.MatchPersistanceManager;
+import uk.co.darkerwaters.scorepal.score.Sport;
 
 public class MainActivity extends ListedActivity {
 
@@ -29,7 +30,7 @@ public class MainActivity extends ListedActivity {
     private NavigationDrawerHandler navigationActor = null;
 
     private FloatingActionButton fabPlay;
-    private GameRecyclerAdapter listAdapter;
+    private MatchRecyclerAdapter listAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +45,7 @@ public class MainActivity extends ListedActivity {
         this.navigationActor = new NavigationDrawerHandler(this, drawer, toolbar);
 
         this.fabPlay = findViewById(R.id.fab_play);
-        this.listAdapter = new GameRecyclerAdapter(application);
+        this.listAdapter = new MatchRecyclerAdapter(application);
         setupRecyclerView(R.id.recyclerView, this.listAdapter);
 
         this.fabPlay.setOnClickListener(new View.OnClickListener() {
@@ -66,25 +67,20 @@ public class MainActivity extends ListedActivity {
                 }
             }, 250);
         }
+
+        // let's just quickly resolve the sport IDs to strings for nice
+        Sport.ResolveSportTitles(this);
     }
 
     private File[] getMatchList() {
-        File[] matchList = new MatchPersistanceManager(this).listMatches();
-        Arrays.sort(matchList, new Comparator<File>() {
-            @Override
-            public int compare(File file1, File file2) {
-                // sort in reverse filename order to put the latest at the top
-                return -(file1.getName().compareTo(file2.getName()));
-            }
-        });
-        return matchList;
+        return new MatchPersistanceManager(this).listMatches();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         // setup the list to show each time we are shown in case another one appeared
-        this.listAdapter.setMatches(getMatchList());
+        this.listAdapter.updateMatches(getMatchList());
     }
 
     @Override

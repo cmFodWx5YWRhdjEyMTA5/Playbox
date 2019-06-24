@@ -32,6 +32,7 @@
     <string name="no">No</string>
 
     <string name="matchWipeConfirmation">Are you sure? Current match data will be lost forever...</string>
+    <string name="matchDeleteConfirmation">Are you sure? Match data will be lost forever...</string>
 
     <string name="points">Points</string>
     <string name="sets">Sets</string>
@@ -91,7 +92,7 @@
 
     <string name="change_ends">Change Ends...</string>
     <string name="change_server">Change Server...</string>
-    <string name="game_over">Game Over</string>
+    <string name="match_over">Match Over</string>
 
     <string name="btn_change_ends">Change Ends</string>
     <string name="btn_change_server">Change Server</string>
@@ -106,4 +107,10 @@
     <string name="deciding_point">Deciding Point...</string>
     <string name="btn_endMatch">End Match</string>
     <string name="loading_match_details">Loading Match Details...</string>
+    <string name="match_description">Played for %1$s:%2$s minutes at %3$s on %4$s.</string>
+    <string name="resume_match">Resume</string>
+    <string name="btn_more">More...</string>
+    <string name="btn_delete">Delete</string>
+    <string name="btn_less">Less...</string>
+
 </resources>

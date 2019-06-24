@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 
 import uk.co.darkerwaters.scorepal.R;
-import uk.co.darkerwaters.scorepal.activities.handlers.GameRecyclerAdapter;
 import uk.co.darkerwaters.scorepal.activities.handlers.SportRecyclerAdapter;
 
 public class SelectSportActivity extends ListedActivity {

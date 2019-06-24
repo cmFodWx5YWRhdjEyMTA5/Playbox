@@ -7,19 +7,11 @@ import uk.co.darkerwaters.scorepal.players.Team;
 public class PointsMatch extends Match<PointsScore> {
 
     public PointsMatch(Context context) {
-        this(context, -1);
+        super(context, Sport.POINTS);
     }
 
-    public PointsMatch(Context context, int pointsToPlayTo) {
-        super(context, CreateScoreFactory(pointsToPlayTo));
-    }
-
-    private static ScoreFactory<PointsScore> CreateScoreFactory(final int pointsToPlayTo) {
-        return new ScoreFactory<PointsScore>() {
-            @Override
-            public PointsScore createScore(Team[] teams) {
-                return new PointsScore(teams, pointsToPlayTo);
-            }
-        };
+    @Override
+    protected PointsScore createScore(Team[] teams) {
+        return new PointsScore(teams, -1);
     }
 }

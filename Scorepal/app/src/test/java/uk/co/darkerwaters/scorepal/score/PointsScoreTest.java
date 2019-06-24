@@ -17,7 +17,7 @@ public class PointsScoreTest extends ScoreTest {
     public void playShortPointsGame() {
         // create a short game
         PointsScore score = new PointsScore(this.teams, 10);
-        assertEquals("mode", ScoreFactory.ScoreMode.K_POINTS, score.getScoreMode());
+        assertEquals("mode", Sport.POINTS, score.getSport());
         assertEquals("levels", 1, score.getLevels());
 
         assertEquals("points to play to", 10, score.getScoreGoal());

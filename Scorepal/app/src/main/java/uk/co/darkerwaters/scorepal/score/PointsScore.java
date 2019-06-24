@@ -14,7 +14,7 @@ class PointsScore extends Score {
     }
 
     PointsScore(Team[] teams, int pointsToPlayTo) {
-        super(teams, K_POINTS_LEVEL, ScoreFactory.ScoreMode.K_POINTS);
+        super(teams, K_POINTS_LEVEL, Sport.POINTS);
         // remember our goal here
         setScoreGoal(pointsToPlayTo);
     }

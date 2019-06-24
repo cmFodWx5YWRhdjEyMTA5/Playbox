@@ -34,7 +34,7 @@ public class ScoreData {
 
     public int currentServer = 0;
     public int currentNorth = 0;
-    public ScoreFactory.ScoreMode currentScoreMode = ScoreFactory.ScoreMode.K_POINTS;
+    public Sport currentScoreMode = Sport.POINTS;
     public int currentSetsOption = 0;
     public boolean isInTieBreak = false;
     public Integer matchWinner = null;
@@ -57,7 +57,7 @@ public class ScoreData {
     public ScoreData() {
         this.currentServer = 0;
         this.currentNorth = 0;
-        this.currentScoreMode = ScoreFactory.ScoreMode.K_POINTS;
+        this.currentScoreMode = Sport.POINTS;
         this.isInTieBreak = false;
         this.matchWinner = null;
         this.sets = new Pair<Integer, Integer>(0, 0);
@@ -97,7 +97,7 @@ public class ScoreData {
             }
         }
         // what score mode is this?
-        this.currentScoreMode = score.getScoreMode();
+        this.currentScoreMode = score.getSport();
 
         // some things for the data are score specific
         TennisScore tennisScore = null;
@@ -292,7 +292,7 @@ public class ScoreData {
         secondsStartTime = extractValueToColon(recDataString);
         secondsGameDuration = extractValueToColon(recDataString);
         // get the active mode
-        currentScoreMode = ScoreFactory.ScoreMode.from(extractValueToColon(recDataString));
+        currentScoreMode = Sport.from(extractValueToColon(recDataString));
         currentSetsOption = extractValueToColon(recDataString);
         // and the winner
         String matchWinnerData = extractChars(1, recDataString);

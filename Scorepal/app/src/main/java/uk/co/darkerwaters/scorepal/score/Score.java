@@ -23,7 +23,7 @@ class Score {
     private final Team[] teams;
     private final int[][] points;
     private final List<int[]>[] pointsHistory;
-    private final ScoreFactory.ScoreMode scoreMode;
+    private final Sport sport;
 
     private final Player[] players;
 
@@ -74,11 +74,11 @@ class Score {
     }
 
     // default access, make the users go through a scorer class to store history of the process
-    Score(Team[] teams, int pointsLevels, ScoreFactory.ScoreMode mode) {
+    Score(Team[] teams, int pointsLevels, Sport sport) {
         this.teams = teams;
         this.points = new int[pointsLevels][teams.length];
         this.pointsHistory = new List[pointsLevels];
-        this.scoreMode = mode;
+        this.sport = sport;
         this.listeners = new ArrayList<ScoreListener>();
         // also, we will use the players so much, store them in their own list
         List<Player> playerList = new ArrayList<Player>();
@@ -187,8 +187,8 @@ class Score {
         informListeners(ScoreChange.RESET);
     }
 
-    ScoreFactory.ScoreMode getScoreMode() {
-        return this.scoreMode;
+    Sport getSport() {
+        return this.sport;
     }
 
     int getLevels() {

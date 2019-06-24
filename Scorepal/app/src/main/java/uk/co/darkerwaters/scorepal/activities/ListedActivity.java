@@ -4,8 +4,6 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-import uk.co.darkerwaters.scorepal.activities.handlers.GameRecyclerAdapter;
-
 public abstract class ListedActivity extends BaseActivity {
 
     protected GridLayoutManager layoutManager;
