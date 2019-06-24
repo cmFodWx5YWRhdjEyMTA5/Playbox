@@ -645,7 +645,7 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
                 this.previousSetsFragment.setSetValue(1, i, gamesTwo, gamesTwo > gamesOne);
                 if (score.isSetTieBreak(i)) {
                     // this set is / was a tie, show the score of this in brackets
-                    int[] tiePoints = score.getPoints(teamOne, i, gamesOne + gamesTwo - 1);
+                    int[] tiePoints = score.getPoints(i, gamesOne + gamesTwo - 1);
                     this.previousSetsFragment.setTieBreakResult(i, tiePoints[0], tiePoints[1]);
                 }
             }

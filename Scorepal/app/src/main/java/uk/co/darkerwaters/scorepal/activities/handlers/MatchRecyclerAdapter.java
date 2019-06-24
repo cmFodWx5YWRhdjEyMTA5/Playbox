@@ -17,23 +17,30 @@ import java.util.List;
 import uk.co.darkerwaters.scorepal.Application;
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.activities.fragments.CardHolderMatch;
+import uk.co.darkerwaters.scorepal.score.Match;
 import uk.co.darkerwaters.scorepal.score.MatchPersistanceManager;
 
 public class MatchRecyclerAdapter extends RecyclerView.Adapter<CardHolderMatch> {
 
     private static final int K_MAXMATCHESTOSHOW = 10;
 
-    // create the cards here
-    private SortedList<File> matches;
-    private final Application application;
-
-    public MatchRecyclerAdapter(Application application) {
-        this(application, new File[0]);
+    public interface MatchFileListener {
+        Application getScorepalApplication();
+        void deleteMatchFile(Match match, File matchFile);
+        void shareMatchFile(Match match, File matchFile);
     }
 
-    public MatchRecyclerAdapter(Application application, File[] matches) {
+    // create the cards here
+    private SortedList<File> matches;
+    private final MatchFileListener listener;
+
+    public MatchRecyclerAdapter(MatchFileListener listener) {
+        this(listener, new File[0]);
+    }
+
+    public MatchRecyclerAdapter(MatchFileListener listener, File[] matches) {
         // create the list of cards to show here
-        this.application = application;
+        this.listener = listener;
         this.matches = new SortedList<File>(File.class, new SortedListAdapterCallback<File>(this) {
             @Override
             public boolean areContentsTheSame(File oldItem, File newItem) {
@@ -41,9 +48,8 @@ public class MatchRecyclerAdapter extends RecyclerView.Adapter<CardHolderMatch> 
             }
             @Override
             public boolean areItemsTheSame(File item1, File item2) {
-                return item1 == item2;
+                return item1.getName().equals(item2.getName());
             }
-
             @Override
             public int compare(File o1, File o2) {
                 // sort in reverse filename order to put the latest at the top
@@ -93,10 +99,13 @@ public class MatchRecyclerAdapter extends RecyclerView.Adapter<CardHolderMatch> 
         }
     }
 
-    public void removeAt(int position) {
-        this.matches.removeItemAt(position);
-        notifyItemRemoved(position);
-        notifyItemRangeChanged(position, this.matches.size());
+    public void remove(File matchFile) {
+        int index = this.matches.indexOf(matchFile);
+        if (index != -1) {
+            this.matches.removeItemAt(index);
+            notifyItemRemoved(index);
+            notifyItemRangeChanged(index, this.matches.size());
+        }
     }
 
     @Override
@@ -110,7 +119,7 @@ public class MatchRecyclerAdapter extends RecyclerView.Adapter<CardHolderMatch> 
     @Override
     public void onBindViewHolder(CardHolderMatch viewHolder, int i) {
         // initialise the card holder here
-        viewHolder.initialiseCard(this.application, this.matches.get(i), this);
+        viewHolder.initialiseCard(this.listener, this.matches.get(i), this);
     }
 
     @Override

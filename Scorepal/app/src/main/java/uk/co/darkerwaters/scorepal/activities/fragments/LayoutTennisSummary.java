@@ -224,7 +224,7 @@ public class LayoutTennisSummary extends LayoutScoreSummary {
 
                 if (score.isSetTieBreak(i)) {
                     // this set is / was a tie, show the score of this in brackets
-                    int[] tiePoints = score.getPoints(teamOne, i, playerOneGames + playerTwoGames - 1);
+                    int[] tiePoints = score.getPoints(i, playerOneGames + playerTwoGames - 1);
                     String tieResult = "(" + tiePoints[0] + "-" + tiePoints[1] + ")";
                     this.textViews[K_TIE][colIndex].setText(tieResult);
                 }
@@ -233,7 +233,6 @@ public class LayoutTennisSummary extends LayoutScoreSummary {
                 }
             }
         }
-
 
         this.moreLessButton.setOnClickListener(new View.OnClickListener() {
             @Override

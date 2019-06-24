@@ -286,7 +286,7 @@ public class TennisScore extends Score {
         return displayPoint;
     }
 
-    public int[] getPoints(Team team, int setIndex, int gameIndex) {
+    public int[] getPoints(int setIndex, int gameIndex) {
         // get the points in the set and games index specified
         int[] toReturn = null;
         // to get the points for this game, we need to find the index of that game

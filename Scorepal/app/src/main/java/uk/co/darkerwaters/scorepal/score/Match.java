@@ -10,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -355,6 +356,29 @@ public class Match<T extends Score> implements Score.ScoreListener {
         }
         recDataString.delete(0, charsLength);
         return extracted;
+    }
+
+    public String getDescriptionShort(Context context) {
+        // return a nice description
+        int minutesPlayed = getMatchMinutesPlayed();
+        int hoursPlayed = (int)(minutesPlayed / 60f);
+        minutesPlayed = minutesPlayed - (hoursPlayed * 60);
+        Date matchPlayedDate = getMatchPlayedDate();
+        String description = String.format(context.getString(R.string.match_description)
+                , getMatchWinner().getTeamName()
+                , isMatchOver() ? context.getString(R.string.match_beat) : context.getString(R.string.match_beating)
+                , getOtherTeam(getMatchWinner()).getTeamName()
+                , String.format("%d",hoursPlayed)
+                , String.format("%02d",minutesPlayed)
+                , DateFormat.getTimeInstance(DateFormat.SHORT).format(matchPlayedDate)
+                , DateFormat.getDateInstance(DateFormat.LONG).format(matchPlayedDate));
+        // and return this
+        return description;
+    }
+
+    public String getDescriptionLong(Context context) {
+        // return a nice description
+        return getDescriptionShort(context);
     }
 
     public boolean addListener(MatchListener listener) {

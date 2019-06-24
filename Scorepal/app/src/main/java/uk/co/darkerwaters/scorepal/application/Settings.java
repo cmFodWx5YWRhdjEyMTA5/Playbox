@@ -14,6 +14,7 @@ public class Settings {
     private final String K_ISSHOWMENURIGHT = "isShowMenuRight";
     private final String K_ISMUTED = "isMuted";
     private final String K_ISASKFORCONTACTS = "isAskForContacts";
+    private final String K_ISASKFORFILEACCESS = "isAskForFileAccess";
     private final String K_ISDOUBLES = "isDoubles";
     private final String K_SETS = "sets";
     private final String K_ISSPEAKING = "isSpeaking";
@@ -34,6 +35,7 @@ public class Settings {
     private boolean isLogging;
     private boolean isMuted;
     private boolean isAskForContacts;
+    private boolean isAskForFileAccess;
     private boolean isSpeaking;
     private boolean isSpeakingMessages;
     private int finalSetTieTarget;
@@ -57,6 +59,7 @@ public class Settings {
         this.isLogging = true;
         this.isMuted = false;
         this.isAskForContacts = true;
+        this.isAskForFileAccess = true;
         this.activeSport = K_DEFAULTACTIVESPORT;
         this.isDoubles = false;
         this.isSpeaking = true;
@@ -160,6 +163,17 @@ public class Settings {
     public boolean setIsRequestContactsPermission(boolean isAskForContacts) {
         this.isAskForContacts = isAskForContacts;
         this.editor.putBoolean(K_ISASKFORCONTACTS, this.isAskForContacts);
+        return this.editor.commit();
+    }
+
+    public boolean getIsRequestFileAccessPermission() {
+        this.isAskForFileAccess = this.preferences.getBoolean(K_ISASKFORFILEACCESS, this.isAskForFileAccess);
+        return this.isAskForFileAccess;
+    }
+
+    public boolean setIsRequestFileAccessPermission(boolean isAskForFileAccess) {
+        this.isAskForFileAccess = isAskForFileAccess;
+        this.editor.putBoolean(K_ISASKFORFILEACCESS, this.isAskForFileAccess);
         return this.editor.commit();
     }
 
