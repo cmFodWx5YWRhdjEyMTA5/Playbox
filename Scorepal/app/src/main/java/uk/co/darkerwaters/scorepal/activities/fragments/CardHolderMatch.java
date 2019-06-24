@@ -32,9 +32,12 @@ import uk.co.darkerwaters.scorepal.activities.TennisPlayActivity;
 import uk.co.darkerwaters.scorepal.activities.TennisSetupActivity;
 import uk.co.darkerwaters.scorepal.activities.handlers.MatchRecyclerAdapter;
 import uk.co.darkerwaters.scorepal.application.Log;
+import uk.co.darkerwaters.scorepal.players.Team;
 import uk.co.darkerwaters.scorepal.score.Match;
 import uk.co.darkerwaters.scorepal.score.MatchPersistanceManager;
 import uk.co.darkerwaters.scorepal.score.Sport;
+import uk.co.darkerwaters.scorepal.score.TennisMatch;
+import uk.co.darkerwaters.scorepal.score.TennisScore;
 
 public class CardHolderMatch extends RecyclerView.ViewHolder {
 
@@ -50,9 +53,14 @@ public class CardHolderMatch extends RecyclerView.ViewHolder {
     private final ViewGroup moreLessLayout;
     private final Button moreLessButton;
 
+    private final TextView matchCompletedText;
+
     private final View progressLayout;
     private final View dataLayout;
     private Application application;
+
+    private final TextView[] totalPoints = new TextView[2];
+    private final TextView[] breakPoints = new TextView[2];
 
     private ViewGroup scoreSummaryContainer;
 
@@ -75,9 +83,15 @@ public class CardHolderMatch extends RecyclerView.ViewHolder {
         this.itemDetail = this.parent.findViewById(R.id.item_detail);
         this.resumeButton = this.parent.findViewById(R.id.resume_button);
         this.deleteButton = this.parent.findViewById(R.id.deleteButton);
+        this.matchCompletedText = this.parent.findViewById(R.id.matchCompletedText);
 
         this.moreLessButton = this.parent.findViewById(R.id.moreLessButton);
         this.moreLessLayout = this.parent.findViewById(R.id.moreLessLayout);
+
+        this.totalPoints[0] = this.parent.findViewById(R.id.totalPointsText_teamOne);
+        this.totalPoints[1] = this.parent.findViewById(R.id.totalPointsText_teamTwo);
+        this.breakPoints[0] = this.parent.findViewById(R.id.breakPointsText_teamOne);
+        this.breakPoints[1] = this.parent.findViewById(R.id.breakPointsText_teamTwo);
 
         this.scoreSummaryContainer = this.parent.findViewById(R.id.scoreSummaryLayout);
 
@@ -134,6 +148,7 @@ public class CardHolderMatch extends RecyclerView.ViewHolder {
                 break;
             case POINTS:
                 //TODO the other types of score
+
                 break;
         }
         if (null != sport.imageFilename && false == sport.imageFilename.isEmpty()) {
@@ -159,12 +174,18 @@ public class CardHolderMatch extends RecyclerView.ViewHolder {
         else {
             this.itemTitle.setText(match.getSport().getTitle(context));
         }
+        // who won
+        Team matchWinner = match.getMatchWinner();
+        Team matchLoser = match.getOtherTeam(matchWinner);
         // create the description
         int minutesPlayed = match.getMatchMinutesPlayed();
         int hoursPlayed = (int)(minutesPlayed / 60f);
         minutesPlayed = minutesPlayed - (hoursPlayed * 60);
         Date matchPlayedDate = match.getMatchPlayedDate();
         String description = String.format(context.getString(R.string.match_description)
+                , matchWinner.getTeamName()
+                , match.isMatchOver() ? context.getString(R.string.match_beat) : context.getString(R.string.match_beating)
+                , matchLoser.getTeamName()
                 , String.format("%d",hoursPlayed)
                 , String.format("%02d",minutesPlayed)
                 , DateFormat.getTimeInstance(DateFormat.SHORT).format(matchPlayedDate)
@@ -200,6 +221,27 @@ public class CardHolderMatch extends RecyclerView.ViewHolder {
                 deleteMatch();
             }
         });
+
+        // set the total points counters
+        this.totalPoints[0].setText(Integer.toString(match.getPointsTotal(0, 0)));
+        this.totalPoints[1].setText(Integer.toString(match.getPointsTotal(0, 1)));
+
+
+        this.matchCompletedText.setVisibility(match.isMatchOver() ? View.VISIBLE : View.INVISIBLE);
+
+        // and the break point counters
+        //TODO will have to hide this if no such thing as break points
+        if (match instanceof TennisMatch) {
+            TennisScore score = ((TennisMatch)match).getScore();
+            this.breakPoints[0].setText(
+                    score.getBreakPointsConverted(0)
+                            + " / "
+                            + score.getBreakPoints(0));
+            this.breakPoints[1].setText(
+                    score.getBreakPointsConverted(1)
+                            + " / "
+                            + score.getBreakPoints(1));
+        }
 
         // hide the more controls
         showMoreLess();

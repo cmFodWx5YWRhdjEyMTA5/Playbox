@@ -93,6 +93,7 @@
     <string name="change_ends">Change Ends...</string>
     <string name="change_server">Change Server...</string>
     <string name="match_over">Match Over</string>
+    <string name="match_completed">Match Completed</string>
 
     <string name="btn_change_ends">Change Ends</string>
     <string name="btn_change_server">Change Server</string>
@@ -107,10 +108,14 @@
     <string name="deciding_point">Deciding Point...</string>
     <string name="btn_endMatch">End Match</string>
     <string name="loading_match_details">Loading Match Details...</string>
-    <string name="match_description">Played for %1$s:%2$s minutes at %3$s on %4$s.</string>
+    <string name="match_description">%1$s %2$s %3$s in %4$s:%5$s minutes at %6$s on %7$s.</string>
+    <string name="match_beat">beat</string>
+    <string name="match_beating">beating</string>
     <string name="resume_match">Resume</string>
     <string name="btn_more">More...</string>
     <string name="btn_delete">Delete</string>
     <string name="btn_less">Less...</string>
+    <string name="total_points">Total points</string>
+    <string name="break_points">Break points</string>
 
 </resources>

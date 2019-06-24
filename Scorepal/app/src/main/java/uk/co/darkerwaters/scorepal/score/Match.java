@@ -60,7 +60,7 @@ public class Match<T extends Score> implements Score.ScoreListener {
     private boolean isDataPersisted = false;
 
     public enum MatchChange {
-        RESET, INCREMENT, DECREMENT, STARTED, DOUBLES_SINGLES, GOAL, PLAYERS, ENDS, SERVER, DECIDING_POINT;
+        RESET, INCREMENT, DECREMENT, STARTED, DOUBLES_SINGLES, GOAL, PLAYERS, ENDS, SERVER, DECIDING_POINT, BREAK_POINT, BREAK_POINT_CONVERTED;
     }
 
     public interface MatchListener {
@@ -507,6 +507,14 @@ public class Match<T extends Score> implements Score.ScoreListener {
             case RESET:
                 // none of this is interesting, we did all that from here and informed correctly
                 break;
+            case BREAK_POINT:
+                // pass this on
+                informListeners(MatchChange.BREAK_POINT);
+                break;
+            case BREAK_POINT_CONVERTED:
+                // pass this on
+                informListeners(MatchChange.BREAK_POINT_CONVERTED);
+                break;
             case DECIDING_POINT:
                 // this is interesting, someone will want to know this
                 informListeners(MatchChange.DECIDING_POINT);
@@ -694,6 +702,29 @@ public class Match<T extends Score> implements Score.ScoreListener {
         this.score.setScoreGoal(goal);
         // inform listeners of this change to the score
         informListeners(MatchChange.GOAL);
+    }
+
+    public int getPointsTotal(int level, int teamIndex) {
+        // count all the points in the levels
+        return getPointsTotal(level, this.teams[teamIndex]);
+    }
+
+    public int getPointsTotal(int level, Team team) {
+        // count all the points in the levels
+        return this.score.getPointsTotal(level, team);
+    }
+
+    public Team getMatchWinner() {
+        return this.score.getWinner(this.score.getLevels() - 1);
+    }
+
+    public Team getOtherTeam(Team team) {
+        if (team == getTeamOne()) {
+            return getTeamTwo();
+        }
+        else {
+            return getTeamOne();
+        }
     }
 
     public boolean getIsDoubles() {

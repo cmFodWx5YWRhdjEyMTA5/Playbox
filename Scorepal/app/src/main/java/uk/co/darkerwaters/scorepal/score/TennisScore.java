@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import uk.co.darkerwaters.scorepal.R;
@@ -101,12 +102,16 @@ public class TennisScore extends Score {
     private Player tieBreakServer;
 
     private final List<Integer> tieBreakSets;
+    private final int[] breakPoints;
+    private final int[] breakPointsConverted;
 
     TennisScore(Team[] teams, TennisSets setsToPlay) {
         super(teams, K_LEVELS, Sport.TENNIS);
         this.finalSetTieTarget = -1;
         this.isDecidingPointOnDeuce = false;
         this.tieBreakSets = new ArrayList<Integer>();
+        this.breakPoints = new int[teams.length];
+        this.breakPointsConverted = new int[teams.length];
         // the score goal is the number of sets to play
         setScoreGoal(setsToPlay.val);
     }
@@ -120,6 +125,9 @@ public class TennisScore extends Score {
         this.tieBreakServer = null;
         if (null != this.tieBreakSets) {
             this.tieBreakSets.clear();
+            // clear our count of breaks and breaks converted
+            Arrays.fill(this.breakPoints, 0);
+            Arrays.fill(this.breakPointsConverted, 0);
         }
     }
 
@@ -268,8 +276,9 @@ public class TennisScore extends Score {
                             displayPoint = TennisPoint.FORTY;
                             break;
                         default:
+                            // we are far enough ahead to have won the game
                             displayPoint = TennisPoint.GAME;
-                           break;
+                            break;
                     }
             }
         }
@@ -339,39 +348,70 @@ public class TennisScore extends Score {
         return this.tieBreakSets.contains(new Integer(setIndex));
     }
 
+    public int getBreakPoints(int teamIndex) {
+        return this.breakPoints[teamIndex];
+    }
+
+    public int getBreakPointsConverted(int teamIndex) {
+        return this.breakPointsConverted[teamIndex];
+    }
+
     @Override
     int incrementPoint(Team team) {
         // add one to the point already stored
         int point = super.incrementPoint(team);
         int otherPoint = getPoints(getOtherTeam(team));
+        int pointsAhead = point - otherPoint;
         // has this team won the game with this new point addition (can't be the other)
         if (false == this.isInTieBreak) {
             if (this.isDecidingPointOnDeuce && point == otherPoint && point >= TennisPoint.FORTY.val()) {
                 // this is a draw in points, not enough to win but we are interested
                 // if this is a deciding point, in order to tell people
                 informListeners(ScoreChange.DECIDING_POINT);
+                // so this is a potential break point
+                incrementPotentialBreakPoint(team);
             }
             else if (point >= POINTS_TO_WIN_GAME) {
                 // we have enough points to win, either we are 2 ahead (won the ad)
                 // or the deuce deciding point is on and we are 2 ahead
-                int pointsAhead = point - otherPoint;
                 if ((this.isDecidingPointOnDeuce && pointsAhead > 0)
                     || pointsAhead >= POINTS_AHEAD_IN_GAME) {
                     // we are enough ahead to win the game
                     // not in a tie and we have enough points (and enough ahead) to win the game
                     incrementGame(team);
                 }
+                else if (this.isDecidingPointOnDeuce || pointsAhead >= POINTS_AHEAD_IN_GAME - 1){
+                    // this is not a win, but we are just one point away from winning
+                    incrementPotentialBreakPoint(team);
+                }
+            }
+            else if (point >= POINTS_TO_WIN_GAME - 1 &&
+                    (this.isDecidingPointOnDeuce || pointsAhead >= POINTS_AHEAD_IN_GAME - 1)) {
+                // we are just behind the points required to win the game and we are
+                // on a decider or we are just one behind, this is a break-point, if we
+                // are not serving
+                incrementPotentialBreakPoint(team);
             }
         }
         else {
             // are in a tie
-            if (point >= POINTS_TO_WIN_TIE && point - otherPoint >= POINTS_AHEAD_IN_TIE) {
+            if (point >= POINTS_TO_WIN_TIE && pointsAhead >= POINTS_AHEAD_IN_TIE) {
                 // in a tie and we have enough points (and enough ahead) to win the game
+                // and move the game on
                 incrementGame(team);
             }
             else {
-                // we are in a tie-break, after the first, and subsequent two points, we have to
-                // change servers
+                // we didn't win the tie, but are we about to?
+                /*
+                *
+                * I don't think winning a tie is a break... it's a mini-break.
+                *
+                if (point >= POINTS_TO_WIN_TIE - 1 && pointsAhead >= POINTS_AHEAD_IN_TIE - 1) {
+                    // one more point and we will have won this, this is a break-point
+                    // if we are not serving, check this
+                    incrementPotentialBreakPoint(team);
+                }*/
+                // after the first, and subsequent two points, we have to change servers in a tie
                 int playedPoints = getPlayedPoints();
                 if ((playedPoints - 1) % 2 == 0) {
                     // we are at point 1, 3, 5, 7 etc - change server
@@ -385,6 +425,15 @@ public class TennisScore extends Score {
             }
         }
         return point;
+    }
+
+    private void incrementPotentialBreakPoint(Team team) {
+        // if the team that just won the point is not the serving team, this is a break-point
+        if (false == team.isPlayerInTeam(getServer())) {
+            // this is a break-point - increment the counter and inform the listeners
+            ++this.breakPoints[getTeamIndex(team)];
+            informListeners(ScoreChange.BREAK_POINT);
+        }
     }
 
     public int getPlayedPoints() {
@@ -412,6 +461,12 @@ public class TennisScore extends Score {
     }
 
     private void incrementGame(Team team) {
+        // is this a break-point converted to reality?
+        if (false == isInTieBreak() && false == team.isPlayerInTeam(getServer())) {
+            // the server is not in the winning team (not in a tie), this is a converted break
+            ++this.breakPointsConverted[getTeamIndex(team)];
+            informListeners(ScoreChange.BREAK_POINT_CONVERTED);
+        }
         // add one to the game already stored
         int point = super.getPoint(LEVEL_GAME, team) + 1;
         // set this back on the score
@@ -494,7 +549,7 @@ public class TennisScore extends Score {
         // also clear the games
         super.clearLevel(LEVEL_GAME);
         if (isMatchOver()) {
-            // clear the sets to end this and wipe current scores
+            // store the history of the games
             super.clearLevel(LEVEL_SET);
         }
         else {

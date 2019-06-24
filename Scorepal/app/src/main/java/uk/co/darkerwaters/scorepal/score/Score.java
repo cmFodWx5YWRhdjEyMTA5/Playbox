@@ -61,7 +61,7 @@ class Score {
     }
 
     public enum ScoreChange {
-        RESET, INCREMENT, POINTS_SET, SERVER, ENDS, GOAL, DECIDING_POINT;
+        RESET, INCREMENT, POINTS_SET, SERVER, ENDS, GOAL, DECIDING_POINT, BREAK_POINT_CONVERTED, BREAK_POINT;
     }
 
     private final List<ScoreListener> listeners;
@@ -344,13 +344,33 @@ class Score {
     }
 
     protected Team getWinner(int level) {
-        int topPoints = INVALID_POINT;
         int topTeam = 0;
-        for (int i = 0; i < this.points[level].length; ++i) {
-            if (this.points[level][i] > topPoints) {
-                // this is the top team
-                topPoints = this.points[level][i];
-                topTeam = i;
+        int[] finalScore = null;
+        while (level >= 0) {
+            // check the final score at the this level
+            List<int[]> pointHistory = getPointHistory(level);
+            if (null != pointHistory) {
+                finalScore = pointHistory.get(pointHistory.size() - 1);
+                if (null != finalScore && finalScore[0] != finalScore[1]) {
+                    // there is a difference here, this can be used to determine the winner
+                    break;
+                }
+            }
+            // if here then at this level we are drawing, or there is no score, check lower down.
+            --level;
+        }
+        if (null == finalScore) {
+            // need to just use the points at the lowest level as there is no history
+            finalScore = this.points[0];
+        }
+        if (null != finalScore) {
+            int topPoints = INVALID_POINT;
+            for (int i = 0; i < finalScore.length; ++i) {
+                if (finalScore[i] > topPoints) {
+                    // this is the top team
+                    topPoints = finalScore[i];
+                    topTeam = i;
+                }
             }
         }
         return this.teams[topTeam];

@@ -473,6 +473,11 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
                 // so none should actually be changed unless by us, ignore them
                 this.isMessageStarted = false;
                 break;
+            case BREAK_POINT:
+            case BREAK_POINT_CONVERTED:
+                // this might be a little more interesting, either way (at the moment) not a msg
+                this.isMessageStarted = false;
+                break;
             case DECREMENT:
                 // decrement is kind of special, we might have changed sides or ends
                 // without knowing about it, set the end scene and server scenes here
