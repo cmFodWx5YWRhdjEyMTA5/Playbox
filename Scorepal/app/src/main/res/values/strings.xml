@@ -72,7 +72,7 @@
     <string name="default_playerOnePartnerName">Player One Partner</string>
     <string name="default_playerTwoPartnerName">Player Two Partner</string>
 
-    <string name="tennis">Tennis</string>
+    <string name="tennis_sport">Tennis</string>
     <string name="tennisSubtitle">Play a match of sets / games / points</string>
     <string name="points_sport">Points</string>
     <string name="pointsSubtitle">Play a match of just points</string>

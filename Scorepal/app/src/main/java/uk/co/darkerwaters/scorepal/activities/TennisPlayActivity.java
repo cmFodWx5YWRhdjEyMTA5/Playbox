@@ -817,7 +817,7 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
         if (storeIfPersisted
                 || false == persistanceManager.isMatchDataPersisted(this.activeMatch)) {
             // we are forcing a save, or the data is different, so save
-            persistanceManager.saveMatchToFile(this.activeMatch, this.activeMatch.getMatchId());
+            persistanceManager.saveMatchToFile(this.activeMatch, this.activeMatch.getMatchId(this));
         }
     }
 

@@ -21,6 +21,8 @@ import uk.co.darkerwaters.scorepal.score.MatchPersistanceManager;
 
 public class MatchRecyclerAdapter extends RecyclerView.Adapter<CardHolderMatch> {
 
+    private static final int K_MAXMATCHESTOSHOW = 10;
+
     // create the cards here
     private SortedList<File> matches;
     private final Application application;
@@ -52,6 +54,10 @@ public class MatchRecyclerAdapter extends RecyclerView.Adapter<CardHolderMatch> 
         this.matches.beginBatchedUpdates();
         for (File matchFile : matches) {
             this.matches.add(matchFile);
+            if (this.matches.size() >= K_MAXMATCHESTOSHOW) {
+                // this is enough, full history on the history view
+                break;
+            }
         }
         this.matches.endBatchedUpdates();
     }

@@ -621,8 +621,8 @@ public class Match<T extends Score> implements Score.ScoreListener {
         return false == this.pointHistory.empty();
     }
 
-    public String getMatchId() {
-        return this.matchPlayedDate;
+    public String getMatchId(Context context) {
+        return this.matchPlayedDate + "_" + this.sport.getTitle(context);
     }
 
     public static boolean isMatchIdValid(String matchId) {

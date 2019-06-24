@@ -17,7 +17,7 @@ public enum Sport {
             , null /* PointsPlayActivity */),
     TENNIS(1
             , "images/tennis.jpg"
-            , R.string.tennis
+            , R.string.tennis_sport
             , R.string.tennisSubtitle
             , TennisSetupActivity.class
             , TennisPlayActivity.class),

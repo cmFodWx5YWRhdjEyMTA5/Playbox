@@ -53,6 +53,12 @@ public class MatchTest {
         doReturn("playerNameTwoPartner")
                 .when(mockContext)
                 .getString(R.string.default_playerTwoPartnerName);
+        doReturn("Tennis")
+                .when(mockContext)
+                .getString(R.string.tennis_sport);
+        doReturn("Points")
+                .when(mockContext)
+                .getString(R.string.points_sport);
 
         /*
         // check the error logger
@@ -117,7 +123,7 @@ public class MatchTest {
         Date now = new Date();
         match.setMatchPlayedDate(now);
         assertTrue("date ok", Match.isFileDatesSame(now, match.getMatchPlayedDate()));
-        assertNotNull("id ok", match.getMatchId());
+        assertNotNull("id ok", match.getMatchId(mockContext));
     }
 
     @Test

@@ -36,7 +36,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_toEndOf="@+id/item_image"
-                android:text="@string/tennis"
+                android:text="@string/tennis_sport"
                 android:textAppearance="@style/TextAppearance.AppCompat.Display1"
                 android:textSize="30sp"
                 app:layout_constraintBottom_toBottomOf="@+id/titleImage"
