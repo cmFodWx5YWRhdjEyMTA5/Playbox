@@ -350,4 +350,150 @@
         app:layout_constraintStart_toStartOf="@+id/teamOne_setFive"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/moreLessLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/scoreSummaryLayout"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/teamTwo_Points">
+
+
+        <Button
+            android:id="@+id/shareButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/colorPrimaryDark"
+            android:drawableLeft="@android:drawable/ic_menu_share"
+            android:text="@string/btn_share"
+            android:textColor="@color/primaryTextColor"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/deleteButton"
+            app:layout_constraintTop_toBottomOf="@+id/deleteButton" />
+
+        <Button
+            android:id="@+id/deleteButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorPrimaryDark"
+            android:drawableLeft="@android:drawable/ic_delete"
+            android:text="@string/btn_delete"
+            android:textColor="@color/primaryTextColor"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/moreLessButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorPrimaryDark"
+            android:drawableRight="@drawable/ic_baseline_keyboard_arrow_right_24px"
+            android:text="@string/btn_more"
+            android:textColor="@color/primaryTextColor"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/totalPointsText_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:text="@string/total_points"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@color/primaryTextColor"
+            app:layout_constraintEnd_toStartOf="@+id/breakPointsText_teamOne"
+            app:layout_constraintTop_toBottomOf="@+id/shareButton" />
+
+        <TextView
+            android:id="@+id/totalPointsText_teamOne"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/display_love"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@color/teamOneColor"
+            app:layout_constraintBottom_toBottomOf="@+id/totalPointsText_title"
+            app:layout_constraintEnd_toEndOf="@+id/breakPointsText_teamOne"
+            app:layout_constraintTop_toTopOf="@+id/totalPointsText_title" />
+
+        <TextView
+            android:id="@+id/totalPointsText_teamTwo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/display_love"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@color/teamTwoColor"
+            app:layout_constraintBottom_toBottomOf="@+id/totalPointsText_title"
+            app:layout_constraintStart_toStartOf="@+id/breakPointsText_teamTwo"
+            app:layout_constraintTop_toTopOf="@+id/totalPointsText_title" />
+
+        <View
+            android:id="@+id/totalPoints_divider"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider"
+            android:backgroundTint="@color/colorSecondary"
+            app:layout_constraintEnd_toEndOf="@+id/breakPoints_divider"
+            app:layout_constraintStart_toStartOf="@+id/breakPoints_divider"
+            app:layout_constraintTop_toBottomOf="@+id/totalPointsText_title" />
+
+        <TextView
+            android:id="@+id/breakPointsText_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:text="@string/break_points"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@color/primaryTextColor"
+            app:layout_constraintEnd_toStartOf="@+id/breakPointsText_teamOne"
+            app:layout_constraintTop_toBottomOf="@+id/totalPoints_divider" />
+
+        <TextView
+            android:id="@+id/breakPointsText_teamOne"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="@string/default_final_set_target"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@color/teamOneColor"
+            app:layout_constraintBottom_toBottomOf="@+id/breakPointsText_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/breakPointsText_title" />
+
+        <TextView
+            android:id="@+id/breakPointsText_teamTwo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/default_final_set_target"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@color/teamTwoColor"
+            app:layout_constraintBottom_toBottomOf="@+id/breakPointsText_title"
+            app:layout_constraintStart_toEndOf="@+id/breakPointsText_teamOne"
+            app:layout_constraintTop_toTopOf="@+id/breakPointsText_title" />
+
+        <View
+            android:id="@+id/breakPoints_divider"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider"
+            android:backgroundTint="@color/colorSecondary"
+            app:layout_constraintEnd_toEndOf="@+id/breakPointsText_teamTwo"
+            app:layout_constraintStart_toStartOf="@+id/breakPointsText_title"
+            app:layout_constraintTop_toBottomOf="@+id/breakPointsText_title" />
+
+    </android.support.constraint.ConstraintLayout>
+
 </android.support.constraint.ConstraintLayout>

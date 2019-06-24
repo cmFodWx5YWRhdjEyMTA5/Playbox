@@ -1,14 +1,22 @@
 package uk.co.darkerwaters.scorepal.activities.fragments;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.Environment;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -20,8 +28,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.DateFormat;
 import java.util.Date;
 
@@ -42,16 +53,14 @@ import uk.co.darkerwaters.scorepal.score.TennisScore;
 public class CardHolderMatch extends RecyclerView.ViewHolder {
 
     public static final String K_SELECTED_CARD_FULL_NAME = "selected_parent";
+    private static final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE_PERMISSION = 102;
+
     private final View parent;
 
     private final TextView itemTitle;
     private final ImageView itemImage;
     private final TextView itemDetail;
     private final Button resumeButton;
-    private final Button deleteButton;
-
-    private final ViewGroup moreLessLayout;
-    private final Button moreLessButton;
 
     private final TextView matchCompletedText;
 
@@ -59,14 +68,10 @@ public class CardHolderMatch extends RecyclerView.ViewHolder {
     private final View dataLayout;
     private Application application;
 
-    private final TextView[] totalPoints = new TextView[2];
-    private final TextView[] breakPoints = new TextView[2];
-
     private ViewGroup scoreSummaryContainer;
 
     private LayoutScoreSummary summaryLayout = null;
 
-    private boolean isMoreShown;
     private MatchRecyclerAdapter adapter;
 
     private File matchFile;
@@ -82,16 +87,7 @@ public class CardHolderMatch extends RecyclerView.ViewHolder {
         this.itemTitle = this.parent.findViewById(R.id.item_title);
         this.itemDetail = this.parent.findViewById(R.id.item_detail);
         this.resumeButton = this.parent.findViewById(R.id.resume_button);
-        this.deleteButton = this.parent.findViewById(R.id.deleteButton);
         this.matchCompletedText = this.parent.findViewById(R.id.matchCompletedText);
-
-        this.moreLessButton = this.parent.findViewById(R.id.moreLessButton);
-        this.moreLessLayout = this.parent.findViewById(R.id.moreLessLayout);
-
-        this.totalPoints[0] = this.parent.findViewById(R.id.totalPointsText_teamOne);
-        this.totalPoints[1] = this.parent.findViewById(R.id.totalPointsText_teamTwo);
-        this.breakPoints[0] = this.parent.findViewById(R.id.breakPointsText_teamOne);
-        this.breakPoints[1] = this.parent.findViewById(R.id.breakPointsText_teamTwo);
 
         this.scoreSummaryContainer = this.parent.findViewById(R.id.scoreSummaryLayout);
 
@@ -136,7 +132,9 @@ public class CardHolderMatch extends RecyclerView.ViewHolder {
         this.dataLayout.setVisibility(View.VISIBLE);
 
         final Context context = this.parent.getContext();
-        this.isMoreShown = true;
+        // who won
+        Team matchWinner = match.getMatchWinner();
+        Team matchLoser = match.getOtherTeam(matchWinner);
 
         // so when we are here we need to get the layout for the match type
         // and inflate it to show the summary of the score
@@ -164,7 +162,7 @@ public class CardHolderMatch extends RecyclerView.ViewHolder {
             // add this to the container
             this.scoreSummaryContainer.addView(layout);
             // now we are added, we need to initialise the data here too
-            this.summaryLayout.setDataFromMatch(match);
+            this.summaryLayout.setDataFromMatch(match, this);
         }
 
         // now we can get all the data we need and show it on the card
@@ -174,9 +172,6 @@ public class CardHolderMatch extends RecyclerView.ViewHolder {
         else {
             this.itemTitle.setText(match.getSport().getTitle(context));
         }
-        // who won
-        Team matchWinner = match.getMatchWinner();
-        Team matchLoser = match.getOtherTeam(matchWinner);
         // create the description
         int minutesPlayed = match.getMatchMinutesPlayed();
         int hoursPlayed = (int)(minutesPlayed / 60f);
@@ -209,58 +204,18 @@ public class CardHolderMatch extends RecyclerView.ViewHolder {
                 }
             }
         });
-        this.moreLessButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showMoreLess();
-            }
-        });
-        this.deleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                deleteMatch();
-            }
-        });
-
-        // set the total points counters
-        this.totalPoints[0].setText(Integer.toString(match.getPointsTotal(0, 0)));
-        this.totalPoints[1].setText(Integer.toString(match.getPointsTotal(0, 1)));
-
 
         this.matchCompletedText.setVisibility(match.isMatchOver() ? View.VISIBLE : View.INVISIBLE);
-
-        // and the break point counters
-        //TODO will have to hide this if no such thing as break points
-        if (match instanceof TennisMatch) {
-            TennisScore score = ((TennisMatch)match).getScore();
-            this.breakPoints[0].setText(
-                    score.getBreakPointsConverted(0)
-                            + " / "
-                            + score.getBreakPoints(0));
-            this.breakPoints[1].setText(
-                    score.getBreakPointsConverted(1)
-                            + " / "
-                            + score.getBreakPoints(1));
-        }
-
-        // hide the more controls
-        showMoreLess();
     }
 
-    private void deleteMatch() {
+    public void deleteMatchFile() {
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 switch (which){
                     case DialogInterface.BUTTON_POSITIVE:
                         //Yes button clicked, delete this data!
-                        if (matchFile.delete()) {
-                            adapter.removeAt(getAdapterPosition());
-                        }
-                        else {
-                            // failed to delete for some reason
-                            Toast.makeText(parent.getContext(), "Failed to delete, sorry...", Toast.LENGTH_LONG).show();
-                        }
+
                         break;
                     case DialogInterface.BUTTON_NEGATIVE:
                         //No button clicked
@@ -275,32 +230,61 @@ public class CardHolderMatch extends RecyclerView.ViewHolder {
                 .setNegativeButton(R.string.no, dialogClickListener).show();
     }
 
-    private void showMoreLess() {
-        this.isMoreShown = !this.isMoreShown;
-        // hide show everything except the button
-        for (int i = 0; i < this.moreLessLayout.getChildCount(); ++i) {
-            View child = this.moreLessLayout.getChildAt(i);
-            if (child == this.moreLessButton) {
-                // ignore
+    public void shareMatchFile() {
+        Context context = this.parent.getContext();
+        //TODO file permissions request to copy and send the file
+        /*
+        // Check whether this app has write external storage permission or not.
+        int writeExternalStoragePermission = ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        // If do not grant write external storage permission.
+        if(writeExternalStoragePermission!= PackageManager.PERMISSION_GRANTED) {
+            // Request user to grant write external storage permission.
+            ActivityCompat.requestPermissions(context, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_WRITE_EXTERNAL_STORAGE_PERMISSION);
+        }
+        */
+        File destination = new File(Environment.getExternalStorageDirectory(), this.matchFile.getName());
+        try {
+
+            InputStream in = new FileInputStream(this.matchFile);
+            OutputStream out = new FileOutputStream(destination);
+            // Copy the bits from instream to outstream
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
             }
-            else {
-                child.setVisibility(this.isMoreShown ? View.VISIBLE : View.GONE);
-            }
+            in.close();
+            out.close();
+
+            // create the intent for this
+            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+            sharingIntent.setType("text/plain");
+            String shareBody = context.getString(R.string.share_body);
+            String shareSubject = context.getString(R.string.share_subject);
+
+            // get the file URI in a shareable format
+            Uri fileUri = FileProvider.getUriForFile(context,
+                    context.getString(R.string.file_provider_authority),
+                    destination);
+
+            // put all this in the intent
+            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, shareSubject);
+            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+            sharingIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+            sharingIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+
+            // and start the intent
+            context.startActivity(Intent.createChooser(sharingIntent, "Share via"));
+
+            // and delete the file
+            destination.deleteOnExit();
         }
-        if (this.isMoreShown) {
-            // more is shown
-            this.moreLessButton.setText(R.string.btn_less);
-            this.moreLessButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
-                    R.drawable.ic_baseline_keyboard_arrow_left_24px, 0);
+        catch (IOException e) {
+            Log.error("Failed to copy file to external directory", e);
         }
-        else {
-            // less is shown
-            this.moreLessButton.setText(R.string.btn_more);
-            this.moreLessButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
-                    R.drawable.ic_baseline_keyboard_arrow_right_24px, 0);
+        catch (Throwable e) {
+            Log.error("Failed to share the file " + e.getMessage());
         }
-        // set the icon buttons to be white
-        BaseActivity.SetIconTint(this.deleteButton, Color.WHITE);
-        BaseActivity.SetIconTint(this.moreLessButton, Color.WHITE);
+
     }
 }

@@ -1,6 +1,5 @@
 package uk.co.darkerwaters.scorepal.activities.fragments;
 
-import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,7 @@ public abstract class LayoutScoreSummary {
 
     public abstract View createView(LayoutInflater inflater, ViewGroup container);
 
-    public abstract void setDataFromMatch(Match match);
+    public abstract void setDataFromMatch(Match match, CardHolderMatch source);
 
     protected void setTextViewBold(TextView textView) {
         BaseActivity.SetTextViewBold(textView);

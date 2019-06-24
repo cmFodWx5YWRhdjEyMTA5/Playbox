@@ -6,7 +6,6 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.CardView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -33,7 +32,8 @@ public class FragmentTeam extends Fragment {
     public enum TeamNamingMode {
         ROLE,
         SURNAME_INITIAL,
-        FULLNAME;
+        FIRST_NAME,
+        FULL_NAME;
 
         TeamNamingMode next() {
             int i = 0;
@@ -299,7 +299,10 @@ public class FragmentTeam extends Fragment {
             case SURNAME_INITIAL:
                 teamName = createSurnameTeamName();
                 break;
-            case FULLNAME:
+            case FIRST_NAME:
+                teamName = createFirstNameTeamName();
+                break;
+            case FULL_NAME:
                 teamName = createFullnameTeamName();
                 break;
         }
@@ -346,12 +349,33 @@ public class FragmentTeam extends Fragment {
         }
     }
 
+    private String createFirstNameTeamName() {
+        if (this.currentlyDoubles) {
+            return combineTwoNames(splitFirstName(getPlayerName()), splitFirstName(getPlayerPartnerName()));
+        }
+        else {
+            return splitFirstName(getPlayerName());
+        }
+    }
+
     private String createFullnameTeamName() {
         if (this.currentlyDoubles) {
             return combineTwoNames(getPlayerName(), getPlayerPartnerName());
         }
         else {
             return getPlayerName();
+        }
+    }
+
+    private String splitFirstName(String fullName) {
+        String[] parts = fullName.split(" ");
+        if (parts == null || parts.length <= 1) {
+            // no good
+            return fullName;
+        }
+        else {
+            // there are a number of parts, just use the first name
+            return parts[0];
         }
     }
 

@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">Scorepal</string>
+
+    <string name="file_provider_authority" translatable="false">uk.co.darkerwaters.scorepal</string>
+
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>
@@ -117,5 +120,8 @@
     <string name="btn_less">Less...</string>
     <string name="total_points">Total points</string>
     <string name="break_points">Break points</string>
+    <string name="btn_share">Share</string>
+    <string name="share_body">Here are the results of our match</string>
+    <string name="share_subject">Match results</string>
 
 </resources>

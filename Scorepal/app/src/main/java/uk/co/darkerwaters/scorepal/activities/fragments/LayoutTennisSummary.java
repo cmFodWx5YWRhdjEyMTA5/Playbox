@@ -2,13 +2,19 @@ package uk.co.darkerwaters.scorepal.activities.fragments;
 
 
 import android.content.Context;
-import android.graphics.Typeface;
+import android.content.DialogInterface;
+import android.graphics.Color;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
+import java.io.File;
+
 import uk.co.darkerwaters.scorepal.R;
+import uk.co.darkerwaters.scorepal.activities.BaseActivity;
 import uk.co.darkerwaters.scorepal.application.Log;
 import uk.co.darkerwaters.scorepal.players.Team;
 import uk.co.darkerwaters.scorepal.score.Match;
@@ -32,6 +38,16 @@ public class LayoutTennisSummary extends LayoutScoreSummary {
     private TextView teamTwoTitle;
     
     private TextView[][] textViews;
+
+    private final TextView[] totalPoints = new TextView[2];
+    private final TextView[] breakPoints = new TextView[2];
+
+    private ViewGroup moreLessLayout;
+    private Button moreLessButton;
+    private Button deleteButton;
+    private Button shareButton;
+
+    private boolean isMoreShown;
 
     public LayoutTennisSummary() {
     }
@@ -90,14 +106,28 @@ public class LayoutTennisSummary extends LayoutScoreSummary {
         this.teamTwoTitle.setTextColor(color);
         setTextColor(K_TEAM2, color);
 
+        // get the more / less controls and button
+        this.moreLessButton = this.parent.findViewById(R.id.moreLessButton);
+        this.moreLessLayout = this.parent.findViewById(R.id.moreLessLayout);
+        this.deleteButton = this.parent.findViewById(R.id.deleteButton);
+        this.shareButton = this.parent.findViewById(R.id.shareButton);
+
+        // currently more is shown
+        this.isMoreShown = true;
+
+        this.totalPoints[0] = this.parent.findViewById(R.id.totalPointsText_teamOne);
+        this.totalPoints[1] = this.parent.findViewById(R.id.totalPointsText_teamTwo);
+        this.breakPoints[0] = this.parent.findViewById(R.id.breakPointsText_teamOne);
+        this.breakPoints[1] = this.parent.findViewById(R.id.breakPointsText_teamTwo);
+
         // return the main view created
         return this.parent;
     }
 
-    public void setDataFromMatch(Match match) {
+    public void setDataFromMatch(Match match, CardHolderMatch source) {
         if (match instanceof TennisMatch) {
             // this is cool, do this
-            setMatchData((TennisMatch)match);
+            setMatchData((TennisMatch)match, source);
         }
         else {
             // this isn't cool
@@ -112,16 +142,28 @@ public class LayoutTennisSummary extends LayoutScoreSummary {
         }
     }
 
-    private void setMatchData(TennisMatch match) {
+    private void setMatchData(TennisMatch match, final CardHolderMatch source) {
         Context context = parent.getContext();
         // set all the data from this match on this view
         TennisScore score = match.getScore();
         Team teamOne = match.getTeamOne();
         Team teamTwo = match.getTeamTwo();
 
+        // who won
+        Team matchWinner = match.getMatchWinner();
+
         // set the titles
         this.teamOneTitle.setText(teamOne.getTeamName());
         this.teamTwoTitle.setText(teamTwo.getTeamName());
+
+        if (matchWinner == teamOne) {
+            // make team one's name bold
+            BaseActivity.SetTextViewBold(this.teamOneTitle);
+        }
+        else if (matchWinner == teamTwo) {
+            // make team one's name bold
+            BaseActivity.SetTextViewBold(this.teamTwoTitle);
+        }
 
         // scroll these names
         this.teamOneTitle.setSelected(true);
@@ -190,8 +232,44 @@ public class LayoutTennisSummary extends LayoutScoreSummary {
                     this.textViews[K_TIE][colIndex].setVisibility(View.INVISIBLE);
                 }
             }
-
         }
+
+
+        this.moreLessButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showMoreLess();
+            }
+        });
+        this.deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                source.deleteMatchFile();
+            }
+        });
+        this.shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                source.shareMatchFile();
+            }
+        });
+
+        // set the total points counters
+        this.totalPoints[0].setText(Integer.toString(match.getPointsTotal(0, 0)));
+        this.totalPoints[1].setText(Integer.toString(match.getPointsTotal(0, 1)));
+
+        // and the break point counters
+        this.breakPoints[0].setText(
+                score.getBreakPointsConverted(0)
+                        + " / "
+                        + score.getBreakPoints(0));
+        this.breakPoints[1].setText(
+                score.getBreakPointsConverted(1)
+                        + " / "
+                        + score.getBreakPoints(1));
+
+        // hide the more controls
+        showMoreLess();
     }
 
     private void setColumnVisibility(int colIndex, int visibility) {
@@ -201,6 +279,34 @@ public class LayoutTennisSummary extends LayoutScoreSummary {
                 view.setVisibility(visibility);
             }
         }
+    }
+
+    private void showMoreLess() {
+        this.isMoreShown = !this.isMoreShown;
+        // hide show everything except the button
+        for (int i = 0; i < this.moreLessLayout.getChildCount(); ++i) {
+            View child = this.moreLessLayout.getChildAt(i);
+            if (child == this.moreLessButton) {
+                // ignore
+            }
+            else {
+                child.setVisibility(this.isMoreShown ? View.VISIBLE : View.GONE);
+            }
+        }
+        if (this.isMoreShown) {
+            // more is shown
+            this.moreLessButton.setText(R.string.btn_less);
+            this.moreLessButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
+                    R.drawable.ic_baseline_keyboard_arrow_left_24px, 0);
+        }
+        else {
+            // less is shown
+            this.moreLessButton.setText(R.string.btn_more);
+            this.moreLessButton.setCompoundDrawablesWithIntrinsicBounds(0, 0,
+                    R.drawable.ic_baseline_keyboard_arrow_right_24px, 0);
+        }
+        // set the icon buttons to be white
+        BaseActivity.SetIconTint(this.moreLessButton, Color.WHITE);
     }
 
 }
