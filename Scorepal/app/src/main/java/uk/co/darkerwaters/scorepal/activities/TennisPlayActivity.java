@@ -77,7 +77,7 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
     private Button swapTeamServerButton;
     private Button swapEndsButton;
     private Button undoButton;
-    private Button stopButton;
+    private Button stopPlayButton;
 
     private Match activeMatch;
 
@@ -99,7 +99,7 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
         this.activeMatch.addListener(this);
 
         // remember the time we started this session
-        this.playStarted = Calendar.getInstance().getTime();
+        this.playStarted = null;
         this.playEnded = null;
 
         this.pageLeft = findViewById(R.id.viewPageLeftButton);
@@ -110,14 +110,14 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
         this.swapTeamStarterButton = findViewById(R.id.swapTeamStarterButton);
         this.swapTeamServerButton = findViewById(R.id.swapTeamServerButton);
         this.undoButton = findViewById(R.id.undoButton);
-        this.stopButton = findViewById(R.id.endMatchButton);
+        this.stopPlayButton = findViewById(R.id.endMatchButton);
 
         // set the button colours correctly
         BaseActivity.SetIconTint(this.swapEndsButton, Color.WHITE);
         BaseActivity.SetIconTint(this.swapTeamStarterButton, Color.WHITE);
         BaseActivity.SetIconTint(this.swapTeamServerButton, Color.WHITE);
         BaseActivity.SetIconTint(this.undoButton, Color.WHITE);
-        BaseActivity.SetIconTint(this.stopButton, Color.WHITE);
+        BaseActivity.SetIconTint(this.stopPlayButton, Color.WHITE);
 
         this.undoButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,11 +126,12 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
                 undoLastPoint();
             }
         });
-        this.stopButton.setOnClickListener(new View.OnClickListener() {
+        this.stopPlayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // end the match
-                endMatch();
+                // end / play the match
+                stopPlayMatch();
+                setupStopPlayButton();
             }
         });
 
@@ -189,6 +190,8 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
             }
         });
 
+        // initialise the stop / play button
+        setupStopPlayButton();
         // setup the controls from the active scenes
         setupScenes();
         // transition to the correct ends and show the server icons properly
@@ -201,13 +204,60 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
         this.activeMatch.undoLastPoint();
     }
 
-    private void endMatch() {
-        // go back to the main activity and clear the activity history so back
-        // doesn't come back here
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        // start this main activity now then
-        startActivity(intent);
+    private void stopPlayMatch() {
+        // if we are playing then end the match, else start the match
+        if (null == this.playStarted) {
+            // we are not playing, start playing the match
+            this.playStarted = Calendar.getInstance().getTime();
+            setupEditingControls();
+        }
+        else {
+            // we are started, end the match now by going
+            // back to the main activity and clear the activity history so back
+            // doesn't come back here
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            // start this main activity now then
+            startActivity(intent);
+        }
+    }
+
+    private void setupStopPlayButton() {
+        // if we are started then the button is the stop button
+        if (this.activeMatch.isReadOnly() || null != this.playStarted) {
+            // we are started
+            if (null == this.playStarted) {
+                // start tracking that we are playing
+                stopPlayMatch();
+            }
+            this.stopPlayButton.setText(R.string.btn_endMatch);
+            this.stopPlayButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_stop_24px, 0, 0, 0);
+            // ensure this is tinted properly
+            BaseActivity.SetIconTint(this.stopPlayButton, Color.RED);
+        }
+        else {
+            // we are not started, show the start button
+            this.stopPlayButton.setText(R.string.btn_startMatch);
+            this.stopPlayButton.setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_media_play, 0, 0, 0);
+            // ensure this is tinted properly
+            BaseActivity.SetIconTint(this.stopPlayButton, Color.WHITE);
+        }
+    }
+
+    private void setupEditingControls() {
+        if (!this.activeMatch.isReadOnly()) {
+            // we were playing, but now we are not, put back the editing options
+            this.setupMatchLayout.setVisibility(View.VISIBLE);
+            // but we want to hide the sounds
+            this.soundsFragment.setVisibility(View.GONE);
+        }
+        if (this.activeMatch.isMatchOver() || null != this.playStarted) {
+            // we are playing, cannot edit starting params
+            this.setupMatchLayout.setVisibility(View.GONE);
+            // but we can change the sounds
+            this.soundsFragment.setVisibility(View.VISIBLE);
+            this.soundsFragment.hideButtons(true);
+        }
     }
 
     @Override
@@ -314,7 +364,7 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
 
     @Override
     public void onMatchPointsChanged(Match.PointChange[] levelsChanged) {
-        // the score of the match changed, need to announce this, find the top level
+        // need to announce this change in the score, find the top level
         // that changed, if we won a set we don't care about the game...
         Match.PointChange topChange = null;
         for (Match.PointChange change : levelsChanged) {
@@ -604,18 +654,13 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
 
     private void handlePlayEnded() {
         // once we are playing, we need to hide the controls that allow the match to be setup
-        if (this.activeMatch.isReadOnly()) {
-            // we are playing, cannot edit starting params
-            this.setupMatchLayout.setVisibility(View.GONE);
-            // but we can change the sounds
-            this.soundsFragment.setVisibility(View.VISIBLE);
-            this.soundsFragment.hideButtons(true);
-        } else {
-            // we can edit starting things
-            this.setupMatchLayout.setVisibility(View.VISIBLE);
-            // but we want to hide the sounds
-            this.soundsFragment.setVisibility(View.GONE);
+        setupEditingControls();
+        if (!this.activeMatch.isReadOnly()) {
+            // we are not started now (undone to the last), clear the start time
+            this.playStarted = null;
         }
+        // and setup the start button
+        setupStopPlayButton();
         // need to get the tennis score, there are things here
         // that we want to be using
         TennisScore score = (TennisScore) this.activeMatch.getScore();
@@ -811,14 +856,16 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
         this.speakService.close();
         this.speakService = null;
 
-        // and add the time played in this session to the active match
-        int activityMinutes = getMinutesPlayedInActivity();
-        if (activityMinutes > 0) {
-            this.activeMatch.addMatchMinutesPlayed(activityMinutes);
+        if (null != this.playStarted) {
+            // and add the time played in this session to the active match
+            int activityMinutes = getMinutesPlayedInActivity();
+            if (activityMinutes > 0) {
+                this.activeMatch.addMatchMinutesPlayed(activityMinutes);
+            }
+            // now we added these minutes, we need to not add them again, reset the
+            // play started time to be now
+            this.playStarted = Calendar.getInstance().getTime();
         }
-        // now we added these minutes, we need to not add them again, reset the
-        // play started time to be now
-        this.playStarted = Calendar.getInstance().getTime();
 
         // store these results for sure
         storeMatchResults(true);

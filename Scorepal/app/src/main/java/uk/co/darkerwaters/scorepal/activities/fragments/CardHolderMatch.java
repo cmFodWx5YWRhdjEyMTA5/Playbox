@@ -2,6 +2,7 @@ package uk.co.darkerwaters.scorepal.activities.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -17,6 +18,7 @@ import java.text.DateFormat;
 import java.util.Date;
 
 import uk.co.darkerwaters.scorepal.R;
+import uk.co.darkerwaters.scorepal.activities.BaseActivity;
 import uk.co.darkerwaters.scorepal.activities.handlers.MatchRecyclerAdapter;
 import uk.co.darkerwaters.scorepal.application.Log;
 import uk.co.darkerwaters.scorepal.players.Team;
@@ -159,8 +161,14 @@ public class CardHolderMatch extends RecyclerView.ViewHolder {
                     }
                 }
             });
-            // show if this is completed or not
-            this.matchCompletedText.setVisibility(this.loadedMatch.isMatchOver() ? View.VISIBLE : View.INVISIBLE);
+            if (this.loadedMatch.isMatchOver()) {
+                // show that this is completed
+                this.matchCompletedText.setVisibility(View.VISIBLE);
+            }
+            else {
+                // show the match is not over
+                this.matchCompletedText.setVisibility(View.INVISIBLE);
+            }
         }
         else {
             // show that this failed to load

@@ -3,6 +3,7 @@ package uk.co.darkerwaters.scorepal.activities.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +27,7 @@ public class FragmentSounds extends Fragment {
     private boolean isButtonsShown = true;
 
     private View mainView = null;
+    private Settings settings;
 
     public interface FragmentSoundsInteractionListener {
         void onAttachFragment(FragmentSounds fragment);
@@ -45,9 +47,11 @@ public class FragmentSounds extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         this.mainView = inflater.inflate(R.layout.fragment_sounds, container, false);
+        // start invisible
+        this.mainView.setVisibility(View.INVISIBLE);
 
         Application application = (Application)getActivity().getApplication();
-        final Settings settings = application.getSettings();
+        this.settings = application.getSettings();
 
         this.soundsImageButton = mainView.findViewById(R.id.soundsImageButton);
         this.soundsMuteButton = mainView.findViewById(R.id.soundsMuteButton);
@@ -64,25 +68,25 @@ public class FragmentSounds extends Fragment {
             @Override
             public void onClick(View view) {
                 settings.setIsMakingSounds(!settings.getIsMakingSounds());
-                updateViewFromData(settings);
+                updateViewFromData();
             }
         });
         this.pointsMuteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 settings.setIsSpeakingPoints(!settings.getIsSpeakingPoints());
-                updateViewFromData(settings);
+                updateViewFromData();
             }
         });
         this.messagesMuteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 settings.setIsSpeakingMessages(!settings.getIsSpeakingMessages());
-                updateViewFromData(settings);
+                updateViewFromData();
             }
         });
         // update the buttons from the settings
-        updateViewFromData(settings);
+        updateViewFromData();
         // and return the main view
         return this.mainView;
     }
@@ -99,13 +103,13 @@ public class FragmentSounds extends Fragment {
         }
     }
 
-    private void updateViewFromData(Settings settings) {
+    private void updateViewFromData() {
         // set the icons
         this.soundsMuteButton.setCompoundDrawablesWithIntrinsicBounds(getIcon(settings.getIsMakingSounds()), 0, 0, 0);
         this.pointsMuteButton.setCompoundDrawablesWithIntrinsicBounds(getIcon(settings.getIsSpeakingPoints()), 0, 0, 0);
         this.messagesMuteButton.setCompoundDrawablesWithIntrinsicBounds(getIcon(settings.getIsSpeakingMessages()), 0, 0, 0);
 
-        // make the icons lighter
+        // set the tint of these new icons
         int color = getContext().getColor(R.color.primaryTextColor);
         BaseActivity.SetIconTint(this.soundsMuteButton, color);
         BaseActivity.SetIconTint(this.pointsMuteButton, color);
@@ -138,6 +142,9 @@ public class FragmentSounds extends Fragment {
             hide(this.messagesMuteButton, hideXPosition, hideYPosition, hideWidth, hideHeight, isInstant);
         }
         else {
+            // update the view from the data, this will update the icons and their colours
+            updateViewFromData();
+            // and restore them to their original locations
             restore(this.soundsMuteButton);
             restore(this.pointsMuteButton);
             restore(this.messagesMuteButton);
@@ -161,7 +168,7 @@ public class FragmentSounds extends Fragment {
                 .start();
     }
 
-    private void restore(Button button) {
+    private void restore(final Button button) {
         // animate back
         button.animate()
                 .translationX(0f)
@@ -170,7 +177,6 @@ public class FragmentSounds extends Fragment {
                 .scaleY(1f)
                 .setDuration(K_ANIMATION_DURATION)
                 .start();
-        BaseActivity.SetIconTint(this.soundsMuteButton, getContext().getColor(R.color.primaryTextColor));
     }
 
     @Override
