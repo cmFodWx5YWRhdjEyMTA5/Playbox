@@ -925,19 +925,23 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
     }
 
     private int getMinutesPlayedInActivity() {
-        long playEndedMs;
-        if (null == this.playEnded) {
-            // play isn't over yet, use now
-            playEndedMs = Calendar.getInstance().getTimeInMillis();
+        if (null == this.playStarted) {
+            return 0;
         }
         else {
-            // use the play ended time
-            playEndedMs = this.playEnded.getTime();
+            long playEndedMs;
+            if (null == this.playEnded) {
+                // play isn't over yet, use now
+                playEndedMs = Calendar.getInstance().getTimeInMillis();
+            } else {
+                // use the play ended time
+                playEndedMs = this.playEnded.getTime();
+            }
+            // Calculate difference in milliseconds
+            long diff = playEndedMs - this.playStarted.getTime();
+            // and add the time played to the active match
+            return (int) (diff / 60000L);
         }
-        // Calculate difference in milliseconds
-        long diff = playEndedMs - this.playStarted.getTime();
-        // and add the time played to the active match
-        return (int)(diff / 60000L);
     }
 
     @Override
