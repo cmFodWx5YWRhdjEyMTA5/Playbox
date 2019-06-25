@@ -210,9 +210,9 @@ public class FragmentTime extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof FragmentTimeInteractionListener) {
-            listener = (FragmentTimeInteractionListener) context;
+            this.listener = (FragmentTimeInteractionListener) context;
             // and inform this listener of our attachment
-            listener.onAttachFragment(this);
+            this.listener.onAttachFragment(this);
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement FragmentTimeInteractionListener");
@@ -222,6 +222,6 @@ public class FragmentTime extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        listener = null;
+        this.listener = null;
     }
 }

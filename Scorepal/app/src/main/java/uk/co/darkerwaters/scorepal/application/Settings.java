@@ -17,6 +17,7 @@ public class Settings {
     private final String K_ISASKFORFILEACCESS = "isAskForFileAccess";
     private final String K_ISDOUBLES = "isDoubles";
     private final String K_SETS = "sets";
+    private final String K_ISSOUNDS = "isSounds";
     private final String K_ISSPEAKING = "isSpeaking";
     private final String K_ISSPEAKINGMESSAGES = "isSpeakingMessages";
     private final String K_PLAYERNAME = "playerName";
@@ -36,6 +37,7 @@ public class Settings {
     private boolean isMuted;
     private boolean isAskForContacts;
     private boolean isAskForFileAccess;
+    private boolean isSounds;
     private boolean isSpeaking;
     private boolean isSpeakingMessages;
     private int finalSetTieTarget;
@@ -62,6 +64,7 @@ public class Settings {
         this.isAskForFileAccess = true;
         this.activeSport = K_DEFAULTACTIVESPORT;
         this.isDoubles = false;
+        this.isSounds = true;
         this.isSpeaking = true;
         this.isSpeakingMessages = true;
         this.finalSetTieTarget = -1;
@@ -97,6 +100,17 @@ public class Settings {
     public boolean setIsMuted(boolean isMuted) {
         this.isMuted = isMuted;
         this.editor.putBoolean(K_ISMUTED, this.isMuted);
+        return this.editor.commit();
+    }
+
+    public boolean getIsMakingSounds() {
+        this.isSounds = this.preferences.getBoolean(K_ISSOUNDS, this.isSounds);
+        return this.isSounds;
+    }
+
+    public boolean setIsMakingSounds(boolean isSounds) {
+        this.isSounds = isSounds;
+        this.editor.putBoolean(K_ISSOUNDS, this.isSounds);
         return this.editor.commit();
     }
 

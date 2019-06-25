@@ -25,6 +25,7 @@ import android.widget.TextView;
 import java.util.Calendar;
 import java.util.Date;
 
+import uk.co.darkerwaters.scorepal.activities.fragments.FragmentSounds;
 import uk.co.darkerwaters.scorepal.activities.fragments.FragmentTime;
 import uk.co.darkerwaters.scorepal.activities.handlers.DepthPageTransformer;
 import uk.co.darkerwaters.scorepal.activities.fragments.FragmentPreviousSets;
@@ -44,6 +45,7 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
         FragmentPreviousSets.FragmentPreviousSetsInteractionListener,
         FragmentScore.FragmentScoreInteractionListener,
         FragmentTime.FragmentTimeInteractionListener,
+        FragmentSounds.FragmentSoundsInteractionListener,
         Match.MatchListener {
 
     private ViewPager scorePager;
@@ -52,6 +54,7 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
     private FragmentPreviousSets previousSetsFragment;
     private FragmentScore scoreFragment;
     private FragmentTime timeFragment;
+    private FragmentSounds soundsFragment;
 
     private class TeamScene {
         int teamColor;
@@ -604,9 +607,14 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
         if (this.activeMatch.isReadOnly()) {
             // we are playing, cannot edit starting params
             this.setupMatchLayout.setVisibility(View.GONE);
+            // but we can change the sounds
+            this.soundsFragment.setVisibility(View.VISIBLE);
+            this.soundsFragment.hideButtons(true);
         } else {
             // we can edit starting things
             this.setupMatchLayout.setVisibility(View.VISIBLE);
+            // but we want to hide the sounds
+            this.soundsFragment.setVisibility(View.GONE);
         }
         // need to get the tennis score, there are things here
         // that we want to be using
@@ -861,6 +869,12 @@ public class TennisPlayActivity extends BaseFragmentActivity implements
     @Override
     public void onAttachFragment(FragmentTime fragment) {
         this.timeFragment = fragment;
+    }
+
+    @Override
+    public void onAttachFragment(FragmentSounds fragment) {
+        this.soundsFragment = fragment;
+        this.soundsFragment.setVisibility(View.GONE);
     }
 
     private int getMinutesPlayedInActivity() {

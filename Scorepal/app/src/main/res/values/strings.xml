@@ -127,4 +127,10 @@
     <string name="delete_failure">Sorry, I couldn\'t delete that.</string>
     <string name="loading_failure">Failed to load the data</string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="btn_sounds">Sounds</string>
+    <string name="btn_points">Points</string>
+    <string name="btn_messages">Messages</string>
+
 </resources>
