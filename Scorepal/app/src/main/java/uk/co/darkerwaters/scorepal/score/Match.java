@@ -393,7 +393,7 @@ public class Match<T extends Score> implements Score.ScoreListener {
         }
     }
 
-    private void informListeners(MatchChange type) {
+    public void informListeners(MatchChange type) {
         if (null == this.score || this.score.isInformActive()) {
             synchronized (this.listeners) {
                 for (MatchListener listener : this.listeners) {

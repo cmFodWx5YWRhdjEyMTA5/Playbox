@@ -141,7 +141,14 @@ public abstract class PlayActivity extends BaseFragmentActivity implements
     }
 
     private void undoLastPoint() {
-        this.activeMatch.undoLastPoint();
+        // undo the last point
+        if (null == this.activeMatch.undoLastPoint()) {
+            // the undo action failed, nothing to undo
+            // but the user might be wanting the editing controls
+            // back, send the message as if we undone to loop
+            // through and reset everything as if they had
+            this.activeMatch.informListeners(Match.MatchChange.DECREMENT);
+        }
     }
 
     private void stopPlayMatch() {
