@@ -337,7 +337,7 @@ public class PlayTennisActivity extends PlayTeamActivity implements
     public void onTimeChanged() {
         // need to update the match time to include this session
         int activityMinutes = getMinutesPlayedInActivity();
-        if (activityMinutes > 0) {
+        if (activityMinutes >= 0) {
             int minutesPlayed = activityMinutes + this.activeMatch.getMatchMinutesPlayed();
             if (null != this.timeFragment) {
                 this.timeFragment.setMatchTime(minutesPlayed);

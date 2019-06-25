@@ -119,13 +119,15 @@ public abstract class PlayTeamActivity extends PlayActivity {
     }
 
     protected void setupEditingControls() {
-        if (!this.activeMatch.isReadOnly()) {
-            // we were playing, but now we are not, put back the editing options
-            this.setupMatchLayout.setVisibility(View.VISIBLE);
-        }
-        if (this.activeMatch.isReadOnly() || isPlayStarted()) {
-            // we are playing, cannot edit starting params
-            this.setupMatchLayout.setVisibility(View.GONE);
+        if (null != this.setupMatchLayout) {
+            if (!this.activeMatch.isReadOnly()) {
+                // we were playing, but now we are not, put back the editing options
+                this.setupMatchLayout.setVisibility(View.VISIBLE);
+            }
+            if (this.activeMatch.isReadOnly() || isPlayStarted()) {
+                // we are playing, cannot edit starting params
+                this.setupMatchLayout.setVisibility(View.GONE);
+            }
         }
     }
 
