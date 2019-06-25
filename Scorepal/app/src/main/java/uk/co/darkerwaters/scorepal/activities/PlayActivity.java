@@ -21,6 +21,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import uk.co.darkerwaters.scorepal.R;
+import uk.co.darkerwaters.scorepal.activities.fragments.FragmentControllers;
 import uk.co.darkerwaters.scorepal.activities.fragments.FragmentScore;
 import uk.co.darkerwaters.scorepal.activities.fragments.FragmentSounds;
 import uk.co.darkerwaters.scorepal.announcer.SpeakService;
@@ -34,9 +35,11 @@ import uk.co.darkerwaters.scorepal.score.TennisScore;
 
 public abstract class PlayActivity extends BaseFragmentActivity implements
         FragmentSounds.FragmentSoundsInteractionListener,
+        FragmentControllers.FragmentControllersInteractionListener,
         Match.MatchListener {
 
     private FragmentSounds soundsFragment;
+    private FragmentControllers controllersFragment;
 
     private Button undoButton;
     private Button stopPlayButton;
@@ -140,6 +143,12 @@ public abstract class PlayActivity extends BaseFragmentActivity implements
         this.soundsFragment.setVisibility(View.GONE);
     }
 
+    @Override
+    public void onAttachFragment(FragmentControllers fragment) {
+        this.controllersFragment = fragment;
+        this.controllersFragment.setVisibility(View.GONE);
+    }
+
     private void undoLastPoint() {
         // undo the last point
         if (null == this.activeMatch.undoLastPoint()) {
@@ -173,6 +182,7 @@ public abstract class PlayActivity extends BaseFragmentActivity implements
         onPlayStarted(this.playStarted);
         // show the sound controls as we start playing
         showSoundControls(true);
+        showControllerControls(true);
     }
 
     protected void clearStartedPlay() {
@@ -180,6 +190,7 @@ public abstract class PlayActivity extends BaseFragmentActivity implements
         onPlayStarted(null);
         // hide the sound controls as we cease playing
         showSoundControls(false);
+        showControllerControls(false);
     }
 
     protected void clearEndedPlay() {
@@ -223,6 +234,19 @@ public abstract class PlayActivity extends BaseFragmentActivity implements
         else {
             // hide the fragment
             this.soundsFragment.setVisibility(View.GONE);
+        }
+    }
+
+    private void showControllerControls(boolean isShowControls) {
+        if (isShowControls) {
+            // show the fragment
+            this.controllersFragment.setVisibility(View.VISIBLE);
+            // without the butons showing
+            this.controllersFragment.hideButtons(true);
+        }
+        else {
+            // hide the fragment
+            this.controllersFragment.setVisibility(View.GONE);
         }
     }
 

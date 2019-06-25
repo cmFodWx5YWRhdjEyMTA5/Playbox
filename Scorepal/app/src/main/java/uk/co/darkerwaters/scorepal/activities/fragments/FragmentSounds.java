@@ -16,28 +16,24 @@ import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.activities.BaseActivity;
 import uk.co.darkerwaters.scorepal.application.Settings;
 
-public class FragmentSounds extends Fragment {
+public class FragmentSounds extends ExpandingFragment {
 
-    private static final long K_ANIMATION_DURATION = 1000;
     private ImageButton soundsImageButton;
     private Button soundsMuteButton;
     private Button pointsMuteButton;
     private Button messagesMuteButton;
 
-    private boolean isButtonsShown = true;
-
-    private View mainView = null;
     private Settings settings;
 
     public interface FragmentSoundsInteractionListener {
         void onAttachFragment(FragmentSounds fragment);
-        void onTimeChanged();
     }
 
     private FragmentSounds.FragmentSoundsInteractionListener listener;
 
 
     public FragmentSounds() {
+        super();
         // Required empty public constructor
     }
 
@@ -46,24 +42,26 @@ public class FragmentSounds extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        this.mainView = inflater.inflate(R.layout.fragment_sounds, container, false);
-        // start invisible
-        this.mainView.setVisibility(View.INVISIBLE);
+        View mainView = inflater.inflate(R.layout.fragment_sounds, container, false);
 
-        Application application = (Application)getActivity().getApplication();
-        this.settings = application.getSettings();
-
+        // get our controls
         this.soundsImageButton = mainView.findViewById(R.id.soundsImageButton);
         this.soundsMuteButton = mainView.findViewById(R.id.soundsMuteButton);
         this.pointsMuteButton = mainView.findViewById(R.id.pointsMuteButton);
         this.messagesMuteButton = mainView.findViewById(R.id.messagesMuteButton);
 
-        this.soundsImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showHideButtons(false);
-            }
+        // and setup the expansion / collapse of these
+        setupExpandingFragment(mainView, this.soundsImageButton, new View[] {
+                mainView.findViewById(R.id.background),
+                this.soundsMuteButton,
+                this.pointsMuteButton,
+                this.messagesMuteButton
         });
+
+        // setup this fragment to respond to clicks etc
+        Application application = (Application)getActivity().getApplication();
+        this.settings = application.getSettings();
+        // handle the button clicks here
         this.soundsMuteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -88,32 +86,18 @@ public class FragmentSounds extends Fragment {
         // update the buttons from the settings
         updateViewFromData();
         // and return the main view
-        return this.mainView;
+        return mainView;
     }
 
-    public void setVisibility(int visibility) {
-        if (null != this.mainView) {
-            this.mainView.setVisibility(visibility);
-        }
-    }
-
-    public void hideButtons(boolean isInstant) {
-        if (this.isButtonsShown) {
-            showHideButtons(isInstant);
-        }
-    }
-
-    private void updateViewFromData() {
+    @Override
+    protected void updateViewFromData() {
         // set the icons
         this.soundsMuteButton.setCompoundDrawablesWithIntrinsicBounds(getIcon(settings.getIsMakingSounds()), 0, 0, 0);
         this.pointsMuteButton.setCompoundDrawablesWithIntrinsicBounds(getIcon(settings.getIsSpeakingPoints()), 0, 0, 0);
         this.messagesMuteButton.setCompoundDrawablesWithIntrinsicBounds(getIcon(settings.getIsSpeakingMessages()), 0, 0, 0);
 
         // set the tint of these new icons
-        int color = getContext().getColor(R.color.primaryTextColor);
-        BaseActivity.SetIconTint(this.soundsMuteButton, color);
-        BaseActivity.SetIconTint(this.pointsMuteButton, color);
-        BaseActivity.SetIconTint(this.messagesMuteButton, color);
+        super.updateViewFromData();
     }
 
     private int getIcon(boolean isOn) {
@@ -123,60 +107,6 @@ public class FragmentSounds extends Fragment {
         else {
             return R.drawable.ic_baseline_volume_off_24px;
         }
-    }
-
-    private void showHideButtons(boolean isInstant) {
-        this.isButtonsShown = !this.isButtonsShown;
-
-        if (!this.isButtonsShown) {
-            // and the size we need to be
-            float hideWidth = this.soundsImageButton.getWidth();
-            float hideHeight = this.soundsImageButton.getHeight();
-            // get where we need to go to to hide our button
-            float hideXPosition = this.soundsImageButton.getX() - hideWidth;
-            float hideYPosition = this.soundsImageButton.getY();
-
-            // animate each button down to this size and position
-            hide(this.soundsMuteButton, hideXPosition, hideYPosition, hideWidth, hideHeight, isInstant);
-            hide(this.pointsMuteButton, hideXPosition, hideYPosition, hideWidth, hideHeight, isInstant);
-            hide(this.messagesMuteButton, hideXPosition, hideYPosition, hideWidth, hideHeight, isInstant);
-        }
-        else {
-            // update the view from the data, this will update the icons and their colours
-            updateViewFromData();
-            // and restore them to their original locations
-            restore(this.soundsMuteButton);
-            restore(this.pointsMuteButton);
-            restore(this.messagesMuteButton);
-        }
-
-    }
-
-    private void hide(Button button, float targetX, float targetY, float targetW, float targetH, boolean isInstant) {
-        // calculate the movements
-        float movementX = targetX - button.getX();
-        float movementY = targetY - button.getY();
-        float scaleX = 0f;//targetW / button.getWidth();
-        float scaleY = 0f;//targetH / button.getHeight();
-        // and animate to here
-        button.animate()
-                .translationX(movementX)
-                .translationY(movementY)
-                .scaleX(scaleX)
-                .scaleY(scaleY)
-                .setDuration(isInstant ? 0 : K_ANIMATION_DURATION)
-                .start();
-    }
-
-    private void restore(final Button button) {
-        // animate back
-        button.animate()
-                .translationX(0f)
-                .translationY(0f)
-                .scaleX(1f)
-                .scaleY(1f)
-                .setDuration(K_ANIMATION_DURATION)
-                .start();
     }
 
     @Override

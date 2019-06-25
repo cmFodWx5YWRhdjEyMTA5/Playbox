@@ -133,5 +133,7 @@
     <string name="btn_sounds">Sounds</string>
     <string name="btn_points">Points</string>
     <string name="btn_messages">Messages</string>
+    <string name="btn_tapController">Tap control</string>
+    <string name="btn_controlBT">Bluetooth Remote</string>
 
 </resources>

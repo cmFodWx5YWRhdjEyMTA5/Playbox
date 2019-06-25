@@ -137,6 +137,7 @@ public abstract class FragmentTeamActivity extends BaseFragmentActivity implemen
     private void createContactsAdapter() {
         this.contactAdapter = new ContactListAdapter(this);
         //TODO add the auto-completion answers for all the players we played previously?
+        // and remove duplicates from the contact list as we get and show it
         setupAdapters();
     }
 

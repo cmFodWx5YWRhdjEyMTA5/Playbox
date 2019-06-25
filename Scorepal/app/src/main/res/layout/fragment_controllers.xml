@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    tools:context=".activities.fragments.FragmentControllers">
+
+    <ImageView
+        android:id="@+id/background"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:alpha="0.8"
+        android:src="@color/colorSecondary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/controllerSettingsTap"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/controllersButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:src="@drawable/ic_baseline_games_24px"
+        android:tint="@color/primaryTextColor"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/controllerTap"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:drawableLeft="@drawable/ic_baseline_games_24px"
+        android:text="@string/btn_tapController"
+        android:textColor="@color/primaryTextColor"
+        app:layout_constraintEnd_toEndOf="@+id/controllerBt"
+        app:layout_constraintStart_toStartOf="@+id/controllersButton"
+        app:layout_constraintTop_toBottomOf="@+id/controllersButton" />
+
+    <ImageButton
+        android:id="@+id/controllerSettingsTap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:src="@drawable/ic_baseline_settings_20px"
+        android:tint="@color/primaryTextColor"
+        app:layout_constraintBottom_toBottomOf="@+id/controllerTap"
+        app:layout_constraintStart_toEndOf="@+id/controllerTap"
+        app:layout_constraintTop_toTopOf="@+id/controllerTap" />
+
+    <Button
+        android:id="@+id/controllerBt"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:drawableLeft="@drawable/ic_baseline_bluetooth_24px"
+        android:text="@string/btn_controlBT"
+        android:textColor="@color/primaryTextColor"
+        app:layout_constraintStart_toStartOf="@+id/controllersButton"
+        app:layout_constraintTop_toBottomOf="@+id/controllerTap" />
+
+    <ImageButton
+        android:id="@+id/controllerSettingsBt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:src="@drawable/ic_baseline_settings_20px"
+        android:tint="@color/primaryTextColor"
+        app:layout_constraintBottom_toBottomOf="@+id/controllerBt"
+        app:layout_constraintStart_toEndOf="@+id/controllerBt"
+        app:layout_constraintTop_toTopOf="@+id/controllerBt" />
+
+</android.support.constraint.ConstraintLayout>
