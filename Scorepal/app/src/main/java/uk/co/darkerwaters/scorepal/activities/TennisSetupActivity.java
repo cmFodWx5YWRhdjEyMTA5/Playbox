@@ -3,13 +3,10 @@ package uk.co.darkerwaters.scorepal.activities;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -219,7 +216,7 @@ public class TennisSetupActivity extends FragmentTeamActivity {
             @Override
             public void onClick(View view) {
                 // user wants to play
-                Intent myIntent = new Intent(TennisSetupActivity.this, TennisPlayActivity.class);
+                Intent myIntent = new Intent(TennisSetupActivity.this, PlayTennisActivity.class);
                 TennisSetupActivity.this.startActivity(myIntent);
             }
         });

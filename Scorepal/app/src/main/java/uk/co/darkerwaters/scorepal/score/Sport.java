@@ -5,7 +5,7 @@ import android.content.Context;
 
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.activities.PointsSetupActivity;
-import uk.co.darkerwaters.scorepal.activities.TennisPlayActivity;
+import uk.co.darkerwaters.scorepal.activities.PlayTennisActivity;
 import uk.co.darkerwaters.scorepal.activities.TennisSetupActivity;
 
 public enum Sport {
@@ -20,7 +20,7 @@ public enum Sport {
             , R.string.tennis_sport
             , R.string.tennisSubtitle
             , TennisSetupActivity.class
-            , TennisPlayActivity.class),
+            , PlayTennisActivity.class),
     //BADMINTON(1, "images/badminton.jpg", R.string.badminton, R.string.badmintonSubtitle, BadmintonSetupActivity.class),
     ;
 

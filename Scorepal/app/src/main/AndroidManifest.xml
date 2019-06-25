@@ -27,7 +27,7 @@
 
         <activity android:name=".activities.PointsSetupActivity" />
         <activity android:name=".activities.TennisSetupActivity" />
-        <activity android:name=".activities.TennisPlayActivity" />
+        <activity android:name=".activities.PlayTennisActivity" />
         <activity android:name=".activities.SelectSportActivity" />
         <activity
             android:name=".activities.MainActivity"
