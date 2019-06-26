@@ -24,6 +24,9 @@ public class Settings {
     private final String K_FINALSETTIETARGET = "finalSetTieTarget";
     private final String K_ISDECIDERONDEUCE = "deciderOnDeuce";
 
+    private final String K_ISCONTROLTAP = "isControlTap";
+    private final String K_ISCONTROLBT = "isControlBt";
+
     private final String K_ACTIVESPORT = "activeSport";
 
     private final String K_DEFAULTACTIVESPORT = "Tennis";
@@ -40,6 +43,8 @@ public class Settings {
     private boolean isSounds;
     private boolean isSpeaking;
     private boolean isSpeakingMessages;
+    private boolean isControlTap;
+    private boolean isControlBt;
     private int finalSetTieTarget;
     private boolean isDeciderOnDeuce;
     private String activeSport;
@@ -66,6 +71,8 @@ public class Settings {
         this.isDoubles = false;
         this.isSounds = true;
         this.isSpeaking = true;
+        this.isControlBt = false;
+        this.isControlTap = true;
         this.isSpeakingMessages = true;
         this.finalSetTieTarget = -1;
         this.isDeciderOnDeuce = false;
@@ -100,6 +107,28 @@ public class Settings {
     public boolean setIsMuted(boolean isMuted) {
         this.isMuted = isMuted;
         this.editor.putBoolean(K_ISMUTED, this.isMuted);
+        return this.editor.commit();
+    }
+
+    public boolean getIsControlBt() {
+        this.isControlBt = this.preferences.getBoolean(K_ISCONTROLBT, this.isControlBt);
+        return this.isControlBt;
+    }
+
+    public boolean setIsControlBt(boolean isControlBt) {
+        this.isControlBt = isControlBt;
+        this.editor.putBoolean(K_ISCONTROLBT, this.isControlBt);
+        return this.editor.commit();
+    }
+
+    public boolean getIsControlTap() {
+        this.isControlTap = this.preferences.getBoolean(K_ISCONTROLTAP, this.isControlTap);
+        return this.isControlTap;
+    }
+
+    public boolean setIsControlTap(boolean isControlTap) {
+        this.isControlTap = isControlTap;
+        this.editor.putBoolean(K_ISCONTROLTAP, this.isControlTap);
         return this.editor.commit();
     }
 

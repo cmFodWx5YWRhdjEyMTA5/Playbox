@@ -2,8 +2,8 @@ package uk.co.darkerwaters.scorepal.activities.fragments;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +11,8 @@ import android.widget.Button;
 import android.widget.ImageButton;
 
 import uk.co.darkerwaters.scorepal.Application;
+import uk.co.darkerwaters.scorepal.activities.ControllerBtSettingsActivity;
+import uk.co.darkerwaters.scorepal.activities.ControllerTapSettingsActivity;
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.activities.BaseActivity;
 import uk.co.darkerwaters.scorepal.application.Settings;
@@ -60,9 +62,39 @@ public class FragmentControllers extends ExpandingFragment {
                 this.btControllerSettingsButton
         });
 
+        // setup our buttons
+        this.tapControllerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                settings.setIsControlTap(!settings.getIsControlTap());
+                updateViewFromData();
+            }
+        });
+        this.btControllerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                settings.setIsControlBt(!settings.getIsControlBt());
+                updateViewFromData();
+            }
+        });
+        this.tapControllerSettingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent myIntent = new Intent(getActivity(), ControllerTapSettingsActivity.class);
+                startActivity(myIntent);
+            }
+        });
+        this.btControllerSettingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent myIntent = new Intent(getActivity(), ControllerBtSettingsActivity.class);
+                startActivity(myIntent);
+            }
+        });
+
         // setup this fragment to respond to clicks etc
         Application application = (Application)getActivity().getApplication();
-
+        this.settings = application.getSettings();
 
         // update the buttons from the settings
         updateViewFromData();
@@ -79,10 +111,14 @@ public class FragmentControllers extends ExpandingFragment {
         Context context = getContext();
         int inactiveColor = context.getColor(R.color.colorPrimary);
 
-        // tap is not enabled
-        BaseActivity.SetIconTint(this.tapControllerButton, inactiveColor);
-        // BT is not enabled
-        BaseActivity.SetIconTint(this.btControllerButton, inactiveColor);
+        if (!this.settings.getIsControlTap()) {
+            // tap is not enabled
+            BaseActivity.SetIconTint(this.tapControllerButton, inactiveColor);
+        }
+        if (!this.settings.getIsControlBt()) {
+            // BT is not enabled
+            BaseActivity.SetIconTint(this.btControllerButton, inactiveColor);
+        }
     }
 
     @Override

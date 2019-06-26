@@ -3,8 +3,8 @@
     package="uk.co.darkerwaters.scorepal">
 
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:name=".Application"
@@ -14,6 +14,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".activities.ControllerBtSettingsActivity"></activity>
+        <activity android:name=".activities.ControllerTapSettingsActivity" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -36,6 +38,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -43,4 +46,5 @@
             android:name=".activities.SettingsActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
+
 </manifest>
