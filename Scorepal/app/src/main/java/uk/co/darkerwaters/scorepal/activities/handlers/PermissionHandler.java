@@ -4,11 +4,8 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +16,7 @@ public class PermissionHandler {
 
     public static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 101;
     public static final int MY_PERMISSIONS_REQUEST_READ_FILES = 102;
+    public static final int MY_PERMISSIONS_REQUEST_BLUETOOTH = 103;
 
     public interface PermissionsHandlerConstructor {
         boolean getIsRequestPermission();

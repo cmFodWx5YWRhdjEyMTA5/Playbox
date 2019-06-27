@@ -86,6 +86,7 @@
     <string name="doubles">Doubles</string>
     <string name="contact_access_explanation">This app would like access to your contacts to show your friends as playing partners. Would you like to grant access?</string>
     <string name="file_access_explanation">This app would like access to your files to send match data to your friends. Would you like to grant access?</string>
+    <string name="bluetooth_access_explanation">This app would like access to bluetooth to find and connect to a remote control. Would you like to grant access?</string>
 
     <string name="previous_sets">Previous Sets</string>
     <string name="current_score">Current Score</string>
@@ -137,5 +138,7 @@
     <string name="btn_controlBT">Bluetooth Remote</string>
     <string name="permission_denied_neverask">Sorry, but you selected to never ask again. You will need to allow this permission in settings -- apps on your phone.</string>
     <string name="ok">Ok</string>
+    <string name="bt_not_compatable">BT Not compatible</string>
+    <string name="bt_not_compatable_explan">Your phone does not support Bluetooth</string>
 
 </resources>
