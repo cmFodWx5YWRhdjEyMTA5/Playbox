@@ -129,8 +129,6 @@
     <string name="delete_failure">Sorry, I couldn\'t delete that.</string>
     <string name="loading_failure">Failed to load the data</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="btn_sounds">Sounds</string>
     <string name="btn_points">Points</string>
     <string name="btn_messages">Messages</string>
@@ -140,5 +138,19 @@
     <string name="ok">Ok</string>
     <string name="bt_not_compatable">BT Not compatible</string>
     <string name="bt_not_compatable_explan">Your phone does not support Bluetooth</string>
+    <string name="btn_code">Code</string>
+    <string name="btn_pattern">Click Pattern</string>
+    <string name="btn_click_action">Action</string>
+
+    <string name="action_ptServer">Pt Server</string>
+    <string name="action_ptReceiver">Pt Receiver</string>
+    <string name="action_ptTeamOne">Pt Team 1</string>
+    <string name="action_ptTeamTwo">Pt Team 2</string>
+
+    <string name="pattern_singleClick">1 Click</string>
+    <string name="pattern_doubleClick">2 Click</string>
+    <string name="pattern_longClick">Long Click</string>
+    <string name="pattern_tripleClick">3 Click</string>
+    <string name="btn_addButtonAction">Add Button Action</string>
 
 </resources>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="click_patterns">
+        <item>1 Click</item>
+        <item>2 Click</item>
+        <item>Long Click</item>
+        <item>3 Click</item>
+    </string-array>
+    <string-array name="click_actions">
+        <item>Pt Server</item>
+        <item>Pt Receiver</item>
+        <item>Pt Team 1</item>
+        <item>Pt Team 2</item>
+    </string-array>
+
+</resources>

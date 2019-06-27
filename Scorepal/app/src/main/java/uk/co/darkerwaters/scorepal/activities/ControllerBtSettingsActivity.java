@@ -9,17 +9,22 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
+import android.view.View;
+import android.view.ViewGroup;
 
 import uk.co.darkerwaters.scorepal.R;
+import uk.co.darkerwaters.scorepal.activities.fragments.CardHolderRemoteButton;
 import uk.co.darkerwaters.scorepal.activities.handlers.PermissionHandler;
+import uk.co.darkerwaters.scorepal.activities.handlers.RemoteButtonRecyclerAdapter;
 import uk.co.darkerwaters.scorepal.application.Log;
+import uk.co.darkerwaters.scorepal.application.RemoteButton;
 
 import static uk.co.darkerwaters.scorepal.activities.handlers.PermissionHandler.MY_PERMISSIONS_REQUEST_BLUETOOTH;
 
-public class ControllerBtSettingsActivity extends AppCompatActivity {
+public class ControllerBtSettingsActivity extends ListedActivity {
 
     private static final int REQUEST_ENABLE_BT = 123;
 
@@ -28,11 +33,61 @@ public class ControllerBtSettingsActivity extends AppCompatActivity {
     private BluetoothAdapter bluetoothAdapter = null;
     private BroadcastReceiver bluetoothDeviceReceiver = null;
     private boolean isScanningBle = false;
+    private RemoteButtonRecyclerAdapter buttonListAdapter;
+    private View.OnKeyListener onKeyListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_controller_bt_settings);
+
+        ViewGroup mainLayout = findViewById(R.id.main_layout);
+
+        // create the key listener to listen for all the inputs we can find
+        this.onKeyListener = new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
+                boolean isProcess = true;
+                switch (keyCode) {
+                    case KeyEvent.KEYCODE_BACK:
+                    case KeyEvent.KEYCODE_HOME:
+                        isProcess = false;
+                        // never use these
+                        break;
+                }
+                boolean isInterested = false;
+                if (isProcess) {
+                    Log.info(Character.getName(keyCode));
+                    RemoteButton button = buttonListAdapter.getButton(keyCode);
+                    if (null == button) {
+                        // create a button for this
+                        button = new RemoteButton(keyCode);
+                        buttonListAdapter.addButton(button);
+                    }
+                    int index = buttonListAdapter.getButtonPosition(button);
+                    if (index != -1) {
+                        recyclerView.smoothScrollToPosition(index);
+                        RecyclerView.ViewHolder holder = recyclerView.findViewHolderForAdapterPosition(index);
+                        if (holder instanceof CardHolderRemoteButton) {
+                            ((CardHolderRemoteButton)holder).highlightButton();
+                        }
+                    }
+                    Log.info("key: " + Character.getName(keyCode) + " " + keyEvent.getSource());
+                    // and don't pass this on to anything else
+                    isInterested = true;
+                }
+                // only let the base have this if we don't want it
+                return isInterested;
+            }
+        };
+
+        // set the top level listener
+        mainLayout.setOnKeyListener(this.onKeyListener);
+        // need to set the key listener on all the views on this activity to interecept everything
+        CardHolderRemoteButton.setKeyListener(mainLayout, this.onKeyListener);
+
+        this.buttonListAdapter = new RemoteButtonRecyclerAdapter(application, this, this.onKeyListener);
+        setupRecyclerView(R.id.buttonRecyclerView, this.buttonListAdapter);
 
         this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         // Phone does not support Bluetooth so let the user know and exit.
@@ -199,12 +254,5 @@ public class ControllerBtSettingsActivity extends AppCompatActivity {
         else {
             startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
         }
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Log.info(Character.getName(keyCode));
-        // only let the base have this if we don't want it
-        return super.onKeyDown(keyCode, event);
     }
 }
