@@ -33,16 +33,18 @@ import uk.co.darkerwaters.scorepal.Application;
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.activities.handlers.MatchRecyclerAdapter;
 import uk.co.darkerwaters.scorepal.activities.handlers.NavigationDrawerHandler;
+import uk.co.darkerwaters.scorepal.activities.handlers.PermissionHandler;
 import uk.co.darkerwaters.scorepal.application.Log;
 import uk.co.darkerwaters.scorepal.score.Match;
 import uk.co.darkerwaters.scorepal.score.MatchPersistanceManager;
 import uk.co.darkerwaters.scorepal.score.Sport;
 
+import static uk.co.darkerwaters.scorepal.activities.handlers.PermissionHandler.MY_PERMISSIONS_REQUEST_READ_CONTACTS;
+import static uk.co.darkerwaters.scorepal.activities.handlers.PermissionHandler.MY_PERMISSIONS_REQUEST_READ_FILES;
+
 public class MainActivity extends ListedActivity implements MatchRecyclerAdapter.MatchFileListener {
 
     public static final String K_OPEN_DRAWER = "open_drawer";
-
-    private static final int MY_PERMISSIONS_REQUEST_READ_FILES = 102;
 
     private NavigationDrawerHandler navigationActor = null;
 
@@ -50,6 +52,7 @@ public class MainActivity extends ListedActivity implements MatchRecyclerAdapter
     private MatchRecyclerAdapter listAdapter;
     private File matchFileToShare;
     private Match matchToShare;
+    private PermissionHandler permissionHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +61,9 @@ public class MainActivity extends ListedActivity implements MatchRecyclerAdapter
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        // setup our data
+        this.permissionHandler = null;
 
         // create the nav listener
         final DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -171,78 +177,45 @@ public class MainActivity extends ListedActivity implements MatchRecyclerAdapter
                 .setNegativeButton(R.string.no, dialogClickListener).show();
     }
 
-    private void requestFileAccess(final Match match, final File matchFile) {
+    private void requestFileAccess(Match match, File matchFile) {
         // need to request permission to access files for the sharing of match data
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Permission is not granted
-            if (this.application.getSettings().getIsRequestFileAccessPermission()) {
-                // Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    // Show an explanation to the user *asynchronously* -- don't block
-                    // this thread waiting for the user's response! After the user
-                    // sees the explanation, try again to request the permission.
-                    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+        this.matchToShare = match;
+        this.matchFileToShare = matchFile;
+        // request permission to share the file
+        if (null == this.permissionHandler) {
+            // there is no handler, make one here
+            this.permissionHandler = new PermissionHandler(this,
+                    R.string.file_access_explanation,
+                    MY_PERMISSIONS_REQUEST_READ_FILES,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    new PermissionHandler.PermissionsHandlerConstructor() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            switch (which) {
-                                case DialogInterface.BUTTON_POSITIVE:
-                                    //Yes button clicked
-                                    ActivityCompat.requestPermissions(MainActivity.this,
-                                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                            MY_PERMISSIONS_REQUEST_READ_FILES);
-                                    break;
-                                case DialogInterface.BUTTON_NEGATIVE:
-                                    //No button clicked, just send the data
-                                    shareMatchData(match, matchFile, false);
-                                    break;
-                            }
+                        public boolean getIsRequestPermission() {
+                            return application.getSettings().getIsRequestFileAccessPermission();
                         }
-                    };
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setMessage(R.string.file_access_explanation).setPositiveButton(R.string.yes, dialogClickListener)
-                            .setNegativeButton(R.string.no, dialogClickListener).show();
-                } else {
-                    // No explanation needed; request the permission, first remember the file we will share
-                    this.matchFileToShare = matchFile;
-                    // and request the permission
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            MY_PERMISSIONS_REQUEST_READ_FILES);
 
-                    // MY_PERMISSIONS_REQUEST_READ_FILES is an
-                    // app-defined int constant. The callback method gets the
-                    // result of the request.
-                }
-            }
-        } else {
-            // Permission has already been granted
-            shareMatchData(match, matchFile, true);
+                        @Override
+                        public void onPermissionsDenied(String[] permissions) {
+                            application.getSettings().setIsRequestFileAccessPermission(false);
+                            shareMatchData(matchToShare, matchFileToShare, false);
+                        }
+
+                        @Override
+                        public void onPermissionsGranted(String[] permissions) {
+                            shareMatchData(matchToShare, matchFileToShare, true);
+                        }
+                    });
         }
+        // check / request access to file writing to subsequently share the file
+        this.permissionHandler.requestPermission();
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_READ_FILES: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-                    shareMatchData(matchToShare, matchFileToShare, true);
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    shareMatchData(matchToShare, matchFileToShare, false);
-                }
-                break;
-            }
-            // other 'case' lines to check for other
-            // permissions this app might request.
+        // pass this message to our handler
+        if (!this.permissionHandler.processPermissionsResult(requestCode, permissions, grantResults)) {
+            // the handler didn't do anything, pass it on
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 

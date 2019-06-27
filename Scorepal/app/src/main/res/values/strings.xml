@@ -135,5 +135,7 @@
     <string name="btn_messages">Messages</string>
     <string name="btn_tapController">Tap control</string>
     <string name="btn_controlBT">Bluetooth Remote</string>
+    <string name="permission_denied_neverask">Sorry, but you selected to never ask again. You will need to allow this permission in settings -- apps on your phone.</string>
+    <string name="ok">Ok</string>
 
 </resources>

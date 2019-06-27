@@ -13,20 +13,43 @@ import uk.co.darkerwaters.scorepal.Application;
 import uk.co.darkerwaters.scorepal.activities.handlers.ContactListAdapter;
 import uk.co.darkerwaters.scorepal.activities.fragments.FragmentTeam;
 import uk.co.darkerwaters.scorepal.R;
+import uk.co.darkerwaters.scorepal.activities.handlers.PermissionHandler;
+
+import static uk.co.darkerwaters.scorepal.activities.handlers.PermissionHandler.MY_PERMISSIONS_REQUEST_READ_CONTACTS;
 
 public abstract class FragmentTeamActivity extends BaseFragmentActivity implements FragmentTeam.FragmentTeamInteractionListener {
-
-    private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 101;
 
     protected FragmentTeam teamOneFragment;
     protected FragmentTeam teamTwoFragment;
     private ContactListAdapter contactAdapter;
 
+    private PermissionHandler permissionHandler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // we need to be sure to have permission to access contacts here
+        this.permissionHandler = new PermissionHandler(this,
+                R.string.contact_access_explanation,
+                MY_PERMISSIONS_REQUEST_READ_CONTACTS,
+                Manifest.permission.READ_CONTACTS,
+                new PermissionHandler.PermissionsHandlerConstructor() {
+                    @Override
+                    public boolean getIsRequestPermission() {
+                        return application.getSettings().getIsRequestContactsPermission();
+                    }
+                    @Override
+                    public void onPermissionsDenied(String[] permissions) {
+                        application.getSettings().setIsRequestContactsPermission(false);
+                        createAlternativeContactList();
+                    }
+                    @Override
+                    public void onPermissionsGranted(String[] permissions) {
+                        createContactsAdapter();
+                    }
+                });
         // check / request access to contacts and setup the editing controls accordingly
-        requestContactAccess();
+        this.permissionHandler.requestPermission();
     }
 
     @Override
@@ -52,78 +75,12 @@ public abstract class FragmentTeamActivity extends BaseFragmentActivity implemen
         // nothing to do
     }
 
-    private void requestContactAccess() {
-        // need to request permission to access contacts for the auto-completion stuff
-        // Here, thisActivity is the current activity
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_CONTACTS)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Permission is not granted
-            if (this.application.getSettings().getIsRequestContactsPermission()) {
-                // Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.READ_CONTACTS)) {
-                    // Show an explanation to the user *asynchronously* -- don't block
-                    // this thread waiting for the user's response! After the user
-                    // sees the explanation, try again to request the permission.
-                    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            switch (which) {
-                                case DialogInterface.BUTTON_POSITIVE:
-                                    //Yes button clicked
-                                    ActivityCompat.requestPermissions(FragmentTeamActivity.this,
-                                            new String[]{Manifest.permission.READ_CONTACTS},
-                                            MY_PERMISSIONS_REQUEST_READ_CONTACTS);
-                                    break;
-                                case DialogInterface.BUTTON_NEGATIVE:
-                                    //No button clicked
-                                    createAlternativeContactList();
-                                    break;
-                            }
-                        }
-                    };
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setMessage(R.string.contact_access_explanation).setPositiveButton(R.string.yes, dialogClickListener)
-                            .setNegativeButton(R.string.no, dialogClickListener).show();
-                } else {
-                    // No explanation needed; request the permission
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.READ_CONTACTS},
-                            MY_PERMISSIONS_REQUEST_READ_CONTACTS);
-
-                    // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                    // app-defined int constant. The callback method gets the
-                    // result of the request.
-                }
-            }
-        } else {
-            // Permission has already been granted
-            createContactsAdapter();
-        }
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_READ_CONTACTS: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-                    createContactsAdapter();
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    createAlternativeContactList();
-                }
-                return;
-            }
-
-            // other 'case' lines to check for other
-            // permissions this app might request.
+        // pass this message to our handler
+        if (!this.permissionHandler.processPermissionsResult(requestCode, permissions, grantResults)) {
+            // the handler didn't do anything, pass it on
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 
