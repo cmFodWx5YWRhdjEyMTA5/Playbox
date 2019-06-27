@@ -2,6 +2,10 @@ package uk.co.darkerwaters.scorepal.application;
 
 import android.content.SharedPreferences;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import uk.co.darkerwaters.scorepal.Application;
 import uk.co.darkerwaters.scorepal.score.TennisSets;
 
@@ -23,6 +27,7 @@ public class Settings {
     private final String K_PLAYERNAME = "playerName";
     private final String K_FINALSETTIETARGET = "finalSetTieTarget";
     private final String K_ISDECIDERONDEUCE = "deciderOnDeuce";
+    private final String K_REMOTEBUTTONSETUP = "remoteButtons";
 
     private final String K_ISCONTROLTAP = "isControlTap";
     private final String K_ISCONTROLBT = "isControlBt";
@@ -48,6 +53,7 @@ public class Settings {
     private int finalSetTieTarget;
     private boolean isDeciderOnDeuce;
     private String activeSport;
+    private RemoteButton[] activeRemoteButtons;
 
     public Settings(Application app) {
         // get all the variables
@@ -77,6 +83,14 @@ public class Settings {
         this.finalSetTieTarget = -1;
         this.isDeciderOnDeuce = false;
         this.sets = TennisSets.THREE;
+        // create the default button
+        this.activeRemoteButtons = new RemoteButton[] {
+            new RemoteButton(66)
+        };
+        // add the default button actions
+        this.activeRemoteButtons[0].addAction(RemoteButton.RemoteButtonAction.PointTeamOne, RemoteButton.RemoteButtonPattern.SingleClick);
+        this.activeRemoteButtons[0].addAction(RemoteButton.RemoteButtonAction.PointTeamTwo, RemoteButton.RemoteButtonPattern.DoubleClick);
+        this.activeRemoteButtons[0].addAction(RemoteButton.RemoteButtonAction.UndoLastPoint, RemoteButton.RemoteButtonPattern.LongClick);
     }
 
     public void wipeAllSettings() {
@@ -251,5 +265,63 @@ public class Settings {
     public boolean setPlayerName(String name, int teamIndex, int playerIndex) {
         this.editor.putString(K_PLAYERNAME + "-" + teamIndex + "-" + playerIndex, name);
         return this.editor.commit();
+    }
+
+    public boolean setRemoteButtons(RemoteButton[] buttons) {
+        this.editor.putString(K_REMOTEBUTTONSETUP, getRemoteButtonString(buttons));
+        return this.editor.commit();
+    }
+
+    public RemoteButton[] getRemoteButtons() {
+        String string = this.preferences.getString(K_REMOTEBUTTONSETUP, getRemoteButtonString(this.activeRemoteButtons));
+        if (null == string || string.isEmpty()) {
+            return new RemoteButton[0];
+        }
+        else {
+            List<RemoteButton> buttonList = new ArrayList<RemoteButton>();
+            // get the buttons from the string
+            for (String buttonString : string.split(" ")) {
+                if (false == buttonString.isEmpty()) {
+                    // have a button string
+                    try {
+                        int index = buttonString.indexOf(':');
+                        String keyCode = buttonString.substring(0, index);
+                        RemoteButton button = new RemoteButton(Integer.parseInt(keyCode));
+                        buttonList.add(button);
+                        // remove this int from the string
+                        buttonString = buttonString.substring(index + 1, buttonString.length() - 1);
+                        String[] valStrings = buttonString.split(",");
+                        for (int i = 0; i < valStrings.length; i += 2) {
+                            // add each action
+                            button.addAction(
+                                    RemoteButton.RemoteButtonAction.fromVal(Integer.parseInt(valStrings[i])),
+                                    RemoteButton.RemoteButtonPattern.fromVal(Integer.parseInt(valStrings[i+1]))
+                            );
+                        }
+
+                    }
+                    catch (NumberFormatException e) {
+                        Log.error(string + "--buttons wrong", e);
+                    }
+                }
+            }
+            return buttonList.toArray(new RemoteButton[0]);
+        }
+    }
+
+    private String getRemoteButtonString(RemoteButton[] buttons) {
+        StringBuilder builder = new StringBuilder();
+        for (RemoteButton button : buttons) {
+            builder.append(button.getKeyCode());
+            builder.append(':');
+            for (RemoteButton.Action action : button.getActions()) {
+                builder.append(action.getAction().val);
+                builder.append(',');
+                builder.append(action.getPattern().val);
+                builder.append(',');
+            }
+            builder.append(' ');
+        }
+        return builder.toString();
     }
 }

@@ -26,15 +26,16 @@ import static uk.co.darkerwaters.scorepal.activities.handlers.PermissionHandler.
 
 public class ControllerBtSettingsActivity extends ListedActivity {
 
+    /*
     private static final int REQUEST_ENABLE_BT = 123;
-
     private PermissionHandler permissionHandler = null;
-
     private BluetoothAdapter bluetoothAdapter = null;
     private BroadcastReceiver bluetoothDeviceReceiver = null;
     private boolean isScanningBle = false;
+    */
     private RemoteButtonRecyclerAdapter buttonListAdapter;
     private View.OnKeyListener onKeyListener;
+    private View connectButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,9 +87,13 @@ public class ControllerBtSettingsActivity extends ListedActivity {
         // need to set the key listener on all the views on this activity to interecept everything
         CardHolderRemoteButton.setKeyListener(mainLayout, this.onKeyListener);
 
-        this.buttonListAdapter = new RemoteButtonRecyclerAdapter(application, this, this.onKeyListener);
+        this.connectButton = findViewById(R.id.connectButton);
+        RemoteButton[] remoteButtons = this.application.getSettings().getRemoteButtons();
+        // create the list adapter to show this button setup
+        this.buttonListAdapter = new RemoteButtonRecyclerAdapter(remoteButtons, this, this.onKeyListener);
         setupRecyclerView(R.id.buttonRecyclerView, this.buttonListAdapter);
 
+        /*
         this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         // Phone does not support Bluetooth so let the user know and exit.
         if (this.bluetoothAdapter == null) {
@@ -103,15 +108,26 @@ public class ControllerBtSettingsActivity extends ListedActivity {
         else {
             // setup bt
             requestBleDevices();
-        }
+        }*/
     }
 
+    @Override
+    protected void onPause() {
+        // put the arrangement of buttons back onto the settings
+        application.getSettings().setRemoteButtons(this.buttonListAdapter.getButtons());
+        // and pause the activity
+        super.onPause();
+    }
+
+    /*
     @Override
     protected void onDestroy() {
         cancelBleScanning();
         super.onDestroy();
     }
+    */
 
+    /*
     private void requestBleDevices() {
         // we need to be sure to have permission to access bluetooth here
         this.permissionHandler = new PermissionHandler(this,
@@ -255,4 +271,5 @@ public class ControllerBtSettingsActivity extends ListedActivity {
             startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
         }
     }
+    */
 }

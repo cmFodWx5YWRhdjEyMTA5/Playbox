@@ -58,7 +58,7 @@ public class CardHolderRemoteButton extends RecyclerView.ViewHolder {
         }
     }
 
-    public void initialiseCard(final Application application, final RemoteButton button, View.OnKeyListener keyListener) {
+    public void initialiseCard(final RemoteButton button, View.OnKeyListener keyListener) {
         this.buttonCodeText.setText(Integer.toString(button.getKeyCode()));
 
         this.recyclerViewAdapter = new RemoteButtonActionRecyclerAdapter(this, button, keyListener);

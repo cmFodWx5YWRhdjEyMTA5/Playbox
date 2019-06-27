@@ -20,16 +20,14 @@ public class RemoteButtonRecyclerAdapter extends RecyclerView.Adapter<CardHolder
 
     // create the cards here
     private final List<RemoteButton> buttons;
-    private final Application application;
     private final Context context;
     private final View.OnKeyListener keyListener;
 
-    public RemoteButtonRecyclerAdapter(Application application, Context context, View.OnKeyListener keyListener) {
+    public RemoteButtonRecyclerAdapter(RemoteButton[] buttons, Context context, View.OnKeyListener keyListener) {
         // create the list of cards to show here
-        this.application = application;
         this.context = context;
         this.keyListener = keyListener;
-        this.buttons = new ArrayList<RemoteButton>();
+        this.buttons = Arrays.asList(buttons);
     }
 
     @Override
@@ -43,7 +41,7 @@ public class RemoteButtonRecyclerAdapter extends RecyclerView.Adapter<CardHolder
     @Override
     public void onBindViewHolder(CardHolderRemoteButton viewHolder, int i) {
         // initialise the card holder here
-        viewHolder.initialiseCard(this.application, this.buttons.get(i), this.keyListener);
+        viewHolder.initialiseCard(this.buttons.get(i), this.keyListener);
     }
     
     public boolean addButton(RemoteButton button) {
@@ -62,6 +60,10 @@ public class RemoteButtonRecyclerAdapter extends RecyclerView.Adapter<CardHolder
     @Override
     public int getItemCount() {
         return this.buttons.size();
+    }
+
+    public RemoteButton[] getButtons() {
+        return this.buttons.toArray(new RemoteButton[0]);
     }
 
     public RemoteButton getButton(int keyCode) {

@@ -146,6 +146,7 @@
     <string name="action_ptReceiver">Pt Receiver</string>
     <string name="action_ptTeamOne">Pt Team 1</string>
     <string name="action_ptTeamTwo">Pt Team 2</string>
+    <string name="action_ptUndo">Undo Last</string>
 
     <string name="pattern_singleClick">1 Click</string>
     <string name="pattern_doubleClick">2 Click</string>

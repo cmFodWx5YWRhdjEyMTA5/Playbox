@@ -46,7 +46,8 @@ public class RemoteButton {
         PointServer(0, R.string.action_ptServer),
         PointReceiver(1, R.string.action_ptReceiver),
         PointTeamOne(2, R.string.action_ptTeamOne),
-        PointTeamTwo(3, R.string.action_ptTeamTwo);
+        PointTeamTwo(3, R.string.action_ptTeamTwo),
+        UndoLastPoint(4, R.string.action_ptUndo);
 
         public static final RemoteButtonAction K_DEFAULT = PointServer;
 
