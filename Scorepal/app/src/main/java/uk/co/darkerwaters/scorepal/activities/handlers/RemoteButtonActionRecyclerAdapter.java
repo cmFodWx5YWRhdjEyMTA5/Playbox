@@ -1,6 +1,5 @@
 package uk.co.darkerwaters.scorepal.activities.handlers;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,11 +9,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import uk.co.darkerwaters.scorepal.Application;
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.activities.fragments.CardHolderRemoteButton;
 import uk.co.darkerwaters.scorepal.activities.fragments.CardHolderRemoteButtonAction;
 import uk.co.darkerwaters.scorepal.application.RemoteButton;
+import uk.co.darkerwaters.scorepal.controllers.ControllerAction;
+import uk.co.darkerwaters.scorepal.controllers.ControllerPattern;
 
 public class RemoteButtonActionRecyclerAdapter extends RecyclerView.Adapter<CardHolderRemoteButtonAction> {
 
@@ -49,9 +49,9 @@ public class RemoteButtonActionRecyclerAdapter extends RecyclerView.Adapter<Card
         return this.button.getActions().length;
     }
 
-    public RemoteButton.RemoteButtonAction getNextAction() {
-        List<RemoteButton.RemoteButtonAction> remainingActions = new ArrayList<RemoteButton.RemoteButtonAction>();
-        Collections.addAll(remainingActions, RemoteButton.RemoteButtonAction.values());
+    public ControllerAction getNextAction() {
+        List<ControllerAction> remainingActions = new ArrayList<ControllerAction>();
+        Collections.addAll(remainingActions, ControllerAction.values());
         RemoteButton.Action[] actions = this.button.getActions();
         // remove those used from the list
         for (RemoteButton.Action action  : actions) {
@@ -59,16 +59,16 @@ public class RemoteButtonActionRecyclerAdapter extends RecyclerView.Adapter<Card
         }
         // and use the top one left
         if (remainingActions.isEmpty()) {
-            return RemoteButton.RemoteButtonAction.K_DEFAULT;
+            return ControllerAction.K_DEFAULT;
         }
         else {
             return remainingActions.get(0);
         }
     }
 
-    public RemoteButton.RemoteButtonPattern getNextPattern() {
-        List<RemoteButton.RemoteButtonPattern> remainingPatterns = new ArrayList<RemoteButton.RemoteButtonPattern>();
-        Collections.addAll(remainingPatterns, RemoteButton.RemoteButtonPattern.values());
+    public ControllerPattern getNextPattern() {
+        List<ControllerPattern> remainingPatterns = new ArrayList<ControllerPattern>();
+        Collections.addAll(remainingPatterns, ControllerPattern.values());
         RemoteButton.Action[] actions = this.button.getActions();
         // remove those used from the list
         for (RemoteButton.Action action  : actions) {
@@ -76,7 +76,7 @@ public class RemoteButtonActionRecyclerAdapter extends RecyclerView.Adapter<Card
         }
         // and use the top one left
         if (remainingPatterns.isEmpty()) {
-            return RemoteButton.RemoteButtonPattern.K_DEFAULT;
+            return ControllerPattern.K_DEFAULT;
         }
         else {
             return remainingPatterns.get(0);

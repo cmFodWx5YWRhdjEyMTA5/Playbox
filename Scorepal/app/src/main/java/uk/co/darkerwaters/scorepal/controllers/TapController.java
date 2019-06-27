@@ -374,7 +374,7 @@ public class TapController extends Controller {
                 if (detectedSilence) {
                     if (currentTime - this.recordedEvents[K_SILENCELEADOUT] >= this.silenceThresholdOut) {
                         // detection occurred
-                        informControllerListeners(InputType.doubleTap);
+                        informControllerListeners(ControllerAction.PointServer);
                         detectionIndex = -1;
                     }
                 }

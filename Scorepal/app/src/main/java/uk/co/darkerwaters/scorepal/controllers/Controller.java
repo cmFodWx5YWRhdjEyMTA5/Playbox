@@ -5,12 +5,8 @@ import java.util.List;
 
 public class Controller {
 
-    public enum InputType {
-        doubleTap
-    }
-
     public interface ControllerListener {
-        void onControllerInput(InputType type);
+        void onControllerInput(ControllerAction action);
     }
 
     private final List<ControllerListener> listeners;
@@ -31,10 +27,10 @@ public class Controller {
         }
     }
 
-    protected void informControllerListeners(InputType type) {
+    protected void informControllerListeners(ControllerAction action) {
         synchronized (this.listeners) {
             for (ControllerListener listener : this.listeners) {
-                listener.onControllerInput(type);
+                listener.onControllerInput(action);
             }
         }
     }

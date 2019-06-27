@@ -2,31 +2,20 @@ package uk.co.darkerwaters.scorepal.activities;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.Bundle;
-import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.transition.ChangeBounds;
-import android.support.transition.Scene;
-import android.support.transition.Transition;
-import android.support.transition.TransitionManager;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
 import java.util.Calendar;
 import java.util.Date;
 
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.activities.fragments.FragmentControllers;
-import uk.co.darkerwaters.scorepal.activities.fragments.FragmentScore;
 import uk.co.darkerwaters.scorepal.activities.fragments.FragmentSounds;
 import uk.co.darkerwaters.scorepal.announcer.SpeakService;
-import uk.co.darkerwaters.scorepal.players.CourtPosition;
-import uk.co.darkerwaters.scorepal.players.Player;
+import uk.co.darkerwaters.scorepal.controllers.Controller;
+import uk.co.darkerwaters.scorepal.controllers.ControllerAction;
+import uk.co.darkerwaters.scorepal.controllers.KeyController;
 import uk.co.darkerwaters.scorepal.players.Team;
 import uk.co.darkerwaters.scorepal.score.Match;
 import uk.co.darkerwaters.scorepal.score.MatchPersistanceManager;
@@ -36,10 +25,12 @@ import uk.co.darkerwaters.scorepal.score.TennisScore;
 public abstract class PlayActivity extends BaseFragmentActivity implements
         FragmentSounds.FragmentSoundsInteractionListener,
         FragmentControllers.FragmentControllersInteractionListener,
-        Match.MatchListener {
+        Match.MatchListener, Controller.ControllerListener {
 
     private FragmentSounds soundsFragment;
     private FragmentControllers controllersFragment;
+
+    private KeyController controller;
 
     private Button undoButton;
     private Button stopPlayButton;
@@ -54,7 +45,7 @@ public abstract class PlayActivity extends BaseFragmentActivity implements
     private SpeakService speakService = null;
     private String spokenMessage = null;
 
-    protected void setupPlayControls() {
+    protected void setupPlayControls(ViewGroup mainLayout) {
 
         // get the match for which we are doing things
         this.activeMatch = this.application.getActiveMatch();
@@ -91,11 +82,21 @@ public abstract class PlayActivity extends BaseFragmentActivity implements
 
         // initialise the stop / play button
         setupStopPlayButton();
+
+        if (application.getSettings().getIsControlBt()) {
+            // create the controller
+            this.controller = new KeyController(mainLayout, application.getSettings().getRemoteButtons());
+            // and listen to it
+            this.controller.addListener(this);
+        }
     }
 
     @Override
     protected void onDestroy() {
         // remove us as a listener
+        if (null != this.controller) {
+            this.controller.removeListener(this);
+        }
         this.activeMatch.removeListener(this);
         // and kill the base
         super.onDestroy();
@@ -147,6 +148,28 @@ public abstract class PlayActivity extends BaseFragmentActivity implements
     public void onAttachFragment(FragmentControllers fragment) {
         this.controllersFragment = fragment;
         this.controllersFragment.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onControllerInput(ControllerAction action) {
+        switch (action) {
+            case PointServer:
+                this.activeMatch.incrementPoint(this.activeMatch.getTeamServing());
+                break;
+            case PointReceiver:
+                Team otherTeam = this.activeMatch.getOtherTeam(this.activeMatch.getTeamServing());
+                this.activeMatch.incrementPoint(otherTeam);
+                break;
+            case PointTeamOne:
+                this.activeMatch.incrementPoint(this.activeMatch.getTeamOne());
+                break;
+            case PointTeamTwo:
+                this.activeMatch.incrementPoint(this.activeMatch.getTeamTwo());
+                break;
+            case UndoLastPoint:
+                undoLastPoint();
+                break;
+        }
     }
 
     private void undoLastPoint() {

@@ -61,8 +61,9 @@ public class PlayTennisActivity extends PlayTeamActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tennis_play);
 
+        ViewGroup mainLayout = findViewById(R.id.main_layout);
         // setup all the controls on the base
-        setupPlayControls();
+        setupPlayControls(mainLayout);
 
         // now we can do ours too
         this.pageLeft = findViewById(R.id.viewPageLeftButton);

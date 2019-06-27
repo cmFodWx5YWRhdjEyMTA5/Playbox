@@ -4,23 +4,22 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
 
-import uk.co.darkerwaters.scorepal.Application;
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.activities.handlers.RemoteButtonActionRecyclerAdapter;
 import uk.co.darkerwaters.scorepal.application.RemoteButton;
+import uk.co.darkerwaters.scorepal.controllers.ControllerAction;
+import uk.co.darkerwaters.scorepal.controllers.ControllerPattern;
+import uk.co.darkerwaters.scorepal.controllers.KeyController;
 
 public class CardHolderRemoteButton extends RecyclerView.ViewHolder {
 
@@ -46,18 +45,6 @@ public class CardHolderRemoteButton extends RecyclerView.ViewHolder {
         this.remoteButtonRecyclerView = this.parent.findViewById(R.id.remoteButtonRecyclerView);
     }
 
-    static public void setKeyListener(ViewGroup layout, View.OnKeyListener keyListener) {
-        for (int i = 0; i < layout.getChildCount(); ++i) {
-            View child = layout.getChildAt(i);
-            if (child instanceof ViewGroup) {
-                setKeyListener((ViewGroup)child, keyListener);
-            }
-            else {
-                child.setOnKeyListener(keyListener);
-            }
-        }
-    }
-
     public void initialiseCard(final RemoteButton button, View.OnKeyListener keyListener) {
         this.buttonCodeText.setText(Integer.toString(button.getKeyCode()));
 
@@ -76,13 +63,13 @@ public class CardHolderRemoteButton extends RecyclerView.ViewHolder {
         // also handle the changes here, set this on the application settings, or wherever
         if (parent instanceof ViewGroup) {
             // need to set the key listener on all the views on this activity to intercept everything
-            setKeyListener((ViewGroup)parent, keyListener);
+            KeyController.setKeyListener((ViewGroup)parent, keyListener);
         }
     }
 
     private void addActionToButton(RemoteButton button) {
         // add the action
-        button.addAction(RemoteButton.RemoteButtonAction.K_DEFAULT, RemoteButton.RemoteButtonPattern.K_DEFAULT);
+        button.addAction(ControllerAction.K_DEFAULT, ControllerPattern.K_DEFAULT);
         int newIndex = button.getActions().length - 1;
         // and update the adapter view of this
         this.recyclerViewAdapter.notifyItemInserted(newIndex);

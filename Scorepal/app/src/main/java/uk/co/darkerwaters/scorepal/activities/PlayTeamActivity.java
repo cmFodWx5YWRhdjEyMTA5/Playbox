@@ -43,8 +43,8 @@ public abstract class PlayTeamActivity extends PlayActivity {
     private Button swapEndsButton;
 
     @Override
-    protected void setupPlayControls() {
-        super.setupPlayControls();
+    protected void setupPlayControls(ViewGroup mainLayout) {
+        super.setupPlayControls(mainLayout);
 
         this.setupMatchLayout = findViewById(R.id.match_setup_layout);
         this.swapEndsButton = findViewById(R.id.swapEndsButton);

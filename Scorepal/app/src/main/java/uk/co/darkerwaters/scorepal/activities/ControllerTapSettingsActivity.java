@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import uk.co.darkerwaters.scorepal.R;
 import uk.co.darkerwaters.scorepal.controllers.Controller;
+import uk.co.darkerwaters.scorepal.controllers.ControllerAction;
 import uk.co.darkerwaters.scorepal.controllers.TapController;
 
 public class ControllerTapSettingsActivity extends AppCompatActivity implements TapController.TapControllerRawListener {
@@ -38,7 +39,7 @@ public class ControllerTapSettingsActivity extends AppCompatActivity implements 
         this.tapController.addListener(this);
         this.tapController.addListener(new Controller.ControllerListener() {
             @Override
-            public void onControllerInput(Controller.InputType type) {
+            public void onControllerInput(ControllerAction type) {
                 toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP, 150);
             }
         });

@@ -3,10 +3,11 @@ package uk.co.darkerwaters.scorepal.application;
 import android.content.SharedPreferences;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import uk.co.darkerwaters.scorepal.Application;
+import uk.co.darkerwaters.scorepal.controllers.ControllerAction;
+import uk.co.darkerwaters.scorepal.controllers.ControllerPattern;
 import uk.co.darkerwaters.scorepal.score.TennisSets;
 
 public class Settings {
@@ -88,9 +89,9 @@ public class Settings {
             new RemoteButton(66)
         };
         // add the default button actions
-        this.activeRemoteButtons[0].addAction(RemoteButton.RemoteButtonAction.PointTeamOne, RemoteButton.RemoteButtonPattern.SingleClick);
-        this.activeRemoteButtons[0].addAction(RemoteButton.RemoteButtonAction.PointTeamTwo, RemoteButton.RemoteButtonPattern.DoubleClick);
-        this.activeRemoteButtons[0].addAction(RemoteButton.RemoteButtonAction.UndoLastPoint, RemoteButton.RemoteButtonPattern.LongClick);
+        this.activeRemoteButtons[0].addAction(ControllerAction.PointTeamOne, ControllerPattern.SingleClick);
+        this.activeRemoteButtons[0].addAction(ControllerAction.PointTeamTwo, ControllerPattern.DoubleClick);
+        this.activeRemoteButtons[0].addAction(ControllerAction.UndoLastPoint, ControllerPattern.LongClick);
     }
 
     public void wipeAllSettings() {
@@ -294,8 +295,8 @@ public class Settings {
                         for (int i = 0; i < valStrings.length; i += 2) {
                             // add each action
                             button.addAction(
-                                    RemoteButton.RemoteButtonAction.fromVal(Integer.parseInt(valStrings[i])),
-                                    RemoteButton.RemoteButtonPattern.fromVal(Integer.parseInt(valStrings[i+1]))
+                                    ControllerAction.fromVal(Integer.parseInt(valStrings[i])),
+                                    ControllerPattern.fromVal(Integer.parseInt(valStrings[i+1]))
                             );
                         }
 
@@ -315,9 +316,9 @@ public class Settings {
             builder.append(button.getKeyCode());
             builder.append(':');
             for (RemoteButton.Action action : button.getActions()) {
-                builder.append(action.getAction().val);
+                builder.append(action.getAction().getVal());
                 builder.append(',');
-                builder.append(action.getPattern().val);
+                builder.append(action.getPattern().getVal());
                 builder.append(',');
             }
             builder.append(' ');

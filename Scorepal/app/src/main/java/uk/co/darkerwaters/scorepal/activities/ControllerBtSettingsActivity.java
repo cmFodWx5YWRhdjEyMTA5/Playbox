@@ -21,6 +21,7 @@ import uk.co.darkerwaters.scorepal.activities.handlers.PermissionHandler;
 import uk.co.darkerwaters.scorepal.activities.handlers.RemoteButtonRecyclerAdapter;
 import uk.co.darkerwaters.scorepal.application.Log;
 import uk.co.darkerwaters.scorepal.application.RemoteButton;
+import uk.co.darkerwaters.scorepal.controllers.KeyController;
 
 import static uk.co.darkerwaters.scorepal.activities.handlers.PermissionHandler.MY_PERMISSIONS_REQUEST_BLUETOOTH;
 
@@ -85,7 +86,7 @@ public class ControllerBtSettingsActivity extends ListedActivity {
         // set the top level listener
         mainLayout.setOnKeyListener(this.onKeyListener);
         // need to set the key listener on all the views on this activity to interecept everything
-        CardHolderRemoteButton.setKeyListener(mainLayout, this.onKeyListener);
+        KeyController.setKeyListener(mainLayout, this.onKeyListener);
 
         this.connectButton = findViewById(R.id.connectButton);
         RemoteButton[] remoteButtons = this.application.getSettings().getRemoteButtons();
